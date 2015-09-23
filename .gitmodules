@@ -1,0 +1,6 @@
+[submodule "Externals/imgui"]
+	path = Externals/imgui
+	url = https://github.com/thennequin/imgui.git
+[submodule "Externals/ImGui/imgui"]
+	path = Externals/ImGui/imgui
+	url = https://github.com/thennequin/imgui.git
