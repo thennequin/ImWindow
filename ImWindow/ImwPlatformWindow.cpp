@@ -39,10 +39,12 @@ void ImwPlatformWindow::SetState()
 {
 	m_pPreviousState = ImGui::GetInternalState();
 	ImGui::SetInternalState(m_pState);
+	memcpy(&((ImGuiState*)m_pState)->Style, &((ImGuiState*)m_pPreviousState)->Style, sizeof(ImGuiStyle));
 }
 
 void ImwPlatformWindow::RestoreState()
 {
+	memcpy(&((ImGuiState*)m_pPreviousState)->Style, &((ImGuiState*)m_pState)->Style, sizeof(ImGuiStyle));
 	ImGui::SetInternalState(m_pPreviousState);
 }
 
