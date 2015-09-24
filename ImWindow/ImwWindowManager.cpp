@@ -229,10 +229,10 @@ void ImwWindowManager::Update()
 		ImVec2 oCursorPos = GetCursorPos();
 		m_pDragPlatformWindow->SetPosition(oCursorPos.x + m_oDragPreviewOffset.x, oCursorPos.y + m_oDragPreviewOffset.y);
 
-		/*if(!((ImGuiState*)m_pDragPlatformWindow->m_pState)->IO.MouseDown[0])
+		if (!((ImGuiState*)m_pDragPlatformWindow->m_pState)->IO.MouseDown[0])
 		{
 			StopDragWindow();
-		}*/
+		}
 	}
 
 	m_pCurrentPlatformWindow = NULL;
@@ -258,13 +258,7 @@ void ImwWindowManager::Update()
 		delete pPlatformWindow;
 	}
 
-	if (NULL != m_pDraggedWindow)
-	{
-		if (!((ImGuiState*)m_pDragPlatformWindow->m_pState)->IO.MouseDown[0])
-		{
-			StopDragWindow();
-		}
-	}
+	
 }
 
 void ImwWindowManager::Paint(ImwPlatformWindow* pWindow)
