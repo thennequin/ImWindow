@@ -82,40 +82,5 @@ ImwContainer* ImwPlatformWindow::HasWindow(ImwWindow* pWindow)
 
 void ImwPlatformWindow::PaintContainer()
 {
-	if (IsMain())
-	{
-		//Menu bar
-		//m_pContainer->Paint(0, 20, GetWidth(), GetHeight() - 20);
-		m_pContainer->Paint();
-
-	}
-	else
-	{
-		//Drag area
-		ImGuiWindow* window = ImGui::GetCurrentWindow();
-		const ImGuiID id = window->GetID( m_oId.GetStr() );
-
-		ImRect oDragArea(0,0,GetWidth(), 10);
-		bool held = false;
-		ImGui::Dummy( oDragArea.GetSize() );
-		ImGui::ButtonBehavior( oDragArea, id, NULL, &held, true );
-		//ImGui::InvisibleButton()
-		//held = ImGui::IsItemActive();
-		if (held)
-		{
-			if (!IsDraging())
-			{
-				StartDrag();
-			}
-		}
-		else
-		{
-			if (IsDraging())
-			{
-				StopDrag();
-			}
-		}
-		//m_pContainer->Paint(0, oDragArea.Min.y, GetWidth(), GetHeight());
-		m_pContainer->Paint();
-	}
+	m_pContainer->Paint();
 }
