@@ -25,7 +25,7 @@ namespace ImWindow
 	public:
 		typedef ImwMap<HWND, ImwPlatformWindowDX11*> InstanceMap;
 	public:
-		ImwPlatformWindowDX11(bool bMain);
+											ImwPlatformWindowDX11(bool bMain, bool bIsDragWindow);
 		virtual								~ImwPlatformWindowDX11();
 
 		virtual bool						Init(ImwPlatformWindow* pMain);
@@ -36,7 +36,7 @@ namespace ImWindow
 		virtual void						Show();
 		virtual void						Hide();
 		virtual void						SetSize(int iWidth, int iHeight);
-		virtual void						SetPos(int iX, int iY);
+		virtual void						SetPosition(int iX, int iY);
 		virtual void						SetTitle(const char* pTtile);
 
 		HWND								GetHWnd();

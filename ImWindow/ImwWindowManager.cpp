@@ -19,7 +19,9 @@ ImwWindowManager::ImwWindowManager()
 {
 	s_pInstance = this;
 	m_pMainPlatformWindow = NULL;
+	m_pDragPlatformWindow = NULL;
 	m_pCurrentPlatformWindow = NULL;
+	m_pDraggedWindow = NULL;
 }
 
 ImwWindowManager::~ImwWindowManager()
@@ -39,10 +41,12 @@ bool ImwWindowManager::Init()
 	style.WindowRounding = 0.f;
 	style.ScrollbarRounding = 0.f;
 
-	m_pMainPlatformWindow = CreatePlatformWindow(true, NULL);
+	m_pMainPlatformWindow = CreatePlatformWindow(true, NULL, false);
 	if (NULL != m_pMainPlatformWindow)
 	{
 		m_pMainPlatformWindow->Show();
+
+		m_pDragPlatformWindow = CreatePlatformWindow(false, m_pMainPlatformWindow, true);
 		return true;
 	}
 	return false;
@@ -70,13 +74,14 @@ void ImwWindowManager::SetMainTitle(const char* pTitle)
 }
 
 
-void ImwWindowManager::Dock(ImwWindow* pWindow, EDockOrientation eOrientation)
+void ImwWindowManager::Dock(ImwWindow* pWindow, EDockOrientation eOrientation, ImwPlatformWindow* pToPlatformWindow)
 {
 	DockAction* pAction = new DockAction();
 	pAction->m_bFloat = false;
 	pAction->m_pWindow = pWindow;
 	pAction->m_pWith = NULL;
 	pAction->m_eOrientation = eOrientation;
+	pAction->m_pToPlatformWindow = (pToPlatformWindow != NULL) ? pToPlatformWindow : m_pMainPlatformWindow;
 	m_lDockAction.push_back(pAction);
 }
 
@@ -134,7 +139,7 @@ void ImwWindowManager::Update()
 	{
 		DockAction* pAction = *m_lDockAction.begin();
 
-		UnDock(pAction->m_pWindow);
+		InternalUnDock(pAction->m_pWindow);
 
 		if ( pAction->m_bFloat )
 		{
@@ -148,7 +153,7 @@ void ImwWindowManager::Update()
 			}
 			else
 			{
-				InternalDock( pAction->m_pWindow, pAction->m_eOrientation );
+				InternalDock( pAction->m_pWindow, pAction->m_eOrientation, pAction->m_pToPlatformWindow );
 			}
 		}
 
@@ -162,7 +167,7 @@ void ImwWindowManager::Update()
 	{
 		if ( m_pMainPlatformWindow->m_pContainer->IsEmpty() )
 		{
-			InternalDock(*m_lOrphanWindows.begin(), E_DOCK_ORIENTATION_CENTER);
+			InternalDock(*m_lOrphanWindows.begin(), E_DOCK_ORIENTATION_CENTER, m_pMainPlatformWindow);
 		}
 		else
 		{
@@ -180,6 +185,15 @@ void ImwWindowManager::Update()
 		(*it)->Paint();
 	}
 
+	if (NULL != m_pDraggedWindow)
+	{
+		m_pCurrentPlatformWindow = m_pDragPlatformWindow;
+		m_pDragPlatformWindow->Paint();
+
+		ImVec2 oCursorPos = GetCursorPos();
+		m_pDragPlatformWindow->SetPosition(oCursorPos.x - 20, oCursorPos.y - 10);
+	}
+
 	m_pCurrentPlatformWindow = NULL;
 
 	while ( m_lToDestroyWindows.begin() != m_lToDestroyWindows.end() )
@@ -190,7 +204,7 @@ void ImwWindowManager::Update()
 		m_lOrphanWindows.remove(pWindow);
 		m_lWindows.remove(pWindow);
 
-		UnDock(pWindow);
+		InternalUnDock(pWindow);
 
 		delete pWindow;
 	}
@@ -260,15 +274,33 @@ void ImwWindowManager::Paint(ImwPlatformWindow* pWindow)
 	ImGui::PopStyleVar(1);
 	
 	ImGui::Render();
+
+	if (pWindow == m_pDragPlatformWindow)
+	{
+		if (!ImGui::GetIO().MouseDown[0])
+		{
+			StopDragWindow();
+		}
+	}
 }
 
 void ImwWindowManager::StartDragWindow(ImwWindow* pWindow)
 {
-
+	if (NULL == m_pDraggedWindow)
+	{
+		m_pDraggedWindow = pWindow;
+		m_pDragPlatformWindow->Show();
+		m_pDragPlatformWindow->SetSize(pWindow->GetLastSize().x, pWindow->GetLastSize().y);
+		ImVec2 oCursorPos = GetCursorPos();
+		m_pDragPlatformWindow->SetPosition(oCursorPos.x - 20, oCursorPos.y - 10);
+		Dock(pWindow, E_DOCK_ORIENTATION_CENTER, m_pDragPlatformWindow);
+	}
 }
+
 void ImwWindowManager::StopDragWindow()
 {
-
+	m_pDragPlatformWindow->Hide();
+	//TODO : Find place to dock
 }
 
 void ImwWindowManager::AddWindow(ImwWindow* pWindow)
@@ -292,9 +324,9 @@ void ImwWindowManager::DestroyWindow(ImwWindow* pWindow)
 	}
 }
 
-void ImwWindowManager::InternalDock(ImwWindow* pWindow, EDockOrientation eOrientation)
+void ImwWindowManager::InternalDock(ImwWindow* pWindow, EDockOrientation eOrientation, ImwPlatformWindow* pToPlatformWindow)
 {
-	m_pMainPlatformWindow->m_pContainer->Dock( pWindow, eOrientation );
+	pToPlatformWindow->m_pContainer->Dock(pWindow, eOrientation);
 }
 
 void ImwWindowManager::InternalDockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation)
@@ -318,7 +350,7 @@ void ImwWindowManager::InternalDockWith(ImwWindow* pWindow, ImwWindow* pWithWind
 
 void ImwWindowManager::InternalFloat(ImwWindow* pWindow)
 {
-	ImwPlatformWindow* pPlatformWindow = CreatePlatformWindow(false, m_pMainPlatformWindow);
+	ImwPlatformWindow* pPlatformWindow = CreatePlatformWindow(false, m_pMainPlatformWindow, false);
 	if (NULL != pPlatformWindow)
 	{
 		m_lPlatformWindows.push_back(pPlatformWindow);
@@ -329,11 +361,14 @@ void ImwWindowManager::InternalFloat(ImwWindow* pWindow)
 	}
 }
 
-void ImwWindowManager::UnDock(ImwWindow* pWindow)
+void ImwWindowManager::InternalUnDock(ImwWindow* pWindow)
 {
-	bool bUndock = m_pMainPlatformWindow->UnDock(pWindow);
+	if (m_pMainPlatformWindow->UnDock(pWindow))
+	{
+		return;
+	}
 
-	for ( std::list<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end() && !bUndock; ++it )
+	for ( std::list<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
 	{
 		if ( (*it)->UnDock(pWindow) )
 		{
@@ -342,9 +377,11 @@ void ImwWindowManager::UnDock(ImwWindow* pWindow)
 			{
 				m_lToDestroyPlatformWindows.push_back(*it);
 			}
-			bUndock = true;
+			return;
 		}
 	}
+
+	m_pDragPlatformWindow->UnDock(pWindow);
 }
 
 void ImwWindowManager::OnClosePlatformWindow(ImwPlatformWindow* pWindow)

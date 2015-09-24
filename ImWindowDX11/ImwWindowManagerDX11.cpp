@@ -30,9 +30,9 @@ void ImwWindowManagerDX11::InternalRun()
 	}
 }
 
-ImwPlatformWindow* ImwWindowManagerDX11::CreatePlatformWindow(bool bMain, ImwPlatformWindow* pParent)
+ImwPlatformWindow* ImwWindowManagerDX11::CreatePlatformWindow(bool bMain, ImwPlatformWindow* pParent, bool bDragWindow)
 {
-	ImwPlatformWindowDX11* pWindow = new ImwPlatformWindowDX11(bMain);
+	ImwPlatformWindowDX11* pWindow = new ImwPlatformWindowDX11(bMain, bDragWindow);
 	ImwTest(pWindow->Init(pParent));
 	return (ImwPlatformWindow*)pWindow;
 }

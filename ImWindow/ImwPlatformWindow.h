@@ -13,7 +13,7 @@ namespace ImWindow
 	{
 		friend class ImwWindowManager;
 	public:
-		ImwPlatformWindow(bool bMainWindow);
+											ImwPlatformWindow(bool bMainWindow, bool bIsDragWindow);
 		virtual								~ImwPlatformWindow();
 
 		virtual bool						Init(ImwPlatformWindow* pParent) = 0;
@@ -24,7 +24,7 @@ namespace ImWindow
 		virtual void						Show() = 0;
 		virtual void						Hide() = 0;
 		virtual void						SetSize(int iWidth, int iHeight) = 0;
-		virtual void						SetPos(int iX, int iY) = 0;
+		virtual void						SetPosition(int iX, int iY) = 0;
 		virtual void						SetTitle(const char* pTtile) = 0;
 
 		bool								IsMain();
@@ -47,6 +47,7 @@ namespace ImWindow
 
 		ImwId								m_oId;
 		bool								m_bMain;
+		bool								m_bIsDragWindow;
 		ImwContainer*						m_pContainer;
 		void*								m_pState;
 		void*								m_pPreviousState;

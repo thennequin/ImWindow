@@ -62,5 +62,23 @@
     <ClInclude Include="ImwEnums.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Externals\ImGui\imgui\imgui_internal.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Externals\ImGui\imgui\stb_rect_pack.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Externals\ImGui\imgui\stb_textedit.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Externals\ImGui\imgui\stb_truetype.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Externals\ImGui\imgui\imconfig.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Externals\ImGui\imgui\imgui.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

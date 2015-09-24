@@ -159,6 +159,12 @@
     <ClCompile Include="ImwWindowManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Externals\ImGui\imgui\imconfig.h" />
+    <ClInclude Include="..\Externals\ImGui\imgui\imgui.h" />
+    <ClInclude Include="..\Externals\ImGui\imgui\imgui_internal.h" />
+    <ClInclude Include="..\Externals\ImGui\imgui\stb_rect_pack.h" />
+    <ClInclude Include="..\Externals\ImGui\imgui\stb_textedit.h" />
+    <ClInclude Include="..\Externals\ImGui\imgui\stb_truetype.h" />
     <ClInclude Include="ImwConfig.h" />
     <ClInclude Include="ImwContainer.h" />
     <ClInclude Include="ImwEnums.h" />

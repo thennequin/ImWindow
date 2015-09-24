@@ -28,8 +28,8 @@ INT64									ImwPlatformWindowDX11::g_TicksPerSecond = 0;
 IMGUI_API void							ImGui_ImplDX11_RenderDrawLists(ImDrawData* draw_data);
 
 
-ImwPlatformWindowDX11::ImwPlatformWindowDX11( bool bMain )
-	: ImwPlatformWindow( bMain )
+ImwPlatformWindowDX11::ImwPlatformWindowDX11( bool bMain, bool bIsDragWindow )
+	: ImwPlatformWindow( bMain, bIsDragWindow )
 {
 	m_pSwapChain = NULL;
 	m_pRenderTargetView = NULL;
@@ -56,7 +56,11 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 	HRESULT hr;
 
 	DWORD iWindowStyle;
-	if (pMain != NULL)
+	if (m_bIsDragWindow)
+	{
+		iWindowStyle = WS_POPUP;
+	}
+	else if (pMain != NULL)
 	{
 		iWindowStyle = WS_POPUP | WS_VISIBLE | WS_THICKFRAME;
 		iWindowStyle = WS_OVERLAPPEDWINDOW;
@@ -65,7 +69,6 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 	{
 		iWindowStyle = WS_OVERLAPPEDWINDOW;
 	}
-	//iWindowStyle = WS_POPUP;
 
 	RECT wr = { 0, 0, 800, 600 };
 	AdjustWindowRect(&wr, iWindowStyle, FALSE);
@@ -82,6 +85,12 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 		NULL,
 		GetModuleHandle(NULL),
 		NULL);
+
+	if (m_bIsDragWindow)
+	{
+		SetWindowLong(m_hWnd, GWL_EXSTYLE, GetWindowLong(m_hWnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+		SetLayeredWindowAttributes(m_hWnd, RGB(0, 0, 0), 128, LWA_ALPHA);
+	}
 
 	s_mInstances.insert(std::pair<HWND, ImwPlatformWindowDX11*>(m_hWnd, this));
 
@@ -193,7 +202,7 @@ void ImwPlatformWindowDX11::SetSize(int iWidth, int iHeight)
 	SetWindowPos(m_hWnd, 0, 0, 0, iWidth, iHeight, SWP_NOMOVE);
 }
 
-void ImwPlatformWindowDX11::SetPos(int iX, int iY)
+void ImwPlatformWindowDX11::SetPosition(int iX, int iY)
 {
 	SetWindowPos(m_hWnd, 0, iX, iY, 0, 0, SWP_NOSIZE);
 }

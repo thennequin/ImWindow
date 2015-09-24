@@ -14,7 +14,7 @@ namespace ImWindow
 		ImwWindowManagerDX11();
 		virtual							~ImwWindowManagerDX11();
 	protected:
-		virtual ImwPlatformWindow*		CreatePlatformWindow(bool bMain, ImwPlatformWindow* pParent);
+		virtual ImwPlatformWindow*		CreatePlatformWindow(bool bMain, ImwPlatformWindow* pParent, bool bDragWindow);
 
 		virtual void					InternalRun();
 		virtual ImVec2					GetCursorPos();
