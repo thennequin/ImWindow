@@ -80,5 +80,8 @@
     <ClInclude Include="..\Externals\ImGui\imgui\imgui.h">
       <Filter>ImGui</Filter>
     </ClInclude>
+    <ClInclude Include="ImwConsts.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
