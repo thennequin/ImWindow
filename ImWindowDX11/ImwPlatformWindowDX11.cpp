@@ -177,14 +177,14 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 	return true;
 }
 
-int ImwPlatformWindowDX11::GetWidth() const
+const ImVec2& ImwPlatformWindowDX11::GetPosition() const
 {
-	return m_iWidth;
+	return m_oPosition;
 }
 
-int ImwPlatformWindowDX11::GetHeight() const
+const ImVec2& ImwPlatformWindowDX11::GetSize() const
 {
-	return m_iHeight;
+	return m_oSize;
 }
 
 void ImwPlatformWindowDX11::Show()
@@ -199,12 +199,24 @@ void ImwPlatformWindowDX11::Hide()
 
 void ImwPlatformWindowDX11::SetSize(int iWidth, int iHeight)
 {
-	SetWindowPos(m_hWnd, 0, 0, 0, iWidth, iHeight, SWP_NOMOVE);
+	RECT oRect;
+	oRect.left = 0;
+	oRect.top = 0;
+	oRect.right = iWidth;
+	oRect.bottom = iHeight;
+	AdjustWindowRect(&oRect, GetWindowLong(m_hWnd, GWL_STYLE), false);
+	SetWindowPos(m_hWnd, 0, 0, 0, oRect.right - oRect.left, oRect.bottom - oRect.top, SWP_NOMOVE);
 }
 
 void ImwPlatformWindowDX11::SetPosition(int iX, int iY)
 {
-	SetWindowPos(m_hWnd, 0, iX, iY, 0, 0, SWP_NOSIZE);
+	RECT oRect;
+	oRect.left = iX;
+	oRect.top = iY;
+	oRect.right = iX + m_oSize.x;
+	oRect.bottom = iY + m_oSize.y;
+	AdjustWindowRect(&oRect, GetWindowLong(m_hWnd, GWL_STYLE), false);
+	SetWindowPos(m_hWnd, 0, oRect.left, oRect.top, 0, 0, SWP_NOSIZE);
 }
 
 void ImwPlatformWindowDX11::SetTitle(const char* pTtile)
@@ -328,12 +340,20 @@ LRESULT ImwPlatformWindowDX11::OnMessage(UINT message, WPARAM wParam, LPARAM lPa
 
 				s_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, NULL);
 
-				m_iWidth = LOWORD(lParam);
-				m_iHeight = HIWORD(lParam);
+				RECT oRect;
+				GetClientRect(m_hWnd, &oRect);
+				m_oPosition = ImVec2(oRect.left, oRect.top);
+				m_oSize = ImVec2(oRect.right - oRect.left, oRect.bottom - oRect.top);
+
+				ImwAssert(m_oSize.x == LOWORD(lParam));
+				ImwAssert(m_oSize.y == HIWORD(lParam));
+				//m_iWidth = LOWORD(lParam);
+				//m_iHeight = HIWORD(lParam);
+
 				// Set up the viewport.
 				D3D11_VIEWPORT vp;
-				vp.Width = m_iWidth;
-				vp.Height = m_iHeight;
+				vp.Width = m_oSize.x;
+				vp.Height = m_oSize.y;
 				vp.MinDepth = 0.0f;
 				vp.MaxDepth = 1.0f;
 				vp.TopLeftX = 0;
@@ -344,7 +364,20 @@ LRESULT ImwPlatformWindowDX11::OnMessage(UINT message, WPARAM wParam, LPARAM lPa
 				return 1;
 			}
 		}
+		//break; // Not a forget
+	case WM_MOVE:
+		{
+			RECT oRect;
+			GetClientRect(m_hWnd, &oRect);
+			m_oSize = ImVec2(oRect.right - oRect.left, oRect.bottom - oRect.top);
+			ClientToScreen(m_hWnd, reinterpret_cast<POINT*>(&oRect.left)); // convert top-left
+			ClientToScreen(m_hWnd, reinterpret_cast<POINT*>(&oRect.right)); // convert bottom-right
+			m_oPosition = ImVec2(oRect.left, oRect.top);
+			//AdjustWindowRect(&oRect, GetWindowLong(m_hWnd, GWL_STYLE), FALSE);
+			//m_oPosition = ImVec2(oRect.left, oRect.top);
+		}
 		break;
+
 	case WM_DESTROY:
 		//OutputDebugString("WM_DESTROY\n");
 		//PostQuitMessage(0);
@@ -353,7 +386,7 @@ LRESULT ImwPlatformWindowDX11::OnMessage(UINT message, WPARAM wParam, LPARAM lPa
 		io.MouseDown[0] = true;
 		return 1;
 	case WM_LBUTTONUP:
-		io.MouseDown[0] = false; 
+		io.MouseDown[0] = false;
 		return 1;
 	case WM_RBUTTONDOWN:
 		io.MouseDown[1] = true; 

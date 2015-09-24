@@ -30,8 +30,8 @@ namespace ImWindow
 
 		virtual bool						Init(ImwPlatformWindow* pMain);
 
-		virtual int							GetWidth() const;
-		virtual int							GetHeight() const;
+		virtual const ImVec2&				GetPosition() const;
+		virtual const ImVec2&				GetSize() const;
 
 		virtual void						Show();
 		virtual void						Hide();
@@ -72,8 +72,8 @@ namespace ImWindow
 		static INT64						g_Time;
 		static INT64						g_TicksPerSecond;
 
-		int									m_iWidth;
-		int									m_iHeight;
+		ImVec2								m_oPosition;
+		ImVec2								m_oSize;
 
 		IDXGISwapChain*						m_pSwapChain;
 		ID3D11RenderTargetView*				m_pRenderTargetView;

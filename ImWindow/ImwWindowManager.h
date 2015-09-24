@@ -32,6 +32,22 @@ namespace ImWindow
 		friend class ImwPlatformWindow;
 		friend class ImwContainer;
 
+		enum EPlatformWindowAction
+		{
+			E_PLATFORM_WINDOW_ACTION_SHOW			= 1,
+			E_PLATFORM_WINDOW_ACTION_HIDE			= 2,
+			E_PLATFORM_WINDOW_ACTION_SET_POSITION	= 4,
+			E_PLATFORM_WINDOW_ACTION_SET_SIZE		= 8,
+		};
+
+		struct PlatformWindowAction
+		{
+			ImwPlatformWindow*		m_pPlatformWindow;
+			unsigned int			m_iFlags;
+			ImVec2					m_oPosition;
+			ImVec2					m_oSize;
+		};
+
 		struct DockAction
 		{
 			ImwWindow*				m_pWindow;
@@ -41,6 +57,9 @@ namespace ImWindow
 			ImwWindow*				m_pWith;
 			EDockOrientation		m_eOrientation;
 			ImwPlatformWindow*		m_pToPlatformWindow;
+			//For Floating
+			ImVec2					m_oPosition;
+			ImVec2					m_oSize;
 		};
 
 		struct DrawWindowAreaAction
@@ -65,7 +84,7 @@ namespace ImWindow
 
 		void								Dock(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, ImwPlatformWindow* pToPlatformWindow = NULL);
 		void								DockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER);
-		void								Float(ImwWindow* pWindow);
+		void								Float(ImwWindow* pWindow, const ImVec2& oPosition = ImVec2(-1, -1), const ImVec2& oSize = ImVec2(-1, -1));
 
 		const ImwWindowList&				GetWindowList() const;
 		ImwPlatformWindow*					GetCurrentPlatformWindow();
@@ -80,8 +99,9 @@ namespace ImWindow
 		void								DestroyWindow(ImwWindow* pWindow);
 		void								InternalDock(ImwWindow* pWindow, EDockOrientation eOrientation, ImwPlatformWindow* pToPlatformWindow);
 		void								InternalDockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation);
-		void								InternalFloat(ImwWindow* pWindow);
+		void								InternalFloat(ImwWindow* pWindow, ImVec2 oPosition, ImVec2 oSize);
 		void								InternalUnDock(ImwWindow* pWindow);
+		void								InternalDrag(ImwWindow* pWindow);
 
 		void								OnClosePlatformWindow(ImwPlatformWindow* pWindow);
 
@@ -100,10 +120,14 @@ namespace ImWindow
 		ImwWindowList						m_lOrphanWindows;
 		ImwWindowList						m_lToDestroyWindows;
 		ImwPlatformWindowList				m_lToDestroyPlatformWindows;
-		ImwList<DockAction*>				m_lDockAction;
+		ImwList<PlatformWindowAction*>		m_lPlatformWindowActions;
+		ImwList<DockAction*>				m_lDockActions;
 		ImwList<DrawWindowAreaAction>		m_lDrawWindowAreas;
+
 		ImwPlatformWindow*					m_pCurrentPlatformWindow;
 		ImwWindow*							m_pDraggedWindow;
+
+		ImVec2								m_oDragPreviewOffset;
 
 		// Static
 	public:

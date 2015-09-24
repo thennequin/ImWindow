@@ -1,6 +1,7 @@
 #include "ImwWindowManager.h"
 
 #include <imgui/imgui.h>
+#include <imgui/imgui_internal.h>
 #include <algorithm>
 
 using namespace ImWindow;
@@ -22,10 +23,13 @@ ImwWindowManager::ImwWindowManager()
 	m_pDragPlatformWindow = NULL;
 	m_pCurrentPlatformWindow = NULL;
 	m_pDraggedWindow = NULL;
+	m_oDragPreviewOffset = ImVec2(-20, -10);
 }
 
 ImwWindowManager::~ImwWindowManager()
 {
+	ImwSafeDelete(m_pMainPlatformWindow);
+	ImwSafeDelete(m_pDragPlatformWindow);
 	s_pInstance = 0;
 }
 
@@ -82,7 +86,7 @@ void ImwWindowManager::Dock(ImwWindow* pWindow, EDockOrientation eOrientation, I
 	pAction->m_pWith = NULL;
 	pAction->m_eOrientation = eOrientation;
 	pAction->m_pToPlatformWindow = (pToPlatformWindow != NULL) ? pToPlatformWindow : m_pMainPlatformWindow;
-	m_lDockAction.push_back(pAction);
+	m_lDockActions.push_back(pAction);
 }
 
 void ImwWindowManager::DockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation)
@@ -92,15 +96,17 @@ void ImwWindowManager::DockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDoc
 	pAction->m_pWindow = pWindow;
 	pAction->m_pWith = pWithWindow;
 	pAction->m_eOrientation = eOrientation;
-	m_lDockAction.push_back(pAction);
+	m_lDockActions.push_back(pAction);
 }
 
-void ImwWindowManager::Float(ImwWindow* pWindow)
+void ImwWindowManager::Float(ImwWindow* pWindow, const ImVec2& oPosition, const ImVec2& oSize)
 {
 	DockAction* pAction = new DockAction();
 	pAction->m_bFloat = true;
 	pAction->m_pWindow = pWindow;
-	m_lDockAction.push_back(pAction);
+	pAction->m_oPosition = oPosition;
+	pAction->m_oSize = oSize;
+	m_lDockActions.push_back(pAction);
 }
 
 const ImwWindowList& ImwWindowManager::GetWindowList() const
@@ -135,15 +141,40 @@ ImwPlatformWindow* ImwWindowManager::GetWindowParent(ImwWindow* pWindow)
 
 void ImwWindowManager::Update()
 {
-	while ( m_lDockAction.begin() != m_lDockAction.end() )
+	while (m_lPlatformWindowActions.begin() != m_lPlatformWindowActions.end())
 	{
-		DockAction* pAction = *m_lDockAction.begin();
+		PlatformWindowAction* pAction = *m_lPlatformWindowActions.begin();
+		
+		ImwAssert((pAction->m_iFlags & E_PLATFORM_WINDOW_ACTION_SHOW & E_PLATFORM_WINDOW_ACTION_HIDE) == 0); // Can't show and hide		
+		if (pAction->m_iFlags & E_PLATFORM_WINDOW_ACTION_SHOW)
+		{
+			pAction->m_pPlatformWindow->Show();
+		}
+		if (pAction->m_iFlags & E_PLATFORM_WINDOW_ACTION_HIDE)
+		{
+			pAction->m_pPlatformWindow->Hide();
+		}
+		if (pAction->m_iFlags & E_PLATFORM_WINDOW_ACTION_SET_POSITION)
+		{
+			pAction->m_pPlatformWindow->SetPosition(pAction->m_oPosition.x, pAction->m_oPosition.y);
+		}
+		if (pAction->m_iFlags & E_PLATFORM_WINDOW_ACTION_SET_SIZE)
+		{
+			pAction->m_pPlatformWindow->SetSize(pAction->m_oSize.x, pAction->m_oSize.y);
+		}
+
+		m_lPlatformWindowActions.erase(m_lPlatformWindowActions.begin());
+	}
+
+	while ( m_lDockActions.begin() != m_lDockActions.end() )
+	{
+		DockAction* pAction = *m_lDockActions.begin();
 
 		InternalUnDock(pAction->m_pWindow);
 
 		if ( pAction->m_bFloat )
 		{
-			InternalFloat(pAction->m_pWindow);
+			InternalFloat(pAction->m_pWindow, pAction->m_oPosition, pAction->m_oSize);
 		}
 		else
 		{
@@ -160,7 +191,7 @@ void ImwWindowManager::Update()
 		m_lOrphanWindows.remove(pAction->m_pWindow);
 
 		delete pAction;
-		m_lDockAction.erase(m_lDockAction.begin());
+		m_lDockActions.erase(m_lDockActions.begin());
 	}
 
 	while ( m_lOrphanWindows.begin() != m_lOrphanWindows.end() )
@@ -171,9 +202,14 @@ void ImwWindowManager::Update()
 		}
 		else
 		{
-			InternalFloat(*m_lOrphanWindows.begin());
+			ImVec2 oSize = ImVec2(300, 300);
+			ImVec2 oPos = m_pMainPlatformWindow->GetPosition();
+			ImVec2 oMainSize = m_pMainPlatformWindow->GetSize();
+			oPos.x += (oMainSize.x - oSize.x) / 2;
+			oPos.y += (oMainSize.y - oSize.y) / 2;
+			InternalFloat(*m_lOrphanWindows.begin(), oPos, oSize );
 		}
-		m_lOrphanWindows.remove(*m_lOrphanWindows.begin());
+		m_lOrphanWindows.erase(m_lOrphanWindows.begin());
 	}
 
 	m_pCurrentPlatformWindow = m_pMainPlatformWindow;
@@ -191,7 +227,12 @@ void ImwWindowManager::Update()
 		m_pDragPlatformWindow->Paint();
 
 		ImVec2 oCursorPos = GetCursorPos();
-		m_pDragPlatformWindow->SetPosition(oCursorPos.x - 20, oCursorPos.y - 10);
+		m_pDragPlatformWindow->SetPosition(oCursorPos.x + m_oDragPreviewOffset.x, oCursorPos.y + m_oDragPreviewOffset.y);
+
+		/*if(!((ImGuiState*)m_pDragPlatformWindow->m_pState)->IO.MouseDown[0])
+		{
+			StopDragWindow();
+		}*/
 	}
 
 	m_pCurrentPlatformWindow = NULL;
@@ -216,6 +257,14 @@ void ImwWindowManager::Update()
 		m_lPlatformWindows.remove(pPlatformWindow);
 		delete pPlatformWindow;
 	}
+
+	if (NULL != m_pDraggedWindow)
+	{
+		if (!((ImGuiState*)m_pDragPlatformWindow->m_pState)->IO.MouseDown[0])
+		{
+			StopDragWindow();
+		}
+	}
 }
 
 void ImwWindowManager::Paint(ImwPlatformWindow* pWindow)
@@ -233,7 +282,7 @@ void ImwWindowManager::Paint(ImwPlatformWindow* pWindow)
 	}
 
 	ImGui::SetNextWindowPos(ImVec2(0, fY), ImGuiSetCond_Always);
-	ImGui::SetNextWindowSize(ImVec2((float)pWindow->GetWidth(), (float)pWindow->GetHeight() - fY), ImGuiSetCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(pWindow->GetSize().x, pWindow->GetSize().y - fY), ImGuiSetCond_Always);
 	int iFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(5, 5));
@@ -274,14 +323,6 @@ void ImwWindowManager::Paint(ImwPlatformWindow* pWindow)
 	ImGui::PopStyleVar(1);
 	
 	ImGui::Render();
-
-	if (pWindow == m_pDragPlatformWindow)
-	{
-		if (!ImGui::GetIO().MouseDown[0])
-		{
-			StopDragWindow();
-		}
-	}
 }
 
 void ImwWindowManager::StartDragWindow(ImwWindow* pWindow)
@@ -289,18 +330,30 @@ void ImwWindowManager::StartDragWindow(ImwWindow* pWindow)
 	if (NULL == m_pDraggedWindow)
 	{
 		m_pDraggedWindow = pWindow;
-		m_pDragPlatformWindow->Show();
-		m_pDragPlatformWindow->SetSize(pWindow->GetLastSize().x, pWindow->GetLastSize().y);
+
+		PlatformWindowAction* pAction = new PlatformWindowAction();
+		pAction->m_pPlatformWindow = m_pDragPlatformWindow;
+		pAction->m_iFlags = E_PLATFORM_WINDOW_ACTION_SHOW | E_PLATFORM_WINDOW_ACTION_SET_POSITION | E_PLATFORM_WINDOW_ACTION_SET_SIZE;
 		ImVec2 oCursorPos = GetCursorPos();
-		m_pDragPlatformWindow->SetPosition(oCursorPos.x - 20, oCursorPos.y - 10);
+		pAction->m_oPosition = ImVec2(oCursorPos.x + m_oDragPreviewOffset.x, oCursorPos.y + m_oDragPreviewOffset.y);
+		pAction->m_oSize = ImVec2(pWindow->GetLastSize().x, pWindow->GetLastSize().y);
+		m_lPlatformWindowActions.push_back(pAction);
+
 		Dock(pWindow, E_DOCK_ORIENTATION_CENTER, m_pDragPlatformWindow);
+		((ImGuiState*)m_pDragPlatformWindow->m_pState)->IO.MouseDown[0] = true;
 	}
 }
 
 void ImwWindowManager::StopDragWindow()
 {
+	//TODO : Find place to dock, actually just float it
+	PlatformWindowAction* pAction = new PlatformWindowAction();
+	pAction->m_pPlatformWindow = m_pDragPlatformWindow;
+	pAction->m_iFlags = E_PLATFORM_WINDOW_ACTION_HIDE;
 	m_pDragPlatformWindow->Hide();
-	//TODO : Find place to dock
+	m_lPlatformWindowActions.push_back(pAction);
+	Float(m_pDraggedWindow, m_pDragPlatformWindow->GetPosition(), m_pDragPlatformWindow->GetSize());
+	m_pDraggedWindow = NULL;
 }
 
 void ImwWindowManager::AddWindow(ImwWindow* pWindow)
@@ -348,15 +401,26 @@ void ImwWindowManager::InternalDockWith(ImwWindow* pWindow, ImwWindow* pWithWind
 	}
 }
 
-void ImwWindowManager::InternalFloat(ImwWindow* pWindow)
+void ImwWindowManager::InternalFloat(ImwWindow* pWindow, ImVec2 oPosition, ImVec2 oSize)
 {
 	ImwPlatformWindow* pPlatformWindow = CreatePlatformWindow(false, m_pMainPlatformWindow, false);
 	if (NULL != pPlatformWindow)
 	{
 		m_lPlatformWindows.push_back(pPlatformWindow);
 
+		if (oSize.x == IM_VEC2_N1.x && oSize.y == IM_VEC2_N1.y)
+		{
+			oSize = pWindow->GetLastSize();
+		}
+		if (oPosition.x == IM_VEC2_N1.x && oPosition.y == IM_VEC2_N1.y)
+		{
+			oPosition = GetCursorPos();
+			oPosition.x -= 20;
+			oPosition.x -= 10;
+		}
 		pPlatformWindow->Dock(pWindow);
-		pPlatformWindow->SetSize(300,300);
+		pPlatformWindow->SetSize(oSize.x, oSize.y);
+		pPlatformWindow->SetPosition(oPosition.x, oPosition.y);
 		pPlatformWindow->Show();
 	}
 }
