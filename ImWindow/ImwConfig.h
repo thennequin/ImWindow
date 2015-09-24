@@ -8,7 +8,7 @@
 #define NULL 0
 #endif // NULL
 
-#define ImwAssert(bTest/*, sMessage*/) assert(bTest)
+#define ImwAssert(bTest/*, sMessage*/) { if (!(bTest)) __debugbreak(); assert(bTest); }
 #define ImwTest(bTest) { bool bRes = (bTest); ImwAssert(bRes); }
 
 #ifndef ImwList
@@ -35,6 +35,8 @@
 #define ImwNewline "\n"
 #endif
 
+#include "imgui/imgui.h"
 #include "ImwEnums.h"
+#include "ImwConsts.h"
 
 #endif // __IM_CONFIG_H__
