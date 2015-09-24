@@ -27,6 +27,7 @@ void ImwWindowManagerDX11::InternalRun()
 	else
 	{
 		Update();
+		Sleep(16);
 	}
 }
 
