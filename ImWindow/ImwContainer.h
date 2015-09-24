@@ -35,6 +35,9 @@ namespace ImWindow
 		float							m_fSplitRatio;
 		bool							m_bVerticalSplit;
 		int								m_iActiveWindow;
+
+		bool							m_bIsDrag;
+		float							m_fDragSplitStart;
 	};
 }
 

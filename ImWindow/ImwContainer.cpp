@@ -20,6 +20,7 @@ ImwContainer::ImwContainer(ImwContainer* pParent)
 	m_bVerticalSplit = false;
 	m_iActiveWindow = 0;
 	m_fSplitRatio = 0.5f;
+	m_bIsDrag = false;
 }
 
 ImwContainer::~ImwContainer()
@@ -262,6 +263,7 @@ void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
 {
 	ImwWindowManager* pWindowManager = ImwWindowManager::GetInstance();
 	ImGuiWindow* pWindow = ImGui::GetCurrentWindow();
+	const ImGuiIO& oIO = ImGui::GetIO();
 	const ImGuiStyle& oStyle = ImGui::GetStyle();
 	ImDrawList* pDrawList = ImGui::GetWindowDrawList();
 
@@ -269,6 +271,9 @@ void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
 	const ImVec2 oSize = ImGui::GetWindowSize();
 	const ImVec2 oMin = ImVec2(oPos.x + 1, oPos.y + 1);
 	const ImVec2 oMax = ImVec2(oPos.x + oSize.x - 2, oPos.y + oSize.y - 2);
+
+	const int iSeparatorHalfSize = 3;
+	const int iSeparatorSize = iSeparatorHalfSize * 2;
 
 	if (IsSplit())
 	{
@@ -278,10 +283,11 @@ void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
 
 		//pDrawList->AddRect(oMin, oMax, ImColor(255, 0, 0, 255));
 
+		const ImGuiID oSeparatorId = pWindow->GetID("Separator");
+
 		if (m_bVerticalSplit)
 		{
-			float iFirstHeight = oSize.y * m_fSplitRatio;
-			float iSecondHeight = oSize.y - iFirstHeight - 1;
+			float iFirstHeight = oSize.y * m_fSplitRatio - iSeparatorHalfSize - pWindow->WindowPadding.x;
 			//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));
 			//ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0,0));
 			//ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0,0));
@@ -289,11 +295,29 @@ void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
 			ImGui::PushStyleVar(ImGuiStyleVar_IndentSpacing, 0);*/
 			
 
-			ImGui::BeginChild("Split1", ImVec2(0, iFirstHeight-1), false, ImGuiWindowFlags_NoScrollbar);
+			ImGui::BeginChild("Split1", ImVec2(0, iFirstHeight), false, ImGuiWindowFlags_NoScrollbar);
 			//ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4,4));
 			m_pSplits[0]->Paint(/*iX, iY, iWidth, iFirstHeight*/);
 			//ImGui::PopStyleVar(1);
 			ImGui::EndChild();
+
+
+			ImRect oSeparatorRect( 0, iFirstHeight, oSize.x, iFirstHeight + iSeparatorSize);
+			ImGui::Button("",oSeparatorRect.GetSize());
+			if (ImGui::IsItemActive())
+			{
+				if (!m_bIsDrag)
+				{
+					m_fDragSplitStart = m_fSplitRatio;
+					m_bIsDrag = true;
+				}
+				m_fSplitRatio = m_fDragSplitStart + (oIO.MousePos.y - oIO.MouseClickedPos[0].y) / oSize.y;
+				m_fSplitRatio = ImClamp( m_fSplitRatio, 0.05f, 0.95f );
+			}
+			else
+			{
+				m_bIsDrag = false;
+			}
 
 			ImGui::BeginChild("Split2", ImVec2(0, 0), false, ImGuiWindowFlags_NoScrollbar);
 			//ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4,4));
@@ -305,18 +329,32 @@ void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
 		}
 		else
 		{
-			float iFirstWidth = oSize.x * m_fSplitRatio;
-			float iSecondWidth = oSize.x - iFirstWidth - 1;
-			//ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0,0));
-			//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));
-			//ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0,0));
-			//ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0,0));
-			
+			float iFirstWidth = oSize.x * m_fSplitRatio - iSeparatorHalfSize - pWindow->WindowPadding.y;
 			ImGui::BeginChild("Split1", ImVec2(iFirstWidth, 0), false, ImGuiWindowFlags_NoScrollbar);
 			//ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4,4));
-			m_pSplits[0]->Paint(/*iX, iY, iFirstWidth, iHeight*/);
+			m_pSplits[0]->Paint();
 			//ImGui::PopStyleVar(1);
 			ImGui::EndChild();
+
+			ImGui::SameLine();
+
+			ImRect oSeparatorRect( iFirstWidth, 0, iFirstWidth + iSeparatorSize, oSize.y);
+			ImGui::Button("",oSeparatorRect.GetSize());
+			if (ImGui::IsItemActive())
+			{
+				if (!m_bIsDrag)
+				{
+					m_fDragSplitStart = m_fSplitRatio;
+					m_bIsDrag = true;
+				}
+				
+				m_fSplitRatio = m_fDragSplitStart + (oIO.MousePos.x - oIO.MouseClickedPos[0].x) / oSize.x;
+				m_fSplitRatio = ImClamp( m_fSplitRatio, 0.05f, 0.95f );
+			}
+			else
+			{
+				m_bIsDrag = false;
+			}
 
 			ImGui::SameLine();
 
