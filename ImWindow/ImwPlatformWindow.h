@@ -44,7 +44,6 @@ namespace ImWindow
 
 		void								PaintContainer();
 		void								OnClose();
-		void								OnResize(int iNewWidth, int iNewHeight);
 
 		ImwId								m_oId;
 		bool								m_bMain;

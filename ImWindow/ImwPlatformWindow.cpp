@@ -34,11 +34,6 @@ void ImwPlatformWindow::OnClose()
 	delete this;
 }
 
-void ImwPlatformWindow::OnResize(int iNewWidth, int iNewHeight)
-{
-	ImwWindowManager::GetInstance()->OnResizePlatformWindow(this, iNewWidth, iNewHeight);
-}
-
 void ImwPlatformWindow::SetState()
 {
 	m_pPreviousState = ImGui::GetInternalState();

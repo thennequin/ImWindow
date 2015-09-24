@@ -368,10 +368,6 @@ void ImwWindowManager::OnClosePlatformWindow(ImwPlatformWindow* pWindow)
 
 	ImwAssert(false, "ImwPlatformWindow not found, maybe already closed");
 }
-void ImwWindowManager::OnResizePlatformWindow(ImwPlatformWindow* pWindow, int iNewWidth, int iNewHeight)
-{
-	//TODO
-}
 
 void ImwWindowManager::DrawWindowArea( ImwPlatformWindow* pWindow, const ImVec2& oPos, const ImVec2& oSize, const ImColor& oColor )
 {

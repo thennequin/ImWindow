@@ -83,7 +83,6 @@ namespace ImWindow
 		void								UnDock(ImwWindow* pWindow);
 
 		void								OnClosePlatformWindow(ImwPlatformWindow* pWindow);
-		void								OnResizePlatformWindow(ImwPlatformWindow* pWindow, int iNewWidth, int iNewHeight);
 
 		void								DrawWindowArea( ImwPlatformWindow* pWindow, const ImVec2& oPos, const ImVec2& oSize, const ImColor& oColor );
 
