@@ -11,10 +11,18 @@
 #include <list>
 
 #ifdef _DEBUG
-#pragma comment (lib, "ImWindow_Debug.lib")
-#else
-#pragma comment (lib, "ImWindow_Release.lib")
-#endif
+#	if _WIN64
+#		pragma comment (lib, "ImWindow_x64_Debug.lib")
+#	else
+#		pragma comment (lib, "ImWindow_Win32_Debug.lib")
+#	endif
+#else // _DEBUG
+#	if _WIN64
+#		pragma comment (lib, "ImWindow_x64_Release.lib")
+#	else
+#		pragma comment (lib, "ImWindow_Win32_Release.lib")
+#	endif
+#endif // _DEBUG
 
 namespace ImWindow
 {
