@@ -24,6 +24,12 @@ ImwContainer::ImwContainer(ImwContainer* pParent)
 
 ImwContainer::~ImwContainer()
 {
+	while ( m_lWindows.begin() != m_lWindows.end() )
+	{
+		ImwWindowManager::GetInstance()->RemoveWindow(*m_lWindows.begin());
+		m_lWindows.erase(m_lWindows.begin());
+	}
+
 	ImwSafeDelete(m_pSplits[0]);
 	ImwSafeDelete(m_pSplits[1]);
 }
