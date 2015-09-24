@@ -12,6 +12,7 @@
 
 #include <windows.h>
 #include <windowsx.h>
+
 #include <d3d11.h>
 #include <d3dx11.h>
 #include <d3dx10.h>
@@ -68,6 +69,8 @@ namespace ImWindow
 		static IDXGIFactory*				s_pFactory;
 		static ID3D11Device*				s_pDevice;
 		static ID3D11DeviceContext*			s_pDeviceContext;
+		static INT64						g_Time;
+		static INT64						g_TicksPerSecond;
 
 		int									m_iWidth;
 		int									m_iHeight;

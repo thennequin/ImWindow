@@ -2,10 +2,6 @@
 
 #include "ImwWindowManager.h"
 
-#include <windowsx.h>
-#include <d3d11.h>
-#include <d3dx11.h>
-#include <d3dx10.h>
 #include <DxErr.h>
 
 #pragma comment (lib, "d3d11.lib")
@@ -24,6 +20,13 @@ WNDCLASSEX								ImwPlatformWindowDX11::s_oWndClassEx;
 IDXGIFactory*							ImwPlatformWindowDX11::s_pFactory = NULL;
 ID3D11Device*							ImwPlatformWindowDX11::s_pDevice = NULL;
 ID3D11DeviceContext*					ImwPlatformWindowDX11::s_pDeviceContext = NULL;
+
+INT64									ImwPlatformWindowDX11::g_Time = 0;
+INT64									ImwPlatformWindowDX11::g_TicksPerSecond = 0;
+
+
+IMGUI_API void							ImGui_ImplDX11_RenderDrawLists(ImDrawData* draw_data);
+
 
 ImwPlatformWindowDX11::ImwPlatformWindowDX11( bool bMain )
 	: ImwPlatformWindow( bMain )
@@ -52,7 +55,18 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 
 	HRESULT hr;
 
-	DWORD iWindowStyle = (pMain != NULL) ? WS_POPUP | WS_VISIBLE | WS_THICKFRAME : WS_OVERLAPPEDWINDOW;
+	DWORD iWindowStyle;
+	if (pMain != NULL)
+	{
+		iWindowStyle = WS_POPUP | WS_VISIBLE | WS_THICKFRAME;
+		iWindowStyle = WS_OVERLAPPEDWINDOW;
+	}
+	else
+	{
+		iWindowStyle = WS_OVERLAPPEDWINDOW;
+	}
+	//iWindowStyle = WS_POPUP;
+
 	RECT wr = { 0, 0, 800, 600 };
 	AdjustWindowRect(&wr, iWindowStyle, FALSE);
 
@@ -80,6 +94,7 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 	scd.SampleDesc.Count = 4;
 	scd.Windowed = true;
 
+	//hr = s_pFactory->CreateSwapChainForHwnd( )
 	hr = s_pFactory->CreateSwapChain( s_pDevice, &scd, &m_pSwapChain );
 
 	if (FAILED(hr))
@@ -88,11 +103,11 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 		return false;
 	}
 
-	hr = s_pFactory->MakeWindowAssociation(m_hWnd, DXGI_MWA_NO_ALT_ENTER);
+	hr = s_pFactory->MakeWindowAssociation(m_hWnd, DXGI_MWA_NO_ALT_ENTER );
 
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, DXGetErrorDescription(hr), TEXT("m_pFactory->MakeWindowAssociation"), MB_OK);
+		MessageBox(NULL, DXGetErrorDescription(hr), TEXT("s_pFactory->MakeWindowAssociation"), MB_OK);
 		return false;
 	}
 
@@ -119,6 +134,36 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 
 	SetState();
 	ImGui_ImplDX11_Init(m_hWnd, s_pDevice, s_pDeviceContext);
+
+	if (!QueryPerformanceFrequency((LARGE_INTEGER *)&g_TicksPerSecond)) 
+		return false;
+	if (!QueryPerformanceCounter((LARGE_INTEGER *)&g_Time))
+		return false;
+
+	ImGuiIO& io = ImGui::GetIO();
+	io.KeyMap[ImGuiKey_Tab] = VK_TAB;                       // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array that we will update during the application lifetime.
+	io.KeyMap[ImGuiKey_LeftArrow] = VK_LEFT;
+	io.KeyMap[ImGuiKey_RightArrow] = VK_RIGHT;
+	io.KeyMap[ImGuiKey_UpArrow] = VK_UP;
+	io.KeyMap[ImGuiKey_DownArrow] = VK_DOWN;
+	io.KeyMap[ImGuiKey_PageUp] = VK_PRIOR;
+	io.KeyMap[ImGuiKey_PageDown] = VK_NEXT;
+	io.KeyMap[ImGuiKey_Home] = VK_HOME;
+	io.KeyMap[ImGuiKey_End] = VK_END;
+	io.KeyMap[ImGuiKey_Delete] = VK_DELETE;
+	io.KeyMap[ImGuiKey_Backspace] = VK_BACK;
+	io.KeyMap[ImGuiKey_Enter] = VK_RETURN;
+	io.KeyMap[ImGuiKey_Escape] = VK_ESCAPE;
+	io.KeyMap[ImGuiKey_A] = 'A';
+	io.KeyMap[ImGuiKey_C] = 'C';
+	io.KeyMap[ImGuiKey_V] = 'V';
+	io.KeyMap[ImGuiKey_X] = 'X';
+	io.KeyMap[ImGuiKey_Y] = 'Y';
+	io.KeyMap[ImGuiKey_Z] = 'Z';
+
+	io.RenderDrawListsFn = ImGui_ImplDX11_RenderDrawLists;  // Alternatively you can set this to NULL and call ImGui::GetDrawData() after ImGui::Render() to get the same ImDrawData pointer.
+	io.ImeWindowHandle = m_hWnd;
+
 	RestoreState();
 	return true;
 }
@@ -259,6 +304,8 @@ LRESULT ImwPlatformWindowDX11::OnMessage(UINT message, WPARAM wParam, LPARAM lPa
 				// Automatically choose the width and height to match the client rect for HWNDs.
 				hr = m_pSwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
 
+				hr = s_pFactory->MakeWindowAssociation(m_hWnd, DXGI_MWA_NO_ALT_ENTER );
+
 				// Perform error handling here!
 
 				// Get buffer and create a render-target-view.
@@ -391,8 +438,6 @@ bool ImwPlatformWindowDX11::InitDX11()
 		MessageBox(NULL, DXGetErrorDescription(hr), TEXT("CreateDXGIFactory"), MB_OK);
 		return false;
 	}
-
-	//m_pFactory->CreateSwapChainForHwnd(
 
 	hr = D3D11CreateDevice(NULL,
 		D3D_DRIVER_TYPE_HARDWARE,
