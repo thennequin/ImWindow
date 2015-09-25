@@ -34,6 +34,8 @@ ImwPlatformWindowDX11::ImwPlatformWindowDX11( bool bMain, bool bIsDragWindow )
 	m_pSwapChain = NULL;
 	m_pRenderTargetView = NULL;
 	m_bDrag = false; 
+	m_oSize = IM_VEC2_0;
+	m_oPosition = IM_VEC2_N1;
 }
 
 ImwPlatformWindowDX11::~ImwPlatformWindowDX11()
@@ -178,6 +180,11 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 	m_hCursorArrow = LoadCursor( NULL, IDC_ARROW );
 	m_hCursorResizeNS = LoadCursor( NULL, IDC_SIZENS );
 	m_hCursorResizeWE = LoadCursor( NULL, IDC_SIZEWE );
+
+	if( pMain == NULL )
+	{
+		ImGui_ImplDX11_NewFrame();
+	}
 
 	return true;
 }
@@ -375,6 +382,9 @@ LRESULT ImwPlatformWindowDX11::OnMessage(UINT message, WPARAM wParam, LPARAM lPa
 
 				ImwAssert(m_oSize.x == LOWORD(lParam));
 				ImwAssert(m_oSize.y == HIWORD(lParam));
+
+				ImwAssert(m_oSize.x > 0);
+				ImwAssert(m_oSize.y > 0);
 				//m_iWidth = LOWORD(lParam);
 				//m_iHeight = HIWORD(lParam);
 
@@ -388,7 +398,11 @@ LRESULT ImwPlatformWindowDX11::OnMessage(UINT message, WPARAM wParam, LPARAM lPa
 				vp.TopLeftY = 0;
 				s_pDeviceContext->RSSetViewports(1, &vp);
 
-				Paint();
+				if (NULL == ImwWindowManager::GetInstance()->GetCurrentPlatformWindow())
+				{
+					Paint();
+				}
+				
 				return 1;
 			}
 		}
