@@ -16,6 +16,11 @@ ImwWindowManagerDX11::~ImwWindowManagerDX11()
 	//ImGui_ImplDX11_Shutdown();
 }
 
+void ImwWindowManagerDX11::LogFormatted(const char* pStr)
+{
+	OutputDebugString(pStr);
+}
+
 void ImwWindowManagerDX11::InternalRun()
 {
 	MSG msg;

@@ -16,6 +16,8 @@ namespace ImWindow
 	protected:
 		virtual ImwPlatformWindow*		CreatePlatformWindow(bool bMain, ImwPlatformWindow* pParent, bool bDragWindow);
 
+		virtual void					LogFormatted(const char* pStr);
+
 		virtual void					InternalRun();
 		virtual ImVec2					GetCursorPos();
 	};

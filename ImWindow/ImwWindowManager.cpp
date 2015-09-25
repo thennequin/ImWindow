@@ -172,6 +172,16 @@ ImwPlatformWindow* ImwWindowManager::GetWindowParent(ImwWindow* pWindow)
 	return NULL;
 }
 
+void ImwWindowManager::Log(const char* pFormat, ...)
+{
+	char pBuffer[2048];
+	va_list argptr;
+	va_start(argptr, pFormat);
+	vsprintf_s(pBuffer, sizeof(char) * 2047, pFormat, argptr);
+	va_end(argptr);
+	LogFormatted(pBuffer);
+}
+
 void ImwWindowManager::Update()
 {
 	while (m_lPlatformWindowActions.begin() != m_lPlatformWindowActions.end())

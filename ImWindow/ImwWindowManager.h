@@ -100,6 +100,9 @@ namespace ImWindow
 		const ImwWindowList&				GetWindowList() const;
 		ImwPlatformWindow*					GetCurrentPlatformWindow();
 		ImwPlatformWindow*					GetWindowParent(ImwWindow* pWindow);
+
+		void								Log(const char* pFormat, ...);
+		virtual void						LogFormatted(const char* pStr) = 0;;
 	protected:
 		virtual ImwPlatformWindow*			CreatePlatformWindow(bool bMain, ImwPlatformWindow* pParent, bool bDragWindow) = 0;
 		virtual void						InternalRun() = 0;
