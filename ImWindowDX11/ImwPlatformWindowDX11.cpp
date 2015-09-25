@@ -174,6 +174,11 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 	io.ImeWindowHandle = m_hWnd;
 
 	RestoreState();
+
+	m_hCursorArrow = LoadCursor( NULL, IDC_ARROW );
+	m_hCursorResizeNS = LoadCursor( NULL, IDC_SIZENS );
+	m_hCursorResizeWE = LoadCursor( NULL, IDC_SIZEWE );
+
 	return true;
 }
 
@@ -256,6 +261,31 @@ void ImwPlatformWindowDX11::Paint()
 		ImGui::NewFrame();
 		
 		ImwPlatformWindow::Paint();
+
+		switch (ImGui::GetMouseCursor())
+		{
+		case ImGuiMouseCursor_Arrow:
+			SetCursor(m_hCursorArrow);
+			break;
+		case ImGuiMouseCursor_TextInput:         // When hovering over InputText, etc.
+			SetCursor(m_hCursorArrow);
+			break;
+		case ImGuiMouseCursor_Move:              // Unused
+			SetCursor(m_hCursorArrow);
+			break;
+		case ImGuiMouseCursor_ResizeNS:          // Unused
+			SetCursor(m_hCursorResizeNS);
+			break;
+		case ImGuiMouseCursor_ResizeEW:          // When hovering over a column
+			SetCursor(m_hCursorResizeWE);
+			break;
+		case ImGuiMouseCursor_ResizeNESW:        // Unused
+			SetCursor(m_hCursorArrow);
+			break;
+		case ImGuiMouseCursor_ResizeNWSE:        // When hovering over the bottom-right corner of a window
+			SetCursor(m_hCursorArrow);
+			break;
+		}
 
 		RestoreState();
 
