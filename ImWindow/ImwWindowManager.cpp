@@ -86,7 +86,24 @@ void ImwWindowManager::Dock(ImwWindow* pWindow, EDockOrientation eOrientation, I
 	pAction->m_pWith = NULL;
 	pAction->m_eOrientation = eOrientation;
 	pAction->m_pToPlatformWindow = (pToPlatformWindow != NULL) ? pToPlatformWindow : m_pMainPlatformWindow;
+	pAction->m_pToContainer = NULL;
 	m_lDockActions.push_back(pAction);
+}
+
+void ImwWindowManager::DockTo(ImwWindow* pWindow, EDockOrientation eOrientation, ImwContainer* pContainer)
+{
+	ImwAssert(NULL != pContainer);
+	if (NULL != pContainer)
+	{
+		DockAction* pAction = new DockAction();
+		pAction->m_bFloat = false;
+		pAction->m_pWindow = pWindow;
+		pAction->m_pWith = NULL;
+		pAction->m_eOrientation = eOrientation;
+		pAction->m_pToPlatformWindow = NULL;
+		pAction->m_pToContainer = pContainer;
+		m_lDockActions.push_back(pAction);
+	}
 }
 
 void ImwWindowManager::DockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation)
@@ -182,6 +199,10 @@ void ImwWindowManager::Update()
 			{
 				InternalDockWith( pAction->m_pWindow, pAction->m_pWith, pAction->m_eOrientation );
 			}
+			else if ( NULL != pAction->m_pToContainer )
+			{
+				InternalDockTo( pAction->m_pWindow, pAction->m_eOrientation, pAction->m_pToContainer );
+			}
 			else
 			{
 				InternalDock( pAction->m_pWindow, pAction->m_eOrientation, pAction->m_pToPlatformWindow );
@@ -229,8 +250,33 @@ void ImwWindowManager::Update()
 		ImVec2 oCursorPos = GetCursorPos();
 		m_pDragPlatformWindow->SetPosition(oCursorPos.x + m_oDragPreviewOffset.x, oCursorPos.y + m_oDragPreviewOffset.y);
 
+		//Search best dock area
+		EDockOrientation eBestDockOrientation;
+		ImwContainer* pBestContainer = GetBestDocking(m_pMainPlatformWindow, oCursorPos, eBestDockOrientation);
+		if (NULL == pBestContainer)
+		{
+			for ( std::list<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end() && NULL == pBestContainer; ++it )
+			{
+				pBestContainer = GetBestDocking(*it, oCursorPos, eBestDockOrientation);
+			}
+		}
+		if (pBestContainer)
+		{
+			ImwPlatformWindow* pPlatformWindow = pBestContainer->GetPlatformWindowParent();
+			DrawWindowArea(pPlatformWindow, ImVec2(0,0), pPlatformWindow->GetSize(), ImColor(0.f, 0.5f, 1.f, 0.5f));
+		}
+
 		if (!((ImGuiState*)m_pDragPlatformWindow->m_pState)->IO.MouseDown[0])
 		{
+			if (NULL != pBestContainer)
+			{
+				DockTo(m_pDraggedWindow, eBestDockOrientation, pBestContainer);
+			}
+			else
+			{
+				Float(m_pDraggedWindow, m_pDragPlatformWindow->GetPosition(), m_pDragPlatformWindow->GetSize());
+			}
+			
 			StopDragWindow();
 		}
 	}
@@ -340,14 +386,25 @@ void ImwWindowManager::StartDragWindow(ImwWindow* pWindow)
 
 void ImwWindowManager::StopDragWindow()
 {
-	//TODO : Find place to dock, actually just float it
 	PlatformWindowAction* pAction = new PlatformWindowAction();
 	pAction->m_pPlatformWindow = m_pDragPlatformWindow;
 	pAction->m_iFlags = E_PLATFORM_WINDOW_ACTION_HIDE;
 	m_pDragPlatformWindow->Hide();
 	m_lPlatformWindowActions.push_back(pAction);
-	Float(m_pDraggedWindow, m_pDragPlatformWindow->GetPosition(), m_pDragPlatformWindow->GetSize());
 	m_pDraggedWindow = NULL;
+}
+
+ImwContainer* ImwWindowManager::GetBestDocking(ImwPlatformWindow* pPlatformWindow, const ImVec2 oCursorPos, EDockOrientation& oOutOrientation)
+{
+	ImVec2 oPos = pPlatformWindow->GetPosition();
+	ImVec2 oSize = pPlatformWindow->GetSize();
+	if (oCursorPos.x >= oPos.x && oCursorPos.x <= (oPos.x + oSize.x) &&
+		oCursorPos.y >= oPos.y && oCursorPos.y <= (oPos.y + oSize.y))
+	{
+		oOutOrientation = E_DOCK_ORIENTATION_CENTER;
+		return pPlatformWindow->GetContainer();
+	}
+	return NULL;
 }
 
 void ImwWindowManager::AddWindow(ImwWindow* pWindow)
@@ -374,6 +431,11 @@ void ImwWindowManager::DestroyWindow(ImwWindow* pWindow)
 void ImwWindowManager::InternalDock(ImwWindow* pWindow, EDockOrientation eOrientation, ImwPlatformWindow* pToPlatformWindow)
 {
 	pToPlatformWindow->m_pContainer->Dock(pWindow, eOrientation);
+}
+
+void ImwWindowManager::InternalDockTo(ImwWindow* pWindow, EDockOrientation eOrientation, ImwContainer* pToContainer)
+{
+	pToContainer->Dock(pWindow, eOrientation);
 }
 
 void ImwWindowManager::InternalDockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation)
