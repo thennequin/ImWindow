@@ -11,7 +11,7 @@ ImwPlatformWindow::ImwPlatformWindow(bool bMain, bool bIsDragWindow)
 {
 	m_bMain = bMain;
 	m_bIsDragWindow = bIsDragWindow;
-	m_pContainer = new ImwContainer(NULL);
+	m_pContainer = new ImwContainer(this);
 	m_pState = NULL;
 	m_pPreviousState = NULL;
 
