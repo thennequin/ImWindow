@@ -361,6 +361,10 @@ void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
 
 			ImRect oSeparatorRect( 0, iFirstHeight, oSize.x, iFirstHeight + iSeparatorSize);
 			ImGui::Button("",oSeparatorRect.GetSize());
+			if (ImGui::IsItemHovered() || m_bIsDrag)
+			{
+				 ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNS);
+			}
 			if (ImGui::IsItemActive())
 			{
 				if (!m_bIsDrag)
@@ -397,6 +401,10 @@ void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
 
 			ImRect oSeparatorRect( iFirstWidth, 0, iFirstWidth + iSeparatorSize, oSize.y);
 			ImGui::Button("",oSeparatorRect.GetSize());
+			if (ImGui::IsItemHovered() || m_bIsDrag)
+			{
+				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+			}
 			if (ImGui::IsItemActive())
 			{
 				if (!m_bIsDrag)
