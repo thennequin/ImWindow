@@ -176,6 +176,7 @@ bool ImwContainer::UnDock(ImwWindow* pWindow)
 				else
 				{
 					m_lWindows.insert(m_lWindows.end(), m_pSplits[1]->m_lWindows.begin(), m_pSplits[1]->m_lWindows.end());
+					m_pSplits[1]->m_lWindows.clear();
 					ImwSafeDelete(m_pSplits[0]);
 					ImwSafeDelete(m_pSplits[1]);
 				}
@@ -203,6 +204,7 @@ bool ImwContainer::UnDock(ImwWindow* pWindow)
 				else
 				{
 					m_lWindows.insert(m_lWindows.end(), m_pSplits[0]->m_lWindows.begin(), m_pSplits[0]->m_lWindows.end());
+					m_pSplits[0]->m_lWindows.clear();
 					ImwSafeDelete(m_pSplits[0]);
 					ImwSafeDelete(m_pSplits[1]);
 				}
