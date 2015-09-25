@@ -131,6 +131,7 @@ void ImwContainer::Dock(ImwWindow* pWindow, EDockOrientation eOrientation)
 					CreateSplits();
 					m_pSplits[0]->m_lWindows.push_back(pWindow);
 					m_pSplits[1]->m_bVerticalSplit = m_bVerticalSplit;
+					m_pSplits[1]->m_fSplitRatio = m_fSplitRatio;
 					m_pSplits[1]->m_pSplits[0] = pSplit0;
 					m_pSplits[1]->m_pSplits[1] = pSplit1;
 					m_pSplits[1]->m_pSplits[0]->m_pParent = m_pSplits[1];
@@ -146,6 +147,7 @@ void ImwContainer::Dock(ImwWindow* pWindow, EDockOrientation eOrientation)
 					CreateSplits();
 					m_pSplits[0]->m_lWindows.push_back(pWindow);
 					m_pSplits[1]->m_bVerticalSplit = m_bVerticalSplit;
+					m_pSplits[1]->m_fSplitRatio = m_fSplitRatio;
 					m_pSplits[1]->m_pSplits[0] = pSplit0;
 					m_pSplits[1]->m_pSplits[1] = pSplit1;
 					m_pSplits[1]->m_pSplits[0]->m_pParent = m_pSplits[1];
@@ -161,6 +163,7 @@ void ImwContainer::Dock(ImwWindow* pWindow, EDockOrientation eOrientation)
 					CreateSplits();
 					m_pSplits[1]->m_lWindows.push_back(pWindow);
 					m_pSplits[0]->m_bVerticalSplit = m_bVerticalSplit;
+					m_pSplits[0]->m_fSplitRatio = m_fSplitRatio;
 					m_pSplits[0]->m_pSplits[0] = pSplit0;
 					m_pSplits[0]->m_pSplits[1] = pSplit1;
 					m_pSplits[0]->m_pSplits[0]->m_pParent = m_pSplits[0];
@@ -176,6 +179,7 @@ void ImwContainer::Dock(ImwWindow* pWindow, EDockOrientation eOrientation)
 					CreateSplits();
 					m_pSplits[1]->m_lWindows.push_back(pWindow);
 					m_pSplits[0]->m_bVerticalSplit = m_bVerticalSplit;
+					m_pSplits[0]->m_fSplitRatio = m_fSplitRatio;
 					m_pSplits[0]->m_pSplits[0] = pSplit0;
 					m_pSplits[0]->m_pSplits[1] = pSplit1;
 					m_pSplits[0]->m_pSplits[0]->m_pParent = m_pSplits[0];
