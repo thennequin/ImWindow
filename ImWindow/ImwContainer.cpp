@@ -294,7 +294,7 @@ void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
 	const ImVec2 oMin = ImVec2(oPos.x + 1, oPos.y + 1);
 	const ImVec2 oMax = ImVec2(oPos.x + oSize.x - 2, oPos.y + oSize.y - 2);
 
-	const int iSeparatorHalfSize = 3;
+	const int iSeparatorHalfSize = 2;
 	const int iSeparatorSize = iSeparatorHalfSize * 2;
 
 	if (IsSplit())
