@@ -125,7 +125,7 @@ namespace ImWindow
 
 		void								StartDragWindow(ImwWindow* pWindow);
 		void								StopDragWindow();
-		ImwContainer*						GetBestDocking(ImwPlatformWindow* pPlatformWindow, const ImVec2 oCursorPos, EDockOrientation& oOutOrientation);
+		ImwContainer*						GetBestDocking(ImwPlatformWindow* pPlatformWindow, const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize);
 		
 		Config								m_oConfig;
 		ImwPlatformWindow*					m_pMainPlatformWindow;
