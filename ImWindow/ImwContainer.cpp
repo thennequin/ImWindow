@@ -62,7 +62,7 @@ void ImwContainer::Dock(ImwWindow* pWindow, EDockOrientation eOrientation)
 
 	if ( NULL != pWindow )
 	{
-		ImwAssert(eOrientation == E_DOCK_ORIENTATION_CENTER || m_lWindows.size() > 0);
+		ImwAssert(eOrientation != E_DOCK_ORIENTATION_CENTER || !IsSplit());
 
 		if ( !IsSplit() )
 		{
@@ -122,35 +122,66 @@ void ImwContainer::Dock(ImwWindow* pWindow, EDockOrientation eOrientation)
 			switch (eOrientation)
 			{
 			case E_DOCK_ORIENTATION_CENTER:
-				if (m_bVerticalSplit)
-				{
-					m_pSplits[0]->Dock(pWindow, E_DOCK_ORIENTATION_BOTTOM);
-				}
-				else
-				{
-					m_pSplits[0]->Dock(pWindow, E_DOCK_ORIENTATION_RIGHT);
-				}
+				ImwAssert(false);
 				break;
 			case E_DOCK_ORIENTATION_TOP:
-			case E_DOCK_ORIENTATION_LEFT:
-				if (m_bVerticalSplit)
 				{
-					m_pSplits[0]->Dock(pWindow, eOrientation);
+					ImwContainer* pSplit0 = m_pSplits[0];
+					ImwContainer* pSplit1 = m_pSplits[1];
+					CreateSplits();
+					m_pSplits[0]->m_lWindows.push_back(pWindow);
+					m_pSplits[1]->m_bVerticalSplit = m_bVerticalSplit;
+					m_pSplits[1]->m_pSplits[0] = pSplit0;
+					m_pSplits[1]->m_pSplits[1] = pSplit1;
+					m_pSplits[1]->m_pSplits[0]->m_pParent = m_pSplits[1];
+					m_pSplits[1]->m_pSplits[1]->m_pParent = m_pSplits[1];
+					m_fSplitRatio = ImwWindowManager::GetInstance()->GetConfig().m_fDragMarginSizeRatio;
+					m_bVerticalSplit = true;
 				}
-				else
+				break;
+			case E_DOCK_ORIENTATION_LEFT:
 				{
-					m_pSplits[0]->Dock(pWindow, eOrientation);
+					ImwContainer* pSplit0 = m_pSplits[0];
+					ImwContainer* pSplit1 = m_pSplits[1];
+					CreateSplits();
+					m_pSplits[0]->m_lWindows.push_back(pWindow);
+					m_pSplits[1]->m_bVerticalSplit = m_bVerticalSplit;
+					m_pSplits[1]->m_pSplits[0] = pSplit0;
+					m_pSplits[1]->m_pSplits[1] = pSplit1;
+					m_pSplits[1]->m_pSplits[0]->m_pParent = m_pSplits[1];
+					m_pSplits[1]->m_pSplits[1]->m_pParent = m_pSplits[1];
+					m_fSplitRatio = ImwWindowManager::GetInstance()->GetConfig().m_fDragMarginSizeRatio;
+					m_bVerticalSplit = false;
 				}
 				break;
 			case E_DOCK_ORIENTATION_RIGHT:
-			case E_DOCK_ORIENTATION_BOTTOM:
-				if (m_bVerticalSplit)
 				{
-					m_pSplits[1]->Dock(pWindow, eOrientation);
+					ImwContainer* pSplit0 = m_pSplits[0];
+					ImwContainer* pSplit1 = m_pSplits[1];
+					CreateSplits();
+					m_pSplits[1]->m_lWindows.push_back(pWindow);
+					m_pSplits[0]->m_bVerticalSplit = m_bVerticalSplit;
+					m_pSplits[0]->m_pSplits[0] = pSplit0;
+					m_pSplits[0]->m_pSplits[1] = pSplit1;
+					m_pSplits[0]->m_pSplits[0]->m_pParent = m_pSplits[0];
+					m_pSplits[0]->m_pSplits[1]->m_pParent = m_pSplits[0];
+					m_fSplitRatio = 1.f - ImwWindowManager::GetInstance()->GetConfig().m_fDragMarginSizeRatio;
+					m_bVerticalSplit = false;
 				}
-				else
+				break;
+			case E_DOCK_ORIENTATION_BOTTOM:
 				{
-					m_pSplits[1]->Dock(pWindow, eOrientation);
+					ImwContainer* pSplit0 = m_pSplits[0];
+					ImwContainer* pSplit1 = m_pSplits[1];
+					CreateSplits();
+					m_pSplits[1]->m_lWindows.push_back(pWindow);
+					m_pSplits[0]->m_bVerticalSplit = m_bVerticalSplit;
+					m_pSplits[0]->m_pSplits[0] = pSplit0;
+					m_pSplits[0]->m_pSplits[1] = pSplit1;
+					m_pSplits[0]->m_pSplits[0]->m_pParent = m_pSplits[0];
+					m_pSplits[0]->m_pSplits[1]->m_pParent = m_pSplits[0];
+					m_fSplitRatio = 1.f - ImwWindowManager::GetInstance()->GetConfig().m_fDragMarginSizeRatio;
+					m_bVerticalSplit = true;
 				}
 				break;
 			}
