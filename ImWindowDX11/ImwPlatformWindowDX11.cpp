@@ -251,12 +251,10 @@ void ImwPlatformWindowDX11::Paint()
 
 		SetState();
 
-		ImGui_ImplDX11_NewFrame(/*m_hWnd*/);
-		
-		RECT rect;
-		GetClientRect(m_hWnd, &rect);
-		ImGui::GetIO().DisplaySize = ImVec2((float)(rect.right - rect.left), (float)(rect.bottom - rect.top));
+		ImGui::GetIO().DisplaySize = ImVec2(m_oSize.x, m_oSize.y);
 
+		ImGui::NewFrame();
+		
 		ImwPlatformWindow::Paint();
 
 		RestoreState();
