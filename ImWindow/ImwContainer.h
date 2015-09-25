@@ -19,9 +19,10 @@ namespace ImWindow
 		bool							IsSplit();
 		bool							HasWindowTabbed();
 		ImwContainer*					HasWindow(const ImwWindow* pWindow);
-
+		ImwPlatformWindow*				GetPlatformWindowParent() const;
 	protected:
 										ImwContainer(ImwContainer* pParent);
+										ImwContainer(ImwPlatformWindow* pParent);
 										~ImwContainer();
 
 		void							CreateSplits();
@@ -29,6 +30,7 @@ namespace ImWindow
 		void							Paint();
 
 		ImwContainer*					m_pParent;
+		ImwPlatformWindow*				m_pParentWindow;
 		ImwWindowList					m_lWindows;
 		ImwContainer*					m_pSplits[2];
 

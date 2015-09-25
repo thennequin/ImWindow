@@ -14,13 +14,28 @@ using namespace ImWindow;
 
 ImwContainer::ImwContainer(ImwContainer* pParent)
 {
-	m_pParent = pParent;
+	ImwAssert(NULL != pParent);
 	m_pSplits[0] = NULL;
 	m_pSplits[1] = NULL;
 	m_bVerticalSplit = false;
 	m_iActiveWindow = 0;
 	m_fSplitRatio = 0.5f;
 	m_bIsDrag = false;
+	m_pParent = pParent;
+	m_pParentWindow = (NULL != pParent) ? pParent->m_pParentWindow : NULL;
+}
+
+ImwContainer::ImwContainer(ImwPlatformWindow* pParent)
+{
+	ImwAssert(NULL != pParent);
+	m_pSplits[0] = NULL;
+	m_pSplits[1] = NULL;
+	m_bVerticalSplit = false;
+	m_iActiveWindow = 0;
+	m_fSplitRatio = 0.5f;
+	m_bIsDrag = false;
+	m_pParent = NULL;
+	m_pParentWindow = pParent;
 }
 
 ImwContainer::~ImwContainer()
@@ -259,6 +274,11 @@ ImwContainer* ImwContainer::HasWindow( const ImwWindow* pWindow)
 		}
 	}
 	return NULL;
+}
+
+ImwPlatformWindow* ImwContainer::GetPlatformWindowParent() const
+{
+	return m_pParentWindow;
 }
 
 void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
