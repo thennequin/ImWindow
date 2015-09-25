@@ -16,6 +16,17 @@ ImwWindowManager::DrawWindowAreaAction::DrawWindowAreaAction( ImwPlatformWindow*
 
 ImwWindowManager* ImwWindowManager::s_pInstance = 0;
 
+//////////////////////////////////////////////////////////////////////////
+
+ImwWindowManager::Config::Config()
+	: m_fDragMarginRatio( 0.1f )
+	, m_fDragMarginSizeRatio( 0.25f )
+	, m_oHightlightAreaColor( 0.f, 0.5f, 1.f, 0.5f )
+{
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 ImwWindowManager::ImwWindowManager()
 {
 	s_pInstance = this;
@@ -70,6 +81,11 @@ void ImwWindowManager::Exit()
 ImwPlatformWindow* ImwWindowManager::GetMainPlatformWindow()
 {
 	return m_pMainPlatformWindow;
+}
+
+ImwWindowManager::Config& ImwWindowManager::GetConfig()
+{
+	return m_oConfig;
 }
 
 void ImwWindowManager::SetMainTitle(const char* pTitle)

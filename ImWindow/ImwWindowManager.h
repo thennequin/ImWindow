@@ -72,6 +72,14 @@ namespace ImWindow
 			ImColor					m_oColor;
 		};
 	public:
+		struct Config
+		{
+			Config();
+			float					m_fDragMarginRatio;
+			float					m_fDragMarginSizeRatio;
+			ImColor					m_oHightlightAreaColor;
+		};
+	public:
 		ImwWindowManager();
 		virtual								~ImwWindowManager();
 
@@ -80,6 +88,7 @@ namespace ImWindow
 		void								Exit();
 
 		ImwPlatformWindow*					GetMainPlatformWindow();
+		Config&								GetConfig();
 
 		void								SetMainTitle(const char* pTitle);
 
@@ -118,6 +127,7 @@ namespace ImWindow
 		void								StopDragWindow();
 		ImwContainer*						GetBestDocking(ImwPlatformWindow* pPlatformWindow, const ImVec2 oCursorPos, EDockOrientation& oOutOrientation);
 		
+		Config								m_oConfig;
 		ImwPlatformWindow*					m_pMainPlatformWindow;
 		ImwPlatformWindowList				m_lPlatformWindows;
 		ImwPlatformWindow*					m_pDragPlatformWindow;
