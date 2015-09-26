@@ -253,6 +253,11 @@ void ImwWindowManager::UpdatePlatformwWindowActions()
 			bool bFound = false;
 			if (m_pMainPlatformWindow == pAction->m_pPlatformWindow)
 			{
+				while (m_lPlatformWindows.begin() != m_lPlatformWindows.end())
+				{
+					delete *m_lPlatformWindows.begin();
+					m_lPlatformWindows.erase(m_lPlatformWindows.begin());
+				}
 				delete m_pMainPlatformWindow;
 				m_pMainPlatformWindow = NULL;
 				bFound = true;
