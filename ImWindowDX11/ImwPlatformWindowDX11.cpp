@@ -357,6 +357,12 @@ HWND ImwPlatformWindowDX11::GetHWnd()
 
 LRESULT ImwPlatformWindowDX11::OnMessage(UINT message, WPARAM wParam, LPARAM lParam)
 {
+	if (IsStateSet())
+	{
+		std::string sMsg = GetStringFromMessages(message);
+		ImwWindowManager::GetInstance()->Log("OnMessage %d %s\n", message, sMsg.c_str());
+		return DefWindowProc(m_hWnd, message, wParam, lParam);
+	}
 	SetState();
 	ImGuiIO& io = ImGui::GetIO();
 	RestoreState();
