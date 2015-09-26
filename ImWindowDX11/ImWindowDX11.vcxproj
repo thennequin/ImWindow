@@ -176,11 +176,13 @@
     <ClCompile Include="ImwWindowManagerDX11.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="NodeWindow.cpp" />
+    <ClCompile Include="Win32MessageHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ImwPlatformWindowDX11.h" />
     <ClInclude Include="ImwWindowManagerDX11.h" />
     <ClInclude Include="NodeWindow.h" />
+    <ClInclude Include="Win32MessageHelper.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

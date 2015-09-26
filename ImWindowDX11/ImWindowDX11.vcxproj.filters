@@ -30,6 +30,9 @@
     <ClCompile Include="..\Externals\ImGui\imgui\examples\directx11_example\imgui_impl_dx11.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Win32MessageHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ImwPlatformWindowDX11.h">
@@ -39,6 +42,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="NodeWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Win32MessageHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
