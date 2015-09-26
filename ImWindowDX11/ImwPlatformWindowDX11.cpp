@@ -434,12 +434,12 @@ LRESULT ImwPlatformWindowDX11::OnMessage(UINT message, WPARAM wParam, LPARAM lPa
 		}
 		//break; // Not a forget
 	case WM_GETMINMAXINFO:
-	{
-		MINMAXINFO* mmi = (MINMAXINFO*)lParam;
-		mmi->ptMinTrackSize.x = 100;
-		mmi->ptMinTrackSize.y = 100;
-		return 0;
-	}
+		{
+			MINMAXINFO* mmi = (MINMAXINFO*)lParam;
+			mmi->ptMinTrackSize.x = 100;
+			mmi->ptMinTrackSize.y = 100;
+			return 0;
+		}
 	case WM_MOVE:
 		{
 			RECT oRect;
@@ -450,6 +450,7 @@ LRESULT ImwPlatformWindowDX11::OnMessage(UINT message, WPARAM wParam, LPARAM lPa
 			m_oPosition = ImVec2(oRect.left, oRect.top);
 			//AdjustWindowRect(&oRect, GetWindowLong(m_hWnd, GWL_STYLE), FALSE);
 			//m_oPosition = ImVec2(oRect.left, oRect.top);
+		}
 		break;
 	case WM_KILLFOCUS:
 		{
