@@ -18,6 +18,7 @@ ImwPlatformWindow::ImwPlatformWindow(bool bMain, bool bIsDragWindow)
 	void* pTemp = ImGui::GetInternalState();
 	m_pState = ImwMalloc(ImGui::GetInternalStateSize());
 	ImGui::SetInternalState(m_pState, true);
+	ImGui::GetIO().IniFilename = NULL;
 	ImGui::SetInternalState(pTemp);
 }
 
