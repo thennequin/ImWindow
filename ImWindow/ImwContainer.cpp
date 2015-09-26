@@ -86,6 +86,7 @@ void ImwContainer::Dock(ImwWindow* pWindow, EDockOrientation eOrientation)
 					m_pSplits[0]->Dock(pWindow);
 					m_pSplits[1]->m_lWindows.insert(m_pSplits[1]->m_lWindows.begin(), m_lWindows.begin(), m_lWindows.end());
 					m_lWindows.clear();
+					m_iActiveWindow = 0;
 				}
 				break;
 			case E_DOCK_ORIENTATION_LEFT:
@@ -95,6 +96,7 @@ void ImwContainer::Dock(ImwWindow* pWindow, EDockOrientation eOrientation)
 					m_pSplits[0]->Dock(pWindow);
 					m_pSplits[1]->m_lWindows.insert(m_pSplits[1]->m_lWindows.begin(), m_lWindows.begin(), m_lWindows.end());
 					m_lWindows.clear();
+					m_iActiveWindow = 0;
 				}
 				break;
 			case E_DOCK_ORIENTATION_RIGHT:
@@ -104,6 +106,7 @@ void ImwContainer::Dock(ImwWindow* pWindow, EDockOrientation eOrientation)
 					m_pSplits[0]->m_lWindows.insert(m_pSplits[0]->m_lWindows.begin(), m_lWindows.begin(), m_lWindows.end());
 					m_pSplits[1]->Dock(pWindow);
 					m_lWindows.clear();
+					m_iActiveWindow = 0;
 				}
 				break;
 			case E_DOCK_ORIENTATION_BOTTOM:
@@ -113,6 +116,7 @@ void ImwContainer::Dock(ImwWindow* pWindow, EDockOrientation eOrientation)
 					m_pSplits[0]->m_lWindows.insert(m_pSplits[0]->m_lWindows.begin(), m_lWindows.begin(), m_lWindows.end());
 					m_pSplits[1]->Dock(pWindow);
 					m_lWindows.clear();
+					m_iActiveWindow = 0;
 				}
 				break;
 			}
@@ -227,6 +231,7 @@ bool ImwContainer::UnDock(ImwWindow* pWindow)
 				{
 					m_lWindows.insert(m_lWindows.end(), m_pSplits[1]->m_lWindows.begin(), m_pSplits[1]->m_lWindows.end());
 					m_pSplits[1]->m_lWindows.clear();
+					m_pSplits[1]->m_iActiveWindow = 0;
 					ImwSafeDelete(m_pSplits[0]);
 					ImwSafeDelete(m_pSplits[1]);
 				}
@@ -255,6 +260,7 @@ bool ImwContainer::UnDock(ImwWindow* pWindow)
 				{
 					m_lWindows.insert(m_lWindows.end(), m_pSplits[0]->m_lWindows.begin(), m_pSplits[0]->m_lWindows.end());
 					m_pSplits[0]->m_lWindows.clear();
+					m_pSplits[0]->m_iActiveWindow = 0;
 					ImwSafeDelete(m_pSplits[0]);
 					ImwSafeDelete(m_pSplits[1]);
 				}
