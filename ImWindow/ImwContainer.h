@@ -20,6 +20,7 @@ namespace ImWindow
 		bool							HasWindowTabbed();
 		ImwContainer*					HasWindow(const ImwWindow* pWindow);
 		ImwPlatformWindow*				GetPlatformWindowParent() const;
+		ImwContainer*					GetBestDocking(const ImVec2 oCursorPosInContainer, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize);
 	protected:
 										ImwContainer(ImwContainer* pParent);
 										ImwContainer(ImwPlatformWindow* pParent);
@@ -39,7 +40,9 @@ namespace ImWindow
 		int								m_iActiveWindow;
 
 		bool							m_bIsDrag;
-		float							m_fDragSplitStart;
+
+		ImVec2							m_oLastPosition;
+		ImVec2							m_oLastSize;
 	};
 }
 

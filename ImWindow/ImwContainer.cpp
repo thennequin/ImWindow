@@ -329,6 +329,9 @@ void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
 	const ImVec2 oMin = ImVec2(oPos.x + 1, oPos.y + 1);
 	const ImVec2 oMax = ImVec2(oPos.x + oSize.x - 2, oPos.y + oSize.y - 2);
 
+	m_oLastPosition = oPos;
+	m_oLastSize = oSize;
+
 	const int iSeparatorHalfSize = 2;
 	const int iSeparatorSize = iSeparatorHalfSize * 2;
 
@@ -369,11 +372,11 @@ void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
 			{
 				if (!m_bIsDrag)
 				{
-					m_fDragSplitStart = m_fSplitRatio;
 					m_bIsDrag = true;
 				}
-				m_fSplitRatio = m_fDragSplitStart + (oIO.MousePos.y - oIO.MouseClickedPos[0].y) / oSize.y;
+				m_fSplitRatio += ImGui::GetIO().MouseDelta.y / oSize.y;
 				m_fSplitRatio = ImClamp( m_fSplitRatio, 0.05f, 0.95f );
+
 			}
 			else
 			{
@@ -409,11 +412,10 @@ void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
 			{
 				if (!m_bIsDrag)
 				{
-					m_fDragSplitStart = m_fSplitRatio;
 					m_bIsDrag = true;
 				}
 				
-				m_fSplitRatio = m_fDragSplitStart + (oIO.MousePos.x - oIO.MouseClickedPos[0].x) / oSize.x;
+				m_fSplitRatio += ImGui::GetIO().MouseDelta.x / oSize.x;
 				m_fSplitRatio = ImClamp( m_fSplitRatio, 0.05f, 0.95f );
 			}
 			else
@@ -601,4 +603,126 @@ void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
 		// This case can happened only where it's main container
 		ImwAssert(m_pParent == NULL);
 	}
+}
+
+ImwContainer* ImwContainer::GetBestDocking(const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize)
+{
+	if (m_pParent == NULL || 
+		(oCursorPos.x >= m_oLastPosition.x && oCursorPos.x <= (m_oLastPosition.x + m_oLastSize.x) &&
+		oCursorPos.y >= m_oLastPosition.y && oCursorPos.y <= (m_oLastPosition.y + m_oLastSize.y)))
+	{
+		if (IsSplit())
+		{
+			ImwContainer* pBestContainer = NULL;
+			pBestContainer = m_pSplits[0]->GetBestDocking(oCursorPos, oOutOrientation, oOutAreaPos, oOutAreaSize);
+			if (NULL != pBestContainer)
+			{
+				return pBestContainer;
+			}
+			pBestContainer = m_pSplits[1]->GetBestDocking(oCursorPos, oOutOrientation, oOutAreaPos, oOutAreaSize);
+			if (NULL != pBestContainer)
+			{
+				return pBestContainer;
+			}
+		}
+		else
+		{
+			const float c_fBoxHalfSize = 20.f;
+			const float c_fBoxSize = c_fBoxHalfSize * 2.f;
+			const float c_fMinSize = c_fBoxSize * 4.f;
+			const float c_fSplitRatio = 0.5f;
+			//const float c_fSplitRatio = oConfig.m_fDragMarginSizeRatio;
+			const ImColor oBoxColor(200, 200, 255, 255);
+			const ImColor oBoxHightlightColor(100, 100, 255, 255);
+
+			if (m_oLastSize.x < c_fMinSize && m_oLastSize.y < c_fMinSize)
+			{
+				oOutOrientation = E_DOCK_ORIENTATION_CENTER;
+				oOutAreaPos = m_oLastPosition;
+				oOutAreaSize = m_oLastSize;
+				return this;
+			}
+			else
+			{
+				ImwWindowManager::Config& oConfig = ImwWindowManager::GetInstance()->GetConfig();
+
+				ImVec2 oCenter = ImVec2(m_oLastPosition.x + m_oLastSize.x / 2.f, m_oLastPosition.y + m_oLastSize.y / 2.f);
+
+				bool bIsInCenter = false;
+				bool bIsInTop = false;
+				bool bIsInLeft = false;
+				bool bIsInRight = false;
+				bool bIsInBottom = false;
+
+				//Center
+				ImRect oRectCenter(ImVec2(oCenter.x - c_fBoxHalfSize, oCenter.y - c_fBoxHalfSize), ImVec2(oCenter.x + c_fBoxHalfSize, oCenter.y + c_fBoxHalfSize));
+				bIsInCenter = oRectCenter.Contains(oCursorPos);
+				ImwWindowManager::GetInstance()->DrawWindowArea(m_pParentWindow, oRectCenter.Min, oRectCenter.GetSize(), bIsInCenter ? oBoxHightlightColor : oBoxColor);
+
+				if (m_oLastSize.y >= c_fMinSize)
+				{
+					//Top
+					ImRect oRectTop(ImVec2(oCenter.x - c_fBoxHalfSize, oCenter.y - c_fBoxHalfSize * 4.f), ImVec2(oCenter.x + c_fBoxHalfSize, oCenter.y - c_fBoxHalfSize * 2.f));
+					bIsInTop = oRectTop.Contains(oCursorPos);
+					ImwWindowManager::GetInstance()->DrawWindowArea(m_pParentWindow, oRectTop.Min, oRectTop.GetSize(), bIsInTop ? oBoxHightlightColor : oBoxColor);
+
+					//Bottom
+					ImRect oRectBottom(ImVec2(oCenter.x - c_fBoxHalfSize, oCenter.y + c_fBoxHalfSize * 2.f), ImVec2(oCenter.x + c_fBoxHalfSize, oCenter.y + c_fBoxHalfSize * 4.f));
+					bIsInBottom = oRectBottom.Contains(oCursorPos);
+					ImwWindowManager::GetInstance()->DrawWindowArea(m_pParentWindow, oRectBottom.Min, oRectBottom.GetSize(), bIsInBottom ? oBoxHightlightColor : oBoxColor);
+				}
+				
+				if (m_oLastSize.x >= c_fMinSize)
+				{
+					//Left
+					ImRect oRectLeft(ImVec2(oCenter.x - c_fBoxHalfSize * 4.f, oCenter.y - c_fBoxHalfSize), ImVec2(oCenter.x - c_fBoxHalfSize * 2.f, oCenter.y + c_fBoxHalfSize));
+					bIsInLeft = oRectLeft.Contains(oCursorPos);
+					ImwWindowManager::GetInstance()->DrawWindowArea(m_pParentWindow, oRectLeft.Min, oRectLeft.GetSize(), bIsInLeft ? oBoxHightlightColor : oBoxColor);
+					
+					//Right
+					ImRect oRectRight(ImVec2(oCenter.x + c_fBoxHalfSize * 2.f, oCenter.y - c_fBoxHalfSize), ImVec2(oCenter.x + c_fBoxHalfSize * 4.f, oCenter.y + c_fBoxHalfSize));
+					bIsInRight = oRectRight.Contains(oCursorPos);
+					ImwWindowManager::GetInstance()->DrawWindowArea(m_pParentWindow, oRectRight.Min, oRectRight.GetSize(), bIsInRight ? oBoxHightlightColor : oBoxColor);
+				}
+
+				if (bIsInCenter)
+				{
+					oOutOrientation = E_DOCK_ORIENTATION_CENTER;
+					oOutAreaPos = m_oLastPosition;
+					oOutAreaSize = m_oLastSize;
+					return this;
+				}
+				else if (bIsInTop)
+				{
+					oOutOrientation = E_DOCK_ORIENTATION_TOP;
+					oOutAreaPos = m_oLastPosition;
+					oOutAreaSize = ImVec2(m_oLastSize.x, m_oLastSize.y * c_fSplitRatio);
+					return this;
+				}
+				else if (bIsInLeft)
+				{
+					oOutOrientation = E_DOCK_ORIENTATION_LEFT;
+					oOutAreaPos = m_oLastPosition;
+					oOutAreaSize = ImVec2(m_oLastSize.x * c_fSplitRatio, m_oLastSize.y);
+					return this;
+				}
+				else if (bIsInRight)
+				{
+					oOutOrientation = E_DOCK_ORIENTATION_RIGHT;
+					oOutAreaPos = ImVec2(m_oLastPosition.x + m_oLastSize.x * (1.f - c_fSplitRatio), m_oLastPosition.y);
+					oOutAreaSize = ImVec2(m_oLastSize.x * c_fSplitRatio, m_oLastSize.y);
+					return this;
+				}
+				else if (bIsInBottom)
+				{
+					oOutOrientation = E_DOCK_ORIENTATION_BOTTOM;
+					oOutAreaPos = ImVec2(m_oLastPosition.x, m_oLastPosition.y + m_oLastSize.y * (1.f - c_fSplitRatio));
+					oOutAreaSize = ImVec2(m_oLastSize.x, m_oLastSize.y * c_fSplitRatio);
+					return this;
+				}
+			}
+		}
+	}
+
+	return NULL;
 }
