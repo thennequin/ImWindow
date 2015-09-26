@@ -586,7 +586,6 @@ void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
 		{
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, oStyle.WindowPadding);
 			//ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, ImColor(59, 59, 59, 255));
-			ImGui::BeginChild((*itActiveWindow)->GetId(), ImVec2(0,0), false);
 			ImGui::BeginChild((*itActiveWindow)->GetId(), ImVec2(0,0), false, ImGuiWindowFlags_HorizontalScrollbar);
 			
 
