@@ -368,6 +368,11 @@ void ImwWindowManager::Paint(ImwPlatformWindow* pWindow)
 	ImGui::SetNextWindowSize(ImVec2(pWindow->GetSize().x, pWindow->GetSize().y - fY), ImGuiSetCond_Always);
 	int iFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 
+	if (NULL != m_pDraggedWindow)
+	{
+		iFlags += ImGuiWindowFlags_NoInputs;
+	}
+
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(5, 5));
 	//ImGui::PushStyleColor(ImGuiCol_WindowBg, ImColor(40,40,40,0));
 	//ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, ImColor(59, 59, 59, 255));
