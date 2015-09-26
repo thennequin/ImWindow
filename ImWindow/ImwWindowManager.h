@@ -107,6 +107,7 @@ namespace ImWindow
 		virtual ImwPlatformWindow*			CreatePlatformWindow(bool bMain, ImwPlatformWindow* pParent, bool bDragWindow) = 0;
 		virtual void						InternalRun() = 0;
 		virtual ImVec2						GetCursorPos() = 0;
+		virtual bool						IsLeftClickDown() = 0;
 
 		void								AddWindow(ImwWindow* pWindow);
 		void								RemoveWindow(ImwWindow* pWindow);
@@ -123,11 +124,17 @@ namespace ImWindow
 
 		void								DrawWindowArea( ImwPlatformWindow* pWindow, const ImVec2& oPos, const ImVec2& oSize, const ImColor& oColor );
 
+		void								PreUpdate();
 		void								Update();
+		void								UpdatePlatformwWindowActions();
+		void								UpdateDockActions();
+		void								UpdateOrphans();
+
 		void								Paint(ImwPlatformWindow* pWindow);
 
 		void								StartDragWindow(ImwWindow* pWindow);
 		void								StopDragWindow();
+		void								UpdateDragWindow();
 		ImwContainer*						GetBestDocking(ImwPlatformWindow* pPlatformWindow, const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize);
 		
 		Config								m_oConfig;

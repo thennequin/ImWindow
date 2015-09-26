@@ -182,13 +182,97 @@ void ImwWindowManager::Log(const char* pFormat, ...)
 	LogFormatted(pBuffer);
 }
 
+void ImwWindowManager::PreUpdate()
+{
+	ImwIsSafe(m_pMainPlatformWindow)->PreUpdate();
+
+	for (std::list<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
+	{
+		(*it)->PreUpdate();
+	}
+}
+
 void ImwWindowManager::Update()
+{
+	UpdatePlatformwWindowActions();
+	UpdateDockActions();
+	UpdateOrphans();
+
+	while (m_lToDestroyWindows.begin() != m_lToDestroyWindows.end())
+	{
+		ImwWindow* pWindow = *m_lToDestroyWindows.begin();
+
+		m_lToDestroyWindows.remove(pWindow);
+		m_lOrphanWindows.remove(pWindow);
+		m_lWindows.remove(pWindow);
+
+		InternalUnDock(pWindow);
+
+		delete pWindow;
+	}
+
+	while (m_lToDestroyPlatformWindows.begin() != m_lToDestroyPlatformWindows.end())
+	{
+		ImwPlatformWindow* pPlatformWindow = *m_lToDestroyPlatformWindows.begin();
+		m_lToDestroyPlatformWindows.remove(pPlatformWindow);
+		m_lPlatformWindows.remove(pPlatformWindow);
+		delete pPlatformWindow;
+	}
+
+	UpdateDragWindow();
+	
+	m_pCurrentPlatformWindow = m_pMainPlatformWindow;
+	ImwIsSafe(m_pMainPlatformWindow)->Paint();
+
+	for ( std::list<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
+	{
+		m_pCurrentPlatformWindow = (*it);
+		(*it)->Paint();
+	}
+
+	m_pCurrentPlatformWindow = NULL;
+
+	
+}
+
+void ImwWindowManager::UpdatePlatformwWindowActions()
 {
 	while (m_lPlatformWindowActions.begin() != m_lPlatformWindowActions.end())
 	{
 		PlatformWindowAction* pAction = *m_lPlatformWindowActions.begin();
 		
 		ImwAssert((pAction->m_iFlags & E_PLATFORM_WINDOW_ACTION_SHOW & E_PLATFORM_WINDOW_ACTION_HIDE) == 0); // Can't show and hide		
+
+		if (pAction->m_iFlags & E_PLATFORM_WINDOW_ACTION_DESTOY)
+		{
+			//pAction->m_pPlatformWindow->Show();
+			//todo destroy
+			bool bFound = false;
+			if (m_pMainPlatformWindow == pAction->m_pPlatformWindow)
+			{
+				delete m_pMainPlatformWindow;
+				m_pMainPlatformWindow = NULL;
+				bFound = true;
+			}
+			else
+			{
+				for (ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
+				{
+					if (*it == pAction->m_pPlatformWindow)
+					{
+						delete *it;
+						m_lPlatformWindows.erase(it);
+						bFound = true;
+						break;
+					}
+				}
+			}
+
+			if (!bFound)
+			{
+				ImwAssert(false, "ImwPlatformWindow not found, maybe already closed");
+			}
+		}
 		if (pAction->m_iFlags & E_PLATFORM_WINDOW_ACTION_SHOW)
 		{
 			pAction->m_pPlatformWindow->Show();
@@ -208,30 +292,33 @@ void ImwWindowManager::Update()
 
 		m_lPlatformWindowActions.erase(m_lPlatformWindowActions.begin());
 	}
+}
 
-	while ( m_lDockActions.begin() != m_lDockActions.end() )
+void ImwWindowManager::UpdateDockActions()
+{
+	while (m_lDockActions.begin() != m_lDockActions.end())
 	{
 		DockAction* pAction = *m_lDockActions.begin();
 
 		InternalUnDock(pAction->m_pWindow);
 
-		if ( pAction->m_bFloat )
+		if (pAction->m_bFloat)
 		{
 			InternalFloat(pAction->m_pWindow, pAction->m_oPosition, pAction->m_oSize);
 		}
 		else
 		{
-			if ( NULL != pAction->m_pWith )
+			if (NULL != pAction->m_pWith)
 			{
-				InternalDockWith( pAction->m_pWindow, pAction->m_pWith, pAction->m_eOrientation );
+				InternalDockWith(pAction->m_pWindow, pAction->m_pWith, pAction->m_eOrientation);
 			}
-			else if ( NULL != pAction->m_pToContainer )
+			else if (NULL != pAction->m_pToContainer)
 			{
-				InternalDockTo( pAction->m_pWindow, pAction->m_eOrientation, pAction->m_pToContainer );
+				InternalDockTo(pAction->m_pWindow, pAction->m_eOrientation, pAction->m_pToContainer);
 			}
 			else
 			{
-				InternalDock( pAction->m_pWindow, pAction->m_eOrientation, pAction->m_pToPlatformWindow );
+				InternalDock(pAction->m_pWindow, pAction->m_eOrientation, pAction->m_pToPlatformWindow);
 			}
 		}
 
@@ -240,10 +327,13 @@ void ImwWindowManager::Update()
 		delete pAction;
 		m_lDockActions.erase(m_lDockActions.begin());
 	}
+}
 
-	while ( m_lOrphanWindows.begin() != m_lOrphanWindows.end() )
+void ImwWindowManager::UpdateOrphans()
+{
+	while (m_lOrphanWindows.begin() != m_lOrphanWindows.end())
 	{
-		if ( m_pMainPlatformWindow->m_pContainer->IsEmpty() )
+		if (m_pMainPlatformWindow->m_pContainer->IsEmpty())
 		{
 			InternalDock(*m_lOrphanWindows.begin(), E_DOCK_ORIENTATION_CENTER, m_pMainPlatformWindow);
 		}
@@ -254,84 +344,10 @@ void ImwWindowManager::Update()
 			ImVec2 oMainSize = m_pMainPlatformWindow->GetSize();
 			oPos.x += (oMainSize.x - oSize.x) / 2;
 			oPos.y += (oMainSize.y - oSize.y) / 2;
-			InternalFloat(*m_lOrphanWindows.begin(), oPos, oSize );
+			InternalFloat(*m_lOrphanWindows.begin(), oPos, oSize);
 		}
 		m_lOrphanWindows.erase(m_lOrphanWindows.begin());
 	}
-
-	m_pCurrentPlatformWindow = m_pMainPlatformWindow;
-	ImwIsSafe(m_pMainPlatformWindow)->Paint();
-
-	for ( std::list<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
-	{
-		m_pCurrentPlatformWindow = (*it);
-		(*it)->Paint();
-	}
-
-	if (NULL != m_pDraggedWindow)
-	{
-		m_pCurrentPlatformWindow = m_pDragPlatformWindow;
-		m_pDragPlatformWindow->Paint();
-
-		ImVec2 oCursorPos = GetCursorPos();
-		m_pDragPlatformWindow->SetPosition(oCursorPos.x + m_oDragPreviewOffset.x, oCursorPos.y + m_oDragPreviewOffset.y);
-
-		//Search best dock area
-		EDockOrientation eBestDockOrientation;
-		ImVec2 oHightlightPos;
-		ImVec2 oHightlightSize;
-		ImwContainer* pBestContainer = GetBestDocking(m_pMainPlatformWindow, oCursorPos, eBestDockOrientation, oHightlightPos, oHightlightSize);
-		if (NULL == pBestContainer)
-		{
-			for ( std::list<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end() && NULL == pBestContainer; ++it )
-			{
-				pBestContainer = GetBestDocking(*it, oCursorPos, eBestDockOrientation, oHightlightPos, oHightlightSize);
-			}
-		}
-		if (pBestContainer)
-		{
-			DrawWindowArea(pBestContainer->GetPlatformWindowParent(), oHightlightPos, oHightlightSize, m_oConfig.m_oHightlightAreaColor);
-		}
-
-		if (!((ImGuiState*)m_pDragPlatformWindow->m_pState)->IO.MouseDown[0])
-		{
-			if (NULL != pBestContainer)
-			{
-				DockTo(m_pDraggedWindow, eBestDockOrientation, pBestContainer);
-			}
-			else
-			{
-				Float(m_pDraggedWindow, m_pDragPlatformWindow->GetPosition(), m_pDragPlatformWindow->GetSize());
-			}
-			
-			StopDragWindow();
-		}
-	}
-
-	m_pCurrentPlatformWindow = NULL;
-
-	while ( m_lToDestroyWindows.begin() != m_lToDestroyWindows.end() )
-	{
-		ImwWindow* pWindow = *m_lToDestroyWindows.begin();
-		
-		m_lToDestroyWindows.remove(pWindow);
-		m_lOrphanWindows.remove(pWindow);
-		m_lWindows.remove(pWindow);
-
-		InternalUnDock(pWindow);
-
-		delete pWindow;
-	}
-
-	while (m_lToDestroyPlatformWindows.begin() != m_lToDestroyPlatformWindows.end())
-	{
-		ImwPlatformWindow* pPlatformWindow = *m_lToDestroyPlatformWindows.begin();
-		m_lToDestroyPlatformWindows.remove(pPlatformWindow);
-		m_lPlatformWindows.remove(pPlatformWindow);
-		delete pPlatformWindow;
-	}
-
-	
 }
 
 void ImwWindowManager::Paint(ImwPlatformWindow* pWindow)
@@ -421,6 +437,51 @@ void ImwWindowManager::StopDragWindow()
 	m_pDraggedWindow = NULL;
 }
 
+void ImwWindowManager::UpdateDragWindow()
+{
+	if (NULL != m_pDraggedWindow)
+	{
+		m_pCurrentPlatformWindow = m_pDragPlatformWindow;
+		m_pDragPlatformWindow->Paint();
+		m_pCurrentPlatformWindow = NULL;
+
+		ImVec2 oCursorPos = GetCursorPos();
+		m_pDragPlatformWindow->SetPosition(oCursorPos.x + m_oDragPreviewOffset.x, oCursorPos.y + m_oDragPreviewOffset.y);
+
+		//Search best dock area
+		EDockOrientation eBestDockOrientation;
+		ImVec2 oHightlightPos;
+		ImVec2 oHightlightSize;
+		ImwContainer* pBestContainer = GetBestDocking(m_pMainPlatformWindow, oCursorPos, eBestDockOrientation, oHightlightPos, oHightlightSize);
+		if (NULL == pBestContainer)
+		{
+			for (std::list<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end() && NULL == pBestContainer; ++it)
+			{
+				pBestContainer = GetBestDocking(*it, oCursorPos, eBestDockOrientation, oHightlightPos, oHightlightSize);
+			}
+		}
+		if (pBestContainer)
+		{
+			DrawWindowArea(pBestContainer->GetPlatformWindowParent(), oHightlightPos, oHightlightSize, m_oConfig.m_oHightlightAreaColor);
+		}
+
+		//if (!((ImGuiState*)m_pDragPlatformWindow->m_pState)->IO.MouseDown[0])
+		if (!IsLeftClickDown())
+		{
+			if (NULL != pBestContainer)
+			{
+				DockTo(m_pDraggedWindow, eBestDockOrientation, pBestContainer);
+			}
+			else
+			{
+				Float(m_pDraggedWindow, m_pDragPlatformWindow->GetPosition(), m_pDragPlatformWindow->GetSize());
+			}
+
+			StopDragWindow();
+		}
+	}
+}
+
 ImwContainer* ImwWindowManager::GetBestDocking(ImwPlatformWindow* pPlatformWindow, const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize)
 {
 	ImVec2 oPos = pPlatformWindow->GetPosition();
@@ -429,6 +490,13 @@ ImwContainer* ImwWindowManager::GetBestDocking(ImwPlatformWindow* pPlatformWindo
 		oCursorPos.y >= oPos.y && oCursorPos.y <= (oPos.y + oSize.y))
 	{
 		ImVec2 oRectPos(oCursorPos.x - oPos.x, oCursorPos.y - oPos.y);
+
+		ImwContainer* pBestContainer = pPlatformWindow->GetContainer()->GetBestDocking(oRectPos, oOutOrientation, oOutAreaPos, oOutAreaSize);
+		if (NULL != pBestContainer)
+		{
+			return pBestContainer;
+		}
+
 		//Left
 		if (oRectPos.x <= oSize.x * m_oConfig.m_fDragMarginRatio)
 		{
@@ -569,24 +637,10 @@ void ImwWindowManager::InternalUnDock(ImwWindow* pWindow)
 
 void ImwWindowManager::OnClosePlatformWindow(ImwPlatformWindow* pWindow)
 {
-	if (m_pMainPlatformWindow == pWindow)
-	{
-		m_pMainPlatformWindow = NULL;
-		return;
-	}
-	else
-	{
-		for (ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
-		{
-			if (*it == pWindow)
-			{
-				m_lPlatformWindows.erase(it);
-				return;
-			}
-		}
-	}
-
-	ImwAssert(false, "ImwPlatformWindow not found, maybe already closed");
+	PlatformWindowAction* pAction = new PlatformWindowAction();
+	pAction->m_iFlags = E_PLATFORM_WINDOW_ACTION_DESTOY;
+	pAction->m_pPlatformWindow = pWindow;
+	m_lPlatformWindowActions.push_back(pAction);
 }
 
 void ImwWindowManager::DrawWindowArea( ImwPlatformWindow* pWindow, const ImVec2& oPos, const ImVec2& oSize, const ImColor& oColor )
