@@ -32,7 +32,6 @@ ImwPlatformWindow::~ImwPlatformWindow()
 void ImwPlatformWindow::OnClose()
 {
 	ImwWindowManager::GetInstance()->OnClosePlatformWindow(this);
-	delete this;
 }
 
 static bool s_bStatePush = false;
