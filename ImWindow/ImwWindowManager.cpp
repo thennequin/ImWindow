@@ -49,6 +49,8 @@ bool ImwWindowManager::Init()
 	ImGuiIO& io = ImGui::GetIO();
 	ImGuiStyle& style = ImGui::GetStyle();
 
+	io.IniFilename = NULL;
+
 	//io.Fonts->AddFontFromFileTTF( "res/DroidSans.ttf", 16 ) || io.Fonts->AddFontDefault();
 	//io.Fonts->AddFontFromFileTTF( "res/DroidSans-Bold.ttf", 16 ) || io.Fonts->AddFontDefault();
 
@@ -290,6 +292,7 @@ void ImwWindowManager::UpdatePlatformwWindowActions()
 			pAction->m_pPlatformWindow->SetSize(pAction->m_oSize.x, pAction->m_oSize.y);
 		}
 
+		delete *m_lPlatformWindowActions.begin();
 		m_lPlatformWindowActions.erase(m_lPlatformWindowActions.begin());
 	}
 }

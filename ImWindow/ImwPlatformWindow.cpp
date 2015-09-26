@@ -24,6 +24,14 @@ ImwPlatformWindow::ImwPlatformWindow(bool bMain, bool bIsDragWindow)
 ImwPlatformWindow::~ImwPlatformWindow()
 {
 	ImwSafeDelete(m_pContainer);
+
+	SetState();
+	if (!IsMain())
+	{
+		ImGui::GetIO().Fonts = NULL;
+	}
+	ImGui::Shutdown();
+	RestoreState();
 	ImwSafeDelete(m_pState);
 }
 

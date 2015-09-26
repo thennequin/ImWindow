@@ -43,6 +43,7 @@ ImwContainer::~ImwContainer()
 	while ( m_lWindows.begin() != m_lWindows.end() )
 	{
 		ImwWindowManager::GetInstance()->RemoveWindow(*m_lWindows.begin());
+		delete *m_lWindows.begin();
 		m_lWindows.erase(m_lWindows.begin());
 	}
 
