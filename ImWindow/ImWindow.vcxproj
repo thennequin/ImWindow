@@ -166,6 +166,7 @@
     <ClInclude Include="..\Externals\ImGui\imgui\stb_textedit.h" />
     <ClInclude Include="..\Externals\ImGui\imgui\stb_truetype.h" />
     <ClInclude Include="ImwConfig.h" />
+    <ClInclude Include="ImwConsts.h" />
     <ClInclude Include="ImwContainer.h" />
     <ClInclude Include="ImwEnums.h" />
     <ClInclude Include="ImwId.h" />
