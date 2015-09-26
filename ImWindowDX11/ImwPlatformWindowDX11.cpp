@@ -236,6 +236,20 @@ void ImwPlatformWindowDX11::SetTitle(const char* pTtile)
 	SetWindowText(m_hWnd, pTtile);
 }
 
+void ImwPlatformWindowDX11::PreUpdate()
+{
+	MSG msg;
+	int iCount = 0;
+	while (PeekMessage(&msg, m_hWnd, 0, 0, PM_REMOVE) && iCount < 10) // Max 10 messages
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+		//OnMessage(msg.)
+		//OnMessage(msg.message, msg.wParam, msg.lParam);
+		++iCount;
+	}
+}
+
 void ImwPlatformWindowDX11::Paint()
 {
 	if (m_bDrag)
@@ -301,6 +315,11 @@ void ImwPlatformWindowDX11::Paint()
 	}
 }
 
+void ImwPlatformWindowDX11::Destroy()
+{
+
+}
+
 void ImwPlatformWindowDX11::StartDrag()
 {
 	m_bDrag = true;
@@ -341,6 +360,7 @@ LRESULT ImwPlatformWindowDX11::OnMessage(UINT message, WPARAM wParam, LPARAM lPa
 	{
 	case WM_CLOSE:
 		OnClose();
+		return 1;
 		break;
 	//case WM_ENTERSIZEMOVE:
 	//case WM_EXITSIZEMOVE:
@@ -404,11 +424,17 @@ LRESULT ImwPlatformWindowDX11::OnMessage(UINT message, WPARAM wParam, LPARAM lPa
 				{
 					Paint();
 				}
-				
-				return 1;
 			}
+			return 0;
 		}
 		//break; // Not a forget
+	case WM_GETMINMAXINFO:
+	{
+		MINMAXINFO* mmi = (MINMAXINFO*)lParam;
+		mmi->ptMinTrackSize.x = 100;
+		mmi->ptMinTrackSize.y = 100;
+		return 0;
+	}
 	case WM_MOVE:
 		{
 			RECT oRect;

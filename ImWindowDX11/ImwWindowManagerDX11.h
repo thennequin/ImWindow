@@ -20,6 +20,7 @@ namespace ImWindow
 
 		virtual void					InternalRun();
 		virtual ImVec2					GetCursorPos();
+		virtual bool					IsLeftClickDown();
 	};
 }
 

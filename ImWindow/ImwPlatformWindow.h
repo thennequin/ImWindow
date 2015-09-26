@@ -37,7 +37,9 @@ namespace ImWindow
 	protected:
 		void								SetState();
 		void								RestoreState();
+		virtual void						PreUpdate() = 0;
 		virtual void						Paint();
+		virtual void						Destroy() = 0;
 		virtual void						StartDrag() = 0;
 		virtual void						StopDrag() = 0;
 		virtual bool						IsDraging() = 0;

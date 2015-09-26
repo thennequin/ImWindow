@@ -23,13 +23,14 @@ void ImwWindowManagerDX11::LogFormatted(const char* pStr)
 
 void ImwWindowManagerDX11::InternalRun()
 {
-	MSG msg;
+	PreUpdate();
+	/*MSG msg;
 	if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
-	else
+	else*/
 	{
 		Update();
 		Sleep(16);
@@ -49,4 +50,9 @@ ImVec2 ImwWindowManagerDX11::GetCursorPos()
 	POINT oPoint;
 	::GetCursorPos(&oPoint);
 	return ImVec2(oPoint.x, oPoint.y);
+}
+
+bool ImwWindowManagerDX11::IsLeftClickDown()
+{
+	return GetAsyncKeyState(VK_LBUTTON);
 }
