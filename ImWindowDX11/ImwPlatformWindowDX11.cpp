@@ -21,6 +21,8 @@ IDXGIFactory*							ImwPlatformWindowDX11::s_pFactory = NULL;
 ID3D11Device*							ImwPlatformWindowDX11::s_pDevice = NULL;
 ID3D11DeviceContext*					ImwPlatformWindowDX11::s_pDeviceContext = NULL;
 
+ImwPlatformWindow*						ImwPlatformWindowDX11::s_pLastHoveredWindow = NULL;
+
 INT64									ImwPlatformWindowDX11::g_Time = 0;
 INT64									ImwPlatformWindowDX11::g_TicksPerSecond = 0;
 
@@ -282,30 +284,33 @@ void ImwPlatformWindowDX11::Paint()
 		ImGui::NewFrame();
 		
 		ImwPlatformWindow::Paint();
-
-		switch (ImGui::GetMouseCursor())
+		
+		if (this == s_pLastHoveredWindow)
 		{
-		case ImGuiMouseCursor_Arrow:
-			SetCursor(m_hCursorArrow);
-			break;
-		case ImGuiMouseCursor_TextInput:         // When hovering over InputText, etc.
-			SetCursor(m_hCursorArrow);
-			break;
-		case ImGuiMouseCursor_Move:              // Unused
-			SetCursor(m_hCursorArrow);
-			break;
-		case ImGuiMouseCursor_ResizeNS:          // Unused
-			SetCursor(m_hCursorResizeNS);
-			break;
-		case ImGuiMouseCursor_ResizeEW:          // When hovering over a column
-			SetCursor(m_hCursorResizeWE);
-			break;
-		case ImGuiMouseCursor_ResizeNESW:        // Unused
-			SetCursor(m_hCursorArrow);
-			break;
-		case ImGuiMouseCursor_ResizeNWSE:        // When hovering over the bottom-right corner of a window
-			SetCursor(m_hCursorArrow);
-			break;
+			switch (ImGui::GetMouseCursor())
+			{
+			case ImGuiMouseCursor_Arrow:
+				SetCursor(m_hCursorArrow);
+				break;
+			case ImGuiMouseCursor_TextInput:         // When hovering over InputText, etc.
+				SetCursor(m_hCursorArrow);
+				break;
+			case ImGuiMouseCursor_Move:              // Unused
+				SetCursor(m_hCursorArrow);
+				break;
+			case ImGuiMouseCursor_ResizeNS:          // Unused
+				SetCursor(m_hCursorResizeNS);
+				break;
+			case ImGuiMouseCursor_ResizeEW:          // When hovering over a column
+				SetCursor(m_hCursorResizeWE);
+				break;
+			case ImGuiMouseCursor_ResizeNESW:        // Unused
+				SetCursor(m_hCursorArrow);
+				break;
+			case ImGuiMouseCursor_ResizeNWSE:        // When hovering over the bottom-right corner of a window
+				SetCursor(m_hCursorArrow);
+				break;
+			}
 		}
 
 		RestoreState();
@@ -471,11 +476,12 @@ LRESULT ImwPlatformWindowDX11::OnMessage(UINT message, WPARAM wParam, LPARAM lPa
 		io.MouseDown[2] = false; 
 		return 1;
 	case WM_MOUSEWHEEL:
-		io.MouseWheel += GET_WHEEL_DELTA_WPARAM(wParam) > 0 ? +1.0f : -1.0f;
+		io.MouseWheel += GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
 		return 1;
 	case WM_MOUSEMOVE:
 		io.MousePos.x = (signed short)(lParam);
-		io.MousePos.y = (signed short)(lParam >> 16); 
+		io.MousePos.y = (signed short)(lParam >> 16);
+		s_pLastHoveredWindow = this;
 		return 1;
 	case WM_KEYDOWN:
 		if (wParam < 256)
