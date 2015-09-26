@@ -53,6 +53,12 @@ void ImwPlatformWindow::RestoreState()
 	ImGui::SetInternalState(m_pPreviousState);
 }
 
+void ImwPlatformWindow::OnLoseFocus()
+{
+	ImGuiState& g = *((ImGuiState*)m_pState);
+	g.SetNextWindowPosCond = g.SetNextWindowSizeCond = g.SetNextWindowContentSizeCond = g.SetNextWindowCollapsedCond = g.SetNextWindowFocus = 0;
+}
+
 void ImwPlatformWindow::Paint()
 {
 	ImwWindowManager::GetInstance()->Paint(this);

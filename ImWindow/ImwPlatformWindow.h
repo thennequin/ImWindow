@@ -37,6 +37,7 @@ namespace ImWindow
 	protected:
 		void								SetState();
 		void								RestoreState();
+		void								OnLoseFocus();
 		virtual void						PreUpdate() = 0;
 		virtual void						Paint();
 		virtual void						Destroy() = 0;
