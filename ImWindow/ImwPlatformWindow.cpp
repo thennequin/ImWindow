@@ -33,6 +33,12 @@ void ImwPlatformWindow::OnClose()
 }
 
 static bool s_bStatePush = false;
+
+bool ImwPlatformWindow::IsStateSet()
+{
+	return s_bStatePush;
+}
+
 void ImwPlatformWindow::SetState()
 {
 	ImwAssert(s_bStatePush == false);
