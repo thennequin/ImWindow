@@ -42,6 +42,7 @@ ImwWindowManager::~ImwWindowManager()
 	ImwSafeDelete(m_pMainPlatformWindow);
 	ImwSafeDelete(m_pDragPlatformWindow);
 	s_pInstance = 0;
+	ImGui::Shutdown();
 }
 
 bool ImwWindowManager::Init()
