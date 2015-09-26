@@ -17,9 +17,7 @@ ImwPlatformWindow::ImwPlatformWindow(bool bMain, bool bIsDragWindow)
 
 	void* pTemp = ImGui::GetInternalState();
 	m_pState = ImwMalloc(ImGui::GetInternalStateSize());
-	memcpy(m_pState, ImGui::GetInternalState(), ImGui::GetInternalStateSize());
-	ImGui::SetInternalState(m_pState);
-	//ImGui::SetInternalState(m_pState, true);
+	ImGui::SetInternalState(m_pState, true);
 	ImGui::SetInternalState(pTemp);
 }
 
