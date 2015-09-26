@@ -450,6 +450,10 @@ LRESULT ImwPlatformWindowDX11::OnMessage(UINT message, WPARAM wParam, LPARAM lPa
 			m_oPosition = ImVec2(oRect.left, oRect.top);
 			//AdjustWindowRect(&oRect, GetWindowLong(m_hWnd, GWL_STYLE), FALSE);
 			//m_oPosition = ImVec2(oRect.left, oRect.top);
+		break;
+	case WM_KILLFOCUS:
+		{
+			OnLoseFocus();
 		}
 		break;
 
