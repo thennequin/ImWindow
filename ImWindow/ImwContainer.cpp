@@ -443,6 +443,46 @@ void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
 	}
 	else if (HasWindowTabbed())
 	{
+		ImGui::InvisibleButton("TabListButton", ImVec2(16, 16));
+		ImGui::SameLine();
+
+		if (ImGui::BeginPopupContextItem("TabListMenu", 0))
+		{
+			int iIndex = 0;
+			for (ImwWindowList::const_iterator itWindow = m_lWindows.begin(); itWindow != m_lWindows.end(); ++itWindow, ++iIndex)
+			{
+				if (ImGui::Selectable((*itWindow)->GetTitle()))
+				{
+					m_iActiveWindow = iIndex;
+				}
+			}
+			ImGui::EndPopup();
+		}
+
+		ImColor oLinesColor = ImColor(160, 160, 160, 255);
+		if (ImGui::IsItemHovered())
+		{
+			oLinesColor = ImColor(255, 255, 255, 255);
+		}
+		ImVec2 oButtonMin = ImGui::GetItemRectMin();
+		ImVec2 oButtonMax = ImGui::GetItemRectMax();
+		ImVec2 oButtonSize = ImVec2(oButtonMax.x - oButtonMin.x, oButtonMax.y - oButtonMin.y);
+		ImDrawList* pList = ImGui::GetWindowDrawList();
+		pList->AddLine(
+			ImVec2(oButtonMin.x + 1, oButtonMin.y + oButtonSize.y / 2),
+			ImVec2(oButtonMax.x - 1, oButtonMin.y + oButtonSize.y / 2),
+			oLinesColor);
+
+		pList->AddLine(
+			ImVec2(oButtonMin.x + 1, oButtonMin.y + oButtonSize.y / 2 - 4),
+			ImVec2(oButtonMax.x - 1, oButtonMin.y + oButtonSize.y / 2 - 4),
+			oLinesColor);
+
+		pList->AddLine(
+			ImVec2(oButtonMin.x + 1, oButtonMin.y + oButtonSize.y / 2 + 4),
+			ImVec2(oButtonMax.x - 1, oButtonMin.y + oButtonSize.y / 2 + 4),
+			oLinesColor);
+
 		//Tabs
 		int iIndex = 0;
 		int iNewActive = m_iActiveWindow;
@@ -475,7 +515,7 @@ void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
 				}
 			}
 
-			if (ImGui::BeginPopupContextItem("Test"))
+			if (ImGui::BeginPopupContextItem("TabMenu"))
 			{
 				if (ImGui::Selectable("Close"))
 				{
