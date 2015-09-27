@@ -387,7 +387,16 @@ void ImwWindowManager::Paint(ImwPlatformWindow* pWindow)
 	//ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, ImColor(59, 59, 59, 255));
 	ImGui::Begin( "Main", NULL, iFlags );
 	pWindow->PaintContainer();
-	
+	ImGui::BeginTooltip();
+	ImGui::Text("Tooltip");
+	ImGui::EndTooltip();
+	ImGui::End();
+
+	//ImGui::PopStyleColor(2);
+	ImGui::PopStyleVar(1);
+
+	ImGui::PushStyleColor(ImGuiCol_TooltipBg, ImColor(0,0,0,0));
+	ImGui::BeginTooltip();
 	ImDrawList* pDrawList = ImGui::GetWindowDrawList();
 	for (ImwList<DrawWindowAreaAction>::iterator it = m_lDrawWindowAreas.begin(); it != m_lDrawWindowAreas.end(); )
 	{
@@ -399,25 +408,24 @@ void ImwWindowManager::Paint(ImwPlatformWindow* pWindow)
 			ImVec2 oPosB = oAction.m_oRectSize;
 			oPosB.x += oPosA.x;
 			oPosB.y += oPosA.y;
-			
+
 			pDrawList->PushClipRectFullScreen();
 			//pDrawList->AddLine(ImGui::CalcItemRectClosestPoint(ImGui::GetIO().MousePos, true, -2.0f), ImGui::GetIO().MousePos, ImColor(ImGui::GetStyle().Colors[ImGuiCol_Button]), 4.0f);
 			pDrawList->AddRectFilled(oPosA, oPosB, oAction.m_oColor);
 			pDrawList->PopClipRect();
 			ImwList<DrawWindowAreaAction>::iterator toRemove = it;
 			++it;
-			m_lDrawWindowAreas.erase( toRemove );
+			m_lDrawWindowAreas.erase(toRemove);
 		}
 		else
-		{ 
+		{
 			++it;
 		}
 	}
-	
-	ImGui::End();
 
-	//ImGui::PopStyleColor(2);
-	ImGui::PopStyleVar(1);
+	ImGui::EndTooltip();
+	ImGui::PopStyleColor();
+
 	
 	ImGui::Render();
 }
