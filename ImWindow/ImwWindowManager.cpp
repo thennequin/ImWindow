@@ -387,9 +387,6 @@ void ImwWindowManager::Paint(ImwPlatformWindow* pWindow)
 	//ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, ImColor(59, 59, 59, 255));
 	ImGui::Begin( "Main", NULL, iFlags );
 	pWindow->PaintContainer();
-	ImGui::BeginTooltip();
-	ImGui::Text("Tooltip");
-	ImGui::EndTooltip();
 	ImGui::End();
 
 	//ImGui::PopStyleColor(2);
