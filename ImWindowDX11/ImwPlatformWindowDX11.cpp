@@ -470,6 +470,12 @@ LRESULT ImwPlatformWindowDX11::OnMessage(UINT message, WPARAM wParam, LPARAM lPa
 		//OutputDebugString("WM_DESTROY\n");
 		//PostQuitMessage(0);
 		break;
+	case WM_ERASEBKGND:
+		return 1;
+		break;
+	case WM_PAINT:
+		return 1;
+		break;
 	case WM_LBUTTONDOWN:
 		io.MouseDown[0] = true;
 		return 1;
