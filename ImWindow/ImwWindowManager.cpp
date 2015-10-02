@@ -392,8 +392,7 @@ void ImwWindowManager::Paint(ImwPlatformWindow* pWindow)
 	//ImGui::PopStyleColor(2);
 	ImGui::PopStyleVar(1);
 
-	ImGui::PushStyleColor(ImGuiCol_TooltipBg, ImColor(0,0,0,0));
-	ImGui::BeginTooltip();
+	ImGui::Begin("##Overlay", NULL, ImVec2(0, 0), 0.f, ImGuiWindowFlags_Tooltip | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize);
 	ImDrawList* pDrawList = ImGui::GetWindowDrawList();
 	for (ImwList<DrawWindowAreaAction>::iterator it = m_lDrawWindowAreas.begin(); it != m_lDrawWindowAreas.end(); )
 	{
@@ -419,9 +418,7 @@ void ImwWindowManager::Paint(ImwPlatformWindow* pWindow)
 			++it;
 		}
 	}
-
-	ImGui::EndTooltip();
-	ImGui::PopStyleColor();
+	ImGui::End();
 
 	
 	ImGui::Render();
