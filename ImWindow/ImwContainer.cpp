@@ -273,6 +273,25 @@ bool ImwContainer::UnDock(ImwWindow* pWindow)
 	return false;
 }
 
+void ImwContainer::DockToBest(ImwWindow* pWindow)
+{
+	if (IsSplit())
+	{
+		if (m_fSplitRatio < 0.5f)
+		{
+			m_pSplits[0]->DockToBest(pWindow);
+		}
+		else
+		{
+			m_pSplits[1]->DockToBest(pWindow);
+		}
+	}
+	else
+	{
+		Dock(pWindow);
+	}
+}
+
 bool ImwContainer::IsEmpty()
 {
 	//ImwAssert(IsSplit() != HasWindowTabbed());
@@ -781,7 +800,6 @@ ImwContainer* ImwContainer::GetBestDocking(const ImVec2 oCursorPos, EDockOrienta
 				bool bIsInRight = false;
 				bool bIsInBottom = false;
 
-				
 				if (bLargeCheck)
 				{
 					ImRect oRectCenter(ImVec2(oCenter.x - c_fBoxHalfSize * 2.f, oCenter.y - c_fBoxHalfSize * 2.f), ImVec2(oCenter.x + c_fBoxHalfSize * 2.f, oCenter.y + c_fBoxHalfSize * 2.f));
