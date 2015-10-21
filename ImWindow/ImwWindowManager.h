@@ -105,6 +105,7 @@ namespace ImWindow
 		void								Log(const char* pFormat, ...);
 		virtual void						LogFormatted(const char* pStr) = 0;;
 	protected:
+		virtual bool						CanCreateMultipleWindow() = 0;
 		virtual ImwPlatformWindow*			CreatePlatformWindow(bool bMain, ImwPlatformWindow* pParent, bool bDragWindow) = 0;
 		virtual void						InternalRun() = 0;
 		virtual ImVec2						GetCursorPos() = 0;
@@ -114,6 +115,7 @@ namespace ImWindow
 		void								RemoveWindow(ImwWindow* pWindow);
 		void								DestroyWindow(ImwWindow* pWindow);
 
+		void								UnDock(ImwWindow* pWindow);
 		void								InternalDock(ImwWindow* pWindow, EDockOrientation eOrientation, ImwPlatformWindow* pToPlatformWindow);
 		void								InternalDockTo(ImwWindow* pWindow, EDockOrientation eOrientation, ImwContainer* pToContainer);
 		void								InternalDockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation);
@@ -136,7 +138,7 @@ namespace ImWindow
 		void								StartDragWindow(ImwWindow* pWindow);
 		void								StopDragWindow();
 		void								UpdateDragWindow();
-		ImwContainer*						GetBestDocking(ImwPlatformWindow* pPlatformWindow, const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize);
+		ImwContainer*						GetBestDocking(ImwPlatformWindow* pPlatformWindow, const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, bool bLargeCheck);
 		
 		Config								m_oConfig;
 		ImwPlatformWindow*					m_pMainPlatformWindow;

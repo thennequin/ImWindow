@@ -20,7 +20,7 @@ namespace ImWindow
 		bool							HasWindowTabbed();
 		ImwContainer*					HasWindow(const ImwWindow* pWindow);
 		ImwPlatformWindow*				GetPlatformWindowParent() const;
-		ImwContainer*					GetBestDocking(const ImVec2 oCursorPosInContainer, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize);
+		ImwContainer*					GetBestDocking(const ImVec2 oCursorPosInContainer, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, bool bLargeCheck);
 	protected:
 										ImwContainer(ImwContainer* pParent);
 										ImwContainer(ImwPlatformWindow* pParent);
