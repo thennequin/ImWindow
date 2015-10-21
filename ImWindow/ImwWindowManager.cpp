@@ -361,7 +361,7 @@ void ImwWindowManager::UpdateOrphans()
 		{
 			InternalDock(*m_lOrphanWindows.begin(), E_DOCK_ORIENTATION_CENTER, m_pMainPlatformWindow);
 		}
-		else
+		else if (CanCreateMultipleWindow())
 		{
 			ImVec2 oSize = ImVec2(300, 300);
 			ImVec2 oPos = m_pMainPlatformWindow->GetPosition();
@@ -369,6 +369,10 @@ void ImwWindowManager::UpdateOrphans()
 			oPos.x += (oMainSize.x - oSize.x) / 2;
 			oPos.y += (oMainSize.y - oSize.y) / 2;
 			InternalFloat(*m_lOrphanWindows.begin(), oPos, oSize);
+		}
+		else
+		{
+			m_pMainPlatformWindow->m_pContainer->DockToBest(*m_lOrphanWindows.begin());
 		}
 		m_lOrphanWindows.erase(m_lOrphanWindows.begin());
 	}
