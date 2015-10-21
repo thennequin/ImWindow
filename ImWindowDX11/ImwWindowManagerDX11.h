@@ -14,6 +14,7 @@ namespace ImWindow
 		ImwWindowManagerDX11();
 		virtual							~ImwWindowManagerDX11();
 	protected:
+		virtual bool					CanCreateMultipleWindow() { return true; }
 		virtual ImwPlatformWindow*		CreatePlatformWindow(bool bMain, ImwPlatformWindow* pParent, bool bDragWindow);
 
 		virtual void					LogFormatted(const char* pStr);
