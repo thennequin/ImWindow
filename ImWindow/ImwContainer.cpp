@@ -292,19 +292,19 @@ void ImwContainer::DockToBest(ImwWindow* pWindow)
 	}
 }
 
-bool ImwContainer::IsEmpty()
+bool ImwContainer::IsEmpty() const
 {
 	//ImwAssert(IsSplit() != HasWindowTabbed());
 	return !(IsSplit() || HasWindowTabbed());
 }
 
-bool ImwContainer::IsSplit()
+bool ImwContainer::IsSplit() const
 {
 	ImwAssert((NULL == m_pSplits[0]) == (NULL == m_pSplits[1]));
 	return (NULL != m_pSplits[0] && NULL != m_pSplits[1]);
 }
 
-bool ImwContainer::HasWindowTabbed()
+bool ImwContainer::HasWindowTabbed() const
 {
 	return m_lWindows.size() > 0;
 }
@@ -614,10 +614,11 @@ void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
 
 			if (ImGui::BeginPopupContextItem("TabMenu"))
 			{
-				if (ImGui::Selectable("Close"))
+				if ((*it)->IsClosable() && ImGui::Selectable("Close"))
 				{
 					(*it)->Destroy();
 				}
+
 				if (ImGui::BeginMenu("Dock to"))
 				{
 					int iIndex = 0;
@@ -898,4 +899,20 @@ ImwContainer* ImwContainer::GetBestDocking(const ImVec2 oCursorPos, EDockOrienta
 	}
 
 	return NULL;
+}
+
+bool ImwContainer::HasUnclosableWindow() const
+{
+	for (ImwWindowList::const_iterator itWindow = m_lWindows.begin(); itWindow != m_lWindows.end(); ++itWindow)
+	{
+		if ( !(*itWindow)->IsClosable() )
+		{
+			return true;
+		}
+	}
+	if (IsSplit())
+	{
+		return m_pSplits[0]->HasUnclosableWindow() || m_pSplits[1]->HasUnclosableWindow();
+	}
+	return false;
 }

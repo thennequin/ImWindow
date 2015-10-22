@@ -229,6 +229,7 @@ int WinMain(int argc, char* argv[])
 	ImwWindow* pWindow3 = new MyImwWindow2("MyImwWindow2(2)");
 	ImwWindow* pWindow4 = new MyImwWindow2("MyImwWindow2(3)");
 	ImwWindow* pWindow5 = new MyImwWindow3();
+	pWindow5->SetClosable(false);
 
 	//ImwWindow* pStyleEditor = new StyleEditorWindow();
 

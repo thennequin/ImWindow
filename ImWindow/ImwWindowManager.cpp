@@ -261,7 +261,7 @@ void ImwWindowManager::UpdatePlatformwWindowActions()
 		
 		ImwAssert((pAction->m_iFlags & E_PLATFORM_WINDOW_ACTION_SHOW & E_PLATFORM_WINDOW_ACTION_HIDE) == 0); // Can't show and hide		
 
-		if (pAction->m_iFlags & E_PLATFORM_WINDOW_ACTION_DESTOY)
+		if (pAction->m_iFlags & E_PLATFORM_WINDOW_ACTION_DESTROY)
 		{
 			//pAction->m_pPlatformWindow->Show();
 			//todo destroy
@@ -691,10 +691,13 @@ void ImwWindowManager::InternalUnDock(ImwWindow* pWindow)
 
 void ImwWindowManager::OnClosePlatformWindow(ImwPlatformWindow* pWindow)
 {
-	PlatformWindowAction* pAction = new PlatformWindowAction();
-	pAction->m_iFlags = E_PLATFORM_WINDOW_ACTION_DESTOY;
-	pAction->m_pPlatformWindow = pWindow;
-	m_lPlatformWindowActions.push_back(pAction);
+	if (NULL != pWindow && !pWindow->m_pContainer->HasUnclosableWindow())
+	{
+		PlatformWindowAction* pAction = new PlatformWindowAction();
+		pAction->m_iFlags = E_PLATFORM_WINDOW_ACTION_DESTROY;
+		pAction->m_pPlatformWindow = pWindow;
+		m_lPlatformWindowActions.push_back(pAction);
+	}
 }
 
 void ImwWindowManager::DrawWindowArea( ImwPlatformWindow* pWindow, const ImVec2& oPos, const ImVec2& oSize, const ImColor& oColor )

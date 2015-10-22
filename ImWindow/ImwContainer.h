@@ -16,12 +16,13 @@ namespace ImWindow
 		bool							UnDock(ImwWindow* pWindow);
 		void							DockToBest(ImwWindow* pWindow);
 
-		bool							IsEmpty();
-		bool							IsSplit();
-		bool							HasWindowTabbed();
+		bool							IsEmpty() const;
+		bool							IsSplit() const;
+		bool							HasWindowTabbed() const;
 		ImwContainer*					HasWindow(const ImwWindow* pWindow);
 		ImwPlatformWindow*				GetPlatformWindowParent() const;
 		ImwContainer*					GetBestDocking(const ImVec2 oCursorPosInContainer, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, bool bLargeCheck);
+		bool							HasUnclosableWindow() const;
 	protected:
 										ImwContainer(ImwContainer* pParent);
 										ImwContainer(ImwPlatformWindow* pParent);

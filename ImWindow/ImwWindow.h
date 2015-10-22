@@ -27,12 +27,17 @@ namespace ImWindow
 		void					SetTitle(const char* pTitle);
 		const char*				GetTitle() const;
 
+		void					SetClosable( bool bClosable );
+		bool					IsClosable() const;
+
 		const ImVec2&			GetLastPosition() const;
 		const ImVec2&			GetLastSize() const;
+
 	protected:
 
 		char*					m_pTitle;
 		ImwId					m_oId;
+		bool					m_bClosable;
 
 		ImVec2					m_oLastPosition;
 		ImVec2					m_oLastSize;

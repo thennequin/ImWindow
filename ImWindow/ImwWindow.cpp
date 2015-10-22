@@ -7,6 +7,7 @@ using namespace ImWindow;
 ImwWindow::ImwWindow()
 {
 	m_pTitle = NULL;
+	m_bClosable  = true;
 	ImwWindowManager::GetInstance()->AddWindow(this);
 }
 
@@ -35,6 +36,16 @@ void ImwWindow::SetTitle(const char* pTitle)
 const char* ImwWindow::GetTitle() const
 {
 	return m_pTitle;
+}
+
+void ImwWindow::SetClosable( bool bClosable )
+{
+	m_bClosable = bClosable;
+}
+
+bool ImwWindow::IsClosable() const
+{
+	return m_bClosable;
 }
 
 const ImVec2& ImwWindow::GetLastPosition() const
