@@ -2,8 +2,6 @@
 #include "ImwPlatformWindow.h"
 
 #include "ImwWindowManager.h"
-#include <imgui/imgui.h>
-#include <imgui/imgui_internal.h>
 
 using namespace ImWindow;
 

@@ -7,7 +7,6 @@
 
 #include <map>
 
-#include <imgui/imgui.h>
 #include <imgui_impl_dx11.h>
 
 #include <windows.h>
