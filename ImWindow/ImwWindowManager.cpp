@@ -74,7 +74,9 @@ bool ImwWindowManager::Init()
 
 bool ImwWindowManager::Run()
 {
+	PreUpdate();
 	InternalRun();
+	Update();
 	return m_pMainPlatformWindow != NULL;
 }
 
