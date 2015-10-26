@@ -343,7 +343,6 @@ void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
 {
 	ImwWindowManager* pWindowManager = ImwWindowManager::GetInstance();
 	ImGuiWindow* pWindow = ImGui::GetCurrentWindow();
-	const ImGuiIO& oIO = ImGui::GetIO();
 	const ImGuiStyle& oStyle = ImGui::GetStyle();
 	ImDrawList* pDrawList = ImGui::GetWindowDrawList();
 
@@ -360,14 +359,6 @@ void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
 
 	if (IsSplit())
 	{
-		
-		//const ImVec2 oPosMin(iX, iY);
-		//const ImVec2 oPosMax(iX + iWidth, iY + iHeight);
-
-		//pDrawList->AddRect(oMin, oMax, ImColor(255, 0, 0, 255));
-
-		const ImGuiID oSeparatorId = pWindow->GetID("Separator");
-
 		if (m_bVerticalSplit)
 		{
 			float iFirstHeight = oSize.y * m_fSplitRatio - iSeparatorHalfSize - pWindow->WindowPadding.x;
@@ -785,8 +776,6 @@ ImwContainer* ImwContainer::GetBestDocking(const ImVec2 oCursorPos, EDockOrienta
 			}
 			else
 			{
-				ImwWindowManager::Config& oConfig = ImwWindowManager::GetInstance()->GetConfig();
-
 				const ImVec2 oCenter = ImVec2(m_oLastPosition.x + m_oLastSize.x / 2.f, m_oLastPosition.y + m_oLastSize.y / 2.f);
 
 				bool bIsInCenter = false;
