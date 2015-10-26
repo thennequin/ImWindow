@@ -4,8 +4,6 @@
 
 #include "ImwConfig.h"
 
-#include "ImwId.h"
-
 namespace ImWindow
 {
 	class ImwWindow
