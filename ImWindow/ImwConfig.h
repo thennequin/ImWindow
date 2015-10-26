@@ -8,7 +8,6 @@
 
 #include <assert.h>
 #define ImwAssert(bTest/*, sMessage*/) { if (!(bTest)) __debugbreak(); assert(bTest); }
-#define ImwTest(bTest) { bool bRes = (bTest); ImwAssert(bRes); }
 
 #ifndef ImwList
 #include <list>
