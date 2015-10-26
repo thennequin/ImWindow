@@ -178,7 +178,7 @@ ImwPlatformWindow* ImwWindowManager::GetWindowParent(ImwWindow* pWindow)
 		return m_pMainPlatformWindow;
 	}
 
-	for ( std::list<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
+	for ( ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
 	{
 		pContainer = (*it)->HasWindow(pWindow);
 		if (NULL != pContainer)
@@ -190,21 +190,11 @@ ImwPlatformWindow* ImwWindowManager::GetWindowParent(ImwWindow* pWindow)
 	return NULL;
 }
 
-void ImwWindowManager::Log(const char* pFormat, ...)
-{
-	char pBuffer[32768];
-	va_list argptr;
-	va_start(argptr, pFormat);
-	vsprintf_s(pBuffer, sizeof(char) * 32767, pFormat, argptr);
-	va_end(argptr);
-	LogFormatted(pBuffer);
-}
-
 void ImwWindowManager::PreUpdate()
 {
 	ImwIsSafe(m_pMainPlatformWindow)->PreUpdate();
 
-	for (std::list<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
+	for (ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
 	{
 		(*it)->PreUpdate();
 	}
@@ -242,7 +232,7 @@ void ImwWindowManager::Update()
 	m_pCurrentPlatformWindow = m_pMainPlatformWindow;
 	ImwIsSafe(m_pMainPlatformWindow)->Paint();
 
-	for ( std::list<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
+	for ( ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
 	{
 		m_pCurrentPlatformWindow = (*it);
 		(*it)->Paint();
@@ -502,7 +492,7 @@ void ImwWindowManager::UpdateDragWindow()
 		ImwContainer* pBestContainer = GetBestDocking(m_pMainPlatformWindow, oCursorPos, eBestDockOrientation, oHightlightPos, oHightlightSize, !CanCreateMultipleWindow());
 		if (NULL == pBestContainer)
 		{
-			for (std::list<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end() && NULL == pBestContainer; ++it)
+			for (ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end() && NULL == pBestContainer; ++it)
 			{
 				pBestContainer = GetBestDocking(*it, oCursorPos, eBestDockOrientation, oHightlightPos, oHightlightSize, false);
 			}
@@ -628,7 +618,7 @@ void ImwWindowManager::InternalDockWith(ImwWindow* pWindow, ImwWindow* pWithWind
 		pContainer->Dock(pWindow, eOrientation);
 	}
 
-	for ( std::list<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
+	for ( ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
 	{
 		pContainer = (*it)->HasWindow(pWithWindow);
 		if (NULL != pContainer)
@@ -670,7 +660,7 @@ void ImwWindowManager::InternalUnDock(ImwWindow* pWindow)
 		return;
 	}
 
-	for ( std::list<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
+	for ( ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
 	{
 		if ( (*it)->UnDock(pWindow) )
 		{

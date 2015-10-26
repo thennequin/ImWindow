@@ -6,24 +6,6 @@
 #include "ImwWindow.h"
 #include "ImwPlatformWindow.h"
 
-#include <imgui/imgui.h>
-
-#include <list>
-
-#ifdef _DEBUG
-#	if _WIN64
-#		pragma comment (lib, "ImWindow_x64_Debug.lib")
-#	else
-#		pragma comment (lib, "ImWindow_Win32_Debug.lib")
-#	endif
-#else // _DEBUG
-#	if _WIN64
-#		pragma comment (lib, "ImWindow_x64_Release.lib")
-#	else
-#		pragma comment (lib, "ImWindow_Win32_Release.lib")
-#	endif
-#endif // _DEBUG
-
 namespace ImWindow
 {
 	class ImwWindowManager
@@ -102,8 +84,6 @@ namespace ImWindow
 		ImwPlatformWindow*					GetCurrentPlatformWindow();
 		ImwPlatformWindow*					GetWindowParent(ImwWindow* pWindow);
 
-		void								Log(const char* pFormat, ...);
-		virtual void						LogFormatted(const char* pStr) = 0;;
 	protected:
 		virtual bool						CanCreateMultipleWindow() = 0;
 		virtual ImwPlatformWindow*			CreatePlatformWindow(bool bMain, ImwPlatformWindow* pParent, bool bDragWindow) = 0;

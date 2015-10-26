@@ -14,6 +14,12 @@
 #include <Windows.h>
 #endif
 
+#ifdef _WIN32
+#define ImwNewline "\r\n"
+#else
+#define ImwNewline "\n"
+#endif
+
 using namespace ImWindow;
 
 class MyImwWindow3 : public ImwWindow

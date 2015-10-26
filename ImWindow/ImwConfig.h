@@ -2,12 +2,11 @@
 #ifndef __IM_CONFIG_H__
 #define __IM_CONFIG_H__
 
-#include <assert.h>
-
 #ifndef NULL
 #define NULL 0
 #endif // NULL
 
+#include <assert.h>
 #define ImwAssert(bTest/*, sMessage*/) { if (!(bTest)) __debugbreak(); assert(bTest); }
 #define ImwTest(bTest) { bool bRes = (bTest); ImwAssert(bRes); }
 
@@ -29,13 +28,30 @@
 #define ImwFree(pObj) free(pObj)
 #define ImwSafeFree(pObj) {free(pObj); pObj = NULL;}
 
-#ifdef _WIN32
-#define ImwNewline "\r\n"
-#else
-#define ImwNewline "\n"
-#endif
-
+//////////////////////////////////////////////////////////////////////////
+// Include here imgui.h
+//////////////////////////////////////////////////////////////////////////
 #include "imgui/imgui.h"
+
+//////////////////////////////////////////////////////////////////////////
+// Used for demo
+//////////////////////////////////////////////////////////////////////////
+#ifdef _DEBUG
+#	if _WIN64
+#		pragma comment (lib, "ImWindow_x64_Debug.lib")
+#	else
+#		pragma comment (lib, "ImWindow_Win32_Debug.lib")
+#	endif
+#else // _DEBUG
+#	if _WIN64
+#		pragma comment (lib, "ImWindow_x64_Release.lib")
+#	else
+#		pragma comment (lib, "ImWindow_Win32_Release.lib")
+#	endif
+#endif // _DEBUG
+
+//////////////////////////////////////////////////////////////////////////
+
 #include "ImwEnums.h"
 #include "ImwConsts.h"
 

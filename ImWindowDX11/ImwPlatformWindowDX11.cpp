@@ -361,8 +361,8 @@ LRESULT ImwPlatformWindowDX11::OnMessage(UINT message, WPARAM wParam, LPARAM lPa
 {
 	if (IsStateSet())
 	{
-		std::string sMsg = GetStringFromMessages(message);
-		ImwWindowManager::GetInstance()->Log("OnMessage %d %s\n", message, sMsg.c_str());
+		//std::string sMsg = GetStringFromMessages(message);
+		//ImwWindowManager::GetInstance()->Log("OnMessage %d %s\n", message, sMsg.c_str());
 		return DefWindowProc(m_hWnd, message, wParam, lParam);
 	}
 	SetState();

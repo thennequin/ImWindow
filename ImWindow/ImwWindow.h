@@ -5,7 +5,6 @@
 #include "ImwConfig.h"
 
 #include "ImwId.h"
-#include <imgui/imgui.h>
 
 namespace ImWindow
 {

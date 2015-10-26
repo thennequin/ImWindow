@@ -2,7 +2,7 @@
 #ifndef __IMW_ID_H__
 #define __IMW_ID_H__
 
-#include <imgui/imgui.h>
+#include "ImwConfig.h"
 
 namespace ImWindow
 {
