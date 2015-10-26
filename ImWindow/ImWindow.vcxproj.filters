@@ -53,9 +53,6 @@
     <ClInclude Include="ImwContainer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ImwEnums.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\Externals\ImGui\imgui\imgui_internal.h">
       <Filter>ImGui</Filter>
     </ClInclude>
@@ -73,9 +70,6 @@
     </ClInclude>
     <ClInclude Include="..\Externals\ImGui\imgui\imgui.h">
       <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ImwConsts.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

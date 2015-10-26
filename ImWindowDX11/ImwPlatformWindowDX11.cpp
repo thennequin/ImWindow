@@ -38,8 +38,8 @@ ImwPlatformWindowDX11::ImwPlatformWindowDX11( bool bMain, bool bIsDragWindow )
 	m_pSwapChain = NULL;
 	m_pRenderTargetView = NULL;
 	m_bDrag = false; 
-	m_oSize = IM_VEC2_0;
-	m_oPosition = IM_VEC2_N1;
+	m_oSize = ImVec2(0,0);
+	m_oPosition = ImVec2(-1,-1);
 }
 
 ImwPlatformWindowDX11::~ImwPlatformWindowDX11()

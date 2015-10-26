@@ -6,6 +6,16 @@
 
 namespace ImWindow
 {
+	enum EDockOrientation
+	{
+		E_DOCK_ORIENTATION_CENTER,
+		//E_DOCK_ORIENTATION_TABBED = E_DOCK_ORIENTATION_CENTER,
+		E_DOCK_ORIENTATION_TOP,
+		E_DOCK_ORIENTATION_LEFT,
+		E_DOCK_ORIENTATION_RIGHT,
+		E_DOCK_ORIENTATION_BOTTOM,
+	};
+
 	class ImwWindow
 	{
 		friend class ImwWindowManager;

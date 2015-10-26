@@ -540,7 +540,7 @@ ImwContainer* ImwWindowManager::GetBestDocking(ImwPlatformWindow* pPlatformWindo
 		if (oRectPos.x <= oSize.x * m_oConfig.m_fDragMarginRatio)
 		{
 			oOutOrientation = E_DOCK_ORIENTATION_LEFT;
-			oOutAreaPos = IM_VEC2_0;
+			oOutAreaPos = ImVec2(0, 0);
 			oOutAreaSize = ImVec2(oSize.x * m_oConfig.m_fDragMarginSizeRatio, oSize.y);
 		}
 		//Right
@@ -554,7 +554,7 @@ ImwContainer* ImwWindowManager::GetBestDocking(ImwPlatformWindow* pPlatformWindo
 		else if (oRectPos.y <= oSize.y * m_oConfig.m_fDragMarginRatio)
 		{
 			oOutOrientation = E_DOCK_ORIENTATION_TOP;
-			oOutAreaPos = IM_VEC2_0;
+			oOutAreaPos = ImVec2(0, 0);
 			oOutAreaSize = ImVec2(oSize.x, oSize.y * m_oConfig.m_fDragMarginSizeRatio);
 		}
 		//Bottom
@@ -567,7 +567,7 @@ ImwContainer* ImwWindowManager::GetBestDocking(ImwPlatformWindow* pPlatformWindo
 		else
 		{
 			oOutOrientation = E_DOCK_ORIENTATION_CENTER;
-			oOutAreaPos = IM_VEC2_0;
+			oOutAreaPos = ImVec2(0, 0);
 			oOutAreaSize = ImVec2(oSize.x, oSize.y);
 			//ImwAssert(false); //Best dock orientation not found
 			return NULL;
@@ -634,11 +634,14 @@ void ImwWindowManager::InternalFloat(ImwWindow* pWindow, ImVec2 oPosition, ImVec
 	{
 		m_lPlatformWindows.push_back(pPlatformWindow);
 
-		if (oSize.x == IM_VEC2_N1.x && oSize.y == IM_VEC2_N1.y)
+		const ImVec2 oVec2_1 = ImVec2(1, 1);
+		const ImVec2 oVec2_N1 = ImVec2(-1, -1);
+
+		if (oSize.x == oVec2_1.x && oSize.y == oVec2_1.y)
 		{
 			oSize = pWindow->GetLastSize();
 		}
-		if (oPosition.x == IM_VEC2_N1.x && oPosition.y == IM_VEC2_N1.y)
+		if (oPosition.x == oVec2_N1.x && oPosition.y == oVec2_N1.y)
 		{
 			oPosition = GetCursorPos();
 			oPosition.x -= 20;
