@@ -5,7 +5,7 @@
 
 using namespace ImWindow;
 
-ImwPlatformWindow::ImwPlatformWindow(bool bMain, bool bIsDragWindow)
+ImwPlatformWindow::ImwPlatformWindow(bool bMain, bool bIsDragWindow, bool bCreateState)
 {
 	m_bMain = bMain;
 	m_bIsDragWindow = bIsDragWindow;
@@ -13,11 +13,14 @@ ImwPlatformWindow::ImwPlatformWindow(bool bMain, bool bIsDragWindow)
 	m_pState = NULL;
 	m_pPreviousState = NULL;
 
-	void* pTemp = ImGui::GetInternalState();
-	m_pState = ImwMalloc(ImGui::GetInternalStateSize());
-	ImGui::SetInternalState(m_pState, true);
-	ImGui::GetIO().IniFilename = NULL;
-	ImGui::SetInternalState(pTemp);
+	if (bCreateState)
+	{
+		void* pTemp = ImGui::GetInternalState();
+		m_pState = ImwMalloc(ImGui::GetInternalStateSize());
+		ImGui::SetInternalState(m_pState, true);
+		ImGui::GetIO().IniFilename = NULL;
+		ImGui::SetInternalState(pTemp);
+	}
 }
 
 ImwPlatformWindow::~ImwPlatformWindow()
@@ -50,17 +53,23 @@ void ImwPlatformWindow::SetState()
 {
 	ImwAssert(s_bStatePush == false);
 	s_bStatePush = true;
-	m_pPreviousState = ImGui::GetInternalState();
-	ImGui::SetInternalState(m_pState);
-	memcpy(&((ImGuiState*)m_pState)->Style, &((ImGuiState*)m_pPreviousState)->Style, sizeof(ImGuiStyle));
+	if (m_pState != NULL)
+	{
+		m_pPreviousState = ImGui::GetInternalState();
+		ImGui::SetInternalState(m_pState);
+		memcpy(&((ImGuiState*)m_pState)->Style, &((ImGuiState*)m_pPreviousState)->Style, sizeof(ImGuiStyle));
+	}
 }
 
 void ImwPlatformWindow::RestoreState()
 {
 	ImwAssert(s_bStatePush == true);
 	s_bStatePush = false;
-	memcpy(&((ImGuiState*)m_pPreviousState)->Style, &((ImGuiState*)m_pState)->Style, sizeof(ImGuiStyle));
-	ImGui::SetInternalState(m_pPreviousState);
+	if (m_pState != NULL)
+	{
+		memcpy(&((ImGuiState*)m_pPreviousState)->Style, &((ImGuiState*)m_pState)->Style, sizeof(ImGuiStyle));
+		ImGui::SetInternalState(m_pPreviousState);
+	}
 }
 
 void ImwPlatformWindow::OnLoseFocus()

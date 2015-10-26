@@ -12,7 +12,7 @@ namespace ImWindow
 	{
 		friend class ImwWindowManager;
 	public:
-											ImwPlatformWindow(bool bMainWindow, bool bIsDragWindow);
+											ImwPlatformWindow(bool bMainWindow, bool bIsDragWindow, bool bCreateState);
 		virtual								~ImwPlatformWindow();
 
 		virtual bool						Init(ImwPlatformWindow* pParent) = 0;

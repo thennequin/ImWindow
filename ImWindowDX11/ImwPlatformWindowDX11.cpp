@@ -32,8 +32,8 @@ INT64									ImwPlatformWindowDX11::g_TicksPerSecond = 0;
 IMGUI_API void							ImGui_ImplDX11_RenderDrawLists(ImDrawData* draw_data);
 
 
-ImwPlatformWindowDX11::ImwPlatformWindowDX11( bool bMain, bool bIsDragWindow )
-	: ImwPlatformWindow( bMain, bIsDragWindow )
+ImwPlatformWindowDX11::ImwPlatformWindowDX11( bool bMain, bool bIsDragWindow, bool bCreateState )
+	: ImwPlatformWindow( bMain, bIsDragWindow, bCreateState )
 {
 	m_pSwapChain = NULL;
 	m_pRenderTargetView = NULL;
