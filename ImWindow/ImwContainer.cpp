@@ -67,7 +67,7 @@ void ImwContainer::Dock(ImwWindow* pWindow, EDockOrientation eOrientation)
 
 		if ( !IsSplit() )
 		{
-			if (m_lWindows.size() == 0)
+			if (m_lWindows.begin() ==  m_lWindows.end())
 			{
 				eOrientation = E_DOCK_ORIENTATION_CENTER;
 			}
@@ -77,7 +77,7 @@ void ImwContainer::Dock(ImwWindow* pWindow, EDockOrientation eOrientation)
 			case E_DOCK_ORIENTATION_CENTER:
 				{
 					m_lWindows.push_back(pWindow);
-					m_iActiveWindow = m_lWindows.size() - 1;
+					m_iActiveWindow = (int)m_lWindows.size() - 1;
 				}
 				break;
 			case E_DOCK_ORIENTATION_TOP:
@@ -203,9 +203,9 @@ bool ImwContainer::UnDock(ImwWindow* pWindow)
 	if (std::find(m_lWindows.begin(), m_lWindows.end(), pWindow) != m_lWindows.end())
 	{
 		m_lWindows.remove(pWindow);
-		if (m_iActiveWindow >= m_lWindows.size())
+		if (m_iActiveWindow >= (int)m_lWindows.size())
 		{
-			m_iActiveWindow = m_lWindows.size() - 1;
+			m_iActiveWindow = (int)m_lWindows.size() - 1;
 		}
 		return true;
 	}
@@ -506,16 +506,13 @@ void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
 		//Tabs
 		int iIndex = 0;
 		int iNewActive = m_iActiveWindow;
-		int iSize = m_lWindows.size();
+		int iSize = (int)m_lWindows.size();
 		for (ImwWindowList::iterator it = m_lWindows.begin(); it != m_lWindows.end(); ++it)
 		{
 			const ImVec2 oTextSize = ImGui::CalcTextSize( (*it)->GetTitle() );
 			ImVec2 oRectSize(oTextSize.x + 15, 25);
 
-			ImU32 oFrameColor;
-
 			ImGui::PushID(iIndex);
-			
 
 			bool bSelected = iIndex == m_iActiveWindow;
 			if (ImGui::InvisibleButton((*it)->GetIdStr(), oRectSize))

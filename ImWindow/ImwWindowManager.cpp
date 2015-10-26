@@ -296,11 +296,11 @@ void ImwWindowManager::UpdatePlatformwWindowActions()
 		}
 		if (pAction->m_iFlags & E_PLATFORM_WINDOW_ACTION_SET_POSITION)
 		{
-			pAction->m_pPlatformWindow->SetPosition(pAction->m_oPosition.x, pAction->m_oPosition.y);
+			pAction->m_pPlatformWindow->SetPosition((int)pAction->m_oPosition.x, (int)pAction->m_oPosition.y);
 		}
 		if (pAction->m_iFlags & E_PLATFORM_WINDOW_ACTION_SET_SIZE)
 		{
-			pAction->m_pPlatformWindow->SetSize(pAction->m_oSize.x, pAction->m_oSize.y);
+			pAction->m_pPlatformWindow->SetSize((int)pAction->m_oSize.x, (int)pAction->m_oSize.y);
 		}
 
 		delete *m_lPlatformWindowActions.begin();
@@ -482,7 +482,7 @@ void ImwWindowManager::UpdateDragWindow()
 			m_pDragPlatformWindow->Paint();
 			m_pCurrentPlatformWindow = NULL;
 			
-			m_pDragPlatformWindow->SetPosition(oCursorPos.x + m_oDragPreviewOffset.x, oCursorPos.y + m_oDragPreviewOffset.y);
+			m_pDragPlatformWindow->SetPosition((int)(oCursorPos.x + m_oDragPreviewOffset.x), (int)(oCursorPos.y + m_oDragPreviewOffset.y));
 		}
 
 		//Search best dock area
@@ -647,8 +647,8 @@ void ImwWindowManager::InternalFloat(ImwWindow* pWindow, ImVec2 oPosition, ImVec
 			oPosition.x -= 10;
 		}
 		pPlatformWindow->Dock(pWindow);
-		pPlatformWindow->SetSize(oSize.x, oSize.y);
-		pPlatformWindow->SetPosition(oPosition.x, oPosition.y);
+		pPlatformWindow->SetSize((int)oSize.x, (int)oSize.y);
+		pPlatformWindow->SetPosition((int)oPosition.x, (int)oPosition.y);
 		pPlatformWindow->Show();
 	}
 }
