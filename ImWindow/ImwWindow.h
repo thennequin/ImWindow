@@ -19,7 +19,8 @@ namespace ImWindow
 		virtual void			OnGui() = 0;
 		virtual void			OnMenu() {};
 
-		const char*				GetId() const { return m_oId.GetStr(); }
+		ImU32					GetId() const;
+		const char*				GetIdStr() const;
 
 		void					Destroy();
 
@@ -35,11 +36,14 @@ namespace ImWindow
 	protected:
 
 		char*					m_pTitle;
-		ImwId					m_oId;
+		ImU32					m_iId;
+		char					m_pId[11];
 		bool					m_bClosable;
 
 		ImVec2					m_oLastPosition;
 		ImVec2					m_oLastSize;
+
+		static int				s_iNextId;
 	};
 
 	typedef ImwList<ImwWindow*> ImwWindowList;

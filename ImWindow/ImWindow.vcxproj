@@ -153,7 +153,6 @@
     <ClCompile Include="..\Externals\ImGui\imgui\imgui.cpp" />
     <ClCompile Include="..\Externals\ImGui\imgui\imgui_draw.cpp" />
     <ClCompile Include="ImwContainer.cpp" />
-    <ClCompile Include="ImwId.cpp" />
     <ClCompile Include="ImwPlatformWindow.cpp" />
     <ClCompile Include="ImwWindow.cpp" />
     <ClCompile Include="ImwWindowManager.cpp" />
@@ -169,7 +168,6 @@
     <ClInclude Include="ImwConsts.h" />
     <ClInclude Include="ImwContainer.h" />
     <ClInclude Include="ImwEnums.h" />
-    <ClInclude Include="ImwId.h" />
     <ClInclude Include="ImwPlatformWindow.h" />
     <ClInclude Include="ImwWindow.h" />
     <ClInclude Include="ImwWindowManager.h" />

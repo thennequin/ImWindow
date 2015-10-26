@@ -4,10 +4,24 @@
 
 using namespace ImWindow;
 
+int ImwWindow::s_iNextId = 0;
+
 ImwWindow::ImwWindow()
 {
 	m_pTitle = NULL;
 	m_bClosable  = true;
+	m_iId = s_iNextId++;
+	
+	//Write Id to string
+	int iIndex = 0;
+	int iNumber = m_iId;
+	do
+	{
+		m_pId[iIndex++] = iNumber % 10 + '0';
+	}
+	while ((iNumber /= 10) > 0 && iIndex <= 10);
+	m_pId[iIndex] = '\0';
+
 	ImwWindowManager::GetInstance()->AddWindow(this);
 }
 
@@ -15,6 +29,16 @@ ImwWindow::~ImwWindow()
 {
 	ImwWindowManager::GetInstance()->RemoveWindow(this);
 	ImwSafeFree(m_pTitle);
+}
+
+ImU32 ImwWindow::GetId() const
+{
+	return m_iId;
+}
+
+const char* ImwWindow::GetIdStr() const
+{
+	return m_pId;
 }
 
 void ImwWindow::Destroy()

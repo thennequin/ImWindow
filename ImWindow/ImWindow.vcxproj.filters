@@ -30,9 +30,6 @@
     <ClCompile Include="ImwContainer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ImwId.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Externals\ImGui\imgui\imgui_draw.cpp">
       <Filter>ImGui</Filter>
     </ClCompile>
@@ -54,9 +51,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ImwContainer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ImwId.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ImwEnums.h">

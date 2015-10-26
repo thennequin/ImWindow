@@ -518,7 +518,7 @@ void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
 			
 
 			bool bSelected = iIndex == m_iActiveWindow;
-			if (ImGui::InvisibleButton((*it)->GetId(), oRectSize))
+			if (ImGui::InvisibleButton((*it)->GetIdStr(), oRectSize))
 			{
 				iNewActive = iIndex;
 			}

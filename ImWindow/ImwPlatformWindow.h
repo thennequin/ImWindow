@@ -4,7 +4,6 @@
 
 #include "ImwConfig.h"
 
-#include "ImwId.h"
 #include "ImwContainer.h"
 
 namespace ImWindow
@@ -49,7 +48,6 @@ namespace ImWindow
 		void								PaintContainer();
 		void								OnClose();
 
-		ImwId								m_oId;
 		bool								m_bMain;
 		bool								m_bIsDragWindow;
 		ImwContainer*						m_pContainer;
