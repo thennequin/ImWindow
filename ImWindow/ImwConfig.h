@@ -6,6 +6,8 @@
 #define NULL 0
 #endif // NULL
 
+#define IMW_API IMGUI_API
+
 #include <assert.h>
 #define ImwAssert(bTest/*, sMessage*/) { if (!(bTest)) __debugbreak(); assert(bTest); }
 #define ImwTest(bTest) { bool bRes = (bTest); ImwAssert(bRes); }

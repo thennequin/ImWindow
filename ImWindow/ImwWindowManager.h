@@ -8,7 +8,7 @@
 
 namespace ImWindow
 {
-	class ImwWindowManager
+	class IMW_API ImwWindowManager
 	{
 		friend class ImwWindow;
 		friend class ImwPlatformWindow;
