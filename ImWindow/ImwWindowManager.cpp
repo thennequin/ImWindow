@@ -4,6 +4,8 @@
 
 using namespace ImWindow;
 
+//STB_BEGIN
+
 ImwWindowManager::DrawWindowAreaAction::DrawWindowAreaAction( ImwPlatformWindow* pWindow, const ImVec2& oRectPos, const ImVec2& oRectSize, const ImColor& oColor )
 	: m_oColor( oColor )
 {
@@ -703,3 +705,5 @@ ImwWindowManager* ImwWindowManager::GetInstance()
 {
 	return s_pInstance;
 }
+
+//STB_END

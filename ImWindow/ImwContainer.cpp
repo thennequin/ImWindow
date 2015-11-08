@@ -5,9 +5,9 @@
 
 #include <algorithm>
 
-const int c_iTabHeight = 20;
-
 using namespace ImWindow;
+
+//STB_BEGIN
 
 ImwContainer::ImwContainer(ImwContainer* pParent)
 {
@@ -899,3 +899,5 @@ bool ImwContainer::HasUnclosableWindow() const
 	}
 	return false;
 }
+
+//STB_END

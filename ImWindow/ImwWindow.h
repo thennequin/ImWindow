@@ -6,6 +6,7 @@
 
 namespace ImWindow
 {
+//STB_BEGIN
 	enum EDockOrientation
 	{
 		E_DOCK_ORIENTATION_CENTER,
@@ -55,6 +56,7 @@ namespace ImWindow
 	};
 
 	typedef ImwList<ImwWindow*> ImwWindowList;
+//STB_END
 }
 
 

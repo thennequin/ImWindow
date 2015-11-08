@@ -8,7 +8,7 @@
 namespace ImWindow
 {
 	class ImwPlatformWindow;
-
+//STB_BEGIN
 	class IMW_API ImwContainer
 	{
 		friend class ImwPlatformWindow;
@@ -48,6 +48,7 @@ namespace ImWindow
 		ImVec2							m_oLastPosition;
 		ImVec2							m_oLastSize;
 	};
+//STB_END
 }
 
 #endif // __IMW_CONTAINER_H__

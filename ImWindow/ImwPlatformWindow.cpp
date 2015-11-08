@@ -5,6 +5,8 @@
 
 using namespace ImWindow;
 
+//STB_BEGIN
+
 ImwPlatformWindow::ImwPlatformWindow(bool bMain, bool bIsDragWindow, bool bCreateState)
 {
 	m_bMain = bMain;
@@ -112,3 +114,5 @@ void ImwPlatformWindow::PaintContainer()
 {
 	m_pContainer->Paint();
 }
+
+//STB_END

@@ -4,6 +4,8 @@
 
 using namespace ImWindow;
 
+//STB_BEGIN
+
 int ImwWindow::s_iNextId = 0;
 
 ImwWindow::ImwWindow()
@@ -81,3 +83,5 @@ const ImVec2& ImwWindow::GetLastSize() const
 {
 	return m_oLastSize;
 }
+
+//STB_END

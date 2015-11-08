@@ -212,12 +212,7 @@ public:
 	}
 };
 
-
-#ifndef CONSOLE
-int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
-#else
-int WinMain(int argc, char* argv[])
-#endif
+int main(int argc, char* argv[])
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
