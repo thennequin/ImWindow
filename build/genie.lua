@@ -36,7 +36,7 @@ if generateSTB == true then
 	end
 
 	-- Write header
-	local fileStbHeader = io.open("ImWindow.h","w+")
+	local fileStbHeader = io.open("../ImWindow.h","w+")
 
 	-- Write informations
 	fileStbHeader:write("// ImWindow"..EOL)
@@ -50,23 +50,23 @@ if generateSTB == true then
 	fileStbHeader:write("	class ImPlatformWindow;"..EOL)
 	fileStbHeader:write("	class ImWindowManager;"..EOL)
 	fileStbHeader:write(EOL)
-	IncludeSTB( "ImWindow/ImwWindow.h", fileStbHeader )
-	IncludeSTB( "ImWindow/ImwContainer.h", fileStbHeader )
-	IncludeSTB( "ImWindow/ImwPlatformWindow.h", fileStbHeader )
-	IncludeSTB( "ImWindow/ImwWindowManager.h", fileStbHeader )
+	IncludeSTB( "../ImWindow/ImwWindow.h", fileStbHeader )
+	IncludeSTB( "../ImWindow/ImwContainer.h", fileStbHeader )
+	IncludeSTB( "../ImWindow/ImwPlatformWindow.h", fileStbHeader )
+	IncludeSTB( "../ImWindow/ImwWindowManager.h", fileStbHeader )
 	fileStbHeader:write("}\n")
 	fileStbHeader:close()
 
 	-- Write source
-	local fileStbSource = io.open("ImWindow.cpp","w+")
+	local fileStbSource = io.open("../ImWindow.cpp","w+")
 
 	fileStbSource:write("#include \"ImWindow.h\""..EOL..EOL)
 
 	fileStbSource:write("namespace ImWindow {"..EOL)
-	IncludeSTB( "ImWindow/ImwWindow.cpp", fileStbSource )
-	IncludeSTB( "ImWindow/ImwContainer.cpp", fileStbSource )
-	IncludeSTB( "ImWindow/ImwPlatformWindow.cpp", fileStbSource )
-	IncludeSTB( "ImWindow/ImwWindowManager.cpp", fileStbSource )
+	IncludeSTB( "../ImWindow/ImwWindow.cpp", fileStbSource )
+	IncludeSTB( "../ImWindow/ImwContainer.cpp", fileStbSource )
+	IncludeSTB( "../ImWindow/ImwPlatformWindow.cpp", fileStbSource )
+	IncludeSTB( "../ImWindow/ImwWindowManager.cpp", fileStbSource )
 	fileStbSource:write("}"..EOL)
 	fileStbSource:close()
 
@@ -74,6 +74,7 @@ if generateSTB == true then
 end
 
 solution "ImWindow"
+	location			(_ACTION)
 	language			"C++"
 	configurations		{ "Debug", "Release" }
 	platforms			{ "x32", "x64" }
@@ -87,53 +88,54 @@ solution "ImWindow"
 			targetdir			"Output/"
 
 			files {
-							"ImWindow.cpp",
-							"ImWindow.h",
-							"Externals/ImGui/imgui/imconfig.h",
-							"Externals/ImGui/imgui/imgui.h",
-							"Externals/ImGui/imgui/imgui_internal.h",
-							"Externals/ImGui/imgui/imgui.cpp",
-							"Externals/ImGui/imgui/imgui_draw.cpp",
-							"Externals/ImGui/imgui/stb_rect_pack.h",
-							"Externals/ImGui/imgui/stb_textedit.h",
-							"Externals/ImGui/imgui/stb_truetype.h",
+							"../ImWindow.cpp",
+							"../ImWindow.h",
+							"../ImWindow/ImwConfig.h",
+							"../Externals/ImGui/imgui/imconfig.h",
+							"../Externals/ImGui/imgui/imgui.h",
+							"../Externals/ImGui/imgui/imgui_internal.h",
+							"../Externals/ImGui/imgui/imgui.cpp",
+							"../Externals/ImGui/imgui/imgui_draw.cpp",
+							"../Externals/ImGui/imgui/stb_rect_pack.h",
+							"../Externals/ImGui/imgui/stb_textedit.h",
+							"../Externals/ImGui/imgui/stb_truetype.h",
 			}
 			
 			vpaths {
-							["ImGui"] = "Externals/ImGui/imgui/**"
+							["ImGui"] = "../Externals/ImGui/imgui/**"
 			}
 			
 			includedirs {
-							"Externals/ImGui",
-							"ImWindow/"
+							"../Externals/ImGui",
+							"../ImWindow/"
 			}
 	end
 
 	project "ImWindow"
 		uuid				"99AABCFD-6ED6-43E5-BD14-EFDC04CBE09F"
 		kind				"StaticLib"
-		targetdir			"Output/"
+		targetdir			"../Output/"
 
 		files {
-						"ImWindow/**.cpp",
-						"ImWindow/**.h",
-						"Externals/ImGui/imgui/imconfig.h",
-						"Externals/ImGui/imgui/imgui.h",
-						"Externals/ImGui/imgui/imgui_internal.h",
-						"Externals/ImGui/imgui/imgui.cpp",
-						"Externals/ImGui/imgui/imgui_draw.cpp",
-						"Externals/ImGui/imgui/stb_rect_pack.h",
-						"Externals/ImGui/imgui/stb_textedit.h",
-						"Externals/ImGui/imgui/stb_truetype.h",
+						"../ImWindow/**.cpp",
+						"../ImWindow/**.h",
+						"../Externals/ImGui/imgui/imconfig.h",
+						"../Externals/ImGui/imgui/imgui.h",
+						"../Externals/ImGui/imgui/imgui_internal.h",
+						"../Externals/ImGui/imgui/imgui.cpp",
+						"../Externals/ImGui/imgui/imgui_draw.cpp",
+						"../Externals/ImGui/imgui/stb_rect_pack.h",
+						"../Externals/ImGui/imgui/stb_textedit.h",
+						"../Externals/ImGui/imgui/stb_truetype.h",
 		}
 		
 		vpaths {
-						["ImGui"] = "Externals/ImGui/imgui/**"
+						["ImGui"] = "../Externals/ImGui/imgui/**"
 		}
 		
 		includedirs {
-						"Externals/ImGui",
-						"ImWindow/"
+						"../Externals/ImGui",
+						"../ImWindow/"
 		}
 		
 		configuration		"Debug"
@@ -145,30 +147,30 @@ solution "ImWindow"
 	project "ImWindowDX11"
 		uuid				"449C0C09-919A-4337-A09A-DFC2420A41B0"
 		kind				"WindowedApp"
-		targetdir			"Output/"
+		targetdir			"../Output/"
 		
 		links			{ "ImWindow" }
 		files {
-						"ImWindowDX11/**.cpp",
-						"ImWindowDX11/**.h",
-						"Externals/ImGui/imgui/examples/directx11_example/imgui_impl_dx11.cpp"
+						"../ImWindowDX11/**.cpp",
+						"../ImWindowDX11/**.h",
+						"../Externals/ImGui/imgui/examples/directx11_example/imgui_impl_dx11.cpp"
 		}	
 		
 		includedirs {
-						"ImWindow",
-						"Externals/ImGui",
-						"Externals/ImGui/imgui",
-						"Externals/ImGui/imgui/examples/directx11_example",
-						"Externals/DirectX/include"
+						"../ImWindow",
+						"../Externals/ImGui",
+						"../Externals/ImGui/imgui",
+						"../Externals/ImGui/imgui/examples/directx11_example",
+						"../Externals/DirectX/include"
 		}
 		
 		
-		platforms			"x32"
+		platforms		"x32"
 			libdirs {
-						"Externals/DirectX/lib/x86"
+						"../Externals/DirectX/lib/x86"
 			}
 			
-		platforms			"x64"
+		platforms		"x64"
 			libdirs {
-						"Externals/DirectX/lib/x64"
+						"../Externals/DirectX/lib/x64"
 			}
