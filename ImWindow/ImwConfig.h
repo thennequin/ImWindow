@@ -36,24 +36,4 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_internal.h"
 
-//////////////////////////////////////////////////////////////////////////
-// Used for demo
-//////////////////////////////////////////////////////////////////////////
-/*
-#ifdef _DEBUG
-#	if _WIN64
-#		pragma comment (lib, "ImWindow_x64_Debug.lib")
-#	else
-#		pragma comment (lib, "ImWindow_Win32_Debug.lib")
-#	endif
-#else // _DEBUG
-#	if _WIN64
-#		pragma comment (lib, "ImWindow_x64_Release.lib")
-#	else
-#		pragma comment (lib, "ImWindow_Win32_Release.lib")
-#	endif
-#endif // _DEBUG
-*/
-//////////////////////////////////////////////////////////////////////////
-
 #endif // __IM_CONFIG_H__
