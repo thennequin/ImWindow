@@ -5,4 +5,4 @@ if not exist "genie.exe" (
 	bitsadmin /transfer "genie" "https://github.com/bkaradzic/bx/raw/master/tools/bin/windows/genie.exe" "%~dp0\genie.exe"
 )
 
-genie.exe vs2013
+genie.exe %*
