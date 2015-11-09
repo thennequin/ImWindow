@@ -29,3 +29,9 @@
 Intermediate/
 *.sdf
 *.opensdf
+
+# Solution
+*.sln
+*.vcproj
+*.vcxproj
+*.vcxproj.filters
