@@ -48,7 +48,6 @@ if generateSTB == true then
 	fileStbHeader:write("	class ImContainer;"..EOL)
 	fileStbHeader:write("	class ImPlatformWindow;"..EOL)
 	fileStbHeader:write("	class ImWindowManager;"..EOL)
-	fileStbHeader:write(EOL)
 	IncludeSTB( "../ImWindow/ImwWindow.h", fileStbHeader )
 	IncludeSTB( "../ImWindow/ImwContainer.h", fileStbHeader )
 	IncludeSTB( "../ImWindow/ImwPlatformWindow.h", fileStbHeader )
