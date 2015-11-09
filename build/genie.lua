@@ -45,7 +45,6 @@ if generateSTB == true then
 
 	fileStbHeader:write("namespace ImWindow {"..EOL)
 	--Forward declare classes
-	fileStbHeader:write("	class ImWindow;"..EOL)
 	fileStbHeader:write("	class ImContainer;"..EOL)
 	fileStbHeader:write("	class ImPlatformWindow;"..EOL)
 	fileStbHeader:write("	class ImWindowManager;"..EOL)
