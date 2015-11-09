@@ -139,9 +139,11 @@ solution "ImWindow"
 		
 		configuration		"Debug"
 			targetsuffix	"_d"
+			flags			{ "Symbols" }
 			
 		configuration		"Release"
 			targetsuffix	"_r"
+			flags			{ "Optimize" }
 
 	project "ImWindowDX11"
 		uuid				"449C0C09-919A-4337-A09A-DFC2420A41B0"
@@ -173,3 +175,11 @@ solution "ImWindow"
 			libdirs {
 							"../Externals/DirectX/lib/x64"
 			}
+
+		configuration		"Debug"
+			targetsuffix	"_d"
+			flags			{ "Symbols" }
+			
+		configuration		"Release"
+			targetsuffix	"_r"
+			flags			{ "Optimize" }
