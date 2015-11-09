@@ -86,7 +86,7 @@ namespace ImWindow
 		ImwPlatformWindow*					GetWindowParent(ImwWindow* pWindow);
 
 	protected:
-		virtual bool						CanCreateMultipleWindow() = 0;
+		virtual bool						CanCreateMultipleWindow();
 		virtual ImwPlatformWindow*			CreatePlatformWindow(bool bMain, ImwPlatformWindow* pParent, bool bDragWindow) = 0;
 		virtual void						InternalRun() = 0;
 		virtual ImVec2						GetCursorPos() = 0;

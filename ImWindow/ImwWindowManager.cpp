@@ -192,6 +192,11 @@ ImwPlatformWindow* ImwWindowManager::GetWindowParent(ImwWindow* pWindow)
 	return NULL;
 }
 
+bool ImwWindowManager::CanCreateMultipleWindow()
+{
+	return false;
+}
+
 void ImwWindowManager::PreUpdate()
 {
 	ImwIsSafe(m_pMainPlatformWindow)->PreUpdate();
