@@ -9,7 +9,7 @@ namespace ImWindow
 {
 	class ImwPlatformWindow;
 //STB_BEGIN
-	class IMW_API ImwContainer
+	class IMGUI_API ImwContainer
 	{
 		friend class ImwPlatformWindow;
 	public:

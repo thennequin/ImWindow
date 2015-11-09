@@ -30,10 +30,17 @@ void ImwWindowManagerDX11::InternalRun()
 
 ImwPlatformWindow* ImwWindowManagerDX11::CreatePlatformWindow(bool bMain, ImwPlatformWindow* pParent, bool bDragWindow)
 {
-	ImwAssert(m_pCurrentPlatformWindow == NULL);
+	IM_ASSERT(m_pCurrentPlatformWindow == NULL);
 	ImwPlatformWindowDX11* pWindow = new ImwPlatformWindowDX11(bMain, bDragWindow, CanCreateMultipleWindow());
-	ImwTest(pWindow->Init(pParent));
-	return (ImwPlatformWindow*)pWindow;
+	if (pWindow->Init(pParent))
+	{
+		return (ImwPlatformWindow*)pWindow;
+	}
+	else
+	{
+		delete pWindow;
+		return NULL;
+	}
 }
 
 ImVec2 ImwWindowManagerDX11::GetCursorPos()

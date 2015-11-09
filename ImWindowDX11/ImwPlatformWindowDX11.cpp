@@ -415,11 +415,11 @@ LRESULT ImwPlatformWindowDX11::OnMessage(UINT message, WPARAM wParam, LPARAM lPa
 				ClientToScreen(m_hWnd, reinterpret_cast<POINT*>(&oRect.right)); // convert bottom-right
 				m_oPosition = ImVec2(oRect.left, oRect.top);
 
-				ImwAssert(m_oSize.x == LOWORD(lParam));
-				ImwAssert(m_oSize.y == HIWORD(lParam));
+				IM_ASSERT(m_oSize.x == LOWORD(lParam));
+				IM_ASSERT(m_oSize.y == HIWORD(lParam));
 
-				ImwAssert(m_oSize.x > 0);
-				ImwAssert(m_oSize.y > 0);
+				IM_ASSERT(m_oSize.x > 0);
+				IM_ASSERT(m_oSize.y > 0);
 				//m_iWidth = LOWORD(lParam);
 				//m_iHeight = HIWORD(lParam);
 

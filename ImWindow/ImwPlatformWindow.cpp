@@ -53,7 +53,7 @@ bool ImwPlatformWindow::IsStateSet()
 
 void ImwPlatformWindow::SetState()
 {
-	ImwAssert(s_bStatePush == false);
+	IM_ASSERT(s_bStatePush == false);
 	s_bStatePush = true;
 	if (m_pState != NULL)
 	{
@@ -65,7 +65,7 @@ void ImwPlatformWindow::SetState()
 
 void ImwPlatformWindow::RestoreState()
 {
-	ImwAssert(s_bStatePush == true);
+	IM_ASSERT(s_bStatePush == true);
 	s_bStatePush = false;
 	if (m_pState != NULL)
 	{

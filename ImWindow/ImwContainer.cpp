@@ -11,7 +11,7 @@ using namespace ImWindow;
 
 ImwContainer::ImwContainer(ImwContainer* pParent)
 {
-	ImwAssert(NULL != pParent);
+	IM_ASSERT(NULL != pParent);
 	m_pSplits[0] = NULL;
 	m_pSplits[1] = NULL;
 	m_bVerticalSplit = false;
@@ -24,7 +24,7 @@ ImwContainer::ImwContainer(ImwContainer* pParent)
 
 ImwContainer::ImwContainer(ImwPlatformWindow* pParent)
 {
-	ImwAssert(NULL != pParent);
+	IM_ASSERT(NULL != pParent);
 	m_pSplits[0] = NULL;
 	m_pSplits[1] = NULL;
 	m_bVerticalSplit = false;
@@ -56,11 +56,11 @@ void ImwContainer::CreateSplits()
 
 void ImwContainer::Dock(ImwWindow* pWindow, EDockOrientation eOrientation)
 {
-	ImwAssert(NULL != pWindow);
+	IM_ASSERT(NULL != pWindow);
 
 	if ( NULL != pWindow )
 	{
-		ImwAssert(eOrientation != E_DOCK_ORIENTATION_CENTER || !IsSplit());
+		IM_ASSERT(eOrientation != E_DOCK_ORIENTATION_CENTER || !IsSplit());
 
 		if ( !IsSplit() )
 		{
@@ -124,7 +124,7 @@ void ImwContainer::Dock(ImwWindow* pWindow, EDockOrientation eOrientation)
 			switch (eOrientation)
 			{
 			case E_DOCK_ORIENTATION_CENTER:
-				ImwAssert(false);
+				IM_ASSERT(false);
 				break;
 			case E_DOCK_ORIENTATION_TOP:
 				{
@@ -291,13 +291,13 @@ void ImwContainer::DockToBest(ImwWindow* pWindow)
 
 bool ImwContainer::IsEmpty() const
 {
-	//ImwAssert(IsSplit() != HasWindowTabbed());
+	//IM_ASSERT(IsSplit() != HasWindowTabbed());
 	return !(IsSplit() || HasWindowTabbed());
 }
 
 bool ImwContainer::IsSplit() const
 {
-	ImwAssert((NULL == m_pSplits[0]) == (NULL == m_pSplits[1]));
+	IM_ASSERT((NULL == m_pSplits[0]) == (NULL == m_pSplits[1]));
 	return (NULL != m_pSplits[0] && NULL != m_pSplits[1]);
 }
 
@@ -707,7 +707,7 @@ void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
 		std::advance(itActiveWindow, m_iActiveWindow);
 		
 		//Draw active
-		ImwAssert(itActiveWindow != m_lWindows.end());
+		IM_ASSERT(itActiveWindow != m_lWindows.end());
 		if (itActiveWindow != m_lWindows.end())
 		{
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, oStyle.WindowPadding);
@@ -733,7 +733,7 @@ void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
 	else
 	{
 		// This case can happened only where it's main container
-		ImwAssert(m_pParent == NULL);
+		IM_ASSERT(m_pParent == NULL);
 	}
 }
 

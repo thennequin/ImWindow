@@ -128,7 +128,7 @@ void ImwWindowManager::Dock(ImwWindow* pWindow, EDockOrientation eOrientation, I
 
 void ImwWindowManager::DockTo(ImwWindow* pWindow, EDockOrientation eOrientation, ImwContainer* pContainer)
 {
-	ImwAssert(NULL != pContainer);
+	IM_ASSERT(NULL != pContainer);
 	if (NULL != pContainer)
 	{
 		DockAction* pAction = new DockAction();
@@ -188,7 +188,7 @@ ImwPlatformWindow* ImwWindowManager::GetWindowParent(ImwWindow* pWindow)
 			return *it;
 		}
 	}
-	ImwAssert(false);
+	IM_ASSERT(false);
 	return NULL;
 }
 
@@ -251,7 +251,7 @@ void ImwWindowManager::UpdatePlatformwWindowActions()
 	{
 		PlatformWindowAction* pAction = *m_lPlatformWindowActions.begin();
 		
-		ImwAssert((pAction->m_iFlags & E_PLATFORM_WINDOW_ACTION_SHOW & E_PLATFORM_WINDOW_ACTION_HIDE) == 0); // Can't show and hide		
+		IM_ASSERT((pAction->m_iFlags & E_PLATFORM_WINDOW_ACTION_SHOW & E_PLATFORM_WINDOW_ACTION_HIDE) == 0); // Can't show and hide		
 
 		if (pAction->m_iFlags & E_PLATFORM_WINDOW_ACTION_DESTROY)
 		{
@@ -285,7 +285,7 @@ void ImwWindowManager::UpdatePlatformwWindowActions()
 
 			if (!bFound)
 			{
-				ImwAssert(false, "ImwPlatformWindow not found, maybe already closed");
+				IM_ASSERT(false); // ImwPlatformWindow not found, maybe already closed
 			}
 		}
 		if (pAction->m_iFlags & E_PLATFORM_WINDOW_ACTION_SHOW)
@@ -573,7 +573,7 @@ ImwContainer* ImwWindowManager::GetBestDocking(ImwPlatformWindow* pPlatformWindo
 			oOutOrientation = E_DOCK_ORIENTATION_CENTER;
 			oOutAreaPos = ImVec2(0, 0);
 			oOutAreaSize = ImVec2(oSize.x, oSize.y);
-			//ImwAssert(false); //Best dock orientation not found
+			//IM_ASSERT(false); //Best dock orientation not found
 			return NULL;
 		}
 		return pPlatformWindow->GetContainer();

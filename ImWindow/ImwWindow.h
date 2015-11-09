@@ -17,7 +17,7 @@ namespace ImWindow
 		E_DOCK_ORIENTATION_BOTTOM,
 	};
 
-	class IMW_API ImwWindow
+	class IMGUI_API ImwWindow
 	{
 		friend class ImwWindowManager;
 		friend class ImwContainer;
