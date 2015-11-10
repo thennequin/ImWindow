@@ -41,6 +41,9 @@ if generateSTB == true then
 	-- Write informations
 	fileStbHeader:write("// ImWindow"..EOL)
 
+	fileStbHeader:write("#ifndef __IM_WINDOW_HEADER__"..EOL)
+	fileStbHeader:write("#define __IM_WINDOW_HEADER__"..EOL)
+
 	fileStbHeader:write("#include \"ImwConfig.h\""..EOL..EOL)
 
 	fileStbHeader:write("namespace ImWindow {"..EOL)
@@ -53,6 +56,7 @@ if generateSTB == true then
 	IncludeSTB( "../ImWindow/ImwPlatformWindow.h", fileStbHeader )
 	IncludeSTB( "../ImWindow/ImwWindowManager.h", fileStbHeader )
 	fileStbHeader:write("}\n")
+	fileStbHeader:write("#endif // __IM_WINDOW_HEADER__"..EOL)
 	fileStbHeader:close()
 
 	-- Write source
