@@ -2,86 +2,85 @@
 
 #include "ImwWindowManager.h"
 
-using namespace ImWindow;
-
+namespace ImWindow
+{
 //STB_BEGIN
+	int ImwWindow::s_iNextId = 0;
 
-int ImwWindow::s_iNextId = 0;
-
-ImwWindow::ImwWindow()
-{
-	m_pTitle = NULL;
-	m_bClosable  = true;
-	m_iId = s_iNextId++;
+	ImwWindow::ImwWindow()
+	{
+		m_pTitle = NULL;
+		m_bClosable  = true;
+		m_iId = s_iNextId++;
 	
-	//Write Id to string
-	int iIndex = 0;
-	int iNumber = m_iId;
-	do
-	{
-		m_pId[iIndex++] = iNumber % 10 + '0';
+		//Write Id to string
+		int iIndex = 0;
+		int iNumber = m_iId;
+		do
+		{
+			m_pId[iIndex++] = iNumber % 10 + '0';
+		}
+		while ((iNumber /= 10) > 0 && iIndex <= 10);
+		m_pId[iIndex] = '\0';
+
+		ImwWindowManager::GetInstance()->AddWindow(this);
 	}
-	while ((iNumber /= 10) > 0 && iIndex <= 10);
-	m_pId[iIndex] = '\0';
 
-	ImwWindowManager::GetInstance()->AddWindow(this);
-}
-
-ImwWindow::~ImwWindow()
-{
-	ImwWindowManager::GetInstance()->RemoveWindow(this);
-	ImwSafeFree(m_pTitle);
-}
-
-ImU32 ImwWindow::GetId() const
-{
-	return m_iId;
-}
-
-const char* ImwWindow::GetIdStr() const
-{
-	return m_pId;
-}
-
-void ImwWindow::Destroy()
-{
-	ImwWindowManager::GetInstance()->DestroyWindow(this);
-}
-
-void ImwWindow::SetTitle(const char* pTitle)
-{
-	ImwSafeFree(m_pTitle);
-	if (NULL != pTitle)
+	ImwWindow::~ImwWindow()
 	{
-		size_t iLen = strlen(pTitle) + 1;
-		m_pTitle = (char*)ImwMalloc(sizeof(char) * iLen);
-		strcpy(m_pTitle, pTitle);
+		ImwWindowManager::GetInstance()->RemoveWindow(this);
+		ImwSafeFree(m_pTitle);
 	}
-}
 
-const char* ImwWindow::GetTitle() const
-{
-	return m_pTitle;
-}
+	ImU32 ImwWindow::GetId() const
+	{
+		return m_iId;
+	}
 
-void ImwWindow::SetClosable( bool bClosable )
-{
-	m_bClosable = bClosable;
-}
+	const char* ImwWindow::GetIdStr() const
+	{
+		return m_pId;
+	}
 
-bool ImwWindow::IsClosable() const
-{
-	return m_bClosable;
-}
+	void ImwWindow::Destroy()
+	{
+		ImwWindowManager::GetInstance()->DestroyWindow(this);
+	}
 
-const ImVec2& ImwWindow::GetLastPosition() const
-{
-	return m_oLastPosition;
-}
+	void ImwWindow::SetTitle(const char* pTitle)
+	{
+		ImwSafeFree(m_pTitle);
+		if (NULL != pTitle)
+		{
+			size_t iLen = strlen(pTitle) + 1;
+			m_pTitle = (char*)ImwMalloc(sizeof(char) * iLen);
+			strcpy(m_pTitle, pTitle);
+		}
+	}
 
-const ImVec2& ImwWindow::GetLastSize() const
-{
-	return m_oLastSize;
-}
+	const char* ImwWindow::GetTitle() const
+	{
+		return m_pTitle;
+	}
 
+	void ImwWindow::SetClosable( bool bClosable )
+	{
+		m_bClosable = bClosable;
+	}
+
+	bool ImwWindow::IsClosable() const
+	{
+		return m_bClosable;
+	}
+
+	const ImVec2& ImwWindow::GetLastPosition() const
+	{
+		return m_oLastPosition;
+	}
+
+	const ImVec2& ImwWindow::GetLastSize() const
+	{
+		return m_oLastSize;
+	}
 //STB_END
+}
