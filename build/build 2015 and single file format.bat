@@ -1,1 +1,1 @@
-build vs2015 stb
+build vs2015 sff
