@@ -5,7 +5,7 @@
 
 namespace ImWindow
 {
-//STB_BEGIN
+//SFF_BEGIN
 	ImwPlatformWindow::ImwPlatformWindow(bool bMain, bool bIsDragWindow, bool bCreateState)
 	{
 		m_bMain = bMain;
@@ -113,5 +113,5 @@ namespace ImWindow
 	{
 		m_pContainer->Paint();
 	}
-//STB_END
+//SFF_END
 }

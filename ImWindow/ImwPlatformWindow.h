@@ -8,7 +8,7 @@
 
 namespace ImWindow
 {
-//STB_BEGIN
+//SFF_BEGIN
 	class IMGUI_API ImwPlatformWindow
 	{
 		friend class ImwWindowManager;
@@ -57,7 +57,7 @@ namespace ImWindow
 	};
 
 	typedef ImwList<ImwPlatformWindow*> ImwPlatformWindowList;
-//STB_END
+//SFF_END
 }
 
 #endif // __IM_PLATFORM_WINDOW_H__

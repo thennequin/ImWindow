@@ -4,7 +4,7 @@
 
 namespace ImWindow
 {
-//STB_BEGIN
+//SFF_BEGIN
 	int ImwWindow::s_iNextId = 0;
 
 	ImwWindow::ImwWindow()
@@ -82,5 +82,5 @@ namespace ImWindow
 	{
 		return m_oLastSize;
 	}
-//STB_END
+//SFF_END
 }

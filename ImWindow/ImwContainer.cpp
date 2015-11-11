@@ -7,7 +7,7 @@
 
 namespace ImWindow
 {
-//STB_BEGIN
+//SFF_BEGIN
 	ImwContainer::ImwContainer(ImwContainer* pParent)
 	{
 		IM_ASSERT(NULL != pParent);
@@ -947,5 +947,5 @@ namespace ImWindow
 		}
 		return false;
 	}
-//STB_END
+//SFF_END
 }

@@ -8,7 +8,8 @@
 
 namespace ImWindow
 {
-//STB_BEGIN
+	class ImwWindow;
+//SFF_BEGIN
 	class IMGUI_API ImwWindowManager
 	{
 		friend class ImwWindow;
@@ -144,7 +145,7 @@ namespace ImWindow
 	protected:
 		static ImwWindowManager*			s_pInstance;
 	};
-//STB_END
+//SFF_END
 }
 
 

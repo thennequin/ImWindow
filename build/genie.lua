@@ -1,32 +1,33 @@
 
-local generateSTB = false
-if _ARGS[1] == "stb" then
-	generateSTB = true;
+-- Single file format
+local generateSFF = false
+if _ARGS[1] == "sff" then
+	generateSFF = true;
 end
 
-if generateSTB == true then
+if generateSFF == true then
 	print "=================="
-	print "Generate STB files"
+	print "Generate SFF files"
 	print "=================="
 
 	local EOL = "\n"
 
-	function IncludeSTB( inputFileName, outFile )
+	function IncludeSFF( inputFileName, outFile )
 		local inputFile = io.open(inputFileName, "r")
 		if nil == inputFile then
 			print("Error: Can't include file " .. inputFileName)
 		else
 			print("Include file " .. inputFileName)
-			local isInSTBArea = false
+			local isInSFFArea = false
 			while true do
 				local line = inputFile:read()
 				if line == nil then
 					break
-				elseif line == "//STB_BEGIN" then
-					isInSTBArea = true
-				elseif line == "//STB_END" then 
-					isInSTBArea = false
-				elseif isInSTBArea == true then
+				elseif line == "//SFF_BEGIN" then
+					isInSFFArea = true
+				elseif line == "//SFF_END" then 
+					isInSFFArea = false
+				elseif isInSFFArea == true then
 					outFile:write(line..EOL);
 				end
 			end
@@ -36,42 +37,42 @@ if generateSTB == true then
 	end
 
 	-- Write header
-	local fileStbHeader = io.open("../ImWindow.h","w+")
+	local fileSFFHeader = io.open("../ImWindow.h","w+")
 
 	-- Write informations
-	fileStbHeader:write("// ImWindow"..EOL)
+	fileSFFHeader:write("// ImWindow - Single file format"..EOL)
 
-	fileStbHeader:write("#ifndef __IM_WINDOW_HEADER__"..EOL)
-	fileStbHeader:write("#define __IM_WINDOW_HEADER__"..EOL)
+	fileSFFHeader:write("#ifndef __IM_WINDOW_HEADER__"..EOL)
+	fileSFFHeader:write("#define __IM_WINDOW_HEADER__"..EOL)
 
-	fileStbHeader:write("#include \"ImwConfig.h\""..EOL..EOL)
+	fileSFFHeader:write("#include \"ImwConfig.h\""..EOL..EOL)
 
-	fileStbHeader:write("namespace ImWindow {"..EOL)
+	fileSFFHeader:write("namespace ImWindow {"..EOL)
 	--Forward declare classes
-	fileStbHeader:write("	class ImContainer;"..EOL)
-	fileStbHeader:write("	class ImPlatformWindow;"..EOL)
-	fileStbHeader:write("	class ImWindowManager;"..EOL)
-	fileStbHeader:write(EOL)
-	IncludeSTB( "../ImWindow/ImwWindow.h", fileStbHeader )
-	IncludeSTB( "../ImWindow/ImwContainer.h", fileStbHeader )
-	IncludeSTB( "../ImWindow/ImwPlatformWindow.h", fileStbHeader )
-	IncludeSTB( "../ImWindow/ImwWindowManager.h", fileStbHeader )
-	fileStbHeader:write("}\n")
-	fileStbHeader:write("#endif // __IM_WINDOW_HEADER__"..EOL)
-	fileStbHeader:close()
+	fileSFFHeader:write("	class ImContainer;"..EOL)
+	fileSFFHeader:write("	class ImPlatformWindow;"..EOL)
+	fileSFFHeader:write("	class ImWindowManager;"..EOL)
+	fileSFFHeader:write(EOL)
+	IncludeSFF( "../ImWindow/ImwWindow.h", fileSFFHeader )
+	IncludeSFF( "../ImWindow/ImwContainer.h", fileSFFHeader )
+	IncludeSFF( "../ImWindow/ImwPlatformWindow.h", fileSFFHeader )
+	IncludeSFF( "../ImWindow/ImwWindowManager.h", fileSFFHeader )
+	fileSFFHeader:write("}\n")
+	fileSFFHeader:write("#endif // __IM_WINDOW_HEADER__"..EOL)
+	fileSFFHeader:close()
 
 	-- Write source
-	local fileStbSource = io.open("../ImWindow.cpp","w+")
+	local fileSFFSource = io.open("../ImWindow.cpp","w+")
 
-	fileStbSource:write("#include \"ImWindow.h\""..EOL..EOL)
+	fileSFFSource:write("#include \"ImWindow.h\""..EOL..EOL)
 
-	fileStbSource:write("namespace ImWindow {"..EOL)
-	IncludeSTB( "../ImWindow/ImwWindow.cpp", fileStbSource )
-	IncludeSTB( "../ImWindow/ImwContainer.cpp", fileStbSource )
-	IncludeSTB( "../ImWindow/ImwPlatformWindow.cpp", fileStbSource )
-	IncludeSTB( "../ImWindow/ImwWindowManager.cpp", fileStbSource )
-	fileStbSource:write("}"..EOL)
-	fileStbSource:close()
+	fileSFFSource:write("namespace ImWindow {"..EOL)
+	IncludeSFF( "../ImWindow/ImwWindow.cpp", fileSFFSource )
+	IncludeSFF( "../ImWindow/ImwContainer.cpp", fileSFFSource )
+	IncludeSFF( "../ImWindow/ImwPlatformWindow.cpp", fileSFFSource )
+	IncludeSFF( "../ImWindow/ImwWindowManager.cpp", fileSFFSource )
+	fileSFFSource:write("}"..EOL)
+	fileSFFSource:close()
 
 	print "=================="
 end
@@ -83,10 +84,10 @@ solution "ImWindow"
 	platforms				{ "x32", "x64" }
 	objdir					("../Intermediate/".._ACTION)
 
-	-- Inlude only STB files in project
-	if generateSTB == true then
+	-- Inlude only SFF files in project
+	if generateSFF == true then
 
-		project "ImWindowSTB"
+		project "ImWindowSFF"
 			uuid			"458E707F-2347-47D2-842A-A431CA538063"
 			kind			"StaticLib"
 			targetdir		"../Output/"
@@ -100,9 +101,9 @@ solution "ImWindow"
 							"../Externals/ImGui/imgui/imgui_internal.h",
 							"../Externals/ImGui/imgui/imgui.cpp",
 							"../Externals/ImGui/imgui/imgui_draw.cpp",
-							"../Externals/ImGui/imgui/stb_rect_pack.h",
-							"../Externals/ImGui/imgui/stb_textedit.h",
-							"../Externals/ImGui/imgui/stb_truetype.h",
+							"../Externals/ImGui/imgui/SFF_rect_pack.h",
+							"../Externals/ImGui/imgui/SFF_textedit.h",
+							"../Externals/ImGui/imgui/SFF_truetype.h",
 			}
 			
 			vpaths {
@@ -128,9 +129,9 @@ solution "ImWindow"
 							"../Externals/ImGui/imgui/imgui_internal.h",
 							"../Externals/ImGui/imgui/imgui.cpp",
 							"../Externals/ImGui/imgui/imgui_draw.cpp",
-							"../Externals/ImGui/imgui/stb_rect_pack.h",
-							"../Externals/ImGui/imgui/stb_textedit.h",
-							"../Externals/ImGui/imgui/stb_truetype.h",
+							"../Externals/ImGui/imgui/SFF_rect_pack.h",
+							"../Externals/ImGui/imgui/SFF_textedit.h",
+							"../Externals/ImGui/imgui/SFF_truetype.h",
 		}
 		
 		vpaths {

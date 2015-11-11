@@ -8,7 +8,7 @@
 namespace ImWindow
 {
 	class ImwPlatformWindow;
-//STB_BEGIN
+//SFF_BEGIN
 	class IMGUI_API ImwContainer
 	{
 		friend class ImwPlatformWindow;
@@ -53,7 +53,7 @@ namespace ImWindow
 
 		const float						c_fTabHeight = 25.f;
 	};
-//STB_END
+//SFF_END
 }
 
 #endif // __IMW_CONTAINER_H__
