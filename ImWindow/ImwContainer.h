@@ -34,6 +34,9 @@ namespace ImWindow
 
 		void							Paint();
 
+		bool							Tab(const ImwWindow* pWindow, bool bFocused, float fStartLinePos, float fEndLinePos, float fMaxSize = -1.f);
+		void							DrawTab(const char* pText, bool bFocused, ImVec2 oPos, float fStartLinePos, float fEndLinePos, float fMaxSize = -1.f, ImVec2* pSizeOut = NULL);
+
 		ImwContainer*					m_pParent;
 		ImwPlatformWindow*				m_pParentWindow;
 		ImwWindowList					m_lWindows;

@@ -495,6 +495,7 @@ void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
 		int iIndex = 0;
 		int iNewActive = m_iActiveWindow;
 		int iSize = (int)m_lWindows.size();
+		float fMaxTabSize = (oSize.x - 50.f) / iSize;
 		for (ImwWindowList::iterator it = m_lWindows.begin(); it != m_lWindows.end(); ++it)
 		{
 			const ImVec2 oTextSize = ImGui::CalcTextSize( (*it)->GetTitle() );
@@ -503,10 +504,11 @@ void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
 			ImGui::PushID(iIndex);
 
 			bool bSelected = iIndex == m_iActiveWindow;
-			if (ImGui::InvisibleButton((*it)->GetIdStr(), oRectSize))
+			if (Tab(*it, bSelected, oMin.x, oMax.x, fMaxTabSize))
 			{
 				iNewActive = iIndex;
 			}
+
 			if (iIndex < (iSize - 1))
 			{
 				ImGui::SameLine();
@@ -516,86 +518,10 @@ void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
 			{
 				if (ImGui::IsMouseDragging())
 				{
-					pWindowManager->StartDragWindow( *it );
+					ImGui::GetIO().MouseClickedPos[0];
+					pWindowManager->StartDragWindow(*it);
 				}
 			}
-			ImColor oNormalTab(50, 50, 50, 255); // normal
-			ImColor oSelectedTab(37, 37, 37, 255); // selected
-			ImColor oBorderColor(72, 72, 72, 255); // border
-
-			ImVec2 oRectMin = ImGui::GetItemBoxMin();
-			ImVec2 oRectMax = ImGui::GetItemBoxMax();
-
-			const float fOverlap = 10.f;
-			const float fSlopWidth = 30.f;
-			const float sSlopP1Ratio = 0.6f;
-			const float fSlopP2Ratio = 0.4f;
-			const float fSlopHRatio = 0.f;
-			const float fShadowDropSize = 15.f;
-			const float fShadowSlopRatio = 0.6f;
-			const float fShadowAlpha = 0.75f;
-
-			pDrawList->PathClear();
-			if (bSelected)
-			{
-				pDrawList->ChannelsSetCurrent(1);
-			}
-			else
-			{
-				pDrawList->ChannelsSetCurrent(0);
-			}
-
-			//Drop shadows
-			const ImVec2 uv = GImGui->FontTexUvWhitePixel;
-			pDrawList->PrimReserve(3, 3);
-			pDrawList->PrimWriteIdx((ImDrawIdx)(pDrawList->_VtxCurrentIdx)); pDrawList->PrimWriteIdx((ImDrawIdx)(pDrawList->_VtxCurrentIdx + 1)); pDrawList->PrimWriteIdx((ImDrawIdx)(pDrawList->_VtxCurrentIdx + 2));
-			pDrawList->PrimWriteVtx(ImVec2(oRectMin.x - fOverlap - fShadowDropSize, oRectMax.y), uv, ImColor(0.f, 0.f, 0.f, 0.f));
-			pDrawList->PrimWriteVtx(ImVec2(oRectMin.x - fOverlap + fSlopWidth * fShadowSlopRatio, oRectMin.y), uv, ImColor(0.f, 0.f, 0.f, 0.f));
-			pDrawList->PrimWriteVtx(ImVec2(oRectMin.x - fOverlap + fSlopWidth * fShadowSlopRatio, oRectMax.y), uv, ImColor(0.f, 0.f, 0.f, fShadowAlpha));
-			if (bSelected)
-			{
-				pDrawList->PrimReserve(3, 3);
-				pDrawList->PrimWriteIdx((ImDrawIdx)(pDrawList->_VtxCurrentIdx)); pDrawList->PrimWriteIdx((ImDrawIdx)(pDrawList->_VtxCurrentIdx + 1)); pDrawList->PrimWriteIdx((ImDrawIdx)(pDrawList->_VtxCurrentIdx + 2));
-				pDrawList->PrimWriteVtx(ImVec2(oRectMax.x + fOverlap + fShadowDropSize, oRectMax.y), uv, ImColor(0.f, 0.f, 0.f, 0.f));
-				pDrawList->PrimWriteVtx(ImVec2(oRectMax.x + fOverlap - fSlopWidth * fShadowSlopRatio, oRectMin.y), uv, ImColor(0.f, 0.f, 0.f, 0.f));
-				pDrawList->PrimWriteVtx(ImVec2(oRectMax.x + fOverlap - fSlopWidth * fShadowSlopRatio, oRectMax.y), uv, ImColor(0.f, 0.f, 0.f, fShadowAlpha));
-			}
-			
-			// Draw tab and border
-			if (bSelected)
-			{
-				pDrawList->PathLineTo(ImVec2(oMin.x, oRectMax.y));
-			}
-			pDrawList->PathLineTo(ImVec2(oRectMin.x - fOverlap, oRectMax.y));
-			pDrawList->PathBezierCurveTo(
-				ImVec2(oRectMin.x + fSlopWidth * sSlopP1Ratio - fOverlap, oRectMin.y + (oRectMax.y - oRectMin.y) * fSlopHRatio),
-				ImVec2(oRectMin.x + fSlopWidth * fSlopP2Ratio - fOverlap, oRectMin.y),
-				ImVec2(oRectMin.x + fSlopWidth - fOverlap, oRectMin.y)
-				);
-			pDrawList->PathLineTo(ImVec2(oRectMax.x - fSlopWidth + fOverlap, oRectMin.y));
-			pDrawList->PathBezierCurveTo(
-				ImVec2(oRectMax.x - fSlopWidth * fSlopP2Ratio + fOverlap, oRectMin.y),
-				ImVec2(oRectMax.x - fSlopWidth * sSlopP1Ratio + fOverlap, oRectMin.y + (oRectMax.y - oRectMin.y) * fSlopHRatio),
-				ImVec2(oRectMax.x + fOverlap, oRectMax.y)
-				);
-
-			if (bSelected)
-			{
-				pDrawList->AddConvexPolyFilled(pDrawList->_Path.Data + 1, pDrawList->_Path.Size - 1, bSelected ? oSelectedTab : oNormalTab, true);
-				if (oMax.x > (oRectMax.x + fOverlap))
-				{
-					pDrawList->PathLineTo(ImVec2(oMax.x, oRectMax.y));
-				}
-				pDrawList->AddPolyline(pDrawList->_Path.Data, pDrawList->_Path.Size, oBorderColor, false, 1.5f, true);
-			}
-			else
-			{
-				pDrawList->AddConvexPolyFilled(pDrawList->_Path.Data, pDrawList->_Path.Size, bSelected ? oSelectedTab : oNormalTab, true);
-			}
-
-			pDrawList->PathClear();
-
-			ImGui::RenderTextClipped(oRectMin, ImVec2(oRectMax.x, oRectMax.y), (*it)->GetTitle(), NULL, &oTextSize, ImGuiAlign_Center | ImGuiAlign_VCenter);
 
 			if (ImGui::BeginPopupContextItem("TabMenu"))
 			{
@@ -735,6 +661,129 @@ void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
 		// This case can happened only where it's main container
 		IM_ASSERT(m_pParent == NULL);
 	}
+}
+
+bool ImwContainer::Tab(const ImwWindow* pWindow, bool bFocused, float fStartLinePos, float fEndLinePos, float fMaxSize)
+{
+
+	ImGuiWindow* window = ImGui::GetCurrentWindow();
+	if (window->SkipItems)
+		return false;
+
+	//ImVec2 oRectMin = ImGui::GetItemBoxMin();
+	//ImVec2 oRectMax = ImGui::GetItemBoxMax();
+
+	ImVec2 oTabSize;
+	DrawTab(pWindow->GetTitle(), bFocused, window->DC.CursorPos, fStartLinePos, fEndLinePos, fMaxSize, &oTabSize);
+
+	return ImGui::InvisibleButton(pWindow->GetIdStr(), oTabSize);
+}
+
+//bool ImwContainer::DrawTab(const ImwWindow* pWindow, bool bFocused, ImVec2 oPos, float fMaxSize, ImVec2* pSizeOut)
+void ImwContainer::DrawTab(const char* pText, bool bFocused, ImVec2 oPos, float fStartLinePos, float fEndLinePos, float fMaxSize, ImVec2* pSizeOut)
+{
+	ImDrawList* pDrawList = ImGui::GetWindowDrawList();
+
+	//Calculate text size
+	const ImVec2 oTextSize = ImGui::CalcTextSize(pText);
+
+	//Clamp fMaxSize to a minimum for avoid glitch
+	if (fMaxSize < 30.f)
+	{
+		fMaxSize = 30.f;
+	}
+
+	//Calculate tab size
+	ImVec2 oTabSize(oTextSize.x + 15, 25);
+	if (fMaxSize != 1.f && oTabSize.x > fMaxSize)
+	{
+		oTabSize.x = fMaxSize;
+	}
+
+	if (pSizeOut != NULL)
+	{
+		*pSizeOut = oTabSize;
+	}
+
+	ImColor oNormalTab(50, 50, 50, 255); // normal
+	ImColor oSelectedTab(37, 37, 37, 255); // selected
+	ImColor oBorderColor(72, 72, 72, 255); // border
+
+	ImVec2 oRectMin = oPos;
+	ImVec2 oRectMax = ImVec2(oPos.x + oTabSize.x, oPos.y + oTabSize.y);
+
+	const float fOverlap = 10.f;
+	const float fSlopWidth = 30.f;
+	const float sSlopP1Ratio = 0.6f;
+	const float fSlopP2Ratio = 0.4f;
+	const float fSlopHRatio = 0.f;
+	const float fShadowDropSize = 15.f;
+	const float fShadowSlopRatio = 0.6f;
+	const float fShadowAlpha = 0.75f;
+
+	pDrawList->PathClear();
+	if (bFocused)
+	{
+		pDrawList->ChannelsSetCurrent(1);
+	}
+	else
+	{
+		pDrawList->ChannelsSetCurrent(0);
+	}
+
+	//Drop shadows
+	const ImVec2 uv = GImGui->FontTexUvWhitePixel;
+	pDrawList->PrimReserve(3, 3);
+	pDrawList->PrimWriteIdx((ImDrawIdx)(pDrawList->_VtxCurrentIdx)); pDrawList->PrimWriteIdx((ImDrawIdx)(pDrawList->_VtxCurrentIdx + 1)); pDrawList->PrimWriteIdx((ImDrawIdx)(pDrawList->_VtxCurrentIdx + 2));
+	pDrawList->PrimWriteVtx(ImVec2(oRectMin.x - fOverlap - fShadowDropSize, oRectMax.y), uv, ImColor(0.f, 0.f, 0.f, 0.f));
+	pDrawList->PrimWriteVtx(ImVec2(oRectMin.x - fOverlap + fSlopWidth * fShadowSlopRatio, oRectMin.y), uv, ImColor(0.f, 0.f, 0.f, 0.f));
+	pDrawList->PrimWriteVtx(ImVec2(oRectMin.x - fOverlap + fSlopWidth * fShadowSlopRatio, oRectMax.y), uv, ImColor(0.f, 0.f, 0.f, fShadowAlpha));
+	if (bFocused)
+	{
+		pDrawList->PrimReserve(3, 3);
+		pDrawList->PrimWriteIdx((ImDrawIdx)(pDrawList->_VtxCurrentIdx)); pDrawList->PrimWriteIdx((ImDrawIdx)(pDrawList->_VtxCurrentIdx + 1)); pDrawList->PrimWriteIdx((ImDrawIdx)(pDrawList->_VtxCurrentIdx + 2));
+		pDrawList->PrimWriteVtx(ImVec2(oRectMax.x + fOverlap + fShadowDropSize, oRectMax.y), uv, ImColor(0.f, 0.f, 0.f, 0.f));
+		pDrawList->PrimWriteVtx(ImVec2(oRectMax.x + fOverlap - fSlopWidth * fShadowSlopRatio, oRectMin.y), uv, ImColor(0.f, 0.f, 0.f, 0.f));
+		pDrawList->PrimWriteVtx(ImVec2(oRectMax.x + fOverlap - fSlopWidth * fShadowSlopRatio, oRectMax.y), uv, ImColor(0.f, 0.f, 0.f, fShadowAlpha));
+	}
+
+	// Draw tab and border
+	if (bFocused && fStartLinePos < oPos.x)
+	{
+		pDrawList->PathLineTo(ImVec2(fStartLinePos, oRectMax.y));
+	}
+	pDrawList->PathLineTo(ImVec2(oRectMin.x - fOverlap, oRectMax.y));
+	pDrawList->PathBezierCurveTo(
+		ImVec2(oRectMin.x + fSlopWidth * sSlopP1Ratio - fOverlap, oRectMin.y + (oRectMax.y - oRectMin.y) * fSlopHRatio),
+		ImVec2(oRectMin.x + fSlopWidth * fSlopP2Ratio - fOverlap, oRectMin.y),
+		ImVec2(oRectMin.x + fSlopWidth - fOverlap, oRectMin.y)
+		);
+	pDrawList->PathLineTo(ImVec2(oRectMax.x - fSlopWidth + fOverlap, oRectMin.y));
+	pDrawList->PathBezierCurveTo(
+		ImVec2(oRectMax.x - fSlopWidth * fSlopP2Ratio + fOverlap, oRectMin.y),
+		ImVec2(oRectMax.x - fSlopWidth * sSlopP1Ratio + fOverlap, oRectMin.y + (oRectMax.y - oRectMin.y) * fSlopHRatio),
+		ImVec2(oRectMax.x + fOverlap, oRectMax.y)
+		);
+
+	if (bFocused)
+	{
+		pDrawList->AddConvexPolyFilled(pDrawList->_Path.Data + 1, pDrawList->_Path.Size - 1, bFocused ? oSelectedTab : oNormalTab, true);
+		if (fEndLinePos > oRectMax.x)
+		{
+			pDrawList->PathLineTo(ImVec2(fEndLinePos, oRectMax.y));
+		}
+		pDrawList->AddPolyline(pDrawList->_Path.Data, pDrawList->_Path.Size, oBorderColor, false, 1.5f, true);
+	}
+	else
+	{
+		pDrawList->AddConvexPolyFilled(pDrawList->_Path.Data, pDrawList->_Path.Size, bFocused ? oSelectedTab : oNormalTab, true);
+	}
+
+	pDrawList->PathClear();
+
+	ImVec2 oTextRectMin(oRectMin.x + 5, oRectMin.y);
+	ImVec2 oTextRectMax(oRectMax.x - 5, oRectMax.y);
+	ImGui::RenderTextClipped(oTextRectMin, oTextRectMax, pText, NULL, &oTextSize, ImGuiAlign_Center | ImGuiAlign_VCenter);
 }
 
 ImwContainer* ImwContainer::GetBestDocking(const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, bool bLargeCheck)
