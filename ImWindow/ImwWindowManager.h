@@ -87,11 +87,12 @@ namespace ImWindow
 		ImwPlatformWindow*					GetWindowParent(ImwWindow* pWindow);
 
 	protected:
+		//To override for use multi window mode
 		virtual bool						CanCreateMultipleWindow();
-		virtual ImwPlatformWindow*			CreatePlatformWindow(bool bMain, ImwPlatformWindow* pParent, bool bDragWindow) = 0;
-		virtual void						InternalRun() = 0;
-		virtual ImVec2						GetCursorPos() = 0;
-		virtual bool						IsLeftClickDown() = 0;
+		virtual ImwPlatformWindow*			CreatePlatformWindow(bool bMain, ImwPlatformWindow* pParent, bool bDragWindow);
+		virtual void						InternalRun();
+		virtual ImVec2						GetCursorPos();
+		virtual bool						IsLeftClickDown();
 
 		void								AddWindow(ImwWindow* pWindow);
 		void								RemoveWindow(ImwWindow* pWindow);

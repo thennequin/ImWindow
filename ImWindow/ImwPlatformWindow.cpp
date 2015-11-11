@@ -38,6 +38,41 @@ namespace ImWindow
 		ImwSafeDelete(m_pState);
 	}
 
+	bool ImwPlatformWindow::Init(ImwPlatformWindow* pParent)
+	{
+		return true;
+	}
+
+	const ImVec2& ImwPlatformWindow::GetPosition() const
+	{
+		return ImVec2(0, 0);
+	}
+
+	const ImVec2& ImwPlatformWindow::GetSize() const
+	{
+		return ImGui::GetIO().DisplaySize;
+	}
+
+	void ImwPlatformWindow::Show()
+	{
+	}
+
+	void ImwPlatformWindow::Hide()
+	{
+	}
+
+	void ImwPlatformWindow::SetSize(int iWidth, int iHeight)
+	{
+	}
+
+	void ImwPlatformWindow::SetPosition(int iX, int iY)
+	{
+	}
+
+	void ImwPlatformWindow::SetTitle(const char* pTtile)
+	{
+	}
+
 	void ImwPlatformWindow::OnClose()
 	{
 		ImwWindowManager::GetInstance()->OnClosePlatformWindow(this);
@@ -77,6 +112,27 @@ namespace ImWindow
 	{
 		ImGuiState& g = *((ImGuiState*)m_pState);
 		g.SetNextWindowPosCond = g.SetNextWindowSizeCond = g.SetNextWindowContentSizeCond = g.SetNextWindowCollapsedCond = g.SetNextWindowFocus = 0;
+	}
+
+	void ImwPlatformWindow::PreUpdate()
+	{
+	}
+
+	void ImwPlatformWindow::Destroy()
+	{
+	}
+
+	void ImwPlatformWindow::StartDrag()
+	{
+	}
+
+	void ImwPlatformWindow::StopDrag()
+	{
+	}
+
+	bool ImwPlatformWindow::IsDraging()
+	{
+		return false;
 	}
 
 	void ImwPlatformWindow::Paint()

@@ -16,16 +16,16 @@ namespace ImWindow
 											ImwPlatformWindow(bool bMainWindow, bool bIsDragWindow, bool bCreateState);
 		virtual								~ImwPlatformWindow();
 
-		virtual bool						Init(ImwPlatformWindow* pParent) = 0;
+		virtual bool						Init(ImwPlatformWindow* pParent);
 
-		virtual const ImVec2&				GetPosition() const = 0;
-		virtual const ImVec2&				GetSize() const = 0;
+		virtual const ImVec2&				GetPosition() const;
+		virtual const ImVec2&				GetSize() const;
 
-		virtual void						Show() = 0;
-		virtual void						Hide() = 0;
-		virtual void						SetSize(int iWidth, int iHeight) = 0;
-		virtual void						SetPosition(int iX, int iY) = 0;
-		virtual void						SetTitle(const char* pTtile) = 0;
+		virtual void						Show();
+		virtual void						Hide();
+		virtual void						SetSize(int iWidth, int iHeight);
+		virtual void						SetPosition(int iX, int iY);
+		virtual void						SetTitle(const char* pTtile);
 
 		bool								IsMain();
 
@@ -39,12 +39,12 @@ namespace ImWindow
 		void								SetState();
 		void								RestoreState();
 		void								OnLoseFocus();
-		virtual void						PreUpdate() = 0;
+		virtual void						PreUpdate();
 		virtual void						Paint();
-		virtual void						Destroy() = 0;
-		virtual void						StartDrag() = 0;
-		virtual void						StopDrag() = 0;
-		virtual bool						IsDraging() = 0;
+		virtual void						Destroy();
+		virtual void						StartDrag();
+		virtual void						StopDrag();
+		virtual bool						IsDraging();
 
 		void								PaintContainer();
 		void								OnClose();

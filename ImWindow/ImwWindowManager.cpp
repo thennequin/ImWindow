@@ -196,6 +196,30 @@ namespace ImWindow
 		return false;
 	}
 
+	ImwPlatformWindow* ImwWindowManager::CreatePlatformWindow(bool bMain, ImwPlatformWindow* pParent, bool bDragWindow)
+	{
+		if (bMain)
+		{
+			return (ImWindow::ImwPlatformWindow*)new ImwPlatformWindow(bMain, bDragWindow, CanCreateMultipleWindow());
+		}
+		return NULL;
+	}
+
+	void ImwWindowManager::InternalRun()
+	{
+
+	}
+
+	ImVec2 ImwWindowManager::GetCursorPos()
+	{
+		return ImGui::GetIO().MousePos;
+	}
+
+	bool ImwWindowManager::IsLeftClickDown()
+	{
+		return ImGui::GetIO().MouseDown[0];
+	}
+
 	void ImwWindowManager::PreUpdate()
 	{
 		ImwIsSafe(m_pMainPlatformWindow)->PreUpdate();
