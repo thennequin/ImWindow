@@ -103,7 +103,6 @@ namespace ImWindow
 		void								InternalDockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation);
 		void								InternalFloat(ImwWindow* pWindow, ImVec2 oPosition, ImVec2 oSize);
 		void								InternalUnDock(ImwWindow* pWindow);
-		void								InternalDrag(ImwWindow* pWindow);
 
 		void								OnClosePlatformWindow(ImwPlatformWindow* pWindow);
 
