@@ -497,9 +497,6 @@ namespace ImWindow
 			float fMaxTabSize = (oSize.x - 50.f) / iSize;
 			for (ImwWindowList::iterator it = m_lWindows.begin(); it != m_lWindows.end(); ++it)
 			{
-				const ImVec2 oTextSize = ImGui::CalcTextSize( (*it)->GetTitle() );
-				ImVec2 oRectSize(oTextSize.x + 15, 25);
-
 				ImGui::PushID(iIndex);
 
 				bool bSelected = iIndex == m_iActiveWindow;
