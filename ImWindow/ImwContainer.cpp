@@ -514,8 +514,8 @@ namespace ImWindow
 				{
 					if (ImGui::IsMouseDragging())
 					{
-						ImGui::GetIO().MouseClickedPos[0];
-						pWindowManager->StartDragWindow(*it);
+						ImVec2 oOffset = ImVec2(oPos.x - ImGui::GetIO().MousePos.x, oPos.y - ImGui::GetIO().MousePos.y);
+						pWindowManager->StartDragWindow(*it, oOffset);
 					}
 				}
 

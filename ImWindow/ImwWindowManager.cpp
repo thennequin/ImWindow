@@ -463,11 +463,12 @@ namespace ImWindow
 		ImGui::Render();
 	}
 
-	void ImwWindowManager::StartDragWindow(ImwWindow* pWindow)
+	void ImwWindowManager::StartDragWindow(ImwWindow* pWindow, ImVec2 oOffset)
 	{
 		if (NULL == m_pDraggedWindow)
 		{
 			m_pDraggedWindow = pWindow;
+			m_oDragPreviewOffset = oOffset;
 
 			if (NULL != m_pDragPlatformWindow)
 			{
