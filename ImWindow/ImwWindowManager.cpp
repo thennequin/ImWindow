@@ -196,7 +196,7 @@ namespace ImWindow
 		return false;
 	}
 
-	ImwPlatformWindow* ImwWindowManager::CreatePlatformWindow(bool bMain, ImwPlatformWindow* pParent, bool bDragWindow)
+	ImwPlatformWindow* ImwWindowManager::CreatePlatformWindow(bool bMain, ImwPlatformWindow* /*pParent*/, bool bDragWindow)
 	{
 		if (bMain)
 		{

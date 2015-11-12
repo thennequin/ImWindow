@@ -8,6 +8,8 @@
 namespace ImWindow
 {
 //SFF_BEGIN
+	const float ImwContainer::c_fTabHeight = 25.f;
+	
 	ImwContainer::ImwContainer(ImwContainer* pParent)
 	{
 		IM_ASSERT(NULL != pParent);

@@ -51,7 +51,7 @@ namespace ImWindow
 		ImVec2							m_oLastPosition;
 		ImVec2							m_oLastSize;
 
-		const float						c_fTabHeight = 25.f;
+		static const float				c_fTabHeight;
 	};
 //SFF_END
 }
