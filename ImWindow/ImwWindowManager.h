@@ -43,6 +43,7 @@ namespace ImWindow
 			EDockOrientation		m_eOrientation;
 			ImwPlatformWindow*		m_pToPlatformWindow;
 			ImwContainer*			m_pToContainer;
+			float					m_fRatio;
 			//For Floating
 			ImVec2					m_oPosition;
 			ImVec2					m_oSize;
@@ -79,7 +80,7 @@ namespace ImWindow
 
 		void								Dock(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, ImwPlatformWindow* pToPlatformWindow = NULL);
 		void								DockTo(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, ImwContainer* pContainer = NULL);
-		void								DockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER);
+		void								DockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, float fRatio = 0.5f);
 		void								Float(ImwWindow* pWindow, const ImVec2& oPosition = ImVec2(-1, -1), const ImVec2& oSize = ImVec2(-1, -1));
 
 		const ImwWindowList&				GetWindowList() const;
@@ -101,7 +102,7 @@ namespace ImWindow
 		void								UnDock(ImwWindow* pWindow);
 		void								InternalDock(ImwWindow* pWindow, EDockOrientation eOrientation, ImwPlatformWindow* pToPlatformWindow);
 		void								InternalDockTo(ImwWindow* pWindow, EDockOrientation eOrientation, ImwContainer* pToContainer);
-		void								InternalDockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation);
+		void								InternalDockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation, float fRatio);
 		void								InternalFloat(ImwWindow* pWindow, ImVec2 oPosition, ImVec2 oSize);
 		void								InternalUnDock(ImwWindow* pWindow);
 

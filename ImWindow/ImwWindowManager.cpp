@@ -122,6 +122,7 @@ namespace ImWindow
 		pAction->m_eOrientation = eOrientation;
 		pAction->m_pToPlatformWindow = (pToPlatformWindow != NULL) ? pToPlatformWindow : m_pMainPlatformWindow;
 		pAction->m_pToContainer = NULL;
+		pAction->m_fRatio = 0.5f;
 		m_lDockActions.push_back(pAction);
 	}
 
@@ -137,17 +138,19 @@ namespace ImWindow
 			pAction->m_eOrientation = eOrientation;
 			pAction->m_pToPlatformWindow = NULL;
 			pAction->m_pToContainer = pContainer;
+			pAction->m_fRatio = 0.5f;
 			m_lDockActions.push_back(pAction);
 		}
 	}
 
-	void ImwWindowManager::DockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation)
+	void ImwWindowManager::DockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation, float fRatio)
 	{
 		DockAction* pAction = new DockAction();
 		pAction->m_bFloat = false;
 		pAction->m_pWindow = pWindow;
 		pAction->m_pWith = pWithWindow;
 		pAction->m_eOrientation = eOrientation;
+		pAction->m_fRatio = fRatio;
 		m_lDockActions.push_back(pAction);
 	}
 
@@ -354,7 +357,7 @@ namespace ImWindow
 			{
 				if (NULL != pAction->m_pWith)
 				{
-					InternalDockWith(pAction->m_pWindow, pAction->m_pWith, pAction->m_eOrientation);
+					InternalDockWith(pAction->m_pWindow, pAction->m_pWith, pAction->m_eOrientation, pAction->m_fRatio);
 				}
 				else if (NULL != pAction->m_pToContainer)
 				{
@@ -641,12 +644,12 @@ namespace ImWindow
 		pToContainer->Dock(pWindow, eOrientation);
 	}
 
-	void ImwWindowManager::InternalDockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation)
+	void ImwWindowManager::InternalDockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation, float fRatio)
 	{
 		ImwContainer* pContainer = m_pMainPlatformWindow->HasWindow(pWithWindow);
 		if (NULL != pContainer)
 		{
-			pContainer->Dock(pWindow, eOrientation);
+			pContainer->Dock(pWindow, eOrientation, fRatio);
 		}
 
 		for ( ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
@@ -654,7 +657,7 @@ namespace ImWindow
 			pContainer = (*it)->HasWindow(pWithWindow);
 			if (NULL != pContainer)
 			{
-				pContainer->Dock(pWindow, eOrientation);
+				pContainer->Dock(pWindow, eOrientation, fRatio);
 				break;
 			}
 		}

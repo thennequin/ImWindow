@@ -14,7 +14,7 @@ namespace ImWindow
 		friend class ImwPlatformWindow;
 	public:
 
-		void							Dock(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER);
+		void							Dock(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, float fRatio = 0.5f);
 		bool							UnDock(ImwWindow* pWindow);
 		void							DockToBest(ImwWindow* pWindow);
 
