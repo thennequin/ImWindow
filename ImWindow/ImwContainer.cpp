@@ -144,7 +144,6 @@ namespace ImWindow
 						m_pSplits[1]->m_pSplits[1] = pSplit1;
 						m_pSplits[1]->m_pSplits[0]->m_pParent = m_pSplits[1];
 						m_pSplits[1]->m_pSplits[1]->m_pParent = m_pSplits[1];
-						//m_fSplitRatio = ImwWindowManager::GetInstance()->GetConfig().m_fDragMarginSizeRatio;
 						m_fSplitRatio = fRatio;
 						m_bVerticalSplit = true;
 					}
@@ -161,7 +160,6 @@ namespace ImWindow
 						m_pSplits[1]->m_pSplits[1] = pSplit1;
 						m_pSplits[1]->m_pSplits[0]->m_pParent = m_pSplits[1];
 						m_pSplits[1]->m_pSplits[1]->m_pParent = m_pSplits[1];
-						//m_fSplitRatio = ImwWindowManager::GetInstance()->GetConfig().m_fDragMarginSizeRatio;
 						m_fSplitRatio = fRatio;
 						m_bVerticalSplit = false;
 					}
@@ -178,7 +176,6 @@ namespace ImWindow
 						m_pSplits[0]->m_pSplits[1] = pSplit1;
 						m_pSplits[0]->m_pSplits[0]->m_pParent = m_pSplits[0];
 						m_pSplits[0]->m_pSplits[1]->m_pParent = m_pSplits[0];
-						//m_fSplitRatio = 1.f - ImwWindowManager::GetInstance()->GetConfig().m_fDragMarginSizeRatio;
 						m_fSplitRatio = 1.f - fRatio;
 						m_bVerticalSplit = false;
 					}
@@ -195,7 +192,6 @@ namespace ImWindow
 						m_pSplits[0]->m_pSplits[1] = pSplit1;
 						m_pSplits[0]->m_pSplits[0]->m_pParent = m_pSplits[0];
 						m_pSplits[0]->m_pSplits[1]->m_pParent = m_pSplits[0];
-						//m_fSplitRatio = 1.f - ImwWindowManager::GetInstance()->GetConfig().m_fDragMarginSizeRatio;
 						m_fSplitRatio = 1.f - fRatio;
 						m_bVerticalSplit = true;
 					}

@@ -113,7 +113,7 @@ namespace ImWindow
 		m_lDockActions.push_back(pAction);
 	}
 
-	void ImwWindowManager::Dock(ImwWindow* pWindow, EDockOrientation eOrientation, ImwPlatformWindow* pToPlatformWindow)
+	void ImwWindowManager::Dock(ImwWindow* pWindow, EDockOrientation eOrientation, ImwPlatformWindow* pToPlatformWindow, float fRatio)
 	{
 		DockAction* pAction = new DockAction();
 		pAction->m_bFloat = false;
@@ -122,11 +122,11 @@ namespace ImWindow
 		pAction->m_eOrientation = eOrientation;
 		pAction->m_pToPlatformWindow = (pToPlatformWindow != NULL) ? pToPlatformWindow : m_pMainPlatformWindow;
 		pAction->m_pToContainer = NULL;
-		pAction->m_fRatio = 0.5f;
+		pAction->m_fRatio = fRatio;
 		m_lDockActions.push_back(pAction);
 	}
 
-	void ImwWindowManager::DockTo(ImwWindow* pWindow, EDockOrientation eOrientation, ImwContainer* pContainer)
+	void ImwWindowManager::DockTo(ImwWindow* pWindow, EDockOrientation eOrientation, ImwContainer* pContainer, float fRatio)
 	{
 		IM_ASSERT(NULL != pContainer);
 		if (NULL != pContainer)
@@ -138,7 +138,7 @@ namespace ImWindow
 			pAction->m_eOrientation = eOrientation;
 			pAction->m_pToPlatformWindow = NULL;
 			pAction->m_pToContainer = pContainer;
-			pAction->m_fRatio = 0.5f;
+			pAction->m_fRatio = fRatio;
 			m_lDockActions.push_back(pAction);
 		}
 	}
@@ -361,11 +361,11 @@ namespace ImWindow
 				}
 				else if (NULL != pAction->m_pToContainer)
 				{
-					InternalDockTo(pAction->m_pWindow, pAction->m_eOrientation, pAction->m_pToContainer);
+					InternalDockTo(pAction->m_pWindow, pAction->m_eOrientation, pAction->m_pToContainer, pAction->m_fRatio);
 				}
 				else if (NULL != pAction->m_pToPlatformWindow)
 				{
-					InternalDock(pAction->m_pWindow, pAction->m_eOrientation, pAction->m_pToPlatformWindow);
+					InternalDock(pAction->m_pWindow, pAction->m_eOrientation, pAction->m_pToPlatformWindow, pAction->m_fRatio);
 				}
 			}
 
@@ -382,7 +382,7 @@ namespace ImWindow
 		{
 			if (m_pMainPlatformWindow->m_pContainer->IsEmpty())
 			{
-				InternalDock(*m_lOrphanWindows.begin(), E_DOCK_ORIENTATION_CENTER, m_pMainPlatformWindow);
+				InternalDock(*m_lOrphanWindows.begin(), E_DOCK_ORIENTATION_CENTER, m_pMainPlatformWindow, 0.5f);
 			}
 			else if (CanCreateMultipleWindow())
 			{
@@ -523,12 +523,13 @@ namespace ImWindow
 			EDockOrientation eBestDockOrientation;
 			ImVec2 oHightlightPos;
 			ImVec2 oHightlightSize;
-			ImwContainer* pBestContainer = GetBestDocking(m_pMainPlatformWindow, oCursorPos, eBestDockOrientation, oHightlightPos, oHightlightSize, !CanCreateMultipleWindow());
+			float fSizeRatio;
+			ImwContainer* pBestContainer = GetBestDocking(m_pMainPlatformWindow, oCursorPos, eBestDockOrientation, oHightlightPos, oHightlightSize, fSizeRatio, !CanCreateMultipleWindow());
 			if (NULL == pBestContainer)
 			{
 				for (ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end() && NULL == pBestContainer; ++it)
 				{
-					pBestContainer = GetBestDocking(*it, oCursorPos, eBestDockOrientation, oHightlightPos, oHightlightSize, false);
+					pBestContainer = GetBestDocking(*it, oCursorPos, eBestDockOrientation, oHightlightPos, oHightlightSize, fSizeRatio, false);
 				}
 			}
 			if (pBestContainer)
@@ -541,7 +542,7 @@ namespace ImWindow
 			{
 				if (NULL != pBestContainer)
 				{
-					DockTo(m_pDraggedWindow, eBestDockOrientation, pBestContainer);
+					DockTo(m_pDraggedWindow, eBestDockOrientation, pBestContainer, fSizeRatio);
 				}
 				else if (NULL != m_pDragPlatformWindow)
 				{
@@ -549,7 +550,7 @@ namespace ImWindow
 				}
 				else
 				{
-					Dock(m_pDraggedWindow, E_DOCK_ORIENTATION_CENTER, m_pMainPlatformWindow);
+					Dock(m_pDraggedWindow, E_DOCK_ORIENTATION_CENTER, m_pMainPlatformWindow, fSizeRatio);
 				}
 
 				StopDragWindow();
@@ -557,7 +558,7 @@ namespace ImWindow
 		}
 	}
 
-	ImwContainer* ImwWindowManager::GetBestDocking(ImwPlatformWindow* pPlatformWindow, const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, bool bLargeCheck)
+	ImwContainer* ImwWindowManager::GetBestDocking(ImwPlatformWindow* pPlatformWindow, const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, float& fOutRatio, bool bLargeCheck)
 	{
 		ImVec2 oPos = pPlatformWindow->GetPosition();
 		ImVec2 oSize = pPlatformWindow->GetSize();
@@ -569,6 +570,7 @@ namespace ImWindow
 			ImwContainer* pBestContainer = pPlatformWindow->GetContainer()->GetBestDocking(oRectPos, oOutOrientation, oOutAreaPos, oOutAreaSize, bLargeCheck);
 			if (NULL != pBestContainer)
 			{
+				fOutRatio = 0.5f; //Default value
 				return pBestContainer;
 			}
 
@@ -608,6 +610,7 @@ namespace ImWindow
 				//IM_ASSERT(false); //Best dock orientation not found
 				return NULL;
 			}
+			fOutRatio = GetConfig().m_fDragMarginSizeRatio;
 			return pPlatformWindow->GetContainer();
 		}
 		return NULL;
@@ -634,14 +637,14 @@ namespace ImWindow
 		}
 	}
 
-	void ImwWindowManager::InternalDock(ImwWindow* pWindow, EDockOrientation eOrientation, ImwPlatformWindow* pToPlatformWindow)
+	void ImwWindowManager::InternalDock(ImwWindow* pWindow, EDockOrientation eOrientation, ImwPlatformWindow* pToPlatformWindow, float fRatio)
 	{
-		pToPlatformWindow->m_pContainer->Dock(pWindow, eOrientation);
+		pToPlatformWindow->m_pContainer->Dock(pWindow, eOrientation, fRatio);
 	}
 
-	void ImwWindowManager::InternalDockTo(ImwWindow* pWindow, EDockOrientation eOrientation, ImwContainer* pToContainer)
+	void ImwWindowManager::InternalDockTo(ImwWindow* pWindow, EDockOrientation eOrientation, ImwContainer* pToContainer, float fRatio)
 	{
-		pToContainer->Dock(pWindow, eOrientation);
+		pToContainer->Dock(pWindow, eOrientation, fRatio);
 	}
 
 	void ImwWindowManager::InternalDockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation, float fRatio)
