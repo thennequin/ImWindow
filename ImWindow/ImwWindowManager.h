@@ -5,20 +5,21 @@
 #include "ImwConfig.h"
 #include "ImwWindow.h"
 #include "ImwPlatformWindow.h"
+#include "ImwStatusBar.h"
 
 namespace ImWindow
 {
-	class ImwWindow;
 //SFF_BEGIN
 	class IMGUI_API ImwWindowManager
 	{
 		friend class ImwWindow;
+		friend class ImwStatusBar;
 		friend class ImwPlatformWindow;
 		friend class ImwContainer;
 
 		enum EPlatformWindowAction
 		{
-			E_PLATFORM_WINDOW_ACTION_DESTROY			= 1,
+			E_PLATFORM_WINDOW_ACTION_DESTROY		= 1,
 			E_PLATFORM_WINDOW_ACTION_SHOW			= 2,
 			E_PLATFORM_WINDOW_ACTION_HIDE			= 4,
 			E_PLATFORM_WINDOW_ACTION_SET_POSITION	= 8,
@@ -99,6 +100,9 @@ namespace ImWindow
 		void								RemoveWindow(ImwWindow* pWindow);
 		void								DestroyWindow(ImwWindow* pWindow);
 
+		void								AddStatusBar(ImwStatusBar* pStatusBar);
+		void								RemoveStatusBar(ImwStatusBar* pStatusBar);
+
 		void								UnDock(ImwWindow* pWindow);
 		void								InternalDock(ImwWindow* pWindow, EDockOrientation eOrientation, ImwPlatformWindow* pToPlatformWindow, float fRatio);
 		void								InternalDockTo(ImwWindow* pWindow, EDockOrientation eOrientation, ImwContainer* pToContainer, float fRatio);
@@ -130,6 +134,7 @@ namespace ImWindow
 		ImwWindowList						m_lWindows;
 		ImwWindowList						m_lOrphanWindows;
 		ImwWindowList						m_lToDestroyWindows;
+		ImwStatusBarList					m_lStatusBar;
 		ImwPlatformWindowList				m_lToDestroyPlatformWindows;
 		ImwList<PlatformWindowAction*>		m_lPlatformWindowActions;
 		ImwList<DockAction*>				m_lDockActions;

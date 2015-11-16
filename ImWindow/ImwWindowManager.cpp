@@ -403,7 +403,8 @@ namespace ImWindow
 
 	void ImwWindowManager::Paint(ImwPlatformWindow* pWindow)
 	{
-		float fY = 0.f;
+		float fTop = 0.f;
+		float fBottom = 0.f;
 		if (pWindow->IsMain())
 		{
 			ImGui::BeginMainMenuBar();
@@ -411,12 +412,16 @@ namespace ImWindow
 			{
 				(*it)->OnMenu();
 			}
-			fY = ImGui::GetWindowHeight();
+			fTop = ImGui::GetWindowHeight();
 			ImGui::EndMainMenuBar();
+			if (m_lStatusBar.size() > 0)
+			{
+				fBottom = 25.f;
+			}
 		}
 
-		ImGui::SetNextWindowPos(ImVec2(0, fY), ImGuiSetCond_Always);
-		ImGui::SetNextWindowSize(ImVec2(pWindow->GetSize().x, pWindow->GetSize().y - fY), ImGuiSetCond_Always);
+		ImGui::SetNextWindowPos(ImVec2(0, fTop), ImGuiSetCond_Always);
+		ImGui::SetNextWindowSize(ImVec2(pWindow->GetSize().x, pWindow->GetSize().y - fTop - fBottom), ImGuiSetCond_Always);
 		int iFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 
 		if (NULL != m_pDraggedWindow)
@@ -462,6 +467,24 @@ namespace ImWindow
 		}
 		ImGui::End();
 
+		if (pWindow->IsMain() && m_lStatusBar.size() > 0)
+		{
+			ImGui::SetNextWindowPos(ImVec2(0, pWindow->GetSize().y - fBottom), ImGuiSetCond_Always);
+			ImGui::SetNextWindowSize(ImVec2(pWindow->GetSize().x, fBottom), ImGuiSetCond_Always);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(5, 5));
+			ImGui::Begin("##StatusBar", NULL, ImVec2(0,0), 1.f, iFlags);
+			
+			ImGui::Columns(m_lStatusBar.size());
+			for (ImwStatusBarList::iterator it = m_lStatusBar.begin(); it != m_lStatusBar.end(); ++it )
+			{
+				(*it)->OnStatusBar();
+				ImGui::NextColumn();
+			}
+			ImGui::Columns(1);
+			
+			ImGui::End();
+			ImGui::PopStyleVar();
+		}
 	
 		ImGui::Render();
 	}
@@ -635,6 +658,22 @@ namespace ImWindow
 		{
 			m_lToDestroyWindows.push_back(pWindow);
 		}
+	}
+
+void ImwWindowManager::AddStatusBar(ImwStatusBar* pStatusBar)
+	{
+		ImwStatusBarList::iterator it = m_lStatusBar.begin();
+		for (; it != m_lStatusBar.end(); ++it)
+		{
+			if (pStatusBar->GetHorizontalPriority() <= (*it)->GetHorizontalPriority())
+				break;
+		}
+		m_lStatusBar.insert(it, pStatusBar);
+	}
+
+	void ImwWindowManager::RemoveStatusBar(ImwStatusBar* pStatusBar)
+	{
+		m_lStatusBar.remove(pStatusBar);
 	}
 
 	void ImwWindowManager::InternalDock(ImwWindow* pWindow, EDockOrientation eOrientation, ImwPlatformWindow* pToPlatformWindow, float fRatio)

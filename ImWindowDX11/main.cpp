@@ -212,6 +212,16 @@ public:
 	}
 };
 
+class MyStatusBar : ImwStatusBar
+{
+public:
+	MyStatusBar() : ImwStatusBar(99) {}
+
+	virtual void				OnStatusBar()
+	{
+		ImGui::TextUnformatted("Test");
+	}
+};
 int main(int argc, char* argv[])
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -231,6 +241,9 @@ int main(int argc, char* argv[])
 	ImwWindow* pWindow4 = new MyImwWindow2("MyImwWindow2(3)");
 	ImwWindow* pWindow5 = new MyImwWindow3();
 	pWindow5->SetClosable(false);
+	//pWindow5->SetClosable(false);
+
+	new MyStatusBar();
 
 	//ImwWindow* pStyleEditor = new StyleEditorWindow();
 
