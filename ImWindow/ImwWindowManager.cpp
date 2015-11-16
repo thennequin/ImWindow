@@ -474,7 +474,7 @@ namespace ImWindow
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(5, 5));
 			ImGui::Begin("##StatusBar", NULL, ImVec2(0,0), 1.f, iFlags);
 			
-			ImGui::Columns(m_lStatusBar.size());
+			ImGui::Columns((int)m_lStatusBar.size());
 			for (ImwStatusBarList::iterator it = m_lStatusBar.begin(); it != m_lStatusBar.end(); ++it )
 			{
 				(*it)->OnStatusBar();
