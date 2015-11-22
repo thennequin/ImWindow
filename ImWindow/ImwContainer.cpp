@@ -53,7 +53,7 @@ namespace ImWindow
 		m_pSplits[1] = new ImwContainer(this);
 	}
 
-	void ImwContainer::Dock(ImwWindow* pWindow, EDockOrientation eOrientation)
+	void ImwContainer::Dock(ImwWindow* pWindow, EDockOrientation eOrientation, int iPosition)
 	{
 		IM_ASSERT(NULL != pWindow);
 
@@ -72,8 +72,18 @@ namespace ImWindow
 				{
 				case E_DOCK_ORIENTATION_CENTER:
 					{
-						m_lWindows.push_back(pWindow);
-						m_iActiveWindow = (int)m_lWindows.size() - 1;
+						if (iPosition < 0 || iPosition >= m_lWindows.size())
+						{
+							m_lWindows.push_back(pWindow);
+							m_iActiveWindow = (int)m_lWindows.size() - 1;
+						}
+						else
+						{
+							ImwWindowList::iterator itWindow = m_lWindows.begin();
+							std::advance(itWindow, iPosition);
+							m_lWindows.insert(itWindow, pWindow);
+						}
+						
 					}
 					break;
 				case E_DOCK_ORIENTATION_TOP:
@@ -349,6 +359,7 @@ namespace ImWindow
 		const ImVec2 oSize = ImGui::GetWindowSize();
 		const ImVec2 oMin = ImVec2(oPos.x + 1, oPos.y + 1);
 		const ImVec2 oMax = ImVec2(oPos.x + oSize.x - 2, oPos.y + oSize.y - 2);
+		const ImVec2 oCursorPos = ImGui::GetIO().MousePos;
 
 		m_oLastPosition = oPos;
 		m_oLastSize = oSize;
@@ -491,18 +502,65 @@ namespace ImWindow
 			pDrawList->ChannelsSplit(2);
 
 			//Tabs
+
+			
+			
+			int iSize = (int)m_lWindows.size();
+			float fMaxTabSize = GetTabAreaWidth() / iSize;
+			ImwWindow* pDraggedWindow = ImwWindowManager::GetInstance()->GetDraggedWindow();
+			float fDraggedTabWidth;
+			int iDraggedTabPosition = 0;
+			if (pDraggedWindow != NULL)
+			{
+				if (ImwWindowManager::GetInstance()->GetDragBestContainer() == this &&
+					ImwWindowManager::GetInstance()->GetDragOnTabArea())
+				{
+					iDraggedTabPosition = ImwWindowManager::GetInstance()->GetDragTabPosition();
+					fMaxTabSize = GetTabAreaWidth() / (iSize + 1);
+					//Tab(pDraggedWindow, true, oMin.x, oMax.x, fMaxTabSize);
+					ImGuiWindow* window = ImGui::GetCurrentWindow();
+					ImVec2 oTabSize;
+					float fMin = window->DC.CursorPos.x;
+					float fMax = fMin + m_oLastSize.x - fMaxTabSize;
+
+					float fTabPosX = oCursorPos.x + ImwWindowManager::GetInstance()->GetDragOffset().x;
+				
+					if (fTabPosX < fMin) fTabPosX = fMin;
+					if (fTabPosX > fMax) fTabPosX = fMax;
+
+					ImVec2 oDraggedTabPos = ImVec2(fTabPosX, window->DC.CursorPos.y);
+					DrawTab(pDraggedWindow->GetTitle(), true, oDraggedTabPos, oMin.x, oMax.x, fMaxTabSize, &oTabSize);
+					fDraggedTabWidth = oTabSize.x;
+				}
+				else
+				{
+					pDraggedWindow = NULL;
+				}
+			}
+
 			int iIndex = 0;
 			int iNewActive = m_iActiveWindow;
-			int iSize = (int)m_lWindows.size();
-			float fMaxTabSize = (oSize.x - 50.f) / iSize;
+			bool bFirstTab = true;
+			ImVec2 oFirstTabPos;
 			for (ImwWindowList::iterator it = m_lWindows.begin(); it != m_lWindows.end(); ++it)
 			{
+				if (pDraggedWindow != NULL && iDraggedTabPosition == iIndex)
+				{
+					ImGui::Dummy(ImVec2(fDraggedTabWidth, 1.f));
+					ImGui::SameLine();
+				}
 				ImGui::PushID(iIndex);
 
-				bool bSelected = iIndex == m_iActiveWindow;
+				bool bSelected = iIndex == m_iActiveWindow && pDraggedWindow == NULL;
 				if (Tab(*it, bSelected, oMin.x, oMax.x, fMaxTabSize))
 				{
 					iNewActive = iIndex;
+				}
+
+				if (bFirstTab)
+				{
+					bFirstTab = false;
+					oFirstTabPos = ImGui::GetItemRectMin();
 				}
 
 				if (iIndex < (iSize - 1))
@@ -514,7 +572,10 @@ namespace ImWindow
 				{
 					if (ImGui::IsMouseDragging())
 					{
-						ImVec2 oOffset = ImVec2(oPos.x - ImGui::GetIO().MousePos.x, oPos.y - ImGui::GetIO().MousePos.y);
+						//ImGui::GetIO().MouseClickedPos[0];
+						float fOffsetX = (oCursorPos.x - ImGui::GetItemRectMin().x) + (oFirstTabPos.x - oPos.x);
+						float fOffsetY = (oCursorPos.y - ImGui::GetItemRectMin().y);
+						ImVec2 oOffset = ImVec2(-fOffsetX, -fOffsetY);
 						pWindowManager->StartDragWindow(*it, oOffset);
 					}
 				}
@@ -613,7 +674,10 @@ namespace ImWindow
 					
 						ImGui::EndMenu();
 					}
-					if (ImGui::Selectable("Float")) pWindowManager->Float((*it));
+					if (ImGui::Selectable("Float"))
+					{
+						pWindowManager->Float((*it), ImVec2(-1,-1), (*it)->m_oLastSize);
+					}
 					ImGui::EndPopup();
 				}
 
@@ -625,16 +689,22 @@ namespace ImWindow
 			pDrawList->ChannelsMerge();
 
 
-			ImwWindowList::iterator itActiveWindow = m_lWindows.begin();
-			std::advance(itActiveWindow, m_iActiveWindow);
-		
+			ImwWindow* pActiveWindow = pDraggedWindow;
+			if (pActiveWindow == NULL)
+			{
+				ImwWindowList::iterator itActiveWindow = m_lWindows.begin();
+				std::advance(itActiveWindow, m_iActiveWindow);
+
+				IM_ASSERT(itActiveWindow != m_lWindows.end());
+				pActiveWindow = *itActiveWindow;
+			}
+			
 			//Draw active
-			IM_ASSERT(itActiveWindow != m_lWindows.end());
-			if (itActiveWindow != m_lWindows.end())
+			if (pActiveWindow != NULL)
 			{
 				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, oStyle.WindowPadding);
 				//ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, ImColor(59, 59, 59, 255));
-				ImGui::BeginChild((*itActiveWindow)->GetId(), ImVec2(0,0), false, ImGuiWindowFlags_HorizontalScrollbar);
+				ImGui::BeginChild(pActiveWindow->GetId(), ImVec2(0,0), false, ImGuiWindowFlags_HorizontalScrollbar);
 			
 
 				ImVec2 oWinPos = ImGui::GetWindowPos();
@@ -645,7 +715,7 @@ namespace ImWindow
 					(*it)->m_oLastPosition = oWinPos;
 					(*it)->m_oLastSize = oWinSize;
 				}
-				(*itActiveWindow)->OnGui();
+				pActiveWindow->OnGui();
 			
 				ImGui::EndChild();
 				//ImGui::PopStyleColor(1);
@@ -681,21 +751,12 @@ namespace ImWindow
 		ImDrawList* pDrawList = ImGui::GetWindowDrawList();
 
 		//Calculate text size
-		const ImVec2 oTextSize = ImGui::CalcTextSize(pText);
-
-		//Clamp fMaxSize to a minimum for avoid glitch
-		if (fMaxSize < 30.f)
-		{
-			fMaxSize = 30.f;
-		}
+		//const ImVec2 oTextSize = ImGui::CalcTextSize(pText);
+		ImVec2 oTextSize;
+		float fTabWidth = GetTabWidth(pText, fMaxSize, &oTextSize);
 
 		//Calculate tab size
-		ImVec2 oTabSize(oTextSize.x + 15, c_fTabHeight);
-		if (fMaxSize != 1.f && oTabSize.x > fMaxSize)
-		{
-			oTabSize.x = fMaxSize;
-		}
-
+		ImVec2 oTabSize(fTabWidth, c_fTabHeight);
 		if (pSizeOut != NULL)
 		{
 			*pSizeOut = oTabSize;
@@ -782,7 +843,37 @@ namespace ImWindow
 		ImGui::RenderTextClipped(oTextRectMin, oTextRectMax, pText, NULL, &oTextSize, ImGuiAlign_Center | ImGuiAlign_VCenter);
 	}
 
-	ImwContainer* ImwContainer::GetBestDocking(const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, bool bLargeCheck)
+	float ImwContainer::GetTabWidth(const char* pText, float fMaxSize, ImVec2* pOutTextSize)
+	{
+		const ImVec2 oTextSize = ImGui::CalcTextSize(pText);
+
+		if (NULL != pOutTextSize)
+		{
+			*pOutTextSize = oTextSize;
+		}
+
+		//Clamp fMaxSize to a minimum for avoid glitch
+		if (fMaxSize < 30.f)
+		{
+			fMaxSize = 30.f;
+		}
+
+		//Calculate tab size
+		float fWidth = oTextSize.x + 15;
+		if (fMaxSize != 1.f && fWidth > fMaxSize)
+		{
+			fWidth = fMaxSize;
+		}
+		
+		return fWidth;
+	}
+
+	float ImwContainer::GetTabAreaWidth() const
+	{
+		return m_oLastSize.x - 50.f;
+	}
+
+	ImwContainer* ImwContainer::GetBestDocking(const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, bool& bOutOnTabArea, int& iOutPosition, bool bLargeCheck)
 	{
 		if (m_pParent == NULL || 
 			(oCursorPos.x >= m_oLastPosition.x && oCursorPos.x <= (m_oLastPosition.x + m_oLastSize.x) &&
@@ -791,12 +882,12 @@ namespace ImWindow
 			if (IsSplit())
 			{
 				ImwContainer* pBestContainer = NULL;
-				pBestContainer = m_pSplits[0]->GetBestDocking(oCursorPos, oOutOrientation, oOutAreaPos, oOutAreaSize, bLargeCheck);
+				pBestContainer = m_pSplits[0]->GetBestDocking(oCursorPos, oOutOrientation, oOutAreaPos, oOutAreaSize, bOutOnTabArea, iOutPosition, bLargeCheck);
 				if (NULL != pBestContainer)
 				{
 					return pBestContainer;
 				}
-				pBestContainer = m_pSplits[1]->GetBestDocking(oCursorPos, oOutOrientation, oOutAreaPos, oOutAreaSize, bLargeCheck);
+				pBestContainer = m_pSplits[1]->GetBestDocking(oCursorPos, oOutOrientation, oOutAreaPos, oOutAreaSize, bOutOnTabArea, iOutPosition, bLargeCheck);
 				if (NULL != pBestContainer)
 				{
 					return pBestContainer;
@@ -804,123 +895,155 @@ namespace ImWindow
 			}
 			else
 			{
-				const float c_fBoxHalfSize = 20.f;
-				const float c_fBoxSize = c_fBoxHalfSize * 2.f;
-				const float c_fMinSize = c_fBoxSize * 4.f;
-				const float c_fSplitRatio = 0.5f;
-				//const float c_fSplitRatio = oConfig.m_fDragMarginSizeRatio;
-				const ImColor oBoxColor(200, 200, 255, 255);
-				const ImColor oBoxHightlightColor(100, 100, 255, 255);
-
-				if (m_oLastSize.x < c_fMinSize && m_oLastSize.y < c_fMinSize)
+				if (oCursorPos.y < m_oLastPosition.y + c_fTabHeight)
 				{
 					oOutOrientation = E_DOCK_ORIENTATION_CENTER;
 					oOutAreaPos = m_oLastPosition;
-					oOutAreaSize = m_oLastSize;
+					oOutAreaSize = ImVec2(0,0);
+					bOutOnTabArea = true;
+					//Search tab position
+					float fMaxTabSize = GetTabAreaWidth() / (m_lWindows.size() + 1);
+					float fCurrentTabPosX = m_oLastPosition.x;
+					int iCurrentTab = 0;
+					float fCursorX = oCursorPos.x + ImwWindowManager::GetInstance()->GetDragOffset().x;
+					for (ImwWindowList::const_iterator itWindow = m_lWindows.begin(); itWindow != m_lWindows.end(); ++itWindow)
+					{
+						float fTabWidth = GetTabWidth((*itWindow)->m_pTitle, fMaxTabSize);
+						if (fCursorX < (fCurrentTabPosX + fTabWidth / 2.f))
+						{
+							break;
+						}
+						fCurrentTabPosX += fTabWidth;
+						++iCurrentTab;
+					}
+					iOutPosition = iCurrentTab;
 					return this;
 				}
 				else
 				{
-					const ImVec2 oCenter = ImVec2(m_oLastPosition.x + m_oLastSize.x / 2.f, m_oLastPosition.y + m_oLastSize.y / 2.f);
+					const float c_fBoxHalfSize = 20.f;
+					const float c_fBoxSize = c_fBoxHalfSize * 2.f;
+					const float c_fMinSize = c_fBoxSize * 4.f;
+					const float c_fSplitRatio = 0.5f;
+					//const float c_fSplitRatio = oConfig.m_fDragMarginSizeRatio;
+					const ImColor oBoxColor(200, 200, 255, 255);
+					const ImColor oBoxHightlightColor(100, 100, 255, 255);
 
-					bool bIsInCenter = false;
-					bool bIsInTop = false;
-					bool bIsInLeft = false;
-					bool bIsInRight = false;
-					bool bIsInBottom = false;
-
-					if (bLargeCheck)
-					{
-						ImRect oRectCenter(ImVec2(oCenter.x - c_fBoxHalfSize * 2.f, oCenter.y - c_fBoxHalfSize * 2.f), ImVec2(oCenter.x + c_fBoxHalfSize * 2.f, oCenter.y + c_fBoxHalfSize * 2.f));
-
-						ImRect oRectTop = ImRect(ImVec2(m_oLastPosition.x, m_oLastPosition.y), ImVec2(m_oLastPosition.x + m_oLastSize.x, oCenter.y - c_fBoxHalfSize * 2.f));
-						ImRect oRectBottom = ImRect(ImVec2(m_oLastPosition.x, oCenter.y + c_fBoxHalfSize * 2.f), ImVec2(m_oLastPosition.x + m_oLastSize.x, m_oLastPosition.y + m_oLastSize.y));
-
-						ImRect oRectLeft = ImRect(ImVec2(m_oLastPosition.x, m_oLastPosition.y), ImVec2(oCenter.x - c_fBoxHalfSize * 2.f, m_oLastPosition.y + m_oLastSize.y));
-						ImRect oRectRight = ImRect(ImVec2(oCenter.x + c_fBoxHalfSize * 2.f, m_oLastPosition.y), ImVec2(m_oLastPosition.x + m_oLastSize.x, m_oLastPosition.y + m_oLastSize.y));
-
-						bIsInCenter = oRectCenter.Contains(oCursorPos);
-
-						if (m_oLastSize.y >= c_fMinSize)
-						{
-							bIsInTop = oRectTop.Contains(oCursorPos);
-							bIsInBottom = oRectBottom.Contains(oCursorPos);
-						}
-
-						if (m_oLastSize.x >= c_fMinSize)
-						{
-							bIsInLeft = oRectLeft.Contains(oCursorPos);
-							bIsInRight = oRectRight.Contains(oCursorPos);
-						}
-					}
-					else
-					{
-						//Center
-						ImRect oRectCenter(ImVec2(oCenter.x - c_fBoxHalfSize, oCenter.y - c_fBoxHalfSize), ImVec2(oCenter.x + c_fBoxHalfSize, oCenter.y + c_fBoxHalfSize));
-						bIsInCenter = oRectCenter.Contains(oCursorPos);
-						ImwWindowManager::GetInstance()->DrawWindowArea(m_pParentWindow, oRectCenter.Min, oRectCenter.GetSize(), bIsInCenter ? oBoxHightlightColor : oBoxColor);
-
-						if (m_oLastSize.y >= c_fMinSize)
-						{
-							//Top
-							ImRect oRectTop(ImVec2(oCenter.x - c_fBoxHalfSize, oCenter.y - c_fBoxHalfSize * 4.f), ImVec2(oCenter.x + c_fBoxHalfSize, oCenter.y - c_fBoxHalfSize * 2.f));
-							bIsInTop = oRectTop.Contains(oCursorPos);
-							ImwWindowManager::GetInstance()->DrawWindowArea(m_pParentWindow, oRectTop.Min, oRectTop.GetSize(), bIsInTop ? oBoxHightlightColor : oBoxColor);
-
-							//Bottom
-							ImRect oRectBottom(ImVec2(oCenter.x - c_fBoxHalfSize, oCenter.y + c_fBoxHalfSize * 2.f), ImVec2(oCenter.x + c_fBoxHalfSize, oCenter.y + c_fBoxHalfSize * 4.f));
-							bIsInBottom = oRectBottom.Contains(oCursorPos);
-							ImwWindowManager::GetInstance()->DrawWindowArea(m_pParentWindow, oRectBottom.Min, oRectBottom.GetSize(), bIsInBottom ? oBoxHightlightColor : oBoxColor);
-						}
-
-						if (m_oLastSize.x >= c_fMinSize)
-						{
-							//Left
-							ImRect oRectLeft(ImVec2(oCenter.x - c_fBoxHalfSize * 4.f, oCenter.y - c_fBoxHalfSize), ImVec2(oCenter.x - c_fBoxHalfSize * 2.f, oCenter.y + c_fBoxHalfSize));
-							bIsInLeft = oRectLeft.Contains(oCursorPos);
-							ImwWindowManager::GetInstance()->DrawWindowArea(m_pParentWindow, oRectLeft.Min, oRectLeft.GetSize(), bIsInLeft ? oBoxHightlightColor : oBoxColor);
-
-							//Right
-							ImRect oRectRight(ImVec2(oCenter.x + c_fBoxHalfSize * 2.f, oCenter.y - c_fBoxHalfSize), ImVec2(oCenter.x + c_fBoxHalfSize * 4.f, oCenter.y + c_fBoxHalfSize));
-							bIsInRight = oRectRight.Contains(oCursorPos);
-							ImwWindowManager::GetInstance()->DrawWindowArea(m_pParentWindow, oRectRight.Min, oRectRight.GetSize(), bIsInRight ? oBoxHightlightColor : oBoxColor);
-						}
-					}
-
-					if (bIsInCenter)
+					if (m_oLastSize.x < c_fMinSize && m_oLastSize.y < c_fMinSize)
 					{
 						oOutOrientation = E_DOCK_ORIENTATION_CENTER;
 						oOutAreaPos = m_oLastPosition;
 						oOutAreaSize = m_oLastSize;
 						return this;
 					}
-					else if (bIsInTop)
+					else
 					{
-						oOutOrientation = E_DOCK_ORIENTATION_TOP;
-						oOutAreaPos = m_oLastPosition;
-						oOutAreaSize = ImVec2(m_oLastSize.x, m_oLastSize.y * c_fSplitRatio);
-						return this;
-					}
-					else if (bIsInLeft)
-					{
-						oOutOrientation = E_DOCK_ORIENTATION_LEFT;
-						oOutAreaPos = m_oLastPosition;
-						oOutAreaSize = ImVec2(m_oLastSize.x * c_fSplitRatio, m_oLastSize.y);
-						return this;
-					}
-					else if (bIsInRight)
-					{
-						oOutOrientation = E_DOCK_ORIENTATION_RIGHT;
-						oOutAreaPos = ImVec2(m_oLastPosition.x + m_oLastSize.x * (1.f - c_fSplitRatio), m_oLastPosition.y);
-						oOutAreaSize = ImVec2(m_oLastSize.x * c_fSplitRatio, m_oLastSize.y);
-						return this;
-					}
-					else if (bIsInBottom)
-					{
-						oOutOrientation = E_DOCK_ORIENTATION_BOTTOM;
-						oOutAreaPos = ImVec2(m_oLastPosition.x, m_oLastPosition.y + m_oLastSize.y * (1.f - c_fSplitRatio));
-						oOutAreaSize = ImVec2(m_oLastSize.x, m_oLastSize.y * c_fSplitRatio);
-						return this;
+						const ImVec2 oCenter = ImVec2(m_oLastPosition.x + m_oLastSize.x / 2.f, m_oLastPosition.y + m_oLastSize.y / 2.f);
+
+						bool bIsInCenter = false;
+						bool bIsInTop = false;
+						bool bIsInLeft = false;
+						bool bIsInRight = false;
+						bool bIsInBottom = false;
+
+						if (bLargeCheck)
+						{
+							ImRect oRectCenter(ImVec2(oCenter.x - c_fBoxHalfSize * 2.f, oCenter.y - c_fBoxHalfSize * 2.f), ImVec2(oCenter.x + c_fBoxHalfSize * 2.f, oCenter.y + c_fBoxHalfSize * 2.f));
+
+							ImRect oRectTop = ImRect(ImVec2(m_oLastPosition.x, m_oLastPosition.y), ImVec2(m_oLastPosition.x + m_oLastSize.x, oCenter.y - c_fBoxHalfSize * 2.f));
+							ImRect oRectBottom = ImRect(ImVec2(m_oLastPosition.x, oCenter.y + c_fBoxHalfSize * 2.f), ImVec2(m_oLastPosition.x + m_oLastSize.x, m_oLastPosition.y + m_oLastSize.y));
+
+							ImRect oRectLeft = ImRect(ImVec2(m_oLastPosition.x, m_oLastPosition.y), ImVec2(oCenter.x - c_fBoxHalfSize * 2.f, m_oLastPosition.y + m_oLastSize.y));
+							ImRect oRectRight = ImRect(ImVec2(oCenter.x + c_fBoxHalfSize * 2.f, m_oLastPosition.y), ImVec2(m_oLastPosition.x + m_oLastSize.x, m_oLastPosition.y + m_oLastSize.y));
+
+							bIsInCenter = oRectCenter.Contains(oCursorPos);
+
+							if (m_oLastSize.y >= c_fMinSize)
+							{
+								bIsInTop = oRectTop.Contains(oCursorPos);
+								bIsInBottom = oRectBottom.Contains(oCursorPos);
+							}
+
+							if (m_oLastSize.x >= c_fMinSize)
+							{
+								bIsInLeft = oRectLeft.Contains(oCursorPos);
+								bIsInRight = oRectRight.Contains(oCursorPos);
+							}
+						}
+						else
+						{
+							//Center
+							ImRect oRectCenter(ImVec2(oCenter.x - c_fBoxHalfSize, oCenter.y - c_fBoxHalfSize), ImVec2(oCenter.x + c_fBoxHalfSize, oCenter.y + c_fBoxHalfSize));
+							bIsInCenter = oRectCenter.Contains(oCursorPos);
+							ImwWindowManager::GetInstance()->DrawWindowArea(m_pParentWindow, oRectCenter.Min, oRectCenter.GetSize(), bIsInCenter ? oBoxHightlightColor : oBoxColor);
+
+							if (m_oLastSize.y >= c_fMinSize)
+							{
+								//Top
+								ImRect oRectTop(ImVec2(oCenter.x - c_fBoxHalfSize, oCenter.y - c_fBoxHalfSize * 4.f), ImVec2(oCenter.x + c_fBoxHalfSize, oCenter.y - c_fBoxHalfSize * 2.f));
+								bIsInTop = oRectTop.Contains(oCursorPos);
+								ImwWindowManager::GetInstance()->DrawWindowArea(m_pParentWindow, oRectTop.Min, oRectTop.GetSize(), bIsInTop ? oBoxHightlightColor : oBoxColor);
+
+								//Bottom
+								ImRect oRectBottom(ImVec2(oCenter.x - c_fBoxHalfSize, oCenter.y + c_fBoxHalfSize * 2.f), ImVec2(oCenter.x + c_fBoxHalfSize, oCenter.y + c_fBoxHalfSize * 4.f));
+								bIsInBottom = oRectBottom.Contains(oCursorPos);
+								ImwWindowManager::GetInstance()->DrawWindowArea(m_pParentWindow, oRectBottom.Min, oRectBottom.GetSize(), bIsInBottom ? oBoxHightlightColor : oBoxColor);
+							}
+
+							if (m_oLastSize.x >= c_fMinSize)
+							{
+								//Left
+								ImRect oRectLeft(ImVec2(oCenter.x - c_fBoxHalfSize * 4.f, oCenter.y - c_fBoxHalfSize), ImVec2(oCenter.x - c_fBoxHalfSize * 2.f, oCenter.y + c_fBoxHalfSize));
+								bIsInLeft = oRectLeft.Contains(oCursorPos);
+								ImwWindowManager::GetInstance()->DrawWindowArea(m_pParentWindow, oRectLeft.Min, oRectLeft.GetSize(), bIsInLeft ? oBoxHightlightColor : oBoxColor);
+
+								//Right
+								ImRect oRectRight(ImVec2(oCenter.x + c_fBoxHalfSize * 2.f, oCenter.y - c_fBoxHalfSize), ImVec2(oCenter.x + c_fBoxHalfSize * 4.f, oCenter.y + c_fBoxHalfSize));
+								bIsInRight = oRectRight.Contains(oCursorPos);
+								ImwWindowManager::GetInstance()->DrawWindowArea(m_pParentWindow, oRectRight.Min, oRectRight.GetSize(), bIsInRight ? oBoxHightlightColor : oBoxColor);
+							}
+						}
+
+						if (bIsInCenter)
+						{
+							oOutOrientation = E_DOCK_ORIENTATION_CENTER;
+							oOutAreaPos = m_oLastPosition;
+							oOutAreaSize = m_oLastSize;
+							bOutOnTabArea = false;
+							return this;
+						}
+						else if (bIsInTop)
+						{
+							oOutOrientation = E_DOCK_ORIENTATION_TOP;
+							oOutAreaPos = m_oLastPosition;
+							oOutAreaSize = ImVec2(m_oLastSize.x, m_oLastSize.y * c_fSplitRatio);
+							bOutOnTabArea = false;
+							return this;
+						}
+						else if (bIsInLeft)
+						{
+							oOutOrientation = E_DOCK_ORIENTATION_LEFT;
+							oOutAreaPos = m_oLastPosition;
+							oOutAreaSize = ImVec2(m_oLastSize.x * c_fSplitRatio, m_oLastSize.y);
+							bOutOnTabArea = false;
+							return this;
+						}
+						else if (bIsInRight)
+						{
+							oOutOrientation = E_DOCK_ORIENTATION_RIGHT;
+							oOutAreaPos = ImVec2(m_oLastPosition.x + m_oLastSize.x * (1.f - c_fSplitRatio), m_oLastPosition.y);
+							oOutAreaSize = ImVec2(m_oLastSize.x * c_fSplitRatio, m_oLastSize.y);
+							bOutOnTabArea = false;
+							return this;
+						}
+						else if (bIsInBottom)
+						{
+							oOutOrientation = E_DOCK_ORIENTATION_BOTTOM;
+							oOutAreaPos = ImVec2(m_oLastPosition.x, m_oLastPosition.y + m_oLastSize.y * (1.f - c_fSplitRatio));
+							oOutAreaSize = ImVec2(m_oLastSize.x, m_oLastSize.y * c_fSplitRatio);
+							bOutOnTabArea = false;
+							return this;
+						}
 					}
 				}
 			}

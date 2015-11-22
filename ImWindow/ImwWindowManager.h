@@ -43,6 +43,7 @@ namespace ImWindow
 			EDockOrientation		m_eOrientation;
 			ImwPlatformWindow*		m_pToPlatformWindow;
 			ImwContainer*			m_pToContainer;
+			int						m_iPosition;
 			//For Floating
 			ImVec2					m_oPosition;
 			ImVec2					m_oSize;
@@ -78,7 +79,7 @@ namespace ImWindow
 		void								SetMainTitle(const char* pTitle);
 
 		void								Dock(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, ImwPlatformWindow* pToPlatformWindow = NULL);
-		void								DockTo(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, ImwContainer* pContainer = NULL);
+		void								DockTo(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, ImwContainer* pContainer = NULL, int iPosition = -1);
 		void								DockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER);
 		void								Float(ImwWindow* pWindow, const ImVec2& oPosition = ImVec2(-1, -1), const ImVec2& oSize = ImVec2(-1, -1));
 
@@ -100,7 +101,7 @@ namespace ImWindow
 
 		void								UnDock(ImwWindow* pWindow);
 		void								InternalDock(ImwWindow* pWindow, EDockOrientation eOrientation, ImwPlatformWindow* pToPlatformWindow);
-		void								InternalDockTo(ImwWindow* pWindow, EDockOrientation eOrientation, ImwContainer* pToContainer);
+		void								InternalDockTo(ImwWindow* pWindow, EDockOrientation eOrientation, ImwContainer* pToContainer, int iPosition);
 		void								InternalDockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation);
 		void								InternalFloat(ImwWindow* pWindow, ImVec2 oPosition, ImVec2 oSize);
 		void								InternalUnDock(ImwWindow* pWindow);
@@ -120,7 +121,12 @@ namespace ImWindow
 		void								StartDragWindow(ImwWindow* pWindow, ImVec2 oOffset);
 		void								StopDragWindow();
 		void								UpdateDragWindow();
-		ImwContainer*						GetBestDocking(ImwPlatformWindow* pPlatformWindow, const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, bool bLargeCheck);
+		ImwWindow*							GetDraggedWindow() const;
+		ImVec2								GetDragOffset() const;
+		ImwContainer*						GetDragBestContainer() const;
+		bool								GetDragOnTabArea() const;
+		int									GetDragTabPosition() const;
+		ImwContainer*						GetBestDocking(ImwPlatformWindow* pPlatformWindow, const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, bool& bOutOnTabArea, int& iOutPosition, bool bLargeCheck);
 		
 		Config								m_oConfig;
 		ImwPlatformWindow*					m_pMainPlatformWindow;
@@ -136,6 +142,9 @@ namespace ImWindow
 
 		ImwPlatformWindow*					m_pCurrentPlatformWindow;
 		ImwWindow*							m_pDraggedWindow;
+		bool								m_bDragOnTab;
+		ImwContainer*						m_pDragBestContainer;
+		int									m_iDragBestContainerPosition;
 
 		ImVec2								m_oDragPreviewOffset;
 

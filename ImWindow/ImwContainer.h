@@ -14,7 +14,7 @@ namespace ImWindow
 		friend class ImwPlatformWindow;
 	public:
 
-		void							Dock(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER);
+		void							Dock(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, int iPosition = -1);
 		bool							UnDock(ImwWindow* pWindow);
 		void							DockToBest(ImwWindow* pWindow);
 
@@ -23,7 +23,7 @@ namespace ImWindow
 		bool							HasWindowTabbed() const;
 		ImwContainer*					HasWindow(const ImwWindow* pWindow);
 		ImwPlatformWindow*				GetPlatformWindowParent() const;
-		ImwContainer*					GetBestDocking(const ImVec2 oCursorPosInContainer, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, bool bLargeCheck);
+		ImwContainer*					GetBestDocking(const ImVec2 oCursorPosInContainer, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, bool& bOutOnTabArea, int& iOutPosition, bool bLargeCheck);
 		bool							HasUnclosableWindow() const;
 	protected:
 										ImwContainer(ImwContainer* pParent);
@@ -36,6 +36,8 @@ namespace ImWindow
 
 		bool							Tab(const ImwWindow* pWindow, bool bFocused, float fStartLinePos, float fEndLinePos, float fMaxSize = -1.f);
 		void							DrawTab(const char* pText, bool bFocused, ImVec2 oPos, float fStartLinePos, float fEndLinePos, float fMaxSize = -1.f, ImVec2* pSizeOut = NULL);
+		float							GetTabWidth(const char* pText, float fMaxSize, ImVec2* pOutTextSize = NULL);
+		float							GetTabAreaWidth() const;
 
 		ImwContainer*					m_pParent;
 		ImwPlatformWindow*				m_pParentWindow;
