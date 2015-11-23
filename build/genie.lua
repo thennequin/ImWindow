@@ -51,7 +51,7 @@ if generateSFF == true then
 	--Forward declare classes
 	fileSFFHeader:write("	class ImwContainer;"..EOL)
 	fileSFFHeader:write("	class ImwPlatformWindow;"..EOL)
-	fileSFFHeader:write("	class ImWindowManager;"..EOL)
+	fileSFFHeader:write("	class ImwWindowManager;"..EOL)
 	fileSFFHeader:write(EOL)
 	IncludeSFF( "../ImWindow/ImwWindow.h", fileSFFHeader )
 	IncludeSFF( "../ImWindow/ImwContainer.h", fileSFFHeader )
