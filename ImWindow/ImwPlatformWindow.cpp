@@ -38,14 +38,15 @@ namespace ImWindow
 		ImwSafeDelete(m_pState);
 	}
 
-	bool ImwPlatformWindow::Init(ImwPlatformWindow* pParent)
+	bool ImwPlatformWindow::Init(ImwPlatformWindow* /*pParent*/)
 	{
 		return true;
 	}
 
+	const ImVec2 c_oVec2_0 = ImVec2(0,0);
 	const ImVec2& ImwPlatformWindow::GetPosition() const
 	{
-		return ImVec2(0, 0);
+		return c_oVec2_0;
 	}
 
 	const ImVec2& ImwPlatformWindow::GetSize() const
@@ -61,15 +62,15 @@ namespace ImWindow
 	{
 	}
 
-	void ImwPlatformWindow::SetSize(int iWidth, int iHeight)
+	void ImwPlatformWindow::SetSize(int /*iWidth*/, int /*iHeight*/)
 	{
 	}
 
-	void ImwPlatformWindow::SetPosition(int iX, int iY)
+	void ImwPlatformWindow::SetPosition(int /*iX*/, int /*iY*/)
 	{
 	}
 
-	void ImwPlatformWindow::SetTitle(const char* pTtile)
+	void ImwPlatformWindow::SetTitle(const char* /*pTtile*/)
 	{
 	}
 

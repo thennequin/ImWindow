@@ -14,7 +14,7 @@ namespace ImWindow
 		friend class ImwPlatformWindow;
 	public:
 
-		void							Dock(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, int iPosition = -1);
+		void							Dock(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, float fRatio = 0.5f, int iPosition = -1);
 		bool							UnDock(ImwWindow* pWindow);
 		void							DockToBest(ImwWindow* pWindow);
 
@@ -53,7 +53,7 @@ namespace ImWindow
 		ImVec2							m_oLastPosition;
 		ImVec2							m_oLastSize;
 
-		const float						c_fTabHeight = 25.f;
+		static const float				c_fTabHeight;
 	};
 //SFF_END
 }

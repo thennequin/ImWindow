@@ -5,20 +5,21 @@
 #include "ImwConfig.h"
 #include "ImwWindow.h"
 #include "ImwPlatformWindow.h"
+#include "ImwStatusBar.h"
 
 namespace ImWindow
 {
-	class ImwWindow;
 //SFF_BEGIN
 	class IMGUI_API ImwWindowManager
 	{
 		friend class ImwWindow;
+		friend class ImwStatusBar;
 		friend class ImwPlatformWindow;
 		friend class ImwContainer;
 
 		enum EPlatformWindowAction
 		{
-			E_PLATFORM_WINDOW_ACTION_DESTROY			= 1,
+			E_PLATFORM_WINDOW_ACTION_DESTROY		= 1,
 			E_PLATFORM_WINDOW_ACTION_SHOW			= 2,
 			E_PLATFORM_WINDOW_ACTION_HIDE			= 4,
 			E_PLATFORM_WINDOW_ACTION_SET_POSITION	= 8,
@@ -44,6 +45,7 @@ namespace ImWindow
 			ImwPlatformWindow*		m_pToPlatformWindow;
 			ImwContainer*			m_pToContainer;
 			int						m_iPosition;
+			float					m_fRatio;
 			//For Floating
 			ImVec2					m_oPosition;
 			ImVec2					m_oSize;
@@ -78,9 +80,9 @@ namespace ImWindow
 
 		void								SetMainTitle(const char* pTitle);
 
-		void								Dock(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, ImwPlatformWindow* pToPlatformWindow = NULL);
-		void								DockTo(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, ImwContainer* pContainer = NULL, int iPosition = -1);
-		void								DockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER);
+		void								Dock(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, float fRatio = 0.5f, ImwPlatformWindow* pToPlatformWindow = NULL);
+		void								DockTo(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, float fRatio = 0.5f, ImwContainer* pContainer = NULL, int iPosition = -1);
+		void								DockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, float fRatio = 0.5f);
 		void								Float(ImwWindow* pWindow, const ImVec2& oPosition = ImVec2(-1, -1), const ImVec2& oSize = ImVec2(-1, -1));
 
 		const ImwWindowList&				GetWindowList() const;
@@ -99,10 +101,13 @@ namespace ImWindow
 		void								RemoveWindow(ImwWindow* pWindow);
 		void								DestroyWindow(ImwWindow* pWindow);
 
+		void								AddStatusBar(ImwStatusBar* pStatusBar);
+		void								RemoveStatusBar(ImwStatusBar* pStatusBar);
+
 		void								UnDock(ImwWindow* pWindow);
-		void								InternalDock(ImwWindow* pWindow, EDockOrientation eOrientation, ImwPlatformWindow* pToPlatformWindow);
-		void								InternalDockTo(ImwWindow* pWindow, EDockOrientation eOrientation, ImwContainer* pToContainer, int iPosition);
-		void								InternalDockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation);
+		void								InternalDock(ImwWindow* pWindow, EDockOrientation eOrientation, float fRatio, ImwPlatformWindow* pToPlatformWindow);
+		void								InternalDockTo(ImwWindow* pWindow, EDockOrientation eOrientation, float fRatio, ImwContainer* pToContainer, int iPosition);
+		void								InternalDockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation, float fRatio);
 		void								InternalFloat(ImwWindow* pWindow, ImVec2 oPosition, ImVec2 oSize);
 		void								InternalUnDock(ImwWindow* pWindow);
 
@@ -126,7 +131,7 @@ namespace ImWindow
 		ImwContainer*						GetDragBestContainer() const;
 		bool								GetDragOnTabArea() const;
 		int									GetDragTabPosition() const;
-		ImwContainer*						GetBestDocking(ImwPlatformWindow* pPlatformWindow, const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, bool& bOutOnTabArea, int& iOutPosition, bool bLargeCheck);
+		ImwContainer*						GetBestDocking(ImwPlatformWindow* pPlatformWindow, const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, float& fOutRatio, bool& bOutOnTabArea, int& iOutPosition, bool bLargeCheck);
 		
 		Config								m_oConfig;
 		ImwPlatformWindow*					m_pMainPlatformWindow;
@@ -135,6 +140,7 @@ namespace ImWindow
 		ImwWindowList						m_lWindows;
 		ImwWindowList						m_lOrphanWindows;
 		ImwWindowList						m_lToDestroyWindows;
+		ImwStatusBarList					m_lStatusBar;
 		ImwPlatformWindowList				m_lToDestroyPlatformWindows;
 		ImwList<PlatformWindowAction*>		m_lPlatformWindowActions;
 		ImwList<DockAction*>				m_lDockActions;
