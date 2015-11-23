@@ -111,8 +111,11 @@ namespace ImWindow
 
 	void ImwPlatformWindow::OnLoseFocus()
 	{
-		ImGuiState& g = *((ImGuiState*)m_pState);
-		g.SetNextWindowPosCond = g.SetNextWindowSizeCond = g.SetNextWindowContentSizeCond = g.SetNextWindowCollapsedCond = g.SetNextWindowFocus = 0;
+		if (NULL != m_pState)
+		{
+			ImGuiState& g = *((ImGuiState*)m_pState);
+			g.SetNextWindowPosCond = g.SetNextWindowSizeCond = g.SetNextWindowContentSizeCond = g.SetNextWindowCollapsedCond = g.SetNextWindowFocus = 0;
+		}
 	}
 
 	void ImwPlatformWindow::PreUpdate()
