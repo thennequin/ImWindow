@@ -117,7 +117,7 @@ namespace ImWindow
 		m_lDockActions.push_back(pAction);
 	}
 
-	void ImwWindowManager::Dock(ImwWindow* pWindow, EDockOrientation eOrientation, ImwPlatformWindow* pToPlatformWindow, float fRatio)
+	void ImwWindowManager::Dock(ImwWindow* pWindow, EDockOrientation eOrientation, float fRatio, ImwPlatformWindow* pToPlatformWindow)
 	{
 		DockAction* pAction = new DockAction();
 		pAction->m_bFloat = false;
@@ -131,7 +131,7 @@ namespace ImWindow
 		m_lDockActions.push_back(pAction);
 	}
 
-	void ImwWindowManager::DockTo(ImwWindow* pWindow, EDockOrientation eOrientation, ImwContainer* pContainer, float fRatio, int iPosition)
+	void ImwWindowManager::DockTo(ImwWindow* pWindow, EDockOrientation eOrientation, float fRatio, ImwContainer* pContainer, int iPosition)
 	{
 		IM_ASSERT(NULL != pContainer);
 		if (NULL != pContainer)
@@ -367,11 +367,11 @@ namespace ImWindow
 				}
 				else if (NULL != pAction->m_pToContainer)
 				{
-					InternalDockTo(pAction->m_pWindow, pAction->m_eOrientation, pAction->m_pToContainer, pAction->m_fRatio, pAction->m_iPosition);
+					InternalDockTo(pAction->m_pWindow, pAction->m_eOrientation, pAction->m_fRatio, pAction->m_pToContainer, pAction->m_iPosition);
 				}
 				else if (NULL != pAction->m_pToPlatformWindow)
 				{
-					InternalDock(pAction->m_pWindow, pAction->m_eOrientation, pAction->m_pToPlatformWindow, pAction->m_fRatio);
+					InternalDock(pAction->m_pWindow, pAction->m_eOrientation, pAction->m_fRatio, pAction->m_pToPlatformWindow);
 				}
 			}
 
@@ -388,7 +388,7 @@ namespace ImWindow
 		{
 			if (m_pMainPlatformWindow->m_pContainer->IsEmpty())
 			{
-				InternalDock(*m_lOrphanWindows.begin(), E_DOCK_ORIENTATION_CENTER, m_pMainPlatformWindow, 0.5f);
+				InternalDock(*m_lOrphanWindows.begin(), E_DOCK_ORIENTATION_CENTER, 0.5f, m_pMainPlatformWindow);
 			}
 			else if (CanCreateMultipleWindow())
 			{
@@ -511,7 +511,7 @@ namespace ImWindow
 				pAction->m_oPosition = ImVec2(oCursorPos.x + m_oDragPreviewOffset.x, oCursorPos.y + m_oDragPreviewOffset.y);
 				pAction->m_oSize = ImVec2(pWindow->GetLastSize().x, pWindow->GetLastSize().y);
 				m_lPlatformWindowActions.push_back(pAction);
-				Dock(pWindow, E_DOCK_ORIENTATION_CENTER, m_pDragPlatformWindow);
+				Dock(pWindow, E_DOCK_ORIENTATION_CENTER, 0.5f, m_pDragPlatformWindow);
 				((ImGuiState*)m_pDragPlatformWindow->m_pState)->IO.MouseDown[0] = true;
 			}
 			else
@@ -589,7 +589,7 @@ namespace ImWindow
 				}
 				else
 				{
-					InternalDock(m_pDraggedWindow, E_DOCK_ORIENTATION_CENTER, m_pMainPlatformWindow, fSizeRatio);
+					InternalDock(m_pDraggedWindow, E_DOCK_ORIENTATION_CENTER, fSizeRatio, m_pMainPlatformWindow);
 				}
 
 				StopDragWindow();
@@ -727,7 +727,7 @@ void ImwWindowManager::AddStatusBar(ImwStatusBar* pStatusBar)
 		m_lStatusBar.remove(pStatusBar);
 	}
 
-	void ImwWindowManager::InternalDock(ImwWindow* pWindow, EDockOrientation eOrientation, ImwPlatformWindow* pToPlatformWindow, float fRatio)
+	void ImwWindowManager::InternalDock(ImwWindow* pWindow, EDockOrientation eOrientation, float fRatio, ImwPlatformWindow* pToPlatformWindow)
 	{
 		pToPlatformWindow->m_pContainer->Dock(pWindow, eOrientation, fRatio);
 	}
