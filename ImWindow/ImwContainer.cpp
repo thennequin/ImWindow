@@ -75,7 +75,7 @@ namespace ImWindow
 				{
 				case E_DOCK_ORIENTATION_CENTER:
 					{
-						if (iPosition < 0 || iPosition >= m_lWindows.size())
+						if (iPosition < 0 || iPosition >= (int)m_lWindows.size())
 						{
 							m_lWindows.push_back(pWindow);
 							m_iActiveWindow = (int)m_lWindows.size() - 1;
@@ -515,7 +515,7 @@ namespace ImWindow
 			int iSize = (int)m_lWindows.size();
 			float fMaxTabSize = GetTabAreaWidth() / iSize;
 			ImwWindow* pDraggedWindow = ImwWindowManager::GetInstance()->GetDraggedWindow();
-			float fDraggedTabWidth;
+			float fDraggedTabWidth = 0.f;
 			int iDraggedTabPosition = 0;
 			if (pDraggedWindow != NULL)
 			{
