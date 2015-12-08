@@ -545,6 +545,8 @@ namespace ImWindow
 				}
 			}
 
+			bool bCanCreateMultipleWindow = ImwWindowManager::GetInstance()->CanCreateMultipleWindow();
+
 			int iIndex = 0;
 			int iNewActive = m_iActiveWindow;
 			bool bFirstTab = true;
@@ -681,7 +683,8 @@ namespace ImWindow
 					
 						ImGui::EndMenu();
 					}
-					if (ImGui::Selectable("Float"))
+
+					if (bCanCreateMultipleWindow && ImGui::Selectable("Float"))
 					{
 						pWindowManager->Float((*it), ImVec2(-1,-1), (*it)->m_oLastSize);
 					}
