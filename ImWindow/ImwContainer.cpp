@@ -772,9 +772,19 @@ namespace ImWindow
 			*pSizeOut = oTabSize;
 		}
 
-		ImColor oNormalTab(50, 50, 50, 255); // normal
-		ImColor oSelectedTab(37, 37, 37, 255); // selected
-		ImColor oBorderColor(72, 72, 72, 255); // border
+		ImColor oNormalTab(50, 50, 50, 255);
+		ImColor oSelectedTab(37, 37, 37, 255);
+		ImColor oBorderColor(72, 72, 72, 255);
+
+		if (ImwWindowManager::GetInstance()->GetConfig().m_bTabUseImGuiColors)
+		{
+			oNormalTab = ImGui::GetStyle().Colors[ImGuiCol_TitleBg];
+			oNormalTab.Value.w = 1.f;
+			oSelectedTab = ImGui::GetStyle().Colors[ImGuiCol_TitleBgActive];
+			oSelectedTab.Value.w = 1.f;
+			oBorderColor = ImGui::GetStyle().Colors[ImGuiCol_Border];
+			oBorderColor.Value.w = 1.f;
+		}
 
 		ImVec2 oRectMin = oPos;
 		ImVec2 oRectMax = ImVec2(oPos.x + oTabSize.x, oPos.y + oTabSize.y);

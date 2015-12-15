@@ -21,6 +21,7 @@ namespace ImWindow
 		: m_fDragMarginRatio( 0.1f )
 		, m_fDragMarginSizeRatio( 0.25f )
 		, m_oHightlightAreaColor( 0.f, 0.5f, 1.f, 0.5f )
+		, m_bTabUseImGuiColors( true )
 	{
 	}
 

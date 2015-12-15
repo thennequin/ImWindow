@@ -66,6 +66,7 @@ namespace ImWindow
 			float					m_fDragMarginRatio;
 			float					m_fDragMarginSizeRatio;
 			ImColor					m_oHightlightAreaColor;
+			bool					m_bTabUseImGuiColors;
 		};
 	public:
 		ImwWindowManager();

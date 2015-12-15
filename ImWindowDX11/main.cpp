@@ -89,6 +89,7 @@ public:
 	{
 		ImGui::Text("Hello, world!");
 
+		ImGui::Checkbox("Use ImGui colors", &(ImwWindowManager::GetInstance()->GetConfig().m_bTabUseImGuiColors));
 		if (ImGui::Button("Create"))
 		{
 			new MyImwWindow3();
