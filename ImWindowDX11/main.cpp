@@ -22,7 +22,7 @@
 
 using namespace ImWindow;
 
-class MyImwWindow3 : public ImwWindow
+class MyImwWindow3 : public ImwWindow, ImwMenu
 {
 public:
 	MyImwWindow3(const char* pTitle = "MyImwWindow3")
@@ -52,7 +52,7 @@ public:
 	}
 };
 
-class MyImwWindow2 : public ImwWindow
+class MyImwWindow2 : public ImwWindow, ImwMenu
 {
 public:
 	MyImwWindow2(const char* pTitle = "MyImwWindow2")

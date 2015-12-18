@@ -26,7 +26,6 @@ namespace ImWindow
 		virtual					~ImwWindow();
 	public:
 		virtual void			OnGui() = 0;
-		virtual void			OnMenu() {};
 
 		ImU32					GetId() const;
 		const char*				GetIdStr() const;

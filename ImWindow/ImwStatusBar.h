@@ -17,7 +17,7 @@ namespace ImWindow
 		virtual void				OnStatusBar();
 
 		int							GetHorizontalPriority() const;
-	protected:
+	private:
 		int							m_iHorizontalPriority;
 	};
 	typedef ImwList<ImwStatusBar*> ImwStatusBarList;

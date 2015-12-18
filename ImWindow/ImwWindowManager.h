@@ -4,6 +4,7 @@
 
 #include "ImwConfig.h"
 #include "ImwWindow.h"
+#include "ImwMenu.h"
 #include "ImwPlatformWindow.h"
 #include "ImwStatusBar.h"
 
@@ -13,6 +14,7 @@ namespace ImWindow
 	class IMGUI_API ImwWindowManager
 	{
 		friend class ImwWindow;
+		friend class ImwMenu;
 		friend class ImwStatusBar;
 		friend class ImwPlatformWindow;
 		friend class ImwContainer;
@@ -104,6 +106,11 @@ namespace ImWindow
 
 		void								AddStatusBar(ImwStatusBar* pStatusBar);
 		void								RemoveStatusBar(ImwStatusBar* pStatusBar);
+		void								DestroyStatusBar(ImwStatusBar* pStatusBar);
+
+		void								AddMenu(ImwMenu* pMenu);
+		void								RemoveMenu(ImwMenu* pMenu);
+		void								DestroyMenu(ImwMenu* pWindow);
 
 		void								UnDock(ImwWindow* pWindow);
 		void								InternalDock(ImwWindow* pWindow, EDockOrientation eOrientation, float fRatio, ImwPlatformWindow* pToPlatformWindow);
@@ -142,6 +149,9 @@ namespace ImWindow
 		ImwWindowList						m_lOrphanWindows;
 		ImwWindowList						m_lToDestroyWindows;
 		ImwStatusBarList					m_lStatusBar;
+		ImwStatusBarList					m_lToDestroyStatusBar;
+		ImwMenuList							m_lMenus;
+		ImwMenuList							m_lToDestroyMenus;
 		ImwPlatformWindowList				m_lToDestroyPlatformWindows;
 		ImwList<PlatformWindowAction*>		m_lPlatformWindowActions;
 		ImwList<DockAction*>				m_lDockActions;

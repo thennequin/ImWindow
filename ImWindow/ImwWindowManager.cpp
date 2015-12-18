@@ -259,6 +259,22 @@ namespace ImWindow
 			delete pWindow;
 		}
 
+		while (m_lToDestroyStatusBar.begin() != m_lToDestroyStatusBar.end())
+		{
+			ImwStatusBar* pStatusBar = *m_lToDestroyStatusBar.begin();
+
+			m_lToDestroyStatusBar.remove(pStatusBar);
+			delete pStatusBar;
+		}
+
+		while (m_lToDestroyMenus.begin() != m_lToDestroyMenus.end())
+		{
+			ImwMenu* pMenu = *m_lToDestroyMenus.begin();
+
+			m_lToDestroyMenus.remove(pMenu);
+			delete pMenu;
+		}
+
 		while (m_lToDestroyPlatformWindows.begin() != m_lToDestroyPlatformWindows.end())
 		{
 			ImwPlatformWindow* pPlatformWindow = *m_lToDestroyPlatformWindows.begin();
@@ -415,7 +431,7 @@ namespace ImWindow
 		if (pWindow->IsMain())
 		{
 			ImGui::BeginMainMenuBar();
-			for ( ImwWindowList::iterator it = m_lWindows.begin(); it != m_lWindows.end(); ++it )
+			for ( ImwMenuList::iterator it = m_lMenus.begin(), itEnd = m_lMenus.end(); it != itEnd; ++it )
 			{
 				(*it)->OnMenu();
 			}
@@ -721,8 +737,8 @@ namespace ImWindow
 
 void ImwWindowManager::AddStatusBar(ImwStatusBar* pStatusBar)
 	{
-		ImwStatusBarList::iterator it = m_lStatusBar.begin();
-		for (; it != m_lStatusBar.end(); ++it)
+		ImwStatusBarList::iterator it = m_lStatusBar.begin(), itEnd = m_lStatusBar.end();
+		for (; it != itEnd; ++it)
 		{
 			if (pStatusBar->GetHorizontalPriority() <= (*it)->GetHorizontalPriority())
 				break;
@@ -733,6 +749,38 @@ void ImwWindowManager::AddStatusBar(ImwStatusBar* pStatusBar)
 	void ImwWindowManager::RemoveStatusBar(ImwStatusBar* pStatusBar)
 	{
 		m_lStatusBar.remove(pStatusBar);
+	}
+
+	void ImwWindowManager::DestroyStatusBar(ImwStatusBar* pStatusBar)
+	{
+		if (NULL != pStatusBar && std::find(m_lToDestroyStatusBar.begin(), m_lToDestroyStatusBar.end(), pStatusBar) == m_lToDestroyStatusBar.end())
+		{
+			m_lToDestroyStatusBar.push_back(pStatusBar);
+		}
+	}
+
+	void ImwWindowManager::AddMenu(ImwMenu* pMenu)
+	{
+		ImwMenuList::iterator it = m_lMenus.begin(), itEnd = m_lMenus.end();
+		for (; it != itEnd; ++it)
+		{
+			if (pMenu->GetHorizontalPriority() <= (*it)->GetHorizontalPriority())
+				break;
+		}
+		m_lMenus.insert(it, pMenu);
+	}
+
+	void ImwWindowManager::RemoveMenu(ImwMenu* pMenu)
+	{
+		m_lMenus.remove(pMenu);
+	}
+
+	void ImwWindowManager::DestroyMenu(ImwMenu* pMenu)
+	{
+		if (NULL != pMenu && std::find(m_lToDestroyMenus.begin(), m_lToDestroyMenus.end(), pMenu) == m_lToDestroyMenus.end())
+		{
+			m_lToDestroyMenus.push_back(pMenu);
+		}
 	}
 
 	void ImwWindowManager::InternalDock(ImwWindow* pWindow, EDockOrientation eOrientation, float fRatio, ImwPlatformWindow* pToPlatformWindow)
