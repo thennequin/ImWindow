@@ -588,6 +588,10 @@ namespace ImWindow
 						pWindowManager->StartDragWindow(*it, oOffset);
 					}
 				}
+				else if (ImGui::IsItemHovered() && (*it)->IsClosable() && ImGui::GetIO().MouseClicked[2])
+				{
+					(*it)->Destroy();
+				}
 
 				if (ImGui::BeginPopupContextItem("TabMenu"))
 				{
