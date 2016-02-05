@@ -76,7 +76,7 @@ namespace ImWindow
 
 		bool								Init();
 		bool								Run();
-		void								Exit();
+		void								Destroy();
 
 		ImwPlatformWindow*					GetMainPlatformWindow();
 		Config&								GetConfig();

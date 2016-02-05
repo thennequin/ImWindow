@@ -42,10 +42,8 @@ namespace ImWindow
 
 	ImwWindowManager::~ImwWindowManager()
 	{
-		ImwSafeDelete(m_pMainPlatformWindow);
-		ImwSafeDelete(m_pDragPlatformWindow);
+		Destroy();
 		s_pInstance = 0;
-		ImGui::Shutdown();
 	}
 
 	bool ImwWindowManager::Init()
@@ -85,9 +83,14 @@ namespace ImWindow
 		return m_pMainPlatformWindow != NULL;
 	}
 
-	void ImwWindowManager::Exit()
+	void ImwWindowManager::Destroy()
 	{
-		//TODO : Manual exit
+		ImwSafeDelete(m_pMainPlatformWindow);
+		ImwSafeDelete(m_pDragPlatformWindow);
+		for ( ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
+		{
+			ImwSafeDelete(*it);
+		}
 	}
 
 	ImwPlatformWindow* ImwWindowManager::GetMainPlatformWindow()
