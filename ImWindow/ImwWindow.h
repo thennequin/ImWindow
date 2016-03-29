@@ -58,6 +58,4 @@ namespace ImWindow
 //SFF_END
 }
 
-
-
 #endif // __IM_WINDOW_H__
