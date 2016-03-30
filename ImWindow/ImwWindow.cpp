@@ -32,6 +32,10 @@ namespace ImWindow
 		ImwSafeFree(m_pTitle);
 	}
 
+	void ImwWindow::OnContextMenu()
+	{
+	}
+
 	ImU32 ImwWindow::GetId() const
 	{
 		return m_iId;

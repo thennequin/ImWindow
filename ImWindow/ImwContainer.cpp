@@ -692,6 +692,9 @@ namespace ImWindow
 					{
 						pWindowManager->Float((*it), ImVec2(-1,-1), (*it)->m_oLastSize);
 					}
+
+					(*it)->OnContextMenu();
+
 					ImGui::EndPopup();
 				}
 
