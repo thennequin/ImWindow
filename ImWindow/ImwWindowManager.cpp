@@ -42,10 +42,8 @@ namespace ImWindow
 
 	ImwWindowManager::~ImwWindowManager()
 	{
-		ImwSafeDelete(m_pMainPlatformWindow);
-		ImwSafeDelete(m_pDragPlatformWindow);
+		Destroy();
 		s_pInstance = 0;
-		ImGui::Shutdown();
 	}
 
 	bool ImwWindowManager::Init()
@@ -85,9 +83,14 @@ namespace ImWindow
 		return m_pMainPlatformWindow != NULL;
 	}
 
-	void ImwWindowManager::Exit()
+	void ImwWindowManager::Destroy()
 	{
-		//TODO : Manual exit
+		ImwSafeDelete(m_pMainPlatformWindow);
+		ImwSafeDelete(m_pDragPlatformWindow);
+		for ( ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
+		{
+			ImwSafeDelete(*it);
+		}
 	}
 
 	ImwPlatformWindow* ImwWindowManager::GetMainPlatformWindow()
@@ -259,11 +262,11 @@ namespace ImWindow
 			delete pWindow;
 		}
 
-		while (m_lToDestroyStatusBar.begin() != m_lToDestroyStatusBar.end())
+		while (m_lToDestroyStatusBars.begin() != m_lToDestroyStatusBars.end())
 		{
-			ImwStatusBar* pStatusBar = *m_lToDestroyStatusBar.begin();
+			ImwStatusBar* pStatusBar = *m_lToDestroyStatusBars.begin();
 
-			m_lToDestroyStatusBar.remove(pStatusBar);
+			m_lToDestroyStatusBars.remove(pStatusBar);
 			delete pStatusBar;
 		}
 
@@ -273,6 +276,14 @@ namespace ImWindow
 
 			m_lToDestroyMenus.remove(pMenu);
 			delete pMenu;
+		}
+
+		while (m_lToDestroyToolBars.begin() != m_lToDestroyToolBars.end())
+		{
+			ImwToolBar* pToolBar = *m_lToDestroyToolBars.begin();
+
+			m_lToDestroyToolBars.remove(pToolBar);
+			delete pToolBar;
 		}
 
 		while (m_lToDestroyPlatformWindows.begin() != m_lToDestroyPlatformWindows.end())
@@ -437,7 +448,7 @@ namespace ImWindow
 			}
 			fTop = ImGui::GetWindowHeight();
 			ImGui::EndMainMenuBar();
-			if (m_lStatusBar.size() > 0)
+			if (m_lStatusBars.size() > 0)
 			{
 				fBottom = 25.f;
 			}
@@ -463,6 +474,15 @@ namespace ImWindow
 		//ImGui::PushStyleColor(ImGuiCol_WindowBg, ImColor(40,40,40,0));
 		//ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, ImColor(59, 59, 59, 255));
 		ImGui::Begin( "Main", NULL, iFlags );
+
+		if (!m_lToolBars.empty())
+		{
+			for (ImwToolBarList::iterator it = m_lToolBars.begin(), itEnd = m_lToolBars.end(); it != itEnd; ++it)
+			{
+				(*it)->OnToolBar();
+			}
+			ImGui::Separator();
+		}
 		pWindow->PaintContainer();
 		ImGui::End();
 
@@ -497,15 +517,15 @@ namespace ImWindow
 		}
 		ImGui::End();
 
-		if (pWindow->IsMain() && m_lStatusBar.size() > 0)
+		if (pWindow->IsMain() && m_lStatusBars.size() > 0)
 		{
 			ImGui::SetNextWindowPos(ImVec2(0, pWindow->GetSize().y - fBottom), ImGuiSetCond_Always);
 			ImGui::SetNextWindowSize(ImVec2(pWindow->GetSize().x, fBottom), ImGuiSetCond_Always);
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(5, 5));
 			ImGui::Begin("##StatusBar", NULL, ImVec2(0,0), 1.f, iFlags);
 			
-			ImGui::Columns((int)m_lStatusBar.size());
-			for (ImwStatusBarList::iterator it = m_lStatusBar.begin(); it != m_lStatusBar.end(); ++it )
+			ImGui::Columns((int)m_lStatusBars.size());
+			for (ImwStatusBarList::iterator it = m_lStatusBars.begin(); it != m_lStatusBars.end(); ++it )
 			{
 				(*it)->OnStatusBar();
 				ImGui::NextColumn();
@@ -737,25 +757,25 @@ namespace ImWindow
 
 void ImwWindowManager::AddStatusBar(ImwStatusBar* pStatusBar)
 	{
-		ImwStatusBarList::iterator it = m_lStatusBar.begin(), itEnd = m_lStatusBar.end();
+		ImwStatusBarList::iterator it = m_lStatusBars.begin(), itEnd = m_lStatusBars.end();
 		for (; it != itEnd; ++it)
 		{
 			if (pStatusBar->GetHorizontalPriority() <= (*it)->GetHorizontalPriority())
 				break;
 		}
-		m_lStatusBar.insert(it, pStatusBar);
+		m_lStatusBars.insert(it, pStatusBar);
 	}
 
 	void ImwWindowManager::RemoveStatusBar(ImwStatusBar* pStatusBar)
 	{
-		m_lStatusBar.remove(pStatusBar);
+		m_lStatusBars.remove(pStatusBar);
 	}
 
 	void ImwWindowManager::DestroyStatusBar(ImwStatusBar* pStatusBar)
 	{
-		if (NULL != pStatusBar && std::find(m_lToDestroyStatusBar.begin(), m_lToDestroyStatusBar.end(), pStatusBar) == m_lToDestroyStatusBar.end())
+		if (NULL != pStatusBar && std::find(m_lToDestroyStatusBars.begin(), m_lToDestroyStatusBars.end(), pStatusBar) == m_lToDestroyStatusBars.end())
 		{
-			m_lToDestroyStatusBar.push_back(pStatusBar);
+			m_lToDestroyStatusBars.push_back(pStatusBar);
 		}
 	}
 
@@ -780,6 +800,30 @@ void ImwWindowManager::AddStatusBar(ImwStatusBar* pStatusBar)
 		if (NULL != pMenu && std::find(m_lToDestroyMenus.begin(), m_lToDestroyMenus.end(), pMenu) == m_lToDestroyMenus.end())
 		{
 			m_lToDestroyMenus.push_back(pMenu);
+		}
+	}
+
+	void ImwWindowManager::AddToolBar(ImwToolBar* pToolBar)
+	{
+		ImwToolBarList::iterator it = m_lToolBars.begin(), itEnd = m_lToolBars.end();
+		for (; it != itEnd; ++it)
+		{
+			if (pToolBar->GetHorizontalPriority() <= (*it)->GetHorizontalPriority())
+				break;
+		}
+		m_lToolBars.insert(it, pToolBar);
+	}
+
+	void ImwWindowManager::RemoveToolBar(ImwToolBar* pToolBar)
+	{
+		m_lToolBars.remove(pToolBar);
+	}
+
+	void ImwWindowManager::DestroyToolBar(ImwToolBar* pToolBar)
+	{
+		if (NULL != pToolBar && std::find(m_lToDestroyToolBars.begin(), m_lToDestroyToolBars.end(), pToolBar) == m_lToDestroyToolBars.end())
+		{
+			m_lToDestroyToolBars.push_back(pToolBar);
 		}
 	}
 

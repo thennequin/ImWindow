@@ -253,5 +253,7 @@ int main(int argc, char* argv[])
 
 	while (oMgr.Run());
 
+	ImGui::Shutdown();
+
 	return 0;
 }

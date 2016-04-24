@@ -7,6 +7,7 @@
 #include "ImwMenu.h"
 #include "ImwPlatformWindow.h"
 #include "ImwStatusBar.h"
+#include "ImwToolbar.h"
 
 namespace ImWindow
 {
@@ -16,6 +17,7 @@ namespace ImWindow
 		friend class ImwWindow;
 		friend class ImwMenu;
 		friend class ImwStatusBar;
+		friend class ImwToolBar;
 		friend class ImwPlatformWindow;
 		friend class ImwContainer;
 
@@ -76,7 +78,7 @@ namespace ImWindow
 
 		bool								Init();
 		bool								Run();
-		void								Exit();
+		void								Destroy();
 
 		ImwPlatformWindow*					GetMainPlatformWindow();
 		Config&								GetConfig();
@@ -111,6 +113,10 @@ namespace ImWindow
 		void								AddMenu(ImwMenu* pMenu);
 		void								RemoveMenu(ImwMenu* pMenu);
 		void								DestroyMenu(ImwMenu* pWindow);
+
+		void								AddToolBar(ImwToolBar* pToolBar);
+		void								RemoveToolBar(ImwToolBar* pToolBar);
+		void								DestroyToolBar(ImwToolBar* pToolBar);
 
 		void								UnDock(ImwWindow* pWindow);
 		void								InternalDock(ImwWindow* pWindow, EDockOrientation eOrientation, float fRatio, ImwPlatformWindow* pToPlatformWindow);
@@ -148,8 +154,10 @@ namespace ImWindow
 		ImwWindowList						m_lWindows;
 		ImwWindowList						m_lOrphanWindows;
 		ImwWindowList						m_lToDestroyWindows;
-		ImwStatusBarList					m_lStatusBar;
-		ImwStatusBarList					m_lToDestroyStatusBar;
+		ImwStatusBarList					m_lStatusBars;
+		ImwStatusBarList					m_lToDestroyStatusBars;
+		ImwToolBarList						m_lToolBars;
+		ImwToolBarList						m_lToDestroyToolBars;
 		ImwMenuList							m_lMenus;
 		ImwMenuList							m_lToDestroyMenus;
 		ImwPlatformWindowList				m_lToDestroyPlatformWindows;

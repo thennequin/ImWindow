@@ -26,6 +26,7 @@ namespace ImWindow
 		virtual					~ImwWindow();
 	public:
 		virtual void			OnGui() = 0;
+		virtual void			OnContextMenu();
 
 		ImU32					GetId() const;
 		const char*				GetIdStr() const;
@@ -57,7 +58,5 @@ namespace ImWindow
 	typedef ImwList<ImwWindow*> ImwWindowList;
 //SFF_END
 }
-
-
 
 #endif // __IM_WINDOW_H__
