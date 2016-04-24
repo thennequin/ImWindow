@@ -235,6 +235,7 @@ namespace ImWindow
 						ImwSafeDelete(m_pSplits[0]);
 						m_pSplits[0] = pSplit->m_pSplits[0];
 						m_pSplits[1] = pSplit->m_pSplits[1];
+						m_fSplitRatio = pSplit->m_fSplitRatio;
 						pSplit->m_pSplits[0] = NULL;
 						pSplit->m_pSplits[1] = NULL;
 						m_pSplits[0]->m_pParent = this;
@@ -264,6 +265,7 @@ namespace ImWindow
 						ImwSafeDelete(m_pSplits[1]);
 						m_pSplits[0] = pSplit->m_pSplits[0];
 						m_pSplits[1] = pSplit->m_pSplits[1];
+						m_fSplitRatio = pSplit->m_fSplitRatio;
 						pSplit->m_pSplits[0] = NULL;
 						pSplit->m_pSplits[1] = NULL;
 						m_pSplits[0]->m_pParent = this;
