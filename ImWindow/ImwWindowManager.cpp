@@ -475,6 +475,14 @@ namespace ImWindow
 		//ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, ImColor(59, 59, 59, 255));
 		ImGui::Begin( "Main", NULL, iFlags );
 
+		if (NULL != m_pDraggedWindow)
+		{
+			ImGuiID oId = ImGui::GetID("##DraggedWindow");
+			ImGui::PushID(oId);
+			ImGui::PopID();
+			ImGui::SetActiveID(oId, ImGui::GetCurrentWindow());
+		}
+
 		if (!m_lToolBars.empty())
 		{
 			for (ImwToolBarList::iterator it = m_lToolBars.begin(), itEnd = m_lToolBars.end(); it != itEnd; ++it)
