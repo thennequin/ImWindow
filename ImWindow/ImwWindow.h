@@ -17,7 +17,11 @@ namespace ImWindow
 		E_DOCK_ORIENTATION_BOTTOM,
 	};
 
+#ifdef IMW_INHERITED_BY_IMWWINDOW
+	class IMGUI_API ImwWindow : public IMW_INHERITED_BY_IMWWINDOW
+#else
 	class IMGUI_API ImwWindow
+#endif //IMW_INHERITED_BY_IMWWINDOW
 	{
 		friend class ImwWindowManager;
 		friend class ImwContainer;

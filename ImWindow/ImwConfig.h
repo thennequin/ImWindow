@@ -24,6 +24,9 @@
 #define ImwFree(pObj) free(pObj)
 #define ImwSafeFree(pObj) {free(pObj); pObj = NULL;}
 
+// Define IMW_INHERITED_BY_IMWWINDOW when you want ImwWindow inherit from one of you class
+//#define IMW_INHERITED_BY_IMWWINDOW MyInheritedClass
+
 //////////////////////////////////////////////////////////////////////////
 // Include here imgui.h
 //////////////////////////////////////////////////////////////////////////
