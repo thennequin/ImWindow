@@ -808,7 +808,12 @@ namespace ImWindow
 			*pSizeOut = oTabSize;
 		}
 
-		ImColor oNormalTab = oConfig.m_bTabUseCustomColors ? oConfig.m_oTabColorNormal : oStyle.Colors[ImGuiCol_WindowBg];
+		ImColor oNormalTab = oConfig.m_bTabUseCustomColors ? oConfig.m_oTabColorNormal : ImColor(
+			oStyle.Colors[ImGuiCol_WindowBg].x + (oStyle.Colors[ImGuiCol_ChildWindowBg].x - oStyle.Colors[ImGuiCol_WindowBg].x) * 0.5f,
+			oStyle.Colors[ImGuiCol_WindowBg].y + (oStyle.Colors[ImGuiCol_ChildWindowBg].y - oStyle.Colors[ImGuiCol_WindowBg].y) * 0.5f,
+			oStyle.Colors[ImGuiCol_WindowBg].z + (oStyle.Colors[ImGuiCol_ChildWindowBg].z - oStyle.Colors[ImGuiCol_WindowBg].z) * 0.5f,
+			oStyle.Colors[ImGuiCol_WindowBg].w + (oStyle.Colors[ImGuiCol_ChildWindowBg].w - oStyle.Colors[ImGuiCol_WindowBg].w) * 0.5f
+			);
 		ImColor oSelectedTab = oConfig.m_bTabUseCustomColors ? oConfig.m_oTabColorActive : oStyle.Colors[ImGuiCol_ChildWindowBg];
 		ImColor oBorderColor = oConfig.m_bTabUseCustomColors ? oConfig.m_oTabColorBorder : oStyle.Colors[ImGuiCol_Border];
 
