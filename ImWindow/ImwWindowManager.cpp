@@ -486,7 +486,7 @@ namespace ImWindow
 
 		PushStyle();
 		
-		ImGui::Begin( "Main", NULL, iFlags );
+		ImGui::Begin( "Main", NULL, ImVec2( 0.f, 0.f ), 1.f, iFlags);
 
 		if (NULL != m_pDraggedWindow)
 		{
