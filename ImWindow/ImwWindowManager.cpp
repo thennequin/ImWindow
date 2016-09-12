@@ -21,7 +21,21 @@ namespace ImWindow
 		: m_fDragMarginRatio( 0.1f )
 		, m_fDragMarginSizeRatio( 0.25f )
 		, m_oHightlightAreaColor( 0.f, 0.5f, 1.f, 0.5f )
-		, m_bTabUseImGuiColors( true )
+		, m_bTabUseCustomColors( false )
+		, m_bVisibleDragger( false )
+		, m_bShowTabBorder( false )
+		, m_bShowTabShadows( false )
+		, m_oTabColorNormal( 50, 50, 50, 255 )
+		, m_oTabColorActive( 37, 37, 37, 255 )
+		, m_oTabColorBorder( 72, 72, 72, 255 )
+		, m_fTabOverlap( 15.f )
+		, m_fTabSlopWidth( 30.f )
+		, m_fTabSlopP1Ratio( 0.6f )
+		, m_fTabSlopP2Ratio( 0.4f )
+		, m_fTabSlopHRatio( 0.f )
+		, m_fTabShadowDropSize( 15.f )
+		, m_fTabShadowSlopRatio( 0.6f )
+		, m_fTabShadowAlpha( 0.75f )
 	{
 	}
 

@@ -750,13 +750,9 @@ namespace ImWindow
 
 	bool ImwContainer::Tab(const ImwWindow* pWindow, bool bFocused, float fStartLinePos, float fEndLinePos, float fMaxSize)
 	{
-
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
 		if (window->SkipItems)
 			return false;
-
-		//ImVec2 oRectMin = ImGui::GetItemBoxMin();
-		//ImVec2 oRectMax = ImGui::GetItemBoxMax();
 
 		ImVec2 oTabSize;
 		DrawTab(pWindow->GetTitle(), bFocused, window->DC.CursorPos, fStartLinePos, fEndLinePos, fMaxSize, &oTabSize);
@@ -764,13 +760,13 @@ namespace ImWindow
 		return ImGui::InvisibleButton(pWindow->GetIdStr(), oTabSize);
 	}
 
-	//bool ImwContainer::DrawTab(const ImwWindow* pWindow, bool bFocused, ImVec2 oPos, float fMaxSize, ImVec2* pSizeOut)
 	void ImwContainer::DrawTab(const char* pText, bool bFocused, ImVec2 oPos, float fStartLinePos, float fEndLinePos, float fMaxSize, ImVec2* pSizeOut)
 	{
+		const ImwWindowManager::Config& oConfig = ImwWindowManager::GetInstance()->GetConfig();
 		ImDrawList* pDrawList = ImGui::GetWindowDrawList();
+		const ImGuiStyle& oStyle = ImGui::GetStyle();
 
 		//Calculate text size
-		//const ImVec2 oTextSize = ImGui::CalcTextSize(pText);
 		ImVec2 oTextSize;
 		float fTabWidth = GetTabWidth(pText, fMaxSize, &oTextSize);
 
@@ -781,31 +777,12 @@ namespace ImWindow
 			*pSizeOut = oTabSize;
 		}
 
-		ImColor oNormalTab(50, 50, 50, 255);
-		ImColor oSelectedTab(37, 37, 37, 255);
-		ImColor oBorderColor(72, 72, 72, 255);
-
-		if (ImwWindowManager::GetInstance()->GetConfig().m_bTabUseImGuiColors)
-		{
-			oNormalTab = ImGui::GetStyle().Colors[ImGuiCol_TitleBg];
-			oNormalTab.Value.w = 1.f;
-			oSelectedTab = ImGui::GetStyle().Colors[ImGuiCol_TitleBgActive];
-			oSelectedTab.Value.w = 1.f;
-			oBorderColor = ImGui::GetStyle().Colors[ImGuiCol_Border];
-			oBorderColor.Value.w = 1.f;
-		}
+		ImColor oNormalTab = oConfig.m_bTabUseCustomColors ? oConfig.m_oTabColorNormal : oStyle.Colors[ImGuiCol_WindowBg];
+		ImColor oSelectedTab = oConfig.m_bTabUseCustomColors ? oConfig.m_oTabColorActive : oStyle.Colors[ImGuiCol_ChildWindowBg];
+		ImColor oBorderColor = oConfig.m_bTabUseCustomColors ? oConfig.m_oTabColorBorder : oStyle.Colors[ImGuiCol_Border];
 
 		ImVec2 oRectMin = oPos;
 		ImVec2 oRectMax = ImVec2(oPos.x + oTabSize.x, oPos.y + oTabSize.y);
-
-		const float fOverlap = 10.f;
-		const float fSlopWidth = 30.f;
-		const float sSlopP1Ratio = 0.6f;
-		const float fSlopP2Ratio = 0.4f;
-		const float fSlopHRatio = 0.f;
-		const float fShadowDropSize = 15.f;
-		const float fShadowSlopRatio = 0.6f;
-		const float fShadowAlpha = 0.75f;
 
 		pDrawList->PathClear();
 		if (bFocused)
@@ -818,19 +795,22 @@ namespace ImWindow
 		}
 
 		//Drop shadows
-		const ImVec2 uv = GImGui->FontTexUvWhitePixel;
-		pDrawList->PrimReserve(3, 3);
-		pDrawList->PrimWriteIdx((ImDrawIdx)(pDrawList->_VtxCurrentIdx)); pDrawList->PrimWriteIdx((ImDrawIdx)(pDrawList->_VtxCurrentIdx + 1)); pDrawList->PrimWriteIdx((ImDrawIdx)(pDrawList->_VtxCurrentIdx + 2));
-		pDrawList->PrimWriteVtx(ImVec2(oRectMin.x - fOverlap - fShadowDropSize, oRectMax.y), uv, ImColor(0.f, 0.f, 0.f, 0.f));
-		pDrawList->PrimWriteVtx(ImVec2(oRectMin.x - fOverlap + fSlopWidth * fShadowSlopRatio, oRectMin.y), uv, ImColor(0.f, 0.f, 0.f, 0.f));
-		pDrawList->PrimWriteVtx(ImVec2(oRectMin.x - fOverlap + fSlopWidth * fShadowSlopRatio, oRectMax.y), uv, ImColor(0.f, 0.f, 0.f, fShadowAlpha));
-		if (bFocused)
+		if (oConfig.m_bShowTabShadows)
 		{
+			const ImVec2 uv = GImGui->FontTexUvWhitePixel;
 			pDrawList->PrimReserve(3, 3);
 			pDrawList->PrimWriteIdx((ImDrawIdx)(pDrawList->_VtxCurrentIdx)); pDrawList->PrimWriteIdx((ImDrawIdx)(pDrawList->_VtxCurrentIdx + 1)); pDrawList->PrimWriteIdx((ImDrawIdx)(pDrawList->_VtxCurrentIdx + 2));
-			pDrawList->PrimWriteVtx(ImVec2(oRectMax.x + fOverlap + fShadowDropSize, oRectMax.y), uv, ImColor(0.f, 0.f, 0.f, 0.f));
-			pDrawList->PrimWriteVtx(ImVec2(oRectMax.x + fOverlap - fSlopWidth * fShadowSlopRatio, oRectMin.y), uv, ImColor(0.f, 0.f, 0.f, 0.f));
-			pDrawList->PrimWriteVtx(ImVec2(oRectMax.x + fOverlap - fSlopWidth * fShadowSlopRatio, oRectMax.y), uv, ImColor(0.f, 0.f, 0.f, fShadowAlpha));
+			pDrawList->PrimWriteVtx(ImVec2(oRectMin.x - oConfig.m_fTabOverlap - oConfig.m_fTabShadowDropSize, oRectMax.y), uv, ImColor(0.f, 0.f, 0.f, 0.f));
+			pDrawList->PrimWriteVtx(ImVec2(oRectMin.x - oConfig.m_fTabOverlap + oConfig.m_fTabSlopWidth * oConfig.m_fTabShadowSlopRatio, oRectMin.y), uv, ImColor(0.f, 0.f, 0.f, 0.f));
+			pDrawList->PrimWriteVtx(ImVec2(oRectMin.x - oConfig.m_fTabOverlap + oConfig.m_fTabSlopWidth * oConfig.m_fTabShadowSlopRatio, oRectMax.y), uv, ImColor(0.f, 0.f, 0.f, oConfig.m_fTabShadowAlpha));
+			if (bFocused)
+			{
+				pDrawList->PrimReserve(3, 3);
+				pDrawList->PrimWriteIdx((ImDrawIdx)(pDrawList->_VtxCurrentIdx)); pDrawList->PrimWriteIdx((ImDrawIdx)(pDrawList->_VtxCurrentIdx + 1)); pDrawList->PrimWriteIdx((ImDrawIdx)(pDrawList->_VtxCurrentIdx + 2));
+				pDrawList->PrimWriteVtx(ImVec2(oRectMax.x + oConfig.m_fTabOverlap + oConfig.m_fTabShadowDropSize, oRectMax.y), uv, ImColor(0.f, 0.f, 0.f, 0.f));
+				pDrawList->PrimWriteVtx(ImVec2(oRectMax.x + oConfig.m_fTabOverlap - oConfig.m_fTabSlopWidth * oConfig.m_fTabShadowSlopRatio, oRectMin.y), uv, ImColor(0.f, 0.f, 0.f, 0.f));
+				pDrawList->PrimWriteVtx(ImVec2(oRectMax.x + oConfig.m_fTabOverlap - oConfig.m_fTabSlopWidth * oConfig.m_fTabShadowSlopRatio, oRectMax.y), uv, ImColor(0.f, 0.f, 0.f, oConfig.m_fTabShadowAlpha));
+			}
 		}
 
 		// Draw tab and border
@@ -838,17 +818,17 @@ namespace ImWindow
 		{
 			pDrawList->PathLineTo(ImVec2(fStartLinePos, oRectMax.y));
 		}
-		pDrawList->PathLineTo(ImVec2(oRectMin.x - fOverlap, oRectMax.y));
+		pDrawList->PathLineTo(ImVec2(oRectMin.x - oConfig.m_fTabOverlap, oRectMax.y));
 		pDrawList->PathBezierCurveTo(
-			ImVec2(oRectMin.x + fSlopWidth * sSlopP1Ratio - fOverlap, oRectMin.y + (oRectMax.y - oRectMin.y) * fSlopHRatio),
-			ImVec2(oRectMin.x + fSlopWidth * fSlopP2Ratio - fOverlap, oRectMin.y),
-			ImVec2(oRectMin.x + fSlopWidth - fOverlap, oRectMin.y)
+			ImVec2(oRectMin.x + oConfig.m_fTabSlopWidth * oConfig.m_fTabSlopP1Ratio - oConfig.m_fTabOverlap, oRectMin.y + (oRectMax.y - oRectMin.y) * oConfig.m_fTabSlopHRatio),
+			ImVec2(oRectMin.x + oConfig.m_fTabSlopWidth * oConfig.m_fTabSlopP2Ratio - oConfig.m_fTabOverlap, oRectMin.y),
+			ImVec2(oRectMin.x + oConfig.m_fTabSlopWidth - oConfig.m_fTabOverlap, oRectMin.y)
 			);
-		pDrawList->PathLineTo(ImVec2(oRectMax.x - fSlopWidth + fOverlap, oRectMin.y));
+		pDrawList->PathLineTo(ImVec2(oRectMax.x - oConfig.m_fTabSlopWidth + oConfig.m_fTabOverlap, oRectMin.y));
 		pDrawList->PathBezierCurveTo(
-			ImVec2(oRectMax.x - fSlopWidth * fSlopP2Ratio + fOverlap, oRectMin.y),
-			ImVec2(oRectMax.x - fSlopWidth * sSlopP1Ratio + fOverlap, oRectMin.y + (oRectMax.y - oRectMin.y) * fSlopHRatio),
-			ImVec2(oRectMax.x + fOverlap, oRectMax.y)
+			ImVec2(oRectMax.x - oConfig.m_fTabSlopWidth * oConfig.m_fTabSlopP2Ratio + oConfig.m_fTabOverlap, oRectMin.y),
+			ImVec2(oRectMax.x - oConfig.m_fTabSlopWidth * oConfig.m_fTabSlopP1Ratio + oConfig.m_fTabOverlap, oRectMin.y + (oRectMax.y - oRectMin.y) * oConfig.m_fTabSlopHRatio),
+			ImVec2(oRectMax.x + oConfig.m_fTabOverlap, oRectMax.y)
 			);
 
 		if (bFocused)
@@ -858,7 +838,9 @@ namespace ImWindow
 			{
 				pDrawList->PathLineTo(ImVec2(fEndLinePos, oRectMax.y));
 			}
-			pDrawList->AddPolyline(pDrawList->_Path.Data, pDrawList->_Path.Size, oBorderColor, false, 1.5f, true);
+
+			if (oConfig.m_bShowTabBorder)
+				pDrawList->AddPolyline(pDrawList->_Path.Data, pDrawList->_Path.Size, oBorderColor, false, 1.5f, true);
 		}
 		else
 		{

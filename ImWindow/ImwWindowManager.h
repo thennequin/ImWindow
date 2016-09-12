@@ -70,7 +70,22 @@ namespace ImWindow
 			float					m_fDragMarginRatio;
 			float					m_fDragMarginSizeRatio;
 			ImColor					m_oHightlightAreaColor;
-			bool					m_bTabUseImGuiColors;
+			bool					m_bTabUseCustomColors;
+			bool					m_bVisibleDragger;
+			bool					m_bShowTabBorder;
+			bool					m_bShowTabShadows;
+
+			ImColor					m_oTabColorNormal;
+			ImColor					m_oTabColorActive;
+			ImColor					m_oTabColorBorder;
+			float					m_fTabOverlap;
+			float					m_fTabSlopWidth;
+			float					m_fTabSlopP1Ratio;
+			float					m_fTabSlopP2Ratio;
+			float					m_fTabSlopHRatio;
+			float					m_fTabShadowDropSize;
+			float					m_fTabShadowSlopRatio;
+			float					m_fTabShadowAlpha;
 		};
 	public:
 		ImwWindowManager();
