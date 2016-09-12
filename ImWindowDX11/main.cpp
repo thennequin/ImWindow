@@ -89,7 +89,6 @@ public:
 	{
 		ImGui::Text("Hello, world!");
 
-		ImGui::Checkbox("Use ImGui colors", &(ImwWindowManager::GetInstance()->GetConfig().m_bTabUseImGuiColors));
 		if (ImGui::Button("Create"))
 		{
 			new MyImwWindow3();
@@ -109,6 +108,29 @@ public:
 		ImGuiStyle* ref = NULL;
 		
 		ImGuiStyle& style = ImGui::GetStyle();
+
+		ImwWindowManager::Config& oConfig = ImwWindowManager::GetInstance()->GetConfig();
+
+		ImGui::Checkbox("Visible dragger", &oConfig.m_bVisibleDragger);
+		ImGui::Checkbox("Tabs use custom colors", &oConfig.m_bTabUseCustomColors);
+		ImGui::DragFloat("Drag margin ratio", &oConfig.m_fDragMarginRatio);
+		ImGui::DragFloat("Drag margin size ratio", &oConfig.m_fDragMarginSizeRatio);
+
+		ImGui::Checkbox("Show tab border", &oConfig.m_bShowTabBorder);
+		ImGui::Checkbox("Show tab shadows", &oConfig.m_bShowTabShadows);
+		//ImGui::Color("Drag margin ratio", &oConfig.m_oHightlightAreaColor);
+
+
+		ImGui::DragFloat("Tab overlap", &oConfig.m_fTabOverlap);
+		ImGui::DragFloat("Tab Slop Width", &oConfig.m_fTabSlopWidth);
+		ImGui::DragFloat("Tab fTabSlopP1Ratio", &oConfig.m_fTabSlopP1Ratio);
+		ImGui::DragFloat("Tab fTabSlopP2Ratio", &oConfig.m_fTabSlopP2Ratio);
+		ImGui::DragFloat("Tab fTabSlopHRatio", &oConfig.m_fTabSlopHRatio);
+		ImGui::DragFloat("Tab fTabShadowDropSize", &oConfig.m_fTabShadowDropSize);
+		ImGui::DragFloat("Tab fTabShadowSlopRatio", &oConfig.m_fTabShadowSlopRatio);
+		ImGui::DragFloat("Tab fTabShadowAlpha", &oConfig.m_fTabShadowAlpha);
+
+		ImGui::Separator();
 
 		const ImGuiStyle def; // Default style
 		if (ImGui::Button("Revert Style"))
