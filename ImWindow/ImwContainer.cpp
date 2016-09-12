@@ -357,11 +357,43 @@ namespace ImWindow
 		return m_pParentWindow;
 	}
 
+	bool ImwContainer::BeginChildAlpha(const char* pStrId, const ImVec2& oSizeArg, float fAlpha, ImGuiWindowFlags eExtraFlags)
+	{
+		ImGuiWindow* pWindow = ImGui::GetCurrentWindow();
+		ImGuiWindowFlags eFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_ChildWindow;
+
+		const ImVec2 oContentAvailable = ImGui::GetContentRegionAvail();
+		ImVec2 oSize = ImRound(oSizeArg);
+		if (oSize.x <= 0.0f)
+		{
+			if (oSize.x == 0.0f)
+				eFlags |= ImGuiWindowFlags_ChildWindowAutoFitX;
+			oSize.x = ImMax(oContentAvailable.x, 4.0f) - fabsf(oSize.x); // Arbitrary minimum zero-ish child size of 4.0f (0.0f causing too much issues)
+		}
+		if (oSize.y <= 0.0f)
+		{
+			if (oSize.y == 0.0f)
+				eFlags |= ImGuiWindowFlags_ChildWindowAutoFitY;
+			oSize.y = ImMax(oContentAvailable.y, 4.0f) - fabsf(oSize.y);
+		}
+		
+		eFlags |= eExtraFlags;
+
+		char pTitle[256];
+		ImFormatString(pTitle, IM_ARRAYSIZE(pTitle), "%s.%s", pWindow->Name, pStrId);
+
+		bool ret = ImGui::Begin(pTitle, NULL, oSize, fAlpha, eFlags);
+
+		if (!(pWindow->Flags & ImGuiWindowFlags_ShowBorders))
+			ImGui::GetCurrentWindow()->Flags &= ~ImGuiWindowFlags_ShowBorders;
+
+		return ret;
+	}
 	void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
 	{
 		ImwWindowManager* pWindowManager = ImwWindowManager::GetInstance();
 		ImGuiWindow* pWindow = ImGui::GetCurrentWindow();
-		const ImGuiStyle& oStyle = ImGui::GetStyle();
+		ImGuiStyle& oStyle = ImGui::GetStyle();
 		ImDrawList* pDrawList = ImGui::GetWindowDrawList();
 
 		const ImVec2 oPos = ImGui::GetWindowPos();
@@ -381,22 +413,17 @@ namespace ImWindow
 			if (m_bVerticalSplit)
 			{
 				float iFirstHeight = oSize.y * m_fSplitRatio - iSeparatorHalfSize - pWindow->WindowPadding.x;
-				//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));
-				//ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0,0));
-				//ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0,0));
-				/*ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0,0));
-				ImGui::PushStyleVar(ImGuiStyleVar_IndentSpacing, 0);*/
 			
-
-				ImGui::BeginChild("Split1", ImVec2(0, iFirstHeight), false, ImGuiWindowFlags_NoScrollbar);
-				//ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4,4));
+				BeginChildAlpha("Split1", ImVec2(0, iFirstHeight), 0.f, ImGuiWindowFlags_NoScrollbar);
 				m_pSplits[0]->Paint(/*iX, iY, iWidth, iFirstHeight*/);
-				//ImGui::PopStyleVar(1);
 				ImGui::EndChild();
 
-
 				ImRect oSeparatorRect( 0, iFirstHeight, oSize.x, iFirstHeight + iSeparatorSize);
-				ImGui::Button("",oSeparatorRect.GetSize());
+				if (pWindowManager->GetConfig().m_bVisibleDragger)
+					ImGui::Button("##Dragger", oSeparatorRect.GetSize());
+				else
+					ImGui::InvisibleButton("##Dragger", oSeparatorRect.GetSize());
+
 				if (ImGui::IsItemHovered() || m_bIsDrag)
 				{
 					 ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNS);
@@ -416,27 +443,25 @@ namespace ImWindow
 					m_bIsDrag = false;
 				}
 
-				ImGui::BeginChild("Split2", ImVec2(0, 0), false, ImGuiWindowFlags_NoScrollbar);
-				//ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4,4));
+				BeginChildAlpha("Split2", ImVec2(0, 0), 0.f, ImGuiWindowFlags_NoScrollbar);
 				m_pSplits[1]->Paint(/*iX, iY + iFirstHeight, iWidth, iSecondHeight*/);
-				//ImGui::PopStyleVar(1);
 				ImGui::EndChild();
-
-				//ImGui::PopStyleVar(1);
 			}
 			else
 			{
 				float iFirstWidth = oSize.x * m_fSplitRatio - iSeparatorHalfSize - pWindow->WindowPadding.y;
-				ImGui::BeginChild("Split1", ImVec2(iFirstWidth, 0), false, ImGuiWindowFlags_NoScrollbar);
-				//ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4,4));
+				BeginChildAlpha("Split1", ImVec2(iFirstWidth, 0), 0.f, ImGuiWindowFlags_NoScrollbar);
 				m_pSplits[0]->Paint();
-				//ImGui::PopStyleVar(1);
 				ImGui::EndChild();
 
 				ImGui::SameLine();
 
 				ImRect oSeparatorRect( iFirstWidth, 0, iFirstWidth + iSeparatorSize, oSize.y);
-				ImGui::Button("",oSeparatorRect.GetSize());
+				if (pWindowManager->GetConfig().m_bVisibleDragger)
+					ImGui::Button("##Dragger", oSeparatorRect.GetSize());
+				else
+					ImGui::InvisibleButton("##Dragger", oSeparatorRect.GetSize());
+
 				if (ImGui::IsItemHovered() || m_bIsDrag)
 				{
 					ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
@@ -458,17 +483,18 @@ namespace ImWindow
 
 				ImGui::SameLine();
 
-				ImGui::BeginChild("Split2", ImVec2(0, 0), false, ImGuiWindowFlags_NoScrollbar);
-				//ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4,4));
+				BeginChildAlpha("Split2", ImVec2(0, 0), 0.f, ImGuiWindowFlags_NoScrollbar);
 				m_pSplits[1]->Paint();
-				//ImGui::PopStyleVar(1);
 				ImGui::EndChild();
-
-				//ImGui::PopStyleVar(1);
 			}
 		}
 		else if (HasWindowTabbed())
 		{
+			pWindowManager->PopStyle();
+
+			ImVec2 oItemSpacing = ImGui::GetStyle().ItemSpacing;
+			ImGui::GetStyle().ItemSpacing = ImVec2(oItemSpacing.x, 0.f);
+
 			ImGui::InvisibleButton("TabListButton", ImVec2(16, 16));
 			ImGui::SameLine();
 
@@ -511,8 +537,6 @@ namespace ImWindow
 			pDrawList->ChannelsSplit(2);
 
 			//Tabs
-
-			
 			
 			int iSize = (int)m_lWindows.size();
 			float fMaxTabSize = GetTabAreaWidth() / iSize;
@@ -692,7 +716,7 @@ namespace ImWindow
 
 					if (bCanCreateMultipleWindow && ImGui::Selectable("Float"))
 					{
-						pWindowManager->Float((*it), ImVec2(-1,-1), (*it)->m_oLastSize);
+						pWindowManager->Float((*it), ImVec2(-1.f,-1.f), (*it)->m_oLastSize);
 					}
 
 					(*it)->OnContextMenu();
@@ -707,7 +731,6 @@ namespace ImWindow
 			m_iActiveWindow = iNewActive;
 			pDrawList->ChannelsMerge();
 
-
 			ImwWindow* pActiveWindow = pDraggedWindow;
 			if (pActiveWindow == NULL)
 			{
@@ -717,14 +740,21 @@ namespace ImWindow
 				IM_ASSERT(itActiveWindow != m_lWindows.end());
 				pActiveWindow = *itActiveWindow;
 			}
-			
+
 			//Draw active
 			if (pActiveWindow != NULL)
 			{
-				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, oStyle.WindowPadding);
-				//ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, ImColor(59, 59, 59, 255));
-				ImGui::BeginChild(pActiveWindow->GetId(), ImVec2(0,0), false, ImGuiWindowFlags_HorizontalScrollbar);
-			
+				ImVec4 oBorderColor = oStyle.Colors[ImGuiCol_Border];
+				ImVec4 oBorderShadowColor = oStyle.Colors[ImGuiCol_BorderShadow];
+				oStyle.Colors[ImGuiCol_Border] = ImVec4(0.f, 0.f, 0.f, 0.f);
+				oStyle.Colors[ImGuiCol_BorderShadow] = ImVec4(0.f, 0.f, 0.f, 0.f);
+				ImGui::BeginChild(pActiveWindow->GetId(), ImVec2(0.f, 0.f), true, ImGuiWindowFlags_HorizontalScrollbar);
+
+				oStyle.Colors[ImGuiCol_Border] = oBorderColor;
+				oStyle.Colors[ImGuiCol_BorderShadow] = oBorderShadowColor;
+
+				ImGui::Dummy(ImVec2(0.f, 2.f)); //2 pixels space;
+				ImGui::GetStyle().ItemSpacing = oItemSpacing;
 
 				ImVec2 oWinPos = ImGui::GetWindowPos();
 				ImVec2 oWinSize = ImGui::GetWindowSize();
@@ -734,12 +764,13 @@ namespace ImWindow
 					(*it)->m_oLastPosition = oWinPos;
 					(*it)->m_oLastSize = oWinSize;
 				}
+				
 				pActiveWindow->OnGui();
-			
+
 				ImGui::EndChild();
-				//ImGui::PopStyleColor(1);
-				ImGui::PopStyleVar(1);
 			}
+
+			pWindowManager->PushStyle();
 		}
 		else
 		{

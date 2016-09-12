@@ -152,6 +152,9 @@ namespace ImWindow
 
 		void								Paint(ImwPlatformWindow* pWindow);
 
+		void								PushStyle();
+		void								PopStyle();
+
 		void								StartDragWindow(ImwWindow* pWindow, ImVec2 oOffset);
 		void								StopDragWindow();
 		void								UpdateDragWindow();
@@ -187,6 +190,10 @@ namespace ImWindow
 		int									m_iDragBestContainerPosition;
 
 		ImVec2								m_oDragPreviewOffset;
+
+		ImVec2								m_oStyleBackupItemInnerSpacing;
+		ImVec2								m_oStyleBackupItemSpacing;
+		ImVec2								m_oStyleBackupWindowPadding;
 
 		// Static
 	public:

@@ -484,9 +484,8 @@ namespace ImWindow
 			iFlags += ImGuiWindowFlags_NoInputs;
 		}
 
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(5, 5));
-		//ImGui::PushStyleColor(ImGuiCol_WindowBg, ImColor(40,40,40,0));
-		//ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, ImColor(59, 59, 59, 255));
+		PushStyle();
+		
 		ImGui::Begin( "Main", NULL, iFlags );
 
 		if (NULL != m_pDraggedWindow)
@@ -508,8 +507,7 @@ namespace ImWindow
 		pWindow->PaintContainer();
 		ImGui::End();
 
-		//ImGui::PopStyleColor(2);
-		ImGui::PopStyleVar(1);
+		PopStyle();
 
 		ImGui::Begin("##Overlay", NULL, ImVec2(0, 0), 0.f, ImGuiWindowFlags_Tooltip | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize);
 		ImDrawList* pDrawList = ImGui::GetWindowDrawList();
@@ -559,6 +557,25 @@ namespace ImWindow
 		}
 	
 		ImGui::Render();
+	}
+
+	void ImwWindowManager::PushStyle()
+	{
+		ImGuiStyle& oStyle = ImGui::GetStyle();
+		m_oStyleBackupWindowPadding = oStyle.WindowPadding;
+		m_oStyleBackupItemInnerSpacing = oStyle.ItemInnerSpacing;
+		m_oStyleBackupItemSpacing = oStyle.ItemSpacing;
+		oStyle.WindowPadding = ImVec2(0.f, 0.f);
+		oStyle.ItemInnerSpacing = ImVec2(0.f, 0.f);
+		oStyle.ItemSpacing = ImVec2(0.f, 0.f);
+	}
+
+	void ImwWindowManager::PopStyle()
+	{
+		ImGuiStyle& oStyle = ImGui::GetStyle();
+		oStyle.WindowPadding = m_oStyleBackupWindowPadding;
+		oStyle.ItemInnerSpacing = m_oStyleBackupItemInnerSpacing;
+		oStyle.ItemSpacing = m_oStyleBackupItemSpacing;
 	}
 
 	void ImwWindowManager::StartDragWindow(ImwWindow* pWindow, ImVec2 oOffset)

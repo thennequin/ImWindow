@@ -34,6 +34,9 @@ namespace ImWindow
 
 		void							Paint();
 
+		//Copy of ImGui::BeginChild but with alpha support
+		bool							BeginChildAlpha(const char* pStrId, const ImVec2& oSizeArg, float fAlpha, ImGuiWindowFlags eExtraFlags);
+
 		bool							Tab(const ImwWindow* pWindow, bool bFocused, float fStartLinePos, float fEndLinePos, float fMaxSize = -1.f);
 		void							DrawTab(const char* pText, bool bFocused, ImVec2 oPos, float fStartLinePos, float fEndLinePos, float fMaxSize = -1.f, ImVec2* pSizeOut = NULL);
 		float							GetTabWidth(const char* pText, float fMaxSize, ImVec2* pOutTextSize = NULL);
