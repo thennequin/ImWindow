@@ -398,8 +398,8 @@ namespace ImWindow
 
 		const ImVec2 oPos = ImGui::GetWindowPos();
 		const ImVec2 oSize = ImGui::GetWindowSize();
-		const ImVec2 oMin = ImVec2(oPos.x + 1, oPos.y + 1);
-		const ImVec2 oMax = ImVec2(oPos.x + oSize.x - 2, oPos.y + oSize.y - 2);
+		const ImVec2 oMin = ImVec2(oPos.x, oPos.y);
+		const ImVec2 oMax = ImVec2(oPos.x +  oSize.x, oPos.y + oSize.y);
 		const ImVec2 oCursorPos = ImGui::GetIO().MousePos;
 
 		m_oLastPosition = oPos;
