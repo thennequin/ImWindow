@@ -245,8 +245,10 @@ int main(int argc, char* argv[])
 
 	ImGuiStyle& style = ImGui::GetStyle();
 
-	style.Colors[ImGuiCol_WindowBg] = ImVec4(0.125f, 0.125f, 0.125f, 1.f);
-	style.Colors[ImGuiCol_ChildWindowBg] = ImVec4(0.27f, 0.27f, 0.27f, 1.f);
+	style.Colors[ImGuiCol_WindowBg] = ImVec4(0.095f, 0.095f, 0.095f, 1.f);
+	style.Colors[ImGuiCol_ChildWindowBg] = ImVec4(0.204f, 0.204f, 0.204f, 1.f);
+	style.Colors[ImGuiCol_MenuBarBg] = style.Colors[ImGuiCol_WindowBg];
+
 	//oMgr.GetMainPlatformWindow()->SetPos(2000,100);
 	oMgr.SetMainTitle("ImWindow Test");
 
