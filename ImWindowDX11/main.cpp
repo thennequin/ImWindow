@@ -94,6 +94,14 @@ public:
 			new MyImwWindow3();
 		}
 	}
+
+	virtual void OnContextMenu()
+	{
+		if (ImGui::MenuItem("Focus"))
+		{
+			ImwWindowManager::GetInstance()->FocusWindow(this);
+		}
+	}
 };
 
 class StyleEditorWindow : public ImwWindow

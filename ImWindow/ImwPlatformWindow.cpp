@@ -169,6 +169,11 @@ namespace ImWindow
 		return m_pContainer->HasWindow(pWindow);
 	}
 
+	bool ImwPlatformWindow::FocusWindow(ImwWindow* pWindow)
+	{
+		return m_pContainer->FocusWindow(pWindow);
+	}
+
 	void ImwPlatformWindow::PaintContainer()
 	{
 		m_pContainer->Paint();

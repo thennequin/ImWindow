@@ -112,6 +112,8 @@ namespace ImWindow
 		void								DockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, float fRatio = 0.5f);
 		void								Float(ImwWindow* pWindow, const ImVec2& oPosition = ImVec2(-1, -1), const ImVec2& oSize = ImVec2(-1, -1));
 
+		void								FocusWindow(ImwWindow* pWindow);
+
 		const ImwWindowList&				GetWindowList() const;
 		ImwPlatformWindow*					GetCurrentPlatformWindow();
 		ImwPlatformWindow*					GetWindowParent(ImwWindow* pWindow);

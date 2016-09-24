@@ -34,6 +34,8 @@ namespace ImWindow
 
 		ImwContainer*						GetContainer();
 		ImwContainer*						HasWindow(ImwWindow* pWindow);
+		bool								FocusWindow(ImwWindow* pWindow);
+
 		bool								IsStateSet();
 	protected:
 		void								SetState();

@@ -352,6 +352,22 @@ namespace ImWindow
 		return NULL;
 	}
 
+	bool ImwContainer::FocusWindow(ImwWindow* pWindow)
+	{
+		ImwWindowList::iterator itFind = std::find(m_lWindows.begin(), m_lWindows.end(), pWindow);
+		if ( itFind != m_lWindows.end())
+		{
+			m_iActiveWindow = std::distance(m_lWindows.begin(), itFind);
+			return true;
+		}
+		else
+		{
+			return (NULL != m_pSplits[0] && m_pSplits[0]->FocusWindow(pWindow)) || (NULL != m_pSplits[1] && m_pSplits[1]->FocusWindow(pWindow));
+		}
+	}
+
+
+
 	ImwPlatformWindow* ImwContainer::GetPlatformWindowParent() const
 	{
 		return m_pParentWindow;

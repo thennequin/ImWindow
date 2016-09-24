@@ -188,6 +188,18 @@ namespace ImWindow
 		m_lDockActions.push_back(pAction);
 	}
 
+	void ImwWindowManager::FocusWindow(ImwWindow* pWindow)
+	{
+		if (!m_pMainPlatformWindow->FocusWindow(pWindow))
+		{
+			for (ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
+			{
+				if ((*it)->FocusWindow(pWindow))
+					break;
+			}
+		}
+	}
+
 	const ImwWindowList& ImwWindowManager::GetWindowList() const
 	{
 		return m_lWindows;

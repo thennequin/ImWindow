@@ -22,6 +22,7 @@ namespace ImWindow
 		bool							IsSplit() const;
 		bool							HasWindowTabbed() const;
 		ImwContainer*					HasWindow(const ImwWindow* pWindow);
+		bool							FocusWindow(ImwWindow* pWindow);
 		ImwPlatformWindow*				GetPlatformWindowParent() const;
 		ImwContainer*					GetBestDocking(const ImVec2 oCursorPosInContainer, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, bool& bOutOnTabArea, int& iOutPosition, bool bLargeCheck);
 		bool							HasUnclosableWindow() const;
