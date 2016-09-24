@@ -112,7 +112,10 @@ public:
 		ImwWindowManager::Config& oConfig = ImwWindowManager::GetInstance()->GetConfig();
 
 		ImGui::Checkbox("Visible dragger", &oConfig.m_bVisibleDragger);
-		ImGui::Checkbox("Tabs use custom colors", &oConfig.m_bTabUseCustomColors);
+		ImGui::Text("Tab color mode");
+		ImGui::RadioButton("1. Button", (int*)&oConfig.m_eTabColorMode, ImwWindowManager::E_TABCOLORMODE_TITLE);
+		ImGui::RadioButton("2. Background", (int*)&oConfig.m_eTabColorMode, ImwWindowManager::E_TABCOLORMODE_BACKGROUND);
+		ImGui::RadioButton("3. Custom", (int*)&oConfig.m_eTabColorMode, ImwWindowManager::E_TABCOLORMODE_CUSTOM);
 		ImGui::DragFloat("Drag margin ratio", &oConfig.m_fDragMarginRatio);
 		ImGui::DragFloat("Drag margin size ratio", &oConfig.m_fDragMarginSizeRatio);
 

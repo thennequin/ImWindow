@@ -808,15 +808,34 @@ namespace ImWindow
 			*pSizeOut = oTabSize;
 		}
 
-		ImColor oNormalTab = oConfig.m_bTabUseCustomColors ? oConfig.m_oTabColorNormal : ImColor(
-			oStyle.Colors[ImGuiCol_WindowBg].x + (oStyle.Colors[ImGuiCol_ChildWindowBg].x - oStyle.Colors[ImGuiCol_WindowBg].x) * 0.5f,
-			oStyle.Colors[ImGuiCol_WindowBg].y + (oStyle.Colors[ImGuiCol_ChildWindowBg].y - oStyle.Colors[ImGuiCol_WindowBg].y) * 0.5f,
-			oStyle.Colors[ImGuiCol_WindowBg].z + (oStyle.Colors[ImGuiCol_ChildWindowBg].z - oStyle.Colors[ImGuiCol_WindowBg].z) * 0.5f,
-			oStyle.Colors[ImGuiCol_WindowBg].w + (oStyle.Colors[ImGuiCol_ChildWindowBg].w - oStyle.Colors[ImGuiCol_WindowBg].w) * 0.5f
-			);
-		ImColor oSelectedTab = oConfig.m_bTabUseCustomColors ? oConfig.m_oTabColorActive : oStyle.Colors[ImGuiCol_ChildWindowBg];
-		ImColor oBorderColor = oConfig.m_bTabUseCustomColors ? oConfig.m_oTabColorBorder : oStyle.Colors[ImGuiCol_Border];
-
+		ImColor oNormalTab(0), oSelectedTab(0), oBorderColor(0);
+		switch (oConfig.m_eTabColorMode)
+		{
+			case ImwWindowManager::E_TABCOLORMODE_TITLE:
+				oNormalTab = ImGui::GetStyle().Colors[ImGuiCol_TitleBg];
+				oNormalTab.Value.w = 1.f;
+				oSelectedTab = ImGui::GetStyle().Colors[ImGuiCol_TitleBgActive];
+				oSelectedTab.Value.w = 1.f;
+				oBorderColor = ImGui::GetStyle().Colors[ImGuiCol_Border];
+				oBorderColor.Value.w = 1.f;
+				break;
+			case ImwWindowManager::E_TABCOLORMODE_BACKGROUND:
+				oNormalTab = ImColor(
+					oStyle.Colors[ImGuiCol_WindowBg].x + (oStyle.Colors[ImGuiCol_ChildWindowBg].x - oStyle.Colors[ImGuiCol_WindowBg].x) * 0.5f,
+					oStyle.Colors[ImGuiCol_WindowBg].y + (oStyle.Colors[ImGuiCol_ChildWindowBg].y - oStyle.Colors[ImGuiCol_WindowBg].y) * 0.5f,
+					oStyle.Colors[ImGuiCol_WindowBg].z + (oStyle.Colors[ImGuiCol_ChildWindowBg].z - oStyle.Colors[ImGuiCol_WindowBg].z) * 0.5f,
+					oStyle.Colors[ImGuiCol_WindowBg].w + (oStyle.Colors[ImGuiCol_ChildWindowBg].w - oStyle.Colors[ImGuiCol_WindowBg].w) * 0.5f
+				);;
+				oSelectedTab = oStyle.Colors[ImGuiCol_ChildWindowBg];
+				oBorderColor = oStyle.Colors[ImGuiCol_Border];
+				break;
+			case ImwWindowManager::E_TABCOLORMODE_CUSTOM:
+				oNormalTab = oConfig.m_oTabColorNormal;
+				oSelectedTab = oConfig.m_oTabColorActive;
+				oBorderColor = oConfig.m_oTabColorBorder;
+				break;
+		}
+		
 		ImVec2 oRectMin = oPos;
 		ImVec2 oRectMax = ImVec2(oPos.x + oTabSize.x, oPos.y + oTabSize.y);
 

@@ -64,13 +64,20 @@ namespace ImWindow
 			ImColor					m_oColor;
 		};
 	public:
+		enum ETabColorMode
+		{
+			E_TABCOLORMODE_TITLE,
+			E_TABCOLORMODE_BACKGROUND,
+			E_TABCOLORMODE_CUSTOM
+		};
+
 		struct Config
 		{
 			Config();
 			float					m_fDragMarginRatio;
 			float					m_fDragMarginSizeRatio;
 			ImColor					m_oHightlightAreaColor;
-			bool					m_bTabUseCustomColors;
+			ETabColorMode			m_eTabColorMode;
 			bool					m_bVisibleDragger;
 			bool					m_bShowTabBorder;
 			bool					m_bShowTabShadows;
