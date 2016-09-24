@@ -590,7 +590,7 @@ namespace ImWindow
 			bool bCanCreateMultipleWindow = ImwWindowManager::GetInstance()->CanCreateMultipleWindow();
 
 			int iIndex = 0;
-			int iNewActive = m_iActiveWindow;
+			int iNewActive = -1;
 			bool bFirstTab = true;
 			ImVec2 oFirstTabPos;
 			for (ImwWindowList::iterator it = m_lWindows.begin(); it != m_lWindows.end(); ++it)
@@ -744,7 +744,10 @@ namespace ImWindow
 
 				++iIndex;
 			}
-			m_iActiveWindow = iNewActive;
+			
+			if (iNewActive >= 0)
+				m_iActiveWindow = iNewActive;
+
 			pDrawList->ChannelsMerge();
 
 			ImwWindow* pActiveWindow = pDraggedWindow;
