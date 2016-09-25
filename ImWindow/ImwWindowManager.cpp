@@ -70,10 +70,6 @@ namespace ImWindow
 		//io.Fonts->AddFontFromFileTTF( "res/DroidSans.ttf", 16 ) || io.Fonts->AddFontDefault();
 		//io.Fonts->AddFontFromFileTTF( "res/DroidSans-Bold.ttf", 16 ) || io.Fonts->AddFontDefault();
 
-		style.FrameRounding = 2.f;
-		style.WindowRounding = 0.f;
-		style.ScrollbarRounding = 0.f;
-
 		m_pMainPlatformWindow = CreatePlatformWindow(true, NULL, false);
 		if (NULL != m_pMainPlatformWindow)
 		{
@@ -574,9 +570,11 @@ namespace ImWindow
 	void ImwWindowManager::PushStyle()
 	{
 		ImGuiStyle& oStyle = ImGui::GetStyle();
+		m_fStyleBackupWindowRounding = oStyle.WindowRounding;
 		m_oStyleBackupWindowPadding = oStyle.WindowPadding;
 		m_oStyleBackupItemInnerSpacing = oStyle.ItemInnerSpacing;
 		m_oStyleBackupItemSpacing = oStyle.ItemSpacing;
+		oStyle.WindowRounding = 0.f;
 		oStyle.WindowPadding = ImVec2(0.f, 0.f);
 		oStyle.ItemInnerSpacing = ImVec2(0.f, 0.f);
 		oStyle.ItemSpacing = ImVec2(0.f, 0.f);
@@ -585,6 +583,7 @@ namespace ImWindow
 	void ImwWindowManager::PopStyle()
 	{
 		ImGuiStyle& oStyle = ImGui::GetStyle();
+		oStyle.WindowRounding = m_fStyleBackupWindowRounding;
 		oStyle.WindowPadding = m_oStyleBackupWindowPadding;
 		oStyle.ItemInnerSpacing = m_oStyleBackupItemInnerSpacing;
 		oStyle.ItemSpacing = m_oStyleBackupItemSpacing;

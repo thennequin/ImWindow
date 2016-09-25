@@ -200,9 +200,10 @@ namespace ImWindow
 
 		ImVec2								m_oDragPreviewOffset;
 
+		float								m_fStyleBackupWindowRounding;
+		ImVec2								m_oStyleBackupWindowPadding;
 		ImVec2								m_oStyleBackupItemInnerSpacing;
 		ImVec2								m_oStyleBackupItemSpacing;
-		ImVec2								m_oStyleBackupWindowPadding;
 
 		// Static
 	public:
