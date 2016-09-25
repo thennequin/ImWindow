@@ -161,7 +161,7 @@ namespace ImWindow
 
 		void								Paint(ImwPlatformWindow* pWindow);
 
-		void								PushStyle();
+		void								PushStyle(bool bRounding = true, bool bPadding = true);
 		void								PopStyle();
 
 		void								StartDragWindow(ImwWindow* pWindow, ImVec2 oOffset);

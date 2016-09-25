@@ -506,11 +506,13 @@ namespace ImWindow
 
 		if (!m_lToolBars.empty())
 		{
+			PopStyle();
 			for (ImwToolBarList::iterator it = m_lToolBars.begin(), itEnd = m_lToolBars.end(); it != itEnd; ++it)
 			{
 				(*it)->OnToolBar();
 			}
 			ImGui::Separator();
+			PushStyle();
 		}
 		pWindow->PaintContainer();
 		ImGui::End();
@@ -549,9 +551,11 @@ namespace ImWindow
 		{
 			ImGui::SetNextWindowPos(ImVec2(0, pWindow->GetSize().y - fBottom), ImGuiSetCond_Always);
 			ImGui::SetNextWindowSize(ImVec2(pWindow->GetSize().x, fBottom), ImGuiSetCond_Always);
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(5, 5));
+
+			PushStyle(true, false);
 			ImGui::Begin("##StatusBar", NULL, ImVec2(0,0), 1.f, iFlags);
 			
+			PopStyle();
 			ImGui::Columns((int)m_lStatusBars.size());
 			for (ImwStatusBarList::iterator it = m_lStatusBars.begin(); it != m_lStatusBars.end(); ++it )
 			{
@@ -559,25 +563,35 @@ namespace ImWindow
 				ImGui::NextColumn();
 			}
 			ImGui::Columns(1);
-			
+			PushStyle(true, false);
+
 			ImGui::End();
-			ImGui::PopStyleVar();
+			PopStyle();
 		}
 	
 		ImGui::Render();
 	}
 
-	void ImwWindowManager::PushStyle()
+	void ImwWindowManager::PushStyle(bool bRounding, bool bPadding)
 	{
 		ImGuiStyle& oStyle = ImGui::GetStyle();
+		
 		m_fStyleBackupWindowRounding = oStyle.WindowRounding;
 		m_oStyleBackupWindowPadding = oStyle.WindowPadding;
 		m_oStyleBackupItemInnerSpacing = oStyle.ItemInnerSpacing;
 		m_oStyleBackupItemSpacing = oStyle.ItemSpacing;
-		oStyle.WindowRounding = 0.f;
-		oStyle.WindowPadding = ImVec2(0.f, 0.f);
-		oStyle.ItemInnerSpacing = ImVec2(0.f, 0.f);
-		oStyle.ItemSpacing = ImVec2(0.f, 0.f);
+
+		if (bRounding)
+		{
+			oStyle.WindowRounding = 0.f;
+		}
+
+		if (bPadding)
+		{
+			oStyle.WindowPadding = ImVec2(0.f, 0.f);
+			oStyle.ItemInnerSpacing = ImVec2(0.f, 0.f);
+			oStyle.ItemSpacing = ImVec2(0.f, 0.f);
+		}
 	}
 
 	void ImwWindowManager::PopStyle()
