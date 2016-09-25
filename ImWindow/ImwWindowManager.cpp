@@ -504,16 +504,20 @@ namespace ImWindow
 			ImGui::SetActiveID(oId, ImGui::GetCurrentWindow());
 		}
 
-		if (!m_lToolBars.empty())
+		if (pWindow->IsMain())
 		{
-			PopStyle();
-			for (ImwToolBarList::iterator it = m_lToolBars.begin(), itEnd = m_lToolBars.end(); it != itEnd; ++it)
+			if (!m_lToolBars.empty())
 			{
-				(*it)->OnToolBar();
+				PopStyle();
+				for (ImwToolBarList::iterator it = m_lToolBars.begin(), itEnd = m_lToolBars.end(); it != itEnd; ++it)
+				{
+					(*it)->OnToolBar();
+				}
+				ImGui::Separator();
+				PushStyle();
 			}
-			ImGui::Separator();
-			PushStyle();
 		}
+		
 		pWindow->PaintContainer();
 		ImGui::End();
 
