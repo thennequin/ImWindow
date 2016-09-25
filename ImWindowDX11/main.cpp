@@ -22,6 +22,24 @@
 
 using namespace ImWindow;
 
+class MyStatusBar : public ImwStatusBar
+{
+public:
+	virtual void OnStatusBar()
+	{
+		ImGui::Text("My status bar");
+	}
+};
+
+class MyToolBar : public ImwToolBar
+{
+public:
+	virtual void OnToolBar()
+	{
+		ImGui::Text("My tool bar");
+	}
+};
+
 class MyImwWindow3 : public ImwWindow, ImwMenu
 {
 public:
@@ -273,6 +291,8 @@ int main(int argc, char* argv[])
 	pWindow5->SetClosable(false);
 
 	//ImwWindow* pStyleEditor = new StyleEditorWindow();
+	new MyStatusBar();
+	new MyToolBar();
 
 	//ImwWindow* pNodeWindow = new NodeWindow();
 
