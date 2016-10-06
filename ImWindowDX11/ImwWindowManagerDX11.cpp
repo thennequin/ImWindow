@@ -16,18 +16,6 @@ ImwWindowManagerDX11::~ImwWindowManagerDX11()
 	//ImGui_ImplDX11_Shutdown();
 }
 
-void ImwWindowManagerDX11::InternalRun()
-{
-	PreUpdate();
-	/*MSG msg;
-	if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-	}*/
-	Sleep(16);
-}
-
 ImwPlatformWindow* ImwWindowManagerDX11::CreatePlatformWindow(bool bMain, ImwPlatformWindow* pParent, bool bDragWindow)
 {
 	IM_ASSERT(m_pCurrentPlatformWindow == NULL);

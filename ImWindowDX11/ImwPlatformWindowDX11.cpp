@@ -244,7 +244,7 @@ void ImwPlatformWindowDX11::PreUpdate()
 {
 	MSG msg;
 	int iCount = 0;
-	while (PeekMessage(&msg, m_hWnd, 0, 0, PM_REMOVE) && iCount < 10) // Max 10 messages
+	while (iCount < 10 && PeekMessage(&msg, m_hWnd, 0, 0, PM_REMOVE)) // Max 10 messages
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
@@ -254,8 +254,11 @@ void ImwPlatformWindowDX11::PreUpdate()
 	}
 }
 
-void ImwPlatformWindowDX11::Paint()
+void ImwPlatformWindowDX11::Render()
 {
+	if (!m_bNeedRender)
+		return;
+
 	if (m_bDrag)
 	{
 		//GetCursorPos()
@@ -280,13 +283,10 @@ void ImwPlatformWindowDX11::Paint()
 		ImwIsSafe(s_pDeviceContext)->ClearRenderTargetView(m_pRenderTargetView, bgColor);
 
 		SetState();
+		ImGui::GetIO().DisplaySize = m_oSize;
 
-		ImGui::GetIO().DisplaySize = ImVec2(m_oSize.x, m_oSize.y);
+		ImGui::Render();
 
-		ImGui::NewFrame();
-		
-		ImwPlatformWindow::Paint();
-		
 		if (this == s_pLastHoveredWindow)
 		{
 			switch (ImGui::GetMouseCursor())

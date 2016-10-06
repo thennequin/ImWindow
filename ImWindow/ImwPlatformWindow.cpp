@@ -13,6 +13,7 @@ namespace ImWindow
 		m_pContainer = new ImwContainer(this);
 		m_pState = NULL;
 		m_pPreviousState = NULL;
+		m_bNeedRender = false;
 
 		if (bCreateState)
 		{
@@ -139,9 +140,15 @@ namespace ImWindow
 		return false;
 	}
 
-	void ImwPlatformWindow::Paint()
+	void ImwPlatformWindow::Render()
 	{
-		ImwWindowManager::GetInstance()->Paint(this);
+		if (m_bNeedRender)
+		{
+			m_bNeedRender = false;
+			SetState();
+			ImGui::Render();
+			RestoreState();
+		}
 	}
 
 	bool ImwPlatformWindow::IsMain()

@@ -405,6 +405,7 @@ namespace ImWindow
 
 		return ret;
 	}
+
 	void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
 	{
 		ImwWindowManager* pWindowManager = ImwWindowManager::GetInstance();

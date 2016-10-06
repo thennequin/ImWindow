@@ -17,7 +17,6 @@ namespace ImWindow
 		virtual bool					CanCreateMultipleWindow() { return true; }
 		virtual ImwPlatformWindow*		CreatePlatformWindow(bool bMain, ImwPlatformWindow* pParent, bool bDragWindow);
 
-		virtual void					InternalRun();
 		virtual ImVec2					GetCursorPos();
 		virtual bool					IsLeftClickDown();
 	};

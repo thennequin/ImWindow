@@ -158,8 +158,10 @@ namespace ImWindow
 		void								UpdatePlatformwWindowActions();
 		void								UpdateDockActions();
 		void								UpdateOrphans();
+		void								Render();
 
 		void								Paint(ImwPlatformWindow* pWindow);
+		void								PostPaint(ImwPlatformWindow* pWindow);
 
 		void								PushStyle(bool bRounding = true, bool bPadding = true);
 		void								PopStyle();

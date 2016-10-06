@@ -42,7 +42,7 @@ namespace ImWindow
 		void								RestoreState();
 		void								OnLoseFocus();
 		virtual void						PreUpdate();
-		virtual void						Paint();
+		virtual void						Render();
 		virtual void						Destroy();
 		virtual void						StartDrag();
 		virtual void						StopDrag();
@@ -56,6 +56,7 @@ namespace ImWindow
 		ImwContainer*						m_pContainer;
 		void*								m_pState;
 		void*								m_pPreviousState;
+		bool								m_bNeedRender;
 	};
 
 	typedef ImwList<ImwPlatformWindow*> ImwPlatformWindowList;

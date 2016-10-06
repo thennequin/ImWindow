@@ -63,7 +63,6 @@ namespace ImWindow
 	bool ImwWindowManager::Init()
 	{
 		ImGuiIO& io = ImGui::GetIO();
-		ImGuiStyle& style = ImGui::GetStyle();
 
 		io.IniFilename = NULL;
 
@@ -89,7 +88,12 @@ namespace ImWindow
 	{
 		PreUpdate();
 		InternalRun();
-		Update();
+		
+		if (m_pMainPlatformWindow != NULL)
+		{
+			Update();
+			Render();
+		}
 		return m_pMainPlatformWindow != NULL;
 	}
 
@@ -316,20 +320,32 @@ namespace ImWindow
 			delete pPlatformWindow;
 		}
 
-		UpdateDragWindow();
-	
-		m_pCurrentPlatformWindow = m_pMainPlatformWindow;
-		ImwIsSafe(m_pMainPlatformWindow)->Paint();
-
-		for ( ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
+		if (NULL != m_pMainPlatformWindow)
 		{
-			m_pCurrentPlatformWindow = (*it);
-			(*it)->Paint();
+			UpdateDragWindow();
+
+			Paint(m_pMainPlatformWindow);
+
+			if (NULL != m_pDragPlatformWindow && NULL != m_pDraggedWindow)
+				Paint(m_pDragPlatformWindow);
+
+			for ( ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
+			{
+				Paint(*it);
+			}
+
+			PostPaint(m_pMainPlatformWindow);
+
+			//if (NULL != m_pDragPlatformWindow && m_pDragPlatformWindow->m_bNeedRender)
+				//PostPaint(m_pDragPlatformWindow);
+
+			for ( ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
+			{
+				PostPaint(*it);
+			}
+
+			m_pCurrentPlatformWindow = NULL;
 		}
-
-		m_pCurrentPlatformWindow = NULL;
-
-	
 	}
 
 	void ImwWindowManager::UpdatePlatformwWindowActions()
@@ -457,8 +473,37 @@ namespace ImWindow
 		}
 	}
 
+	void ImwWindowManager::Render()
+	{
+		if (NULL != m_pMainPlatformWindow)
+		{
+			m_pMainPlatformWindow->Render();
+		}
+
+		if (NULL != m_pDragPlatformWindow)
+		{
+			m_pDragPlatformWindow->Render();
+		}
+
+		for (ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
+		{
+			(*it)->Render();
+		}
+	}
+
 	void ImwWindowManager::Paint(ImwPlatformWindow* pWindow)
 	{
+		IM_ASSERT(NULL != pWindow);
+		if (NULL == pWindow)
+			return;
+
+		pWindow->m_bNeedRender = true;
+		m_pCurrentPlatformWindow = pWindow;
+		pWindow->SetState();
+
+		ImGui::GetIO().DisplaySize = pWindow->GetSize();
+		ImGui::NewFrame();
+
 		float fTop = 0.f;
 		float fBottom = 0.f;
 		if (pWindow->IsMain())
@@ -523,6 +568,40 @@ namespace ImWindow
 
 		PopStyle();
 
+		if (pWindow->IsMain() && m_lStatusBars.size() > 0)
+		{
+			ImGui::SetNextWindowPos(ImVec2(0, pWindow->GetSize().y - fBottom), ImGuiSetCond_Always);
+			ImGui::SetNextWindowSize(ImVec2(pWindow->GetSize().x, fBottom), ImGuiSetCond_Always);
+
+			PushStyle(true, false);
+			ImGui::Begin("##StatusBar", NULL, ImVec2(0,0), 1.f, iFlags);
+			
+			PopStyle();
+			ImGui::Columns((int)m_lStatusBars.size());
+			for (ImwStatusBarList::iterator it = m_lStatusBars.begin(); it != m_lStatusBars.end(); ++it )
+			{
+				(*it)->OnStatusBar();
+				ImGui::NextColumn();
+			}
+			ImGui::Columns(1);
+			PushStyle(true, false);
+
+			ImGui::End();
+			PopStyle();
+		}
+
+		pWindow->RestoreState();
+	}
+
+	void ImwWindowManager::PostPaint(ImwPlatformWindow* pWindow)
+	{
+		IM_ASSERT(NULL != pWindow);
+		if (NULL == pWindow)
+			return;
+
+		m_pCurrentPlatformWindow = pWindow;
+		pWindow->SetState();
+
 		ImGui::Begin("##Overlay", NULL, ImVec2(0, 0), 0.f, ImGuiWindowFlags_Tooltip | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize);
 		ImDrawList* pDrawList = ImGui::GetWindowDrawList();
 		for (ImwList<DrawWindowAreaAction>::iterator it = m_lDrawWindowAreas.begin(); it != m_lDrawWindowAreas.end(); )
@@ -551,29 +630,7 @@ namespace ImWindow
 		}
 		ImGui::End();
 
-		if (pWindow->IsMain() && m_lStatusBars.size() > 0)
-		{
-			ImGui::SetNextWindowPos(ImVec2(0, pWindow->GetSize().y - fBottom), ImGuiSetCond_Always);
-			ImGui::SetNextWindowSize(ImVec2(pWindow->GetSize().x, fBottom), ImGuiSetCond_Always);
-
-			PushStyle(true, false);
-			ImGui::Begin("##StatusBar", NULL, ImVec2(0,0), 1.f, iFlags);
-			
-			PopStyle();
-			ImGui::Columns((int)m_lStatusBars.size());
-			for (ImwStatusBarList::iterator it = m_lStatusBars.begin(); it != m_lStatusBars.end(); ++it )
-			{
-				(*it)->OnStatusBar();
-				ImGui::NextColumn();
-			}
-			ImGui::Columns(1);
-			PushStyle(true, false);
-
-			ImGui::End();
-			PopStyle();
-		}
-	
-		ImGui::Render();
+		pWindow->RestoreState();
 	}
 
 	void ImwWindowManager::PushStyle(bool bRounding, bool bPadding)
@@ -680,9 +737,6 @@ namespace ImWindow
 				else
 				{
 					m_pDragPlatformWindow->Show();
-					m_pCurrentPlatformWindow = m_pDragPlatformWindow;
-					m_pDragPlatformWindow->Paint();
-					m_pCurrentPlatformWindow = NULL;
 
 					m_pDragPlatformWindow->SetPosition((int)(oCursorPos.x + m_oDragPreviewOffset.x), (int)(oCursorPos.y + m_oDragPreviewOffset.y));
 				}

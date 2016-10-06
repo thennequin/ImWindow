@@ -41,7 +41,7 @@ namespace ImWindow
 		HWND								GetHWnd();
 	protected:
 		virtual void						PreUpdate();
-		virtual void						Paint();
+		virtual void						Render();
 		virtual void						Destroy();
 
 		virtual void						StartDrag();

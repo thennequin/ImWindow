@@ -310,7 +310,7 @@ int main(int argc, char* argv[])
 	//pWindow2->SetSize(300, 200);
 	//pWindow2->Show();*/
 
-	while (oMgr.Run());
+	while (oMgr.Run()) Sleep(16);
 
 	ImGui::Shutdown();
 
