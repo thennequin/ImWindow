@@ -62,6 +62,8 @@ namespace ImWindow
 
 	bool ImwWindowManager::Init()
 	{
+		InternalInit();
+
 		ImGuiIO& io = ImGui::GetIO();
 
 		io.IniFilename = NULL;
@@ -84,17 +86,25 @@ namespace ImWindow
 		return false;
 	}
 
-	bool ImwWindowManager::Run()
+	bool ImwWindowManager::Run(bool bRender)
 	{
-		PreUpdate();
-		InternalRun();
-		
-		if (m_pMainPlatformWindow != NULL)
+		if (bRender)
 		{
-			Update();
-			Render();
+			if (m_pMainPlatformWindow != NULL)
+			{
+				Render();
+			}
+			return true;
 		}
-		return m_pMainPlatformWindow != NULL;
+		else
+		{
+			PreUpdate();
+			if (m_pMainPlatformWindow != NULL)
+			{
+				Update();
+			}
+			return m_pMainPlatformWindow != NULL;
+		}
 	}
 
 	void ImwWindowManager::Destroy()
@@ -235,6 +245,11 @@ namespace ImWindow
 		return false;
 	}
 
+	bool ImwWindowManager::InternalInit()
+	{
+		return true;
+	}
+
 	ImwPlatformWindow* ImwWindowManager::CreatePlatformWindow(bool bMain, ImwPlatformWindow* /*pParent*/, bool bDragWindow)
 	{
 		if (bMain)
@@ -242,11 +257,6 @@ namespace ImWindow
 			return (ImWindow::ImwPlatformWindow*)new ImwPlatformWindow(bMain, bDragWindow, CanCreateMultipleWindow());
 		}
 		return NULL;
-	}
-
-	void ImwWindowManager::InternalRun()
-	{
-
 	}
 
 	ImVec2 ImwWindowManager::GetCursorPos()
@@ -502,7 +512,9 @@ namespace ImWindow
 		pWindow->SetState();
 
 		ImGui::GetIO().DisplaySize = pWindow->GetSize();
-		ImGui::NewFrame();
+		ImGuiState* pState = (ImGuiState*)ImGui::GetInternalState();
+		if (pState->FrameCountEnded >= pState->FrameCount || !pState->Initialized)
+			ImGui::NewFrame();
 
 		float fTop = 0.f;
 		float fBottom = 0.f;
