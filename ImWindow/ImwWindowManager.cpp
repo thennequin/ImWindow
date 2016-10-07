@@ -485,19 +485,20 @@ namespace ImWindow
 
 	void ImwWindowManager::Render()
 	{
-		if (NULL != m_pMainPlatformWindow)
+		if (NULL != m_pMainPlatformWindow && m_pMainPlatformWindow->m_bNeedRender)
 		{
 			m_pMainPlatformWindow->Render();
 		}
 
-		if (NULL != m_pDragPlatformWindow)
+		if (NULL != m_pDragPlatformWindow && m_pDragPlatformWindow->m_bNeedRender)
 		{
 			m_pDragPlatformWindow->Render();
 		}
 
 		for (ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
 		{
-			(*it)->Render();
+			if ((*it)->m_bNeedRender)
+				(*it)->Render();
 		}
 	}
 
