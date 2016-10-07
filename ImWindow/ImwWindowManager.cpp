@@ -336,7 +336,7 @@ namespace ImWindow
 
 			Paint(m_pMainPlatformWindow);
 
-			if (NULL != m_pDragPlatformWindow && NULL != m_pDraggedWindow)
+			if (NULL != m_pDragPlatformWindow && NULL != m_pDraggedWindow && !m_bDragOnTab && m_pDragBestContainer == NULL)
 				Paint(m_pDragPlatformWindow);
 
 			for ( ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
