@@ -357,7 +357,7 @@ namespace ImWindow
 		ImwWindowList::iterator itFind = std::find(m_lWindows.begin(), m_lWindows.end(), pWindow);
 		if ( itFind != m_lWindows.end())
 		{
-			m_iActiveWindow = std::distance(m_lWindows.begin(), itFind);
+			m_iActiveWindow = (int)std::distance(m_lWindows.begin(), itFind);
 			return true;
 		}
 		else
