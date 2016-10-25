@@ -711,6 +711,7 @@ namespace ImWindow
 			pAction->m_pPlatformWindow = m_pDragPlatformWindow;
 			pAction->m_iFlags = E_PLATFORM_WINDOW_ACTION_HIDE;
 			m_pDragPlatformWindow->Hide();
+			m_pDragPlatformWindow->m_bNeedRender = false;
 			m_lPlatformWindowActions.push_back(pAction);
 		}
 		m_pDraggedWindow = NULL;
