@@ -193,12 +193,12 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 	return true;
 }
 
-const ImVec2& ImwPlatformWindowDX11::GetPosition() const
+ImVec2 ImwPlatformWindowDX11::GetPosition() const
 {
 	return m_oPosition;
 }
 
-const ImVec2& ImwPlatformWindowDX11::GetSize() const
+ImVec2 ImwPlatformWindowDX11::GetSize() const
 {
 	return m_oSize;
 }

@@ -45,12 +45,12 @@ namespace ImWindow
 	}
 
 	const ImVec2 c_oVec2_0 = ImVec2(0,0);
-	const ImVec2& ImwPlatformWindow::GetPosition() const
+	ImVec2 ImwPlatformWindow::GetPosition() const
 	{
 		return c_oVec2_0;
 	}
 
-	const ImVec2& ImwPlatformWindow::GetSize() const
+	ImVec2 ImwPlatformWindow::GetSize() const
 	{
 		return ImGui::GetIO().DisplaySize;
 	}

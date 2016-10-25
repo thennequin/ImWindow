@@ -29,8 +29,8 @@ namespace ImWindow
 
 		virtual bool						Init(ImwPlatformWindow* pMain);
 
-		virtual const ImVec2&				GetPosition() const;
-		virtual const ImVec2&				GetSize() const;
+		virtual ImVec2						GetPosition() const;
+		virtual ImVec2						GetSize() const;
 
 		virtual void						Show();
 		virtual void						Hide();
