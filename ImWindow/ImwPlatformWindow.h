@@ -26,6 +26,8 @@ namespace ImWindow
 		virtual void						SetSize(int iWidth, int iHeight);
 		virtual void						SetPosition(int iX, int iY);
 		virtual void						SetTitle(const char* pTtile);
+		bool								IsShowContent() const;
+		void								SetShowContent(bool bShow);
 
 		bool								IsMain();
 

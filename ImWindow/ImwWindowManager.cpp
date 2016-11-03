@@ -521,87 +521,99 @@ namespace ImWindow
 		float fBottom = 0.f;
 		if (pWindow->IsMain())
 		{
-			ImGui::BeginMainMenuBar();
-			for ( ImwMenuList::iterator it = m_lMenus.begin(), itEnd = m_lMenus.end(); it != itEnd; ++it )
+			ImGuiIO& oIO = ImGui::GetIO();
+			if (pWindow->IsShowContent() || oIO.MousePos.y <= 50.f  || oIO.MetricsActiveWindows > 2) // Autohide menu bar
 			{
-				(*it)->OnMenu();
-			}
-			fTop = ImGui::GetWindowHeight();
-			ImGui::EndMainMenuBar();
-			if (m_lStatusBars.size() > 0)
-			{
-				fBottom = 25.f;
-			}
-		}
-
-		ImGui::SetNextWindowPos(ImVec2(0, fTop), ImGuiSetCond_Always);
-		ImGui::SetNextWindowSize(ImVec2(pWindow->GetSize().x, pWindow->GetSize().y - fTop - fBottom), ImGuiSetCond_Always);
-		int iFlags = ImGuiWindowFlags_NoTitleBar
-			| ImGuiWindowFlags_NoResize
-			| ImGuiWindowFlags_NoMove
-			| ImGuiWindowFlags_NoCollapse
-			| ImGuiWindowFlags_NoSavedSettings
-			| ImGuiWindowFlags_NoScrollbar
-			| ImGuiWindowFlags_NoScrollWithMouse
-			| ImGuiWindowFlags_NoBringToFrontOnFocus;
-
-		if (NULL != m_pDraggedWindow)
-		{
-			iFlags += ImGuiWindowFlags_NoInputs;
-		}
-
-		PushStyle();
-		
-		ImGui::Begin( "Main", NULL, ImVec2( 0.f, 0.f ), 1.f, iFlags);
-
-		if (NULL != m_pDraggedWindow)
-		{
-			ImGuiID oId = ImGui::GetID("##DraggedWindow");
-			ImGui::PushID(oId);
-			ImGui::PopID();
-			ImGui::SetActiveID(oId, ImGui::GetCurrentWindow());
-		}
-
-		if (pWindow->IsMain())
-		{
-			if (!m_lToolBars.empty())
-			{
-				PopStyle();
-				for (ImwToolBarList::iterator it = m_lToolBars.begin(), itEnd = m_lToolBars.end(); it != itEnd; ++it)
+				ImGui::BeginMainMenuBar();
+				for ( ImwMenuList::iterator it = m_lMenus.begin(), itEnd = m_lMenus.end(); it != itEnd; ++it )
 				{
-					(*it)->OnToolBar();
+					(*it)->OnMenu();
 				}
-				ImGui::Separator();
-				PushStyle();
+				fTop = ImGui::GetWindowHeight();
+				ImGui::EndMainMenuBar();
+				if (m_lStatusBars.size() > 0)
+				{
+					fBottom = 25.f;
+				}
 			}
-		}
-		
-		pWindow->PaintContainer();
-		ImGui::End();
-
-		PopStyle();
-
-		if (pWindow->IsMain() && m_lStatusBars.size() > 0)
-		{
-			ImGui::SetNextWindowPos(ImVec2(0, pWindow->GetSize().y - fBottom), ImGuiSetCond_Always);
-			ImGui::SetNextWindowSize(ImVec2(pWindow->GetSize().x, fBottom), ImGuiSetCond_Always);
-
-			PushStyle(true, false);
-			ImGui::Begin("##StatusBar", NULL, ImVec2(0,0), 1.f, iFlags);
 			
-			PopStyle();
-			ImGui::Columns((int)m_lStatusBars.size());
-			for (ImwStatusBarList::iterator it = m_lStatusBars.begin(); it != m_lStatusBars.end(); ++it )
-			{
-				(*it)->OnStatusBar();
-				ImGui::NextColumn();
-			}
-			ImGui::Columns(1);
-			PushStyle(true, false);
-
-			ImGui::End();
-			PopStyle();
 		}
+
+		if (pWindow->IsShowContent())
+		{
+			ImGui::SetNextWindowPos(ImVec2(0, fTop), ImGuiSetCond_Always);
+			ImGui::SetNextWindowSize(ImVec2(pWindow->GetSize().x, pWindow->GetSize().y - fTop - fBottom), ImGuiSetCond_Always);
+			int iFlags = ImGuiWindowFlags_NoTitleBar
+				| ImGuiWindowFlags_NoResize
+				| ImGuiWindowFlags_NoMove
+				| ImGuiWindowFlags_NoCollapse
+				| ImGuiWindowFlags_NoSavedSettings
+				| ImGuiWindowFlags_NoScrollbar
+				| ImGuiWindowFlags_NoScrollWithMouse
+				| ImGuiWindowFlags_NoBringToFrontOnFocus;
+
+			if (NULL != m_pDraggedWindow)
+			{
+				iFlags += ImGuiWindowFlags_NoInputs;
+			}
+
+			PushStyle();
+
+			ImGui::Begin( "Main", NULL, ImVec2( 0.f, 0.f ), 1.f, iFlags);
+
+		{
+			if (NULL != m_pDraggedWindow)
+			{
+				ImGuiID oId = ImGui::GetID("##DraggedWindow");
+				ImGui::PushID(oId);
+				ImGui::PopID();
+				ImGui::SetActiveID(oId, ImGui::GetCurrentWindow());
+			}
+
+			if (pWindow->IsMain())
+			{
+				if (!m_lToolBars.empty())
+				{
+					PopStyle();
+					for (ImwToolBarList::iterator it = m_lToolBars.begin(), itEnd = m_lToolBars.end(); it != itEnd; ++it)
+					{
+						(*it)->OnToolBar();
+					}
+					ImGui::Separator();
+					PushStyle();
+				}
+			}
+
+			pWindow->PaintContainer();
+			ImGui::End();
+
+			PopStyle();
+
+			if (pWindow->IsMain() && m_lStatusBars.size() > 0)
+			{
+				ImGui::SetNextWindowPos(ImVec2(0, pWindow->GetSize().y - fBottom), ImGuiSetCond_Always);
+				ImGui::SetNextWindowSize(ImVec2(pWindow->GetSize().x, fBottom), ImGuiSetCond_Always);
+
+				PushStyle(true, false);
+				ImGui::Begin("##StatusBar", NULL, ImVec2(0,0), 1.f, iFlags);
+
+				PopStyle();
+				ImGui::Columns((int)m_lStatusBars.size());
+				for (ImwStatusBarList::iterator it = m_lStatusBars.begin(); it != m_lStatusBars.end(); ++it )
+				{
+					(*it)->OnStatusBar();
+					ImGui::NextColumn();
+				}
+				ImGui::Columns(1);
+				PushStyle(true, false);
+
+				ImGui::End();
+				PopStyle();
+			}
+		}
+
+		bool bWantCaptureKeyboard = ImGui::GetIO().WantCaptureKeyboard;
+		bool bWantCaptureMouse = ImGui::GetIO().WantCaptureMouse;
 
 		pWindow->RestoreState();
 	}

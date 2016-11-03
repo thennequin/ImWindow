@@ -14,6 +14,7 @@ namespace ImWindow
 		m_pState = NULL;
 		m_pPreviousState = NULL;
 		m_bNeedRender = false;
+		m_bShowContent = true;
 
 		if (bCreateState)
 		{
@@ -73,6 +74,16 @@ namespace ImWindow
 
 	void ImwPlatformWindow::SetTitle(const char* /*pTtile*/)
 	{
+	}
+
+	bool ImwPlatformWindow::IsShowContent() const
+	{
+		return m_bShowContent;
+	}
+
+	void ImwPlatformWindow::SetShowContent(bool bShow)
+	{
+		m_bShowContent = bShow;
 	}
 
 	void ImwPlatformWindow::OnClose()
