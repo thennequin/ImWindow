@@ -87,6 +87,11 @@ namespace ImWindow
 		return s_bStatePush;
 	}
 
+	bool ImwPlatformWindow::HasState() const
+	{
+		return m_pState != NULL;
+	}
+
 	void ImwPlatformWindow::SetState()
 	{
 		IM_ASSERT(s_bStatePush == false);

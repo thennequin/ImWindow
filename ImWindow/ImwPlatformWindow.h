@@ -36,10 +36,11 @@ namespace ImWindow
 		ImwContainer*						HasWindow(ImwWindow* pWindow);
 		bool								FocusWindow(ImwWindow* pWindow);
 
-		bool								IsStateSet();
-	protected:
+		bool								HasState() const;
 		void								SetState();
 		void								RestoreState();
+		static bool							IsStateSet();
+	protected:
 		void								OnLoseFocus();
 		virtual void						PreUpdate();
 		virtual void						Render();
