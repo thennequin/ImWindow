@@ -36,7 +36,7 @@ namespace ImWindow
 		}
 		ImGui::Shutdown();
 		RestoreState();
-		ImwSafeDelete(m_pState);
+		ImwSafeFree(m_pState);
 	}
 
 	bool ImwPlatformWindow::Init(ImwPlatformWindow* /*pParent*/)
