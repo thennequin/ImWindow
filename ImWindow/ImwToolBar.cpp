@@ -6,9 +6,10 @@
 namespace ImWindow
 {
 //SFF_BEGIN
-	ImwToolBar::ImwToolBar(int iHorizontalPriority)
+	ImwToolBar::ImwToolBar(int iHorizontalPriority, bool bAutoDeleted)
 	{
 		m_iHorizontalPriority = iHorizontalPriority;
+		m_bAutoDeleted = bAutoDeleted;
 
 		ImwWindowManager::GetInstance()->AddToolBar(this);
 	}
@@ -31,6 +32,11 @@ namespace ImWindow
 	int ImwToolBar::GetHorizontalPriority() const
 	{
 		return m_iHorizontalPriority;
+	}
+
+	bool ImwToolBar::IsAutoDeleted()
+	{
+		return m_bAutoDeleted;
 	}
 //SFF_END
 }

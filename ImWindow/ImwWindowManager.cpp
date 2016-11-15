@@ -109,12 +109,40 @@ namespace ImWindow
 
 	void ImwWindowManager::Destroy()
 	{
+		while (m_lMenus.begin() != m_lMenus.end())
+		{
+			ImwMenu* pMenu = m_lMenus.back();
+			if (pMenu->IsAutoDeleted())
+				delete pMenu;
+			else
+				m_lMenus.pop_back();
+		}
+		
+		while (m_lStatusBars.begin() != m_lStatusBars.end())
+		{
+			ImwStatusBar* pStatusBar = m_lStatusBars.back();
+			if (pStatusBar->IsAutoDeleted())
+				delete pStatusBar;
+			else
+				m_lStatusBars.pop_back();
+		}
+
+		while (m_lToolBars.begin() != m_lToolBars.end())
+		{
+			ImwToolBar* pToolBar = m_lToolBars.back();
+			if (pToolBar->IsAutoDeleted())
+				delete pToolBar;
+			else
+				m_lToolBars.pop_back();
+		}
+
 		ImwSafeDelete(m_pMainPlatformWindow);
 		ImwSafeDelete(m_pDragPlatformWindow);
 		for ( ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
 		{
 			ImwSafeDelete(*it);
 		}
+		m_lPlatformWindows.clear();
 	}
 
 	ImwPlatformWindow* ImwWindowManager::GetMainPlatformWindow()

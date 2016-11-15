@@ -10,15 +10,17 @@ namespace ImWindow
 	class IMGUI_API ImwStatusBar
 	{
 	public:
-		ImwStatusBar(int iHorizontalPriority = 0);
+		ImwStatusBar(int iHorizontalPriority = 0, bool bAutoDeleted = true);
 		ImwStatusBar(const ImwStatusBar& oStatusBar);
 		virtual						~ImwStatusBar();
 
 		virtual void				OnStatusBar();
 
 		int							GetHorizontalPriority() const;
+		bool						IsAutoDeleted();
 	private:
 		int							m_iHorizontalPriority;
+		bool						m_bAutoDeleted;
 	};
 	typedef ImwList<ImwStatusBar*> ImwStatusBarList;
 //SFF_END

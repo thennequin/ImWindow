@@ -6,9 +6,10 @@
 namespace ImWindow
 {
 //SFF_BEGIN
-	ImwMenu::ImwMenu(int iHorizontalPriority)
+	ImwMenu::ImwMenu(int iHorizontalPriority, bool bAutoDeleted)
 	{
 		m_iHorizontalPriority = iHorizontalPriority;
+		m_bAutoDeleted = bAutoDeleted;
 
 		ImwWindowManager::GetInstance()->AddMenu(this);
 	}
@@ -26,6 +27,11 @@ namespace ImWindow
 	int ImwMenu::GetHorizontalPriority() const
 	{
 		return m_iHorizontalPriority;
+	}
+
+	bool ImwMenu::IsAutoDeleted()
+	{
+		return m_bAutoDeleted;
 	}
 //SFF_END
 }
