@@ -60,6 +60,7 @@ namespace ImWindow
 		void*								m_pState;
 		void*								m_pPreviousState;
 		bool								m_bNeedRender;
+		bool								m_bShowContent;
 	};
 
 	typedef ImwList<ImwPlatformWindow*> ImwPlatformWindowList;
