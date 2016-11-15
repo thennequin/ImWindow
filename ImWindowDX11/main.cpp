@@ -93,6 +93,15 @@ public:
 		{
 			ImGui::EndMenu();
 		}*/
+
+		if (ImGui::BeginMenu("Platform window"))
+		{
+			if (ImGui::MenuItem("Show content", NULL, ImWindow::ImwWindowManager::GetInstance()->GetMainPlatformWindow()->IsShowContent()))
+			{
+				ImWindow::ImwWindowManager::GetInstance()->GetMainPlatformWindow()->SetShowContent( !ImWindow::ImwWindowManager::GetInstance()->GetMainPlatformWindow()->IsShowContent() );
+			}
+			ImGui::EndMenu();
+		}
 	}
 };
 
