@@ -52,6 +52,8 @@ namespace ImWindow
 		m_bDragOnTab = false;
 		m_iDragBestContainerPosition = -1;
 		m_oDragPreviewOffset = ImVec2(-20, -10);
+		m_bHasWantCaptureKeyboard = false;
+		m_bHasWantCaptureMouse = false;
 	}
 
 	ImwWindowManager::~ImwWindowManager()
@@ -360,6 +362,8 @@ namespace ImWindow
 
 		if (NULL != m_pMainPlatformWindow)
 		{
+			m_bHasWantCaptureKeyboard = false;
+			m_bHasWantCaptureMouse = false;
 			UpdateDragWindow();
 
 			Paint(m_pMainPlatformWindow);
@@ -645,6 +649,9 @@ namespace ImWindow
 		bool bWantCaptureMouse = ImGui::GetIO().WantCaptureMouse;
 
 		pWindow->RestoreState();
+
+		m_bHasWantCaptureKeyboard |= bWantCaptureKeyboard;
+		m_bHasWantCaptureMouse |= bWantCaptureMouse;
 	}
 
 	void ImwWindowManager::PostPaint(ImwPlatformWindow* pWindow)

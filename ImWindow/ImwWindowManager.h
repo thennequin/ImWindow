@@ -118,6 +118,9 @@ namespace ImWindow
 		ImwPlatformWindow*					GetCurrentPlatformWindow();
 		ImwPlatformWindow*					GetWindowParent(ImwWindow* pWindow);
 
+		bool								HasWantCaptureKeyboard() const { return m_bHasWantCaptureKeyboard; }
+		bool								HasWantCaptureMouse() const { return m_bHasWantCaptureMouse; }
+
 	protected:
 		//To override for use multi window mode
 		virtual bool						CanCreateMultipleWindow();
@@ -206,6 +209,9 @@ namespace ImWindow
 		ImVec2								m_oStyleBackupWindowPadding;
 		ImVec2								m_oStyleBackupItemInnerSpacing;
 		ImVec2								m_oStyleBackupItemSpacing;
+
+		bool								m_bHasWantCaptureKeyboard;
+		bool								m_bHasWantCaptureMouse;
 
 		// Static
 	public:
