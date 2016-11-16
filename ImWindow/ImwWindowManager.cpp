@@ -363,9 +363,7 @@ namespace ImWindow
 			UpdateDragWindow();
 
 			Paint(m_pMainPlatformWindow);
-
-			if (NULL != m_pDragPlatformWindow && NULL != m_pDraggedWindow && !m_bDragOnTab && m_pDragBestContainer == NULL)
-				Paint(m_pDragPlatformWindow);
+			Paint(m_pDragPlatformWindow);
 
 			for ( ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
 			{
@@ -534,6 +532,10 @@ namespace ImWindow
 	{
 		IM_ASSERT(NULL != pWindow);
 		if (NULL == pWindow)
+			return;
+
+		pWindow->m_bNeedRender = false;
+		if (pWindow->m_bIsDragWindow && (NULL == m_pDraggedWindow || m_bDragOnTab || m_pDragBestContainer != NULL))
 			return;
 
 		pWindow->m_bNeedRender = true;
