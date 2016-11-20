@@ -203,6 +203,11 @@ ImVec2 ImwPlatformWindowDX11::GetSize() const
 	return m_oSize;
 }
 
+bool ImwPlatformWindowDX11::IsWindowMaximized() const
+{
+	return IsMaximized(m_hWnd);
+}
+
 void ImwPlatformWindowDX11::Show()
 {
 	ShowWindow(m_hWnd, SW_SHOW);
@@ -235,7 +240,12 @@ void ImwPlatformWindowDX11::SetPosition(int iX, int iY)
 	SetWindowPos(m_hWnd, 0, oRect.left, oRect.top, 0, 0, SWP_NOSIZE);
 }
 
-void ImwPlatformWindowDX11::SetTitle(const char* pTtile)
+void ImwPlatformWindowDX11::SetWindowMaximized(bool bMaximized)
+{
+	ShowWindow(m_hWnd, bMaximized ? SW_MAXIMIZE : SW_NORMAL);
+}
+
+void ImwPlatformWindowDX11::SetTitle(const ImwChar* pTtile)
 {
 	SetWindowText(m_hWnd, pTtile);
 }

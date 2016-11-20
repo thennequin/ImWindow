@@ -56,6 +56,11 @@ namespace ImWindow
 		return ImGui::GetIO().DisplaySize;
 	}
 
+	bool ImwPlatformWindow::IsWindowMaximized() const
+	{
+		return false;
+	}
+
 	void ImwPlatformWindow::Show()
 	{
 	}
@@ -69,6 +74,10 @@ namespace ImWindow
 	}
 
 	void ImwPlatformWindow::SetPosition(int /*iX*/, int /*iY*/)
+	{
+	}
+
+	void ImwPlatformWindow::SetWindowMaximized(bool /*bMaximized*/)
 	{
 	}
 

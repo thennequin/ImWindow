@@ -31,12 +31,14 @@ namespace ImWindow
 
 		virtual ImVec2						GetPosition() const;
 		virtual ImVec2						GetSize() const;
+		virtual bool						IsWindowMaximized() const;
 
 		virtual void						Show();
 		virtual void						Hide();
 		virtual void						SetSize(int iWidth, int iHeight);
 		virtual void						SetPosition(int iX, int iY);
-		virtual void						SetTitle(const char* pTtile);
+		virtual void						SetWindowMaximized(bool bMaximized);
+		virtual void						SetTitle(const ImwChar* pTtile);
 
 		HWND								GetHWnd();
 	protected:
