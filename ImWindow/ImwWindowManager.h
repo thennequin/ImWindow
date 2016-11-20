@@ -105,7 +105,7 @@ namespace ImWindow
 		ImwPlatformWindow*					GetMainPlatformWindow();
 		Config&								GetConfig();
 
-		void								SetMainTitle(const char* pTitle);
+		void								SetMainTitle(const ImwChar* pTitle);
 
 		void								Dock(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, float fRatio = 0.5f, ImwPlatformWindow* pToPlatformWindow = NULL);
 		void								DockTo(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, float fRatio = 0.5f, ImwContainer* pContainer = NULL, int iPosition = -1);

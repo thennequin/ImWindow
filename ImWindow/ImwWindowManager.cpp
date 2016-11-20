@@ -157,7 +157,7 @@ namespace ImWindow
 		return m_oConfig;
 	}
 
-	void ImwWindowManager::SetMainTitle(const char* pTitle)
+	void ImwWindowManager::SetMainTitle(const ImwChar* pTitle)
 	{
 		ImwIsSafe(m_pMainPlatformWindow)->SetTitle(pTitle);
 	}

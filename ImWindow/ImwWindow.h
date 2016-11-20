@@ -33,12 +33,12 @@ namespace ImWindow
 		virtual void			OnContextMenu();
 
 		ImU32					GetId() const;
-		const char*				GetIdStr() const;
+		const ImwChar*			GetIdStr() const;
 
 		void					Destroy();
 
-		void					SetTitle(const char* pTitle);
-		const char*				GetTitle() const;
+		void					SetTitle(const ImwChar* pTitle);
+		const ImwChar*			GetTitle() const;
 
 		void					SetClosable( bool bClosable );
 		bool					IsClosable() const;
@@ -47,10 +47,9 @@ namespace ImWindow
 		const ImVec2&			GetLastSize() const;
 
 	protected:
-
-		char*					m_pTitle;
+		ImwChar*				m_pTitle;
 		ImU32					m_iId;
-		char					m_pId[11];
+		ImwChar					m_pId[11];
 		bool					m_bClosable;
 
 		ImVec2					m_oLastPosition;
