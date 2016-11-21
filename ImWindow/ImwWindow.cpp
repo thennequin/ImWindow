@@ -36,11 +36,11 @@ namespace ImWindow
 	{
 	}
 
-	void ImwWindow::GetParameters(JsonValue& oOutParameters)
+	void ImwWindow::GetParameters(JsonValue& /*oOutParameters*/)
 	{
 	}
 
-	void ImwWindow::SetParameters(const JsonValue& oParameters)
+	void ImwWindow::SetParameters(const JsonValue& /*oParameters*/)
 	{
 	}
 

@@ -374,17 +374,17 @@ namespace ImWindow
 		return false;
 	}
 
-	ImwChar* ImwWindowManager::GetWindowClassName(ImwWindow* pWindow)
+	ImwChar* ImwWindowManager::GetWindowClassName(ImwWindow* /*pWindow*/)
 	{
 		return NULL;
 	}
 
-	bool ImwWindowManager::CanCreateWindowByClassName(const ImwChar* pName)
+	bool ImwWindowManager::CanCreateWindowByClassName(const ImwChar* /*pName*/)
 	{
 		return false;
 	}
 
-	ImwWindow* ImwWindowManager::CreateWindowByClassName(const ImwChar* pName)
+	ImwWindow* ImwWindowManager::CreateWindowByClassName(const ImwChar* /*pName*/)
 	{
 		return NULL;
 	}

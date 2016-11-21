@@ -664,25 +664,25 @@ namespace ImWindow
 			}
 			if (iChar < 0x0080)
 			{
-				oTempBuffer += iChar;
+				oTempBuffer += (ImwChar)iChar;
 			}
 			else if (iChar >= 0x80 && iChar < 0x800)
 			{
-				oTempBuffer += 0xC0 | (iChar >> 6);
-				oTempBuffer += 0x80 | (iChar & 0x3F);
+				oTempBuffer += (ImwChar)(0xC0 | (iChar >> 6));
+				oTempBuffer += (ImwChar)(0x80 | (iChar & 0x3F));
 			}
 			else if (iChar >= 0x800 && iChar < 0x7FFF)
 			{
-				oTempBuffer += 0xE0 | (iChar >> 12);
-				oTempBuffer += 0x80 | ((iChar >> 6) & 0x3F);
-				oTempBuffer += 0x80 | (iChar & 0x3F);
+				oTempBuffer += (ImwChar)(0xE0 | (iChar >> 12));
+				oTempBuffer += (ImwChar)(0x80 | ((iChar >> 6) & 0x3F));
+				oTempBuffer += (ImwChar)(0x80 | (iChar & 0x3F));
 			}
 			else if (iChar >= 0x8000 && iChar < 0x7FFFF)
 			{
-				oTempBuffer += 0xF0 | (iChar >> 18);
-				oTempBuffer += 0xE0 | ((iChar >> 12) & 0x3F);
-				oTempBuffer += 0x80 | ((iChar >> 6) & 0x3F);
-				oTempBuffer += 0x80 | (iChar & 0x3F);
+				oTempBuffer += (ImwChar)(0xF0 | (iChar >> 18));
+				oTempBuffer += (ImwChar)(0xE0 | ((iChar >> 12) & 0x3F));
+				oTempBuffer += (ImwChar)(0x80 | ((iChar >> 6) & 0x3F));
+				oTempBuffer += (ImwChar)(0x80 | (iChar & 0x3F));
 			}
 			else
 			{

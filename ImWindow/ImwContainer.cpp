@@ -1190,7 +1190,7 @@ namespace ImWindow
 		if (!bJustCheck)
 		{
 			m_bVerticalSplit = oJson["Vertical"];
-			m_fSplitRatio = (double)oJson["SplitRatio"];
+			m_fSplitRatio = (float)(double)oJson["SplitRatio"];
 
 			//Clear
 			while (m_lWindows.begin() != m_lWindows.end())
