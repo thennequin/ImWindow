@@ -53,6 +53,7 @@ if generateSFF == true then
 	fileSFFHeader:write("	class ImwPlatformWindow;"..EOL)
 	fileSFFHeader:write("	class ImwWindowManager;"..EOL)
 	fileSFFHeader:write(EOL)
+	IncludeSFF( "../ImWindow/JsonValue.h", fileSFFHeader )
 	IncludeSFF( "../ImWindow/ImwWindow.h", fileSFFHeader )
 	IncludeSFF( "../ImWindow/ImwMenu.h", fileSFFHeader )
 	IncludeSFF( "../ImWindow/ImwStatusBar.h", fileSFFHeader )
@@ -70,6 +71,7 @@ if generateSFF == true then
 	fileSFFSource:write("#include \"ImWindow.h\""..EOL..EOL)
 
 	fileSFFSource:write("namespace ImWindow {"..EOL)
+	IncludeSFF( "../ImWindow/JsonValue.cpp", fileSFFSource )
 	IncludeSFF( "../ImWindow/ImwWindow.cpp", fileSFFSource )
 	IncludeSFF( "../ImWindow/ImwMenu.cpp", fileSFFSource )
 	IncludeSFF( "../ImWindow/ImwStatusBar.cpp", fileSFFSource )
