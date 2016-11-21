@@ -16,6 +16,11 @@
 #define ImwMap std::map
 #endif // ImMap
 
+#ifndef ImwString
+#include <string>
+#define ImwString std::string
+#endif // ImwString
+
 #ifndef ImwChar
 #define ImwChar char
 #endif // ImwChar
