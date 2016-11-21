@@ -30,7 +30,7 @@ namespace ImWindow
 		ImwSafeFree(m_pName);
 		if (pName != NULL)
 		{
-			int iSize = (strlen(pName) + 1) * sizeof(ImwChar);
+			size_t iSize = (strlen(pName) + 1) * sizeof(ImwChar);
 			m_pName = (ImwChar*)ImwMalloc(iSize);
 			memcpy(m_pName, pName, iSize);
 		}
@@ -113,6 +113,8 @@ namespace ImWindow
 			case E_TYPE_STRING:
 				m_pString = NULL;
 				break;
+			default:
+				break;
 			}
 		}
 	}
@@ -137,6 +139,8 @@ namespace ImWindow
 		break;
 		case E_TYPE_STRING:
 			ImwSafeFree(m_pString);
+			break;
+		default:
 			break;
 		}
 		m_eType = E_TYPE_INVALID;
@@ -343,7 +347,7 @@ namespace ImWindow
 		return false;
 	}
 
-	size_t JsonValue::GetMemberCount() const
+	int JsonValue::GetMemberCount() const
 	{
 		int iCount = 0;
 		if (m_eType == E_TYPE_OBJECT || m_eType == E_TYPE_ARRAY)

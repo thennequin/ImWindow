@@ -183,7 +183,7 @@ namespace ImWindow
 		bool				IsFloat() const { return m_eType == E_TYPE_FLOAT; }
 		bool				IsNumeric() const { return m_eType == E_TYPE_INTEGER || m_eType == E_TYPE_FLOAT; }
 
-		size_t				GetMemberCount() const;
+		int					GetMemberCount() const;
 
 		const ImwChar*		GetName() const { return m_pName; }
 
