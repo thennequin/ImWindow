@@ -218,13 +218,15 @@ namespace ImWindow
 		EType				m_eType;
 		ImwChar*			m_pName;
 		JsonValue*			m_pNext;
+
+		struct JsonChilds
+		{
+			JsonValue*		m_pFirst;
+			JsonValue*		m_pLast;
+		};
 		union
 		{
-			struct
-			{
-				JsonValue*		m_pChild;
-				JsonValue*		m_pChildLast;
-			};
+			JsonChilds		m_oChilds;
 			ImwChar*		m_pString;
 			bool			m_bBoolean;
 			long			m_iInteger;
