@@ -9,12 +9,12 @@
 #ifndef ImwList
 #include <list>
 #define ImwList std::list
-#endif // ImList
+#endif // ImwList
 
 #ifndef ImwMap
 #include <map>
 #define ImwMap std::map
-#endif // ImMap
+#endif // ImwMap
 
 #ifndef ImwString
 #include <string>
@@ -33,7 +33,7 @@
 #define ImwFree(pObj) free(pObj)
 #define ImwSafeFree(pObj) {free(pObj); pObj = NULL;}
 
-// Define IMW_INHERITED_BY_IMWWINDOW when you want ImwWindow inherit from one of you class
+// Define IMW_INHERITED_BY_IMWWINDOW when you want ImwWindow inherit from one of your class
 //#define IMW_INHERITED_BY_IMWWINDOW MyInheritedClass
 
 //////////////////////////////////////////////////////////////////////////
