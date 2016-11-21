@@ -8,6 +8,7 @@
 #include "ImwPlatformWindow.h"
 #include "ImwStatusBar.h"
 #include "ImwToolbar.h"
+#include "JsonValue.h"
 
 namespace ImWindow
 {
@@ -121,6 +122,15 @@ namespace ImWindow
 		bool								HasWantCaptureKeyboard() const { return m_bHasWantCaptureKeyboard; }
 		bool								HasWantCaptureMouse() const { return m_bHasWantCaptureMouse; }
 
+		void								SaveLayoutToString(ImwString& sLayout, bool bCompact = false);
+		bool								SaveLayoutToFile(const ImwChar* pFilePath, bool bCompact = false);
+
+		bool								LoadLayoutFromString(const ImwChar* pLayout);
+		bool								LoadLayoutFromFile(const ImwChar* pFilePath);
+
+		virtual ImwChar*					GetWindowClassName(ImwWindow* pWindow);
+		virtual bool						CanCreateWindowByClassName(const ImwChar* pName);
+		virtual ImwWindow*					CreateWindowByClassName(const ImwChar* pName);
 	protected:
 		//To override for use multi window mode
 		virtual bool						CanCreateMultipleWindow();

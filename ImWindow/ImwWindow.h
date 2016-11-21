@@ -3,6 +3,7 @@
 #define __IM_WINDOW_H__
 
 #include "ImwConfig.h"
+#include "JsonValue.h"
 
 namespace ImWindow
 {
@@ -31,6 +32,9 @@ namespace ImWindow
 	public:
 		virtual void			OnGui() = 0;
 		virtual void			OnContextMenu();
+
+		virtual void			GetParameters(JsonValue& oOutParameters);
+		virtual void			SetParameters(const JsonValue& oParameters);
 
 		ImU32					GetId() const;
 		const ImwChar*			GetIdStr() const;

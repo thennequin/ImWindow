@@ -5,6 +5,7 @@
 #include "ImwConfig.h"
 
 #include "ImwContainer.h"
+#include "JsonValue.h"
 
 namespace ImWindow
 {
@@ -55,6 +56,9 @@ namespace ImWindow
 
 		void								PaintContainer();
 		void								OnClose();
+
+		void								Save(JsonValue& oJson);
+		bool								Load(const JsonValue& oJson, bool bJustCheck);
 
 		bool								m_bMain;
 		bool								m_bIsDragWindow;

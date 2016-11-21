@@ -100,6 +100,32 @@ namespace ImWindow
 		ImwWindowManager::GetInstance()->OnClosePlatformWindow(this);
 	}
 
+	void ImwPlatformWindow::Save(JsonValue& oJson)
+	{
+		oJson["Width"] = (long)GetSize().x;
+		oJson["Height"] = (long)GetSize().y;
+		oJson["Left"] = (long)GetPosition().x;
+		oJson["Top"] = (long)GetPosition().y;
+		oJson["Maximized"] = IsWindowMaximized();
+
+		m_pContainer->Save(oJson["Container"]);
+	}
+
+	bool ImwPlatformWindow::Load(const JsonValue& oJson, bool bJustCheck)
+	{
+		if (!oJson["Width"].IsNumeric() || !oJson["Height"].IsNumeric() || !oJson["Left"].IsNumeric() || !oJson["Top"].IsNumeric() || !oJson["Maximized"].IsBoolean())
+			return false;
+
+		if (!bJustCheck)
+		{
+			SetSize((long)oJson["Width"], (long)oJson["Height"]);
+			SetPosition((long)oJson["Left"], (long)oJson["Top"]);
+			SetWindowMaximized(oJson["Maximized"]);
+		}
+
+		return m_pContainer->Load(oJson["Container"], bJustCheck);
+	}
+
 	static bool s_bStatePush = false;
 
 	bool ImwPlatformWindow::IsStateSet()

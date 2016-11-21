@@ -1153,5 +1153,101 @@ namespace ImWindow
 		}
 		return false;
 	}
+
+	void ImwContainer::Save(JsonValue& oJson)
+	{
+		oJson["Vertical"] = m_bVerticalSplit;
+		oJson["SplitRatio"] = m_fSplitRatio;
+
+		if (m_lWindows.size() > 0)
+		{
+			ImwWindowManager* pWindowManager = ImwWindowManager::GetInstance();
+			JsonValue& oJsonWindows = oJson["Windows"];
+			int iCurrentWindow = 0;
+			for (ImwWindowList::const_iterator itWindow = m_lWindows.begin(); itWindow != m_lWindows.end(); ++itWindow)
+			{
+				JsonValue& oJsonWindow = oJsonWindows[iCurrentWindow];
+				oJsonWindow["Class"] = pWindowManager->GetWindowClassName(*itWindow);
+				(*itWindow)->GetParameters(oJsonWindow["Parameters"]);
+			}
+		}
+		else
+		{
+			JsonValue& oJsonSplits = oJson["Splits"];
+			m_pSplits[0]->Save(oJsonSplits[0]);
+			m_pSplits[1]->Save(oJsonSplits[1]);
+		}
+	}
+
+	bool ImwContainer::Load(const JsonValue& oJson, bool bJustCheck)
+	{
+		if (!oJson["Vertical"].IsBoolean() || !oJson["SplitRatio"].IsFloat())
+			return false;
+
+		if (!(oJson["Windows"].IsArray() || (oJson["Splits"].IsArray() && oJson["Splits"].GetMemberCount() == 2)))
+			return false;
+
+		if (!bJustCheck)
+		{
+			m_bVerticalSplit = oJson["Vertical"];
+			m_fSplitRatio = (double)oJson["SplitRatio"];
+
+			//Clear
+			while (m_lWindows.begin() != m_lWindows.end())
+			{
+				ImwWindowManager::GetInstance()->RemoveWindow(*m_lWindows.begin());
+				delete *m_lWindows.begin();
+				m_lWindows.erase(m_lWindows.begin());
+			}
+
+			ImwSafeDelete(m_pSplits[0]);
+			ImwSafeDelete(m_pSplits[1]);
+		}
+		
+		if (oJson["Splits"].IsArray())
+		{
+			if (!bJustCheck)
+			{
+				CreateSplits();
+				if (!m_pSplits[0]->Load(oJson["Splits"][0], bJustCheck) || !m_pSplits[1]->Load(oJson["Splits"][1], bJustCheck))
+					return false;
+			}
+			else
+			{
+				if (!Load(oJson["Splits"][0], bJustCheck) || !Load(oJson["Splits"][1], bJustCheck))
+					return false;
+			}
+		}
+		else
+		{
+			ImwWindowManager* pWindowManager = ImwWindowManager::GetInstance();
+
+			const JsonValue& oJsonWindows = oJson["Windows"];
+			int iWindowCount = oJsonWindows.GetMemberCount();
+			//Check
+			for (int iCurrent = 0; iCurrent < iWindowCount; ++iCurrent)
+			{
+				const JsonValue& oJsonWindow = oJsonWindows[iCurrent];
+				if (!oJsonWindow.IsObject() || !oJsonWindow["Class"].IsString())
+					return false;
+				if (!pWindowManager->CanCreateWindowByClassName(oJsonWindow["Class"]))
+					return false;
+			}
+
+			if (!bJustCheck)
+			{
+				for (int iCurrent = 0; iCurrent < iWindowCount; ++iCurrent)
+				{
+					const JsonValue& oJsonWindow = oJsonWindows[iCurrent];
+					ImwWindow* pWindow = pWindowManager->CreateWindowByClassName(oJsonWindow["Class"]);
+					pWindow->SetParameters(oJsonWindow["Parameters"]);
+					m_lWindows.push_back(pWindow);
+				}
+			}
+		}
+
+		return true;
+	}
+
 //SFF_END
 }

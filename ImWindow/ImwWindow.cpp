@@ -36,6 +36,14 @@ namespace ImWindow
 	{
 	}
 
+	void ImwWindow::GetParameters(JsonValue& oOutParameters)
+	{
+	}
+
+	void ImwWindow::SetParameters(const JsonValue& oParameters)
+	{
+	}
+
 	ImU32 ImwWindow::GetId() const
 	{
 		return m_iId;

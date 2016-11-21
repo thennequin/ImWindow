@@ -270,6 +270,125 @@ namespace ImWindow
 		return NULL;
 	}
 
+	void ImwWindowManager::SaveLayoutToString(ImwString& sLayout, bool bCompact)
+	{
+		JsonValue oJson;
+		oJson.InitType(JsonValue::E_TYPE_OBJECT);
+		
+		m_pMainPlatformWindow->Save(oJson["MainPlatformWindow"]);
+
+		JsonValue& oJsonPlatformWindows = oJson["PlatformWindows"];
+		int iCurrent = 0;
+		for (ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
+		{
+			(*it)->Save(oJsonPlatformWindows[iCurrent++]);
+		}
+
+		sLayout.clear();
+		oJson.WriteString(sLayout, bCompact);
+	}
+
+	bool ImwWindowManager::SaveLayoutToFile(const ImwChar* pFilePath, bool bCompact)
+	{
+		FILE* pFile = fopen(pFilePath, "w");
+		if (pFile != NULL)
+		{
+			ImwString sLayout;
+			SaveLayoutToString(sLayout, bCompact);
+			fwrite(sLayout.c_str(), 1, sLayout.size(), pFile);
+			fclose(pFile);
+			return true;
+		}
+		return false;
+	}
+
+	bool ImwWindowManager::LoadLayoutFromString(const ImwChar* pLayout)
+	{
+		JsonValue oJson;
+		if (oJson.ReadString(pLayout) == 0 && oJson.IsObject())
+		{
+			JsonValue& oJsonMainPlatformWindow = oJson["MainPlatformWindow"];
+			JsonValue& oJsonPlatformWindows = oJson["PlatformWindows"];
+
+			//Check layout integrity
+			if (!oJsonMainPlatformWindow.IsObject() || !m_pMainPlatformWindow->Load(oJsonMainPlatformWindow, true))
+				return false;
+
+			if (!oJsonPlatformWindows.IsArray() && !oJsonPlatformWindows.IsNull())
+				return false;
+
+			int iPlatformWindowCount = oJsonPlatformWindows.GetMemberCount();
+			for (int iCurrent = 0; iCurrent < iPlatformWindowCount; ++iCurrent)
+			{
+				JsonValue& oJsonPlatformWindow = oJsonPlatformWindows[iCurrent];
+				if (!oJsonPlatformWindow.IsObject() || !m_pMainPlatformWindow->Load(oJsonPlatformWindow, true))
+					return false;
+			}
+
+			//Load layout
+			if (!m_pMainPlatformWindow->Load(oJsonMainPlatformWindow, false))
+				return false; //Something wrong
+
+			while (m_lPlatformWindows.begin() != m_lPlatformWindows.end())
+			{
+				ImwPlatformWindow* pPlatformWindow = *m_lPlatformWindows.begin();
+				m_lPlatformWindows.remove(pPlatformWindow);
+				delete pPlatformWindow;
+			}
+
+			for (int iCurrent = 0; iCurrent < iPlatformWindowCount; ++iCurrent)
+			{
+				JsonValue& oJsonPlatformWindow = oJsonPlatformWindows[iCurrent];
+				ImwPlatformWindow* pNewPlatformWindow = CreatePlatformWindow(false, m_pMainPlatformWindow, false);
+				m_lPlatformWindows.push_back(pNewPlatformWindow);
+				pNewPlatformWindow->Show();
+				if (!pNewPlatformWindow->Load(oJsonPlatformWindow, false))
+					return false; //Something wrong
+			}
+
+			m_lOrphanWindows.clear();
+
+			return true;
+		}
+		return false;
+	}
+
+	bool ImwWindowManager::LoadLayoutFromFile(const ImwChar* pFilePath)
+	{
+		FILE* pFile = fopen(pFilePath, "r");
+		if (NULL != pFile)
+		{
+			fseek(pFile, 0, SEEK_END);
+			long iSize = ftell(pFile);
+			fseek(pFile, 0, SEEK_SET);
+
+			ImwChar* pString = new ImwChar[iSize / sizeof(ImwChar)];
+			fread(pString, 1, iSize, pFile);
+			fclose(pFile);
+
+			bool bReturn = LoadLayoutFromString(pString);
+
+			delete[] pString;
+			return bReturn;
+		}
+		return false;
+	}
+
+	ImwChar* ImwWindowManager::GetWindowClassName(ImwWindow* pWindow)
+	{
+		return NULL;
+	}
+
+	bool ImwWindowManager::CanCreateWindowByClassName(const ImwChar* pName)
+	{
+		return false;
+	}
+
+	ImwWindow* ImwWindowManager::CreateWindowByClassName(const ImwChar* pName)
+	{
+		return NULL;
+	}
+
 	bool ImwWindowManager::CanCreateMultipleWindow()
 	{
 		return false;
