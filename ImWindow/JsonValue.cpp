@@ -47,34 +47,40 @@ namespace ImWindow
 		
 	}
 
-	JsonValue::JsonValue(const JsonValue& oSource) : JsonValue()
+	JsonValue::JsonValue(const JsonValue& oSource)
 	{
+		JsonValue();
 		m_bConst = oSource.m_bConst;
 		*this = oSource;
 	}
 
-	JsonValue::JsonValue(bool bValue) : JsonValue()
+	JsonValue::JsonValue(bool bValue)
 	{
+		JsonValue();
 		*this = bValue;
 	}
 
-	JsonValue::JsonValue(const ImwString& sValue) : JsonValue()
+	JsonValue::JsonValue(const ImwString& sValue)
 	{
+		JsonValue();
 		*this = sValue;
 	}
 
-	JsonValue::JsonValue(const ImwChar* pValue) : JsonValue()
+	JsonValue::JsonValue(const ImwChar* pValue)
 	{
+		JsonValue();
 		*this = pValue;
 	}
 
-	JsonValue::JsonValue(long iValue) : JsonValue()
+	JsonValue::JsonValue(long iValue)
 	{
+		JsonValue();
 		*this = iValue;
 	}
 
-	JsonValue::JsonValue(double fValue) : JsonValue()
+	JsonValue::JsonValue(double fValue)
 	{
+		JsonValue();
 		*this = fValue;
 	}
 
@@ -279,7 +285,7 @@ namespace ImWindow
 				sOutJson += "\\\"";
 			else if (cChar == '\\')
 				sOutJson += "\\\\";
-			else if ((uint8_t)cChar < 0x80)
+			else if ((unsigned ImwChar)cChar < 0x80)
 				sOutJson += cChar;
 			else
 			{
@@ -288,17 +294,17 @@ namespace ImWindow
 
 				if ((iChar & 0xF0) == 0xF0) // 4 bytes
 				{
-					iChar = ((((uint8_t)*(pString)) & 0x07) << 18) + ((((uint8_t)*(pString + 1)) & 0x3F) << 12) + ((((uint8_t)*(pString + 2)) & 0x3F) << 6) + ((((uint8_t)*(pString + 3)) & 0x3F));
+					iChar = ((((unsigned ImwChar)*(pString)) & 0x07) << 18) + ((((unsigned ImwChar)*(pString + 1)) & 0x3F) << 12) + ((((unsigned ImwChar)*(pString + 2)) & 0x3F) << 6) + ((((unsigned ImwChar)*(pString + 3)) & 0x3F));
 					pString += 3;
 				}
 				else if ((iChar & 0xF0) == 0xE0) // 3 bytes
 				{
-					iChar = ((((uint8_t)*(pString)) & 0x0F) << 12) + ((((uint8_t)*(pString + 1)) & 0x3F) << 6) + ((((uint8_t)*(pString + 2)) & 0x3F));
+					iChar = ((((unsigned ImwChar)*(pString)) & 0x0F) << 12) + ((((unsigned ImwChar)*(pString + 1)) & 0x3F) << 6) + ((((unsigned ImwChar)*(pString + 2)) & 0x3F));
 					pString += 2;
 				}
 				else if ((iChar & 0xF0) == 0xC0) // 2 byte
 				{
-					iChar = ((((uint8_t)*(pString)) & 0x1F) << 6) + ((((uint8_t)*(pString + 1)) & 0x3F));
+					iChar = ((((unsigned ImwChar)*(pString)) & 0x1F) << 6) + ((((unsigned ImwChar)*(pString + 1)) & 0x3F));
 					pString += 1;
 				}
 				
