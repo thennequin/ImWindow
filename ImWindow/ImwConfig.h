@@ -16,6 +16,10 @@
 #define ImwMap std::map
 #endif // ImMap
 
+#ifndef ImwChar
+#define ImwChar char
+#endif // ImwChar
+
 #define ImwSafeDelete(pObj) { if (NULL != pObj) { delete pObj; pObj = NULL; } }
 #define ImwSafeRelease(pObj) { if (NULL != pObj) pObj->Release(); }
 #define ImwIsSafe(pObj) if (NULL != pObj) pObj
