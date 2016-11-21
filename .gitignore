@@ -35,3 +35,9 @@ Intermediate/
 *.vcproj
 *.vcxproj
 *.vcxproj.filters
+
+build/vs*/
+
+# SFF files
+ImWindow.cpp
+ImWindow.h
