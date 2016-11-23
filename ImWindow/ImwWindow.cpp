@@ -7,6 +7,10 @@ namespace ImWindow
 //SFF_BEGIN
 	int ImwWindow::s_iNextId = 0;
 
+#ifdef IMW_CUSTOM_IMPLEMENT_IMWWINDOW
+	IMW_CUSTOM_IMPLEMENT_IMWWINDOW
+#endif //IMW_CUSTOM_IMPLEMENT_IMWWINDOW
+
 	ImwWindow::ImwWindow()
 	{
 		m_pTitle = NULL;
