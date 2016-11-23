@@ -381,7 +381,7 @@ namespace ImWindow
 		return false;
 	}
 
-	ImwChar* ImwWindowManager::GetWindowClassName(ImwWindow* /*pWindow*/)
+	const ImwChar* ImwWindowManager::GetWindowClassName(ImwWindow* /*pWindow*/)
 	{
 		return NULL;
 	}

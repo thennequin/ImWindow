@@ -128,7 +128,7 @@ namespace ImWindow
 		bool								LoadLayoutFromString(const ImwChar* pLayout);
 		bool								LoadLayoutFromFile(const ImwChar* pFilePath);
 
-		virtual ImwChar*					GetWindowClassName(ImwWindow* pWindow);
+		virtual const ImwChar*				GetWindowClassName(ImwWindow* pWindow);
 		virtual bool						CanCreateWindowByClassName(const ImwChar* pName);
 		virtual ImwWindow*					CreateWindowByClassName(const ImwChar* pName);
 	protected:
