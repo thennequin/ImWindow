@@ -16,13 +16,24 @@ namespace ImWindow
 		m_bNeedRender = false;
 		m_bShowContent = true;
 
-		if (bCreateState)
+		if (bCreateState)
 		{
 			void* pTemp = ImGui::GetInternalState();
+
+			ImGuiIO& oCurrentIO = ImGui::GetIO();
 			m_pState = ImwMalloc(ImGui::GetInternalStateSize());
 			ImGui::SetInternalState(m_pState, true);
+			ImGuiIO& oNewIO = ImGui::GetIO();
+			memcpy(&((ImGuiState*)m_pState)->IO.KeyMap, &((ImGuiState*)pTemp)->IO.KeyMap, sizeof(int) * ImGuiKey_COUNT);
+			oNewIO.RenderDrawListsFn = oCurrentIO.RenderDrawListsFn;
+			oNewIO.GetClipboardTextFn = oCurrentIO.GetClipboardTextFn;
+			oNewIO.SetClipboardTextFn = oCurrentIO.SetClipboardTextFn;
+			oNewIO.MemAllocFn = oCurrentIO.MemAllocFn;
+			oNewIO.MemFreeFn = oCurrentIO.MemFreeFn;
+			oNewIO.ImeSetInputScreenPosFn = oCurrentIO.ImeSetInputScreenPosFn;
 			ImGui::GetIO().IniFilename = NULL;
-			ImGui::SetInternalState(pTemp);
+
+			ImGui::SetInternalState(pTemp);
 		}
 	}
 
