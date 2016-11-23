@@ -445,7 +445,7 @@ LRESULT ImwPlatformWindowDX11::OnMessage(UINT message, WPARAM wParam, LPARAM lPa
 
 				if (NULL == ImwWindowManager::GetInstance()->GetCurrentPlatformWindow())
 				{
-					Paint();
+					PaintContainer();
 				}
 			}
 			return 0;
