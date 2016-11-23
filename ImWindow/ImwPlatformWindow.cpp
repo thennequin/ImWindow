@@ -100,7 +100,7 @@ namespace ImWindow
 		ImwWindowManager::GetInstance()->OnClosePlatformWindow(this);
 	}
 
-	void ImwPlatformWindow::Save(JsonValue& oJson)
+	bool ImwPlatformWindow::Save(JsonValue& oJson)
 	{
 		oJson["Width"] = (long)GetSize().x;
 		oJson["Height"] = (long)GetSize().y;
@@ -108,7 +108,7 @@ namespace ImWindow
 		oJson["Top"] = (long)GetPosition().y;
 		oJson["Maximized"] = IsWindowMaximized();
 
-		m_pContainer->Save(oJson["Container"]);
+		return m_pContainer->Save(oJson["Container"]);
 	}
 
 	bool ImwPlatformWindow::Load(const JsonValue& oJson, bool bJustCheck)

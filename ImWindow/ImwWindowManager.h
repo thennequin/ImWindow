@@ -122,7 +122,7 @@ namespace ImWindow
 		bool								HasWantCaptureKeyboard() const { return m_bHasWantCaptureKeyboard; }
 		bool								HasWantCaptureMouse() const { return m_bHasWantCaptureMouse; }
 
-		void								SaveLayoutToString(ImwString& sLayout, bool bCompact = false);
+		bool								SaveLayoutToString(ImwString& sLayout, bool bCompact = false);
 		bool								SaveLayoutToFile(const ImwChar* pFilePath, bool bCompact = false);
 
 		bool								LoadLayoutFromString(const ImwChar* pLayout);
