@@ -16,7 +16,7 @@ configuration:
 install:
   - git clone https://github.com/bkaradzic/bx ..\bx
   - cd build
-  - ..\..\bx\tools\bin\windows\genie vs2015 sff
+  - ..\..\bx\tools\bin\windows\genie %TOOLSET% sff
 
 build:
   project: build/$(TOOLSET)/ImWindow.sln
