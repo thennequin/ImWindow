@@ -57,7 +57,7 @@ namespace ImWindow
 		void								PaintContainer();
 		void								OnClose();
 
-		void								Save(JsonValue& oJson);
+		bool								Save(JsonValue& oJson);
 		bool								Load(const JsonValue& oJson, bool bJustCheck);
 
 		bool								m_bMain;

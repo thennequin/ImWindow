@@ -18,6 +18,10 @@ namespace ImWindow
 		E_DOCK_ORIENTATION_BOTTOM,
 	};
 
+#ifdef IMW_CUSTOM_BEFORE_DECLARE_IMWWINDOW
+	IMW_CUSTOM_BEFORE_DECLARE_IMWWINDOW
+#endif //IMW_CUSTOM_BEFORE_DECLARE_IMWWINDOW
+
 #ifdef IMW_INHERITED_BY_IMWWINDOW
 	class IMGUI_API ImwWindow : public IMW_INHERITED_BY_IMWWINDOW
 #else
@@ -50,6 +54,9 @@ namespace ImWindow
 		const ImVec2&			GetLastPosition() const;
 		const ImVec2&			GetLastSize() const;
 
+#ifdef IMW_CUSTOM_DECLARE_IMWWINDOW
+		IMW_CUSTOM_DECLARE_IMWWINDOW
+#endif //IMW_CUSTOM_DECLARE_IMWWINDOW
 	protected:
 		ImwChar*				m_pTitle;
 		ImU32					m_iId;

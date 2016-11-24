@@ -1154,7 +1154,7 @@ namespace ImWindow
 		return false;
 	}
 
-	void ImwContainer::Save(JsonValue& oJson)
+	bool ImwContainer::Save(JsonValue& oJson)
 	{
 		oJson["Vertical"] = m_bVerticalSplit;
 		oJson["SplitRatio"] = m_fSplitRatio;
@@ -1167,15 +1167,18 @@ namespace ImWindow
 			for (ImwWindowList::const_iterator itWindow = m_lWindows.begin(); itWindow != m_lWindows.end(); ++itWindow)
 			{
 				JsonValue& oJsonWindow = oJsonWindows[iCurrentWindow];
-				oJsonWindow["Class"] = pWindowManager->GetWindowClassName(*itWindow);
+				const ImwChar* pClassName = pWindowManager->GetWindowClassName(*itWindow);
+				if (pClassName == NULL)
+					return false;
+				oJsonWindow["Class"] = pClassName;
 				(*itWindow)->GetParameters(oJsonWindow["Parameters"]);
 			}
+			return true;
 		}
 		else
 		{
 			JsonValue& oJsonSplits = oJson["Splits"];
-			m_pSplits[0]->Save(oJsonSplits[0]);
-			m_pSplits[1]->Save(oJsonSplits[1]);
+			return m_pSplits[0]->Save(oJsonSplits[0]) && m_pSplits[1]->Save(oJsonSplits[1]);
 		}
 	}
 
@@ -1190,7 +1193,7 @@ namespace ImWindow
 		if (!bJustCheck)
 		{
 			m_bVerticalSplit = oJson["Vertical"];
-			m_fSplitRatio = (double)oJson["SplitRatio"];
+			m_fSplitRatio = (float)(double)oJson["SplitRatio"];
 
 			//Clear
 			while (m_lWindows.begin() != m_lWindows.end())

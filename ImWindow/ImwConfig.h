@@ -36,6 +36,11 @@
 // Define IMW_INHERITED_BY_IMWWINDOW when you want ImwWindow inherit from one of your class
 //#define IMW_INHERITED_BY_IMWWINDOW MyInheritedClass
 
+// Define IMW_CUSTOM_DECLARE_IMWWINDOW and/or IMW_CUSTOM_IMPLEMENT_IMWWINDOW for custom declaration and implementation for ImwWindow
+//#define IMW_CUSTOM_BEFORE_DECLARE_IMWWINDOW 
+//#define IMW_CUSTOM_DECLARE_IMWWINDOW
+//#define IMW_CUSTOM_IMPLEMENT_IMWWINDOW
+
 //////////////////////////////////////////////////////////////////////////
 // Include here imgui.h
 //////////////////////////////////////////////////////////////////////////

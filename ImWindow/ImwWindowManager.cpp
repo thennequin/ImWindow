@@ -270,22 +270,26 @@ namespace ImWindow
 		return NULL;
 	}
 
-	void ImwWindowManager::SaveLayoutToString(ImwString& sLayout, bool bCompact)
+	bool ImwWindowManager::SaveLayoutToString(ImwString& sLayout, bool bCompact)
 	{
 		JsonValue oJson;
 		oJson.InitType(JsonValue::E_TYPE_OBJECT);
 		
-		m_pMainPlatformWindow->Save(oJson["MainPlatformWindow"]);
-
-		JsonValue& oJsonPlatformWindows = oJson["PlatformWindows"];
-		int iCurrent = 0;
-		for (ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
+		if ( m_pMainPlatformWindow->Save(oJson["MainPlatformWindow"]) )
 		{
-			(*it)->Save(oJsonPlatformWindows[iCurrent++]);
-		}
+			JsonValue& oJsonPlatformWindows = oJson["PlatformWindows"];
+			int iCurrent = 0;
+			for (ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
+			{
+				if ( !(*it)->Save(oJsonPlatformWindows[iCurrent++]) )
+					return false;
+			}
 
-		sLayout.clear();
-		oJson.WriteString(sLayout, bCompact);
+			sLayout.clear();
+			oJson.WriteString(sLayout, bCompact);
+			return true;
+		}
+		return false;
 	}
 
 	bool ImwWindowManager::SaveLayoutToFile(const ImwChar* pFilePath, bool bCompact)
@@ -294,10 +298,13 @@ namespace ImWindow
 		if (pFile != NULL)
 		{
 			ImwString sLayout;
-			SaveLayoutToString(sLayout, bCompact);
-			fwrite(sLayout.c_str(), 1, sLayout.size(), pFile);
+			bool bSaved = SaveLayoutToString(sLayout, bCompact);
+			if ( bSaved )
+			{
+				fwrite(sLayout.c_str(), 1, sLayout.size(), pFile);
+			}
 			fclose(pFile);
-			return true;
+			return bSaved;
 		}
 		return false;
 	}
@@ -374,17 +381,17 @@ namespace ImWindow
 		return false;
 	}
 
-	ImwChar* ImwWindowManager::GetWindowClassName(ImwWindow* pWindow)
+	const ImwChar* ImwWindowManager::GetWindowClassName(ImwWindow* /*pWindow*/)
 	{
 		return NULL;
 	}
 
-	bool ImwWindowManager::CanCreateWindowByClassName(const ImwChar* pName)
+	bool ImwWindowManager::CanCreateWindowByClassName(const ImwChar* /*pName*/)
 	{
 		return false;
 	}
 
-	ImwWindow* ImwWindowManager::CreateWindowByClassName(const ImwChar* pName)
+	ImwWindow* ImwWindowManager::CreateWindowByClassName(const ImwChar* /*pName*/)
 	{
 		return NULL;
 	}

@@ -30,7 +30,7 @@ namespace ImWindow
 		ImwSafeFree(m_pName);
 		if (pName != NULL)
 		{
-			int iSize = (strlen(pName) + 1) * sizeof(ImwChar);
+			size_t iSize = (strlen(pName) + 1) * sizeof(ImwChar);
 			m_pName = (ImwChar*)ImwMalloc(iSize);
 			memcpy(m_pName, pName, iSize);
 		}
@@ -47,34 +47,40 @@ namespace ImWindow
 		
 	}
 
-	JsonValue::JsonValue(const JsonValue& oSource) : JsonValue()
+	JsonValue::JsonValue(const JsonValue& oSource)
 	{
+		JsonValue();
 		m_bConst = oSource.m_bConst;
 		*this = oSource;
 	}
 
-	JsonValue::JsonValue(bool bValue) : JsonValue()
+	JsonValue::JsonValue(bool bValue)
 	{
+		JsonValue();
 		*this = bValue;
 	}
 
-	JsonValue::JsonValue(const ImwString& sValue) : JsonValue()
+	JsonValue::JsonValue(const ImwString& sValue)
 	{
+		JsonValue();
 		*this = sValue;
 	}
 
-	JsonValue::JsonValue(const ImwChar* pValue) : JsonValue()
+	JsonValue::JsonValue(const ImwChar* pValue)
 	{
+		JsonValue();
 		*this = pValue;
 	}
 
-	JsonValue::JsonValue(long iValue) : JsonValue()
+	JsonValue::JsonValue(long iValue)
 	{
+		JsonValue();
 		*this = iValue;
 	}
 
-	JsonValue::JsonValue(double fValue) : JsonValue()
+	JsonValue::JsonValue(double fValue)
 	{
+		JsonValue();
 		*this = fValue;
 	}
 
@@ -101,11 +107,13 @@ namespace ImWindow
 			{
 			case E_TYPE_OBJECT:
 			case E_TYPE_ARRAY:
-				m_pChild = NULL;
-				m_pChildLast = NULL;
+				m_oChilds.m_pFirst = NULL;
+				m_oChilds.m_pLast = NULL;
 				break;
 			case E_TYPE_STRING:
 				m_pString = NULL;
+				break;
+			default:
 				break;
 			}
 		}
@@ -118,19 +126,21 @@ namespace ImWindow
 		case E_TYPE_OBJECT:
 		case E_TYPE_ARRAY:
 		{
-			JsonValue* pChild = m_pChild;
+			JsonValue* pChild = m_oChilds.m_pFirst;
 			while (pChild != NULL)
 			{
 				JsonValue* pTemp = pChild->m_pNext;
 				delete pChild;
 				pChild = pTemp;
 			}
-			m_pChild = NULL;
-			m_pChildLast = NULL;
+			m_oChilds.m_pFirst = NULL;
+			m_oChilds.m_pLast = NULL;
 		}
 		break;
 		case E_TYPE_STRING:
 			ImwSafeFree(m_pString);
+			break;
+		default:
 			break;
 		}
 		m_eType = E_TYPE_INVALID;
@@ -155,7 +165,7 @@ namespace ImWindow
 			ImwString sIndent2(iIndent + 1, '\t');
 			sOutJson += "{";
 			//JsonMembers& oMembers = *m_pObject;
-			JsonValue* pChild = m_pChild;
+			JsonValue* pChild = m_oChilds.m_pFirst;
 			bool bFirst = true;
 			//for (JsonMembers::iterator it = oMembers.begin(), itEnd = oMembers.end(); it != itEnd; ++it)
 			while (pChild != NULL)
@@ -194,7 +204,7 @@ namespace ImWindow
 			ImwString sIndent2(iIndent + 1, '\t');
 			sOutJson += "[";
 			//JsonArray& oArray = *m_pArray;
-			JsonValue* pChild = m_pChild;
+			JsonValue* pChild = m_oChilds.m_pFirst;
 			bool bFirst = true;
 			//for (JsonArray::iterator it = oArray.begin(), itEnd = oArray.end(); it != itEnd; ++it)
 			while (pChild != NULL)
@@ -279,7 +289,7 @@ namespace ImWindow
 				sOutJson += "\\\"";
 			else if (cChar == '\\')
 				sOutJson += "\\\\";
-			else if ((uint8_t)cChar < 0x80)
+			else if ((unsigned ImwChar)cChar < 0x80)
 				sOutJson += cChar;
 			else
 			{
@@ -288,17 +298,17 @@ namespace ImWindow
 
 				if ((iChar & 0xF0) == 0xF0) // 4 bytes
 				{
-					iChar = ((((uint8_t)*(pString)) & 0x07) << 18) + ((((uint8_t)*(pString + 1)) & 0x3F) << 12) + ((((uint8_t)*(pString + 2)) & 0x3F) << 6) + ((((uint8_t)*(pString + 3)) & 0x3F));
+					iChar = ((((unsigned ImwChar)*(pString)) & 0x07) << 18) + ((((unsigned ImwChar)*(pString + 1)) & 0x3F) << 12) + ((((unsigned ImwChar)*(pString + 2)) & 0x3F) << 6) + ((((unsigned ImwChar)*(pString + 3)) & 0x3F));
 					pString += 3;
 				}
 				else if ((iChar & 0xF0) == 0xE0) // 3 bytes
 				{
-					iChar = ((((uint8_t)*(pString)) & 0x0F) << 12) + ((((uint8_t)*(pString + 1)) & 0x3F) << 6) + ((((uint8_t)*(pString + 2)) & 0x3F));
+					iChar = ((((unsigned ImwChar)*(pString)) & 0x0F) << 12) + ((((unsigned ImwChar)*(pString + 1)) & 0x3F) << 6) + ((((unsigned ImwChar)*(pString + 2)) & 0x3F));
 					pString += 2;
 				}
 				else if ((iChar & 0xF0) == 0xC0) // 2 byte
 				{
-					iChar = ((((uint8_t)*(pString)) & 0x1F) << 6) + ((((uint8_t)*(pString + 1)) & 0x3F));
+					iChar = ((((unsigned ImwChar)*(pString)) & 0x1F) << 6) + ((((unsigned ImwChar)*(pString + 1)) & 0x3F));
 					pString += 1;
 				}
 				
@@ -329,7 +339,7 @@ namespace ImWindow
 		if (NULL != pFile)
 		{
 			ImwString sJson;
-			WriteString(sJson);
+			WriteString(sJson, bCompact);
 			bool bRet = fwrite(sJson.c_str(), sizeof(ImwChar), sJson.length(), pFile) == (sizeof(ImwChar) * sJson.length());
 			fclose(pFile);
 			return bRet;
@@ -337,12 +347,12 @@ namespace ImWindow
 		return false;
 	}
 
-	size_t JsonValue::GetMemberCount() const
+	int JsonValue::GetMemberCount() const
 	{
 		int iCount = 0;
 		if (m_eType == E_TYPE_OBJECT || m_eType == E_TYPE_ARRAY)
 		{
-			JsonValue* pChild = m_pChild;
+			JsonValue* pChild = m_oChilds.m_pFirst;
 			while (pChild != NULL)
 			{
 				++iCount;
@@ -357,7 +367,7 @@ namespace ImWindow
 	{
 		if (m_eType == E_TYPE_OBJECT)
 		{
-			JsonValue* pChild = m_pChild;
+			JsonValue* pChild = m_oChilds.m_pFirst;
 			while (pChild != NULL)
 			{
 				if (strcmp(pChild->m_pName, pName) == 0)
@@ -376,7 +386,7 @@ namespace ImWindow
 			InitType(E_TYPE_OBJECT);
 		if (m_eType == E_TYPE_OBJECT)
 		{
-			JsonValue* pChild = m_pChild;
+			JsonValue* pChild = m_oChilds.m_pFirst;
 			while (pChild != NULL)
 			{
 				if (strcmp(pChild->m_pName, pName) == 0)
@@ -390,12 +400,12 @@ namespace ImWindow
 				JsonValue* pNewMember = new JsonValue();
 				pNewMember->m_pName = strdup(pName);
 				
-				if (NULL != m_pChildLast)
-					m_pChildLast->m_pNext = pNewMember;
+				if (NULL != m_oChilds.m_pLast)
+					m_oChilds.m_pLast->m_pNext = pNewMember;
 				else
-					m_pChild = pNewMember;
+					m_oChilds.m_pFirst = pNewMember;
 
-				m_pChildLast = pNewMember;
+				m_oChilds.m_pLast = pNewMember;
 				return *pNewMember;
 			}
 		}
@@ -406,7 +416,7 @@ namespace ImWindow
 	{
 		if (m_eType == E_TYPE_OBJECT || m_eType == E_TYPE_ARRAY)
 		{
-			JsonValue* pChild = m_pChild;
+			JsonValue* pChild = m_oChilds.m_pFirst;
 			int iCurrent = 0;
 			while (pChild != NULL)
 			{
@@ -424,7 +434,7 @@ namespace ImWindow
 			InitType(E_TYPE_ARRAY);
 		if (m_eType == E_TYPE_OBJECT || m_eType == E_TYPE_ARRAY)
 		{
-			JsonValue* pChild = m_pChild;
+			JsonValue* pChild = m_oChilds.m_pFirst;
 			int iCurrent = 0;
 			while (pChild != NULL)
 			{
@@ -440,15 +450,15 @@ namespace ImWindow
 				{
 					JsonValue* pNewChild = new JsonValue();
 
-					if (NULL != m_pChildLast)
-						m_pChildLast->m_pNext = pNewChild;
+					if (NULL != m_oChilds.m_pLast)
+						m_oChilds.m_pLast->m_pNext = pNewChild;
 					else
-						m_pChild = pNewChild;
+						m_oChilds.m_pFirst = pNewChild;
 
-					m_pChildLast = pNewChild;
+					m_oChilds.m_pLast = pNewChild;
 				}
 				while (iCurrent++ != iIndex);
-				return *m_pChildLast;
+				return *m_oChilds.m_pLast;
 			}
 		}
 		return JsonValue::INVALID;
@@ -465,16 +475,16 @@ namespace ImWindow
 		{
 			InitType(oValue.m_eType);
 			
-			JsonValue* pSourceChild = oValue.m_pChild;;
+			JsonValue* pSourceChild = oValue.m_oChilds.m_pFirst;;
 			while (pSourceChild != NULL)
 			{
 				JsonValue* pNewChild = new JsonValue(*pSourceChild);
-				if (NULL != m_pChildLast)
-					m_pChildLast->m_pNext = pNewChild;
+				if (NULL != m_oChilds.m_pLast)
+					m_oChilds.m_pLast->m_pNext = pNewChild;
 				else
-					m_pChild = pNewChild;
+					m_oChilds.m_pFirst = pNewChild;
 
-				m_pChildLast = pNewChild;
+				m_oChilds.m_pLast = pNewChild;
 
 				pSourceChild = pSourceChild->m_pNext;
 			}
@@ -561,12 +571,12 @@ namespace ImWindow
 		{
 			JsonValue* pNewValue = new JsonValue(oValue);
 			
-			if (NULL != m_pChildLast)
-				m_pChildLast->m_pNext = pNewValue;
+			if (NULL != m_oChilds.m_pLast)
+				m_oChilds.m_pLast->m_pNext = pNewValue;
 			else
-				m_pChild = pNewValue;
+				m_oChilds.m_pFirst = pNewValue;
 			
-			m_pChildLast = pNewValue;
+			m_oChilds.m_pLast = pNewValue;
 		}
 		else if (m_eType == E_TYPE_STRING)
 		{
@@ -658,25 +668,25 @@ namespace ImWindow
 			}
 			if (iChar < 0x0080)
 			{
-				oTempBuffer += iChar;
+				oTempBuffer += (ImwChar)iChar;
 			}
 			else if (iChar >= 0x80 && iChar < 0x800)
 			{
-				oTempBuffer += 0xC0 | (iChar >> 6);
-				oTempBuffer += 0x80 | (iChar & 0x3F);
+				oTempBuffer += (ImwChar)(0xC0 | (iChar >> 6));
+				oTempBuffer += (ImwChar)(0x80 | (iChar & 0x3F));
 			}
 			else if (iChar >= 0x800 && iChar < 0x7FFF)
 			{
-				oTempBuffer += 0xE0 | (iChar >> 12);
-				oTempBuffer += 0x80 | ((iChar >> 6) & 0x3F);
-				oTempBuffer += 0x80 | (iChar & 0x3F);
+				oTempBuffer += (ImwChar)(0xE0 | (iChar >> 12));
+				oTempBuffer += (ImwChar)(0x80 | ((iChar >> 6) & 0x3F));
+				oTempBuffer += (ImwChar)(0x80 | (iChar & 0x3F));
 			}
 			else if (iChar >= 0x8000 && iChar < 0x7FFFF)
 			{
-				oTempBuffer += 0xF0 | (iChar >> 18);
-				oTempBuffer += 0xE0 | ((iChar >> 12) & 0x3F);
-				oTempBuffer += 0x80 | ((iChar >> 6) & 0x3F);
-				oTempBuffer += 0x80 | (iChar & 0x3F);
+				oTempBuffer += (ImwChar)(0xF0 | (iChar >> 18));
+				oTempBuffer += (ImwChar)(0xE0 | ((iChar >> 12) & 0x3F));
+				oTempBuffer += (ImwChar)(0x80 | ((iChar >> 6) & 0x3F));
+				oTempBuffer += (ImwChar)(0x80 | (iChar & 0x3F));
 			}
 			else
 			{
@@ -736,7 +746,6 @@ namespace ImWindow
 	bool JsonValue::ReadNumericValue(const ImwChar*& pString, JsonValue& oValue)
 	{
 		bool bNeg = false;
-		bool bHasSeparator = false;
 		long lValue = 0;
 		if (*pString == '-')
 		{
@@ -823,15 +832,15 @@ namespace ImWindow
 				return false;
 			}
 
-			if (oValue.m_pChild == NULL)
+			if (oValue.m_oChilds.m_pFirst == NULL)
 			{
-				oValue.m_pChild = pNewMember;
+				oValue.m_oChilds.m_pFirst = pNewMember;
 			}
 			else
 			{
-				oValue.m_pChildLast->m_pNext = pNewMember;
+				oValue.m_oChilds.m_pLast->m_pNext = pNewMember;
 			}
-			oValue.m_pChildLast = pNewMember;
+			oValue.m_oChilds.m_pLast = pNewMember;
 
 			SkipSpaces(pString);
 
@@ -864,15 +873,15 @@ namespace ImWindow
 				return false;
 			}
 
-			if (oValue.m_pChild == NULL)
+			if (oValue.m_oChilds.m_pFirst == NULL)
 			{
-				oValue.m_pChild = pNewValue;
+				oValue.m_oChilds.m_pFirst = pNewValue;
 			}
 			else
 			{
-				oValue.m_pChildLast->m_pNext = pNewValue;
+				oValue.m_oChilds.m_pLast->m_pNext = pNewValue;
 			}
-			oValue.m_pChildLast = pNewValue;
+			oValue.m_oChilds.m_pLast = pNewValue;
 
 			SkipSpaces(pString);
 

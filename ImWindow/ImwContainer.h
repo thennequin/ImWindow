@@ -44,7 +44,7 @@ namespace ImWindow
 		float							GetTabWidth(const ImwChar* pText, float fMaxSize, ImVec2* pOutTextSize = NULL);
 		float							GetTabAreaWidth() const;
 
-		void							Save(JsonValue& oJson);
+		bool							Save(JsonValue& oJson);
 		bool							Load(const JsonValue& oJson, bool bJustCheck);
 
 		ImwContainer*					m_pParent;
