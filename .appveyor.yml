@@ -15,6 +15,7 @@ configuration:
 
 install:
   - git clone https://github.com/bkaradzic/bx ..\bx
+  - git submodule update --init --recursive
   - cd build
   - ..\..\bx\tools\bin\windows\genie %TOOLSET% sff
 
