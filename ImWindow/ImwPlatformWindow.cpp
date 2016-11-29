@@ -178,6 +178,16 @@ namespace ImWindow
 		{
 			ImGuiState& g = *((ImGuiState*)m_pState);
 			g.SetNextWindowPosCond = g.SetNextWindowSizeCond = g.SetNextWindowContentSizeCond = g.SetNextWindowCollapsedCond = g.SetNextWindowFocus = 0;
+
+			for (int i = 0; i < 512; ++i)
+				g.IO.KeysDown[i] = false;
+
+			for (int i = 0; i < 5; ++i)
+				g.IO.MouseDown[i] = false;
+
+			g.IO.KeyAlt = false;
+			g.IO.KeyCtrl = false;
+			g.IO.KeyShift = false;
 		}
 	}
 
