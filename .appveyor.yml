@@ -1,0 +1,21 @@
+os:
+  - Visual Studio 2015
+
+environment:
+  matrix:
+  - TOOLSET: vs2012
+  - TOOLSET: vs2013
+  - TOOLSET: vs2015
+
+configuration:
+  - Debug
+  - Release
+
+install:
+  - git clone https://github.com/bkaradzic/bx ..\bx
+  - git submodule update --init --recursive
+  - cd build
+  - ..\..\bx\tools\bin\windows\genie %TOOLSET% sff
+
+build:
+  project: build/$(TOOLSET)/ImWindow.sln

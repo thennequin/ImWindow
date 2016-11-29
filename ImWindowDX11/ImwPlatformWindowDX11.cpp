@@ -3,6 +3,9 @@
 #include "ImwWindowManager.h"
 
 #include <DxErr.h>
+#include <Windows.h>
+#include <stdio.h>
+int (WINAPIV * __vsnprintf)(char *, size_t, const char*, va_list) = _vsnprintf;
 
 #include "Win32MessageHelper.h">
 
