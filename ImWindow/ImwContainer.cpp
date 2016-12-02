@@ -1166,7 +1166,7 @@ namespace ImWindow
 			int iCurrentWindow = 0;
 			for (ImwWindowList::const_iterator itWindow = m_lWindows.begin(); itWindow != m_lWindows.end(); ++itWindow)
 			{
-				JsonValue& oJsonWindow = oJsonWindows[iCurrentWindow];
+				JsonValue& oJsonWindow = oJsonWindows[iCurrentWindow++];
 				const ImwChar* pClassName = pWindowManager->GetWindowClassName(*itWindow);
 				if (pClassName == NULL)
 					return false;
