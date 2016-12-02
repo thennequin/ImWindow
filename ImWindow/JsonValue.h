@@ -7,7 +7,7 @@
 namespace ImWindow
 {
 //SFF_BEGIN
-	class JsonValue
+	class IMGUI_API JsonValue
 	{
 	protected:
 
