@@ -398,7 +398,7 @@ namespace ImWindow
 			if (!m_bConst)
 			{
 				JsonValue* pNewMember = new JsonValue();
-				pNewMember->m_pName = strdup(pName);
+				pNewMember->m_pName = ImStrdup(pName);
 				
 				if (NULL != m_oChilds.m_pLast)
 					m_oChilds.m_pLast->m_pNext = pNewMember;
@@ -468,7 +468,7 @@ namespace ImWindow
 	{
 		if (oValue.m_pName != NULL)
 		{
-			m_pName = strdup(oValue.m_pName);
+			m_pName = ImStrdup(oValue.m_pName);
 		}
 
 		if (oValue.m_eType == E_TYPE_OBJECT || oValue.m_eType == E_TYPE_ARRAY)
