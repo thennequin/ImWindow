@@ -18,13 +18,12 @@ namespace ImWindow
 
 		if (bCreateState)
 		{
-			void* pTemp = ImGui::GetInternalState();
-
+			void* pTemp = ImGui::GetCurrentContext();
+
 			ImGuiIO& oCurrentIO = ImGui::GetIO();
-			m_pState = ImwMalloc(ImGui::GetInternalStateSize());
-			ImGui::SetInternalState(m_pState, true);
+			m_pState = ImGui::CreateContext();			ImGui::SetCurrentContext(static_cast<ImGuiContext*>(m_pState));
 			ImGuiIO& oNewIO = ImGui::GetIO();
-			memcpy(&((ImGuiState*)m_pState)->IO.KeyMap, &((ImGuiState*)pTemp)->IO.KeyMap, sizeof(int) * ImGuiKey_COUNT);
+			memcpy(&((ImGuiContext*)m_pState)->IO.KeyMap, &((ImGuiContext*)pTemp)->IO.KeyMap, sizeof(int) * ImGuiKey_COUNT);
 			oNewIO.RenderDrawListsFn = oCurrentIO.RenderDrawListsFn;
 			oNewIO.GetClipboardTextFn = oCurrentIO.GetClipboardTextFn;
 			oNewIO.SetClipboardTextFn = oCurrentIO.SetClipboardTextFn;
@@ -33,7 +32,7 @@ namespace ImWindow
 			oNewIO.ImeSetInputScreenPosFn = oCurrentIO.ImeSetInputScreenPosFn;
 			ImGui::GetIO().IniFilename = NULL;
 
-			ImGui::SetInternalState(pTemp);
+			ImGui::SetCurrentContext((static_cast<ImGuiContext*>(pTemp)));
 		}
 	}
 
@@ -155,9 +154,9 @@ namespace ImWindow
 		s_bStatePush = true;
 		if (m_pState != NULL)
 		{
-			m_pPreviousState = ImGui::GetInternalState();
-			ImGui::SetInternalState(m_pState);
-			memcpy(&((ImGuiState*)m_pState)->Style, &((ImGuiState*)m_pPreviousState)->Style, sizeof(ImGuiStyle));
+			m_pPreviousState = ImGui::GetCurrentContext();
+			ImGui::SetCurrentContext(static_cast<ImGuiContext*>(m_pState));
+			memcpy(&((ImGuiContext*)m_pState)->Style, &((ImGuiContext*)m_pPreviousState)->Style, sizeof(ImGuiStyle));
 		}
 	}
 
@@ -167,8 +166,8 @@ namespace ImWindow
 		s_bStatePush = false;
 		if (m_pState != NULL)
 		{
-			memcpy(&((ImGuiState*)m_pPreviousState)->Style, &((ImGuiState*)m_pState)->Style, sizeof(ImGuiStyle));
-			ImGui::SetInternalState(m_pPreviousState);
+			memcpy(&((ImGuiContext*)m_pPreviousState)->Style, &((ImGuiContext*)m_pState)->Style, sizeof(ImGuiStyle));
+			ImGui::SetCurrentContext(static_cast<ImGuiContext*>(m_pPreviousState));
 		}
 	}
 
@@ -176,7 +175,7 @@ namespace ImWindow
 	{
 		if (NULL != m_pState)
 		{
-			ImGuiState& g = *((ImGuiState*)m_pState);
+			ImGuiContext& g = *((ImGuiContext*)m_pState);
 			g.SetNextWindowPosCond = g.SetNextWindowSizeCond = g.SetNextWindowContentSizeCond = g.SetNextWindowCollapsedCond = g.SetNextWindowFocus = 0;
 
 			for (int i = 0; i < 512; ++i)
