@@ -673,7 +673,7 @@ namespace ImWindow
 		pWindow->SetState();
 
 		ImGui::GetIO().DisplaySize = pWindow->GetSize();
-		ImGuiState* pState = (ImGuiState*)ImGui::GetInternalState();
+		ImGuiContext* pState = (ImGuiContext*)ImGui::GetCurrentContext();
 		if (pState->FrameCountEnded >= pState->FrameCount || !pState->Initialized)
 			ImGui::NewFrame();
 
@@ -868,7 +868,7 @@ namespace ImWindow
 				pAction->m_oSize = ImVec2(pWindow->GetLastSize().x, pWindow->GetLastSize().y);
 				m_lPlatformWindowActions.push_back(pAction);
 				Dock(pWindow, E_DOCK_ORIENTATION_CENTER, 0.5f, m_pDragPlatformWindow);
-				((ImGuiState*)m_pDragPlatformWindow->m_pState)->IO.MouseDown[0] = true;
+				((ImGuiContext*)m_pDragPlatformWindow->m_pState)->IO.MouseDown[0] = true;
 			}
 			else
 			{
