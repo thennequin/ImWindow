@@ -104,22 +104,22 @@ solution "ImWindow"
 							"../ImWindow.cpp",
 							"../ImWindow.h",
 							"../ImWindow/ImwConfig.h",
-							"../Externals/ImGui/imgui/imconfig.h",
-							"../Externals/ImGui/imgui/imgui.h",
-							"../Externals/ImGui/imgui/imgui_internal.h",
-							"../Externals/ImGui/imgui/imgui.cpp",
-							"../Externals/ImGui/imgui/imgui_draw.cpp",
-							"../Externals/ImGui/imgui/SFF_rect_pack.h",
-							"../Externals/ImGui/imgui/SFF_textedit.h",
-							"../Externals/ImGui/imgui/SFF_truetype.h",
+							"../Externals/imgui/imconfig.h",
+							"../Externals/imgui/imgui.h",
+							"../Externals/imgui/imgui_internal.h",
+							"../Externals/imgui/imgui.cpp",
+							"../Externals/imgui/imgui_draw.cpp",
+							"../Externals/imgui/SFF_rect_pack.h",
+							"../Externals/imgui/SFF_textedit.h",
+							"../Externals/imgui/SFF_truetype.h",
 			}
 			
 			vpaths {
-							["ImGui"] = "../Externals/ImGui/imgui/**"
+							["ImGui"] = "../Externals/imgui/**"
 			}
 			
 			includedirs {
-							"../Externals/ImGui",
+							"../Externals/imgui",
 							"../ImWindow/"
 			}
 	end
@@ -132,22 +132,22 @@ solution "ImWindow"
 		files {
 							"../ImWindow/**.cpp",
 							"../ImWindow/**.h",
-							"../Externals/ImGui/imgui/imconfig.h",
-							"../Externals/ImGui/imgui/imgui.h",
-							"../Externals/ImGui/imgui/imgui_internal.h",
-							"../Externals/ImGui/imgui/imgui.cpp",
-							"../Externals/ImGui/imgui/imgui_draw.cpp",
-							"../Externals/ImGui/imgui/SFF_rect_pack.h",
-							"../Externals/ImGui/imgui/SFF_textedit.h",
-							"../Externals/ImGui/imgui/SFF_truetype.h",
+							"../Externals/imgui/imconfig.h",
+							"../Externals/imgui/imgui.h",
+							"../Externals/imgui/imgui_internal.h",
+							"../Externals/imgui/imgui.cpp",
+							"../Externals/imgui/imgui_draw.cpp",
+							"../Externals/imgui/SFF_rect_pack.h",
+							"../Externals/imgui/SFF_textedit.h",
+							"../Externals/imgui/SFF_truetype.h",
 		}
 		
 		vpaths {
-							["ImGui"] = "../Externals/ImGui/imgui/**"
+							["ImGui"] = "../Externals/imgui/**"
 		}
 		
 		includedirs {
-							"../Externals/ImGui",
+							"../Externals/imgui",
 							"../ImWindow/"
 		}
 		
@@ -168,14 +168,13 @@ solution "ImWindow"
 		files {
 							"../ImWindowDX11/**.cpp",
 							"../ImWindowDX11/**.h",
-							"../Externals/ImGui/imgui/examples/directx11_example/imgui_impl_dx11.cpp"
+							"../Externals/imgui/examples/directx11_example/imgui_impl_dx11.cpp"
 		}	
 		
 		includedirs {
 							"../ImWindow",
-							"../Externals/ImGui",
-							"../Externals/ImGui/imgui",
-							"../Externals/ImGui/imgui/examples/directx11_example",
+							"../Externals/imgui",
+							"../Externals/imgui/examples/directx11_example",
 							"../Externals/DirectX/include"
 		}
 		

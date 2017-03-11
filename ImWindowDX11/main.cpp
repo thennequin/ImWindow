@@ -4,7 +4,7 @@
 #include <crtdbg.h>
 
 #include "ImwWindowManagerDX11.h"
-#include "ImGui/imgui.h"
+#include "imgui.h"
 
 #include "NodeWindow.h"
 
