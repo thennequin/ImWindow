@@ -445,11 +445,6 @@ LRESULT ImwPlatformWindowDX11::OnMessage(UINT message, WPARAM wParam, LPARAM lPa
 				vp.TopLeftX = 0;
 				vp.TopLeftY = 0;
 				s_pDeviceContext->RSSetViewports(1, &vp);
-
-				if (NULL == ImwWindowManager::GetInstance()->GetCurrentPlatformWindow())
-				{
-					PaintContainer();
-				}
 			}
 			return 0;
 		}
