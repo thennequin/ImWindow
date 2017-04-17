@@ -51,6 +51,9 @@ namespace ImWindow
 		void					SetClosable( bool bClosable );
 		bool					IsClosable() const;
 
+		void					SetAlone( bool bAlone );
+		bool					IsAlone() const;
+
 		const ImVec2&			GetLastPosition() const;
 		const ImVec2&			GetLastSize() const;
 
@@ -62,7 +65,7 @@ namespace ImWindow
 		ImU32					m_iId;
 		ImwChar					m_pId[11];
 		bool					m_bClosable;
-
+		bool					m_bAlone;
 		ImVec2					m_oLastPosition;
 		ImVec2					m_oLastSize;
 

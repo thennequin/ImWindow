@@ -15,6 +15,7 @@ namespace ImWindow
 	{
 		m_pTitle = NULL;
 		m_bClosable  = true;
+		m_bAlone = false;
 		m_iId = s_iNextId++;
 	
 		//Write Id to string
@@ -87,6 +88,16 @@ namespace ImWindow
 	bool ImwWindow::IsClosable() const
 	{
 		return m_bClosable;
+	}
+
+	void ImwWindow::SetAlone(bool bAlone)
+	{
+		m_bAlone = bAlone;
+	}
+
+	bool ImwWindow::IsAlone() const
+	{
+		return m_bAlone;
 	}
 
 	const ImVec2& ImwWindow::GetLastPosition() const

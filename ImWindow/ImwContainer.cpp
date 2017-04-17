@@ -509,249 +509,260 @@ namespace ImWindow
 		{
 			pWindowManager->PopStyle();
 
-			ImVec2 oItemSpacing = ImGui::GetStyle().ItemSpacing;
-			ImGui::GetStyle().ItemSpacing = ImVec2(oItemSpacing.x, 0.f);
-
-			ImGui::InvisibleButton("TabListButton", ImVec2(16, 16));
-			ImGui::SameLine();
-
-			if (ImGui::BeginPopupContextItem("TabListMenu", 0))
+			bool bAlone = m_lWindows.front()->IsAlone();
+			ImwWindow* pActiveWindow = NULL;
+			if (!bAlone)
 			{
+				ImVec2 oItemSpacing = ImGui::GetStyle().ItemSpacing;
+				ImGui::GetStyle().ItemSpacing = ImVec2(oItemSpacing.x, 0.f);
+
+				ImGui::InvisibleButton("TabListButton", ImVec2(16, 16));
+				ImGui::SameLine();
+
+				if (ImGui::BeginPopupContextItem("TabListMenu", 0))
+				{
+					int iIndex = 0;
+					for (ImwWindowList::const_iterator itWindow = m_lWindows.begin(); itWindow != m_lWindows.end(); ++itWindow, ++iIndex)
+					{
+						if (ImGui::Selectable((*itWindow)->GetTitle()))
+						{
+							m_iActiveWindow = iIndex;
+						}
+					}
+					ImGui::EndPopup();
+				}
+
+				ImColor oLinesColor = ImColor(160, 160, 160, 255);
+				if (ImGui::IsItemHovered())
+				{
+					oLinesColor = ImColor(255, 255, 255, 255);
+				}
+				ImVec2 oButtonMin = ImGui::GetItemRectMin();
+				ImVec2 oButtonMax = ImGui::GetItemRectMax();
+				ImVec2 oButtonSize = ImVec2(oButtonMax.x - oButtonMin.x, oButtonMax.y - oButtonMin.y);
+				pDrawList->AddLine(
+					ImVec2(oButtonMin.x + 1, oButtonMin.y + oButtonSize.y / 2),
+					ImVec2(oButtonMax.x - 1, oButtonMin.y + oButtonSize.y / 2),
+					oLinesColor);
+
+				pDrawList->AddLine(
+					ImVec2(oButtonMin.x + 1, oButtonMin.y + oButtonSize.y / 2 - 4),
+					ImVec2(oButtonMax.x - 1, oButtonMin.y + oButtonSize.y / 2 - 4),
+					oLinesColor);
+
+				pDrawList->AddLine(
+					ImVec2(oButtonMin.x + 1, oButtonMin.y + oButtonSize.y / 2 + 4),
+					ImVec2(oButtonMax.x - 1, oButtonMin.y + oButtonSize.y / 2 + 4),
+					oLinesColor);
+
+				pDrawList->ChannelsSplit(2);
+
+				//Tabs
+
+				int iSize = (int)m_lWindows.size();
+				float fMaxTabSize = GetTabAreaWidth() / iSize;
+				ImwWindow* pDraggedWindow = ImwWindowManager::GetInstance()->GetDraggedWindow();
+				float fDraggedTabWidth = 0.f;
+				int iDraggedTabPosition = 0;
+				if (pDraggedWindow != NULL)
+				{
+					if (ImwWindowManager::GetInstance()->GetDragBestContainer() == this &&
+						ImwWindowManager::GetInstance()->GetDragOnTabArea())
+					{
+						iDraggedTabPosition = ImwWindowManager::GetInstance()->GetDragTabPosition();
+						fMaxTabSize = GetTabAreaWidth() / (iSize + 1);
+						//Tab(pDraggedWindow, true, oMin.x, oMax.x, fMaxTabSize);
+						ImGuiWindow* window = ImGui::GetCurrentWindow();
+						ImVec2 oTabSize;
+						float fMin = window->DC.CursorPos.x;
+						float fMax = fMin + m_oLastSize.x - fMaxTabSize;
+
+						float fTabPosX = oCursorPos.x + ImwWindowManager::GetInstance()->GetDragOffset().x;
+
+						if (fTabPosX < fMin) fTabPosX = fMin;
+						if (fTabPosX > fMax) fTabPosX = fMax;
+
+						ImVec2 oDraggedTabPos = ImVec2(fTabPosX, window->DC.CursorPos.y);
+						DrawTab(pDraggedWindow->GetTitle(), true, oDraggedTabPos, oMin.x, oMax.x, fMaxTabSize, &oTabSize);
+						fDraggedTabWidth = oTabSize.x;
+					}
+					else
+					{
+						pDraggedWindow = NULL;
+					}
+				}
+
+				bool bCanCreateMultipleWindow = ImwWindowManager::GetInstance()->CanCreateMultipleWindow();
+
 				int iIndex = 0;
-				for (ImwWindowList::const_iterator itWindow = m_lWindows.begin(); itWindow != m_lWindows.end(); ++itWindow, ++iIndex)
+				int iNewActive = -1;
+				bool bFirstTab = true;
+				ImVec2 oFirstTabPos;
+				for (ImwWindowList::iterator it = m_lWindows.begin(); it != m_lWindows.end(); ++it)
 				{
-					if (ImGui::Selectable((*itWindow)->GetTitle()))
+					if (pDraggedWindow != NULL && iDraggedTabPosition == iIndex)
 					{
-						m_iActiveWindow = iIndex;
+						ImGui::Dummy(ImVec2(fDraggedTabWidth, 1.f));
+						ImGui::SameLine();
 					}
-				}
-				ImGui::EndPopup();
-			}
+					ImGui::PushID(iIndex);
 
-			ImColor oLinesColor = ImColor(160, 160, 160, 255);
-			if (ImGui::IsItemHovered())
-			{
-				oLinesColor = ImColor(255, 255, 255, 255);
-			}
-			ImVec2 oButtonMin = ImGui::GetItemRectMin();
-			ImVec2 oButtonMax = ImGui::GetItemRectMax();
-			ImVec2 oButtonSize = ImVec2(oButtonMax.x - oButtonMin.x, oButtonMax.y - oButtonMin.y);
-			pDrawList->AddLine(
-				ImVec2(oButtonMin.x + 1, oButtonMin.y + oButtonSize.y / 2),
-				ImVec2(oButtonMax.x - 1, oButtonMin.y + oButtonSize.y / 2),
-				oLinesColor);
-
-			pDrawList->AddLine(
-				ImVec2(oButtonMin.x + 1, oButtonMin.y + oButtonSize.y / 2 - 4),
-				ImVec2(oButtonMax.x - 1, oButtonMin.y + oButtonSize.y / 2 - 4),
-				oLinesColor);
-
-			pDrawList->AddLine(
-				ImVec2(oButtonMin.x + 1, oButtonMin.y + oButtonSize.y / 2 + 4),
-				ImVec2(oButtonMax.x - 1, oButtonMin.y + oButtonSize.y / 2 + 4),
-				oLinesColor);
-
-			pDrawList->ChannelsSplit(2);
-
-			//Tabs
-			
-			int iSize = (int)m_lWindows.size();
-			float fMaxTabSize = GetTabAreaWidth() / iSize;
-			ImwWindow* pDraggedWindow = ImwWindowManager::GetInstance()->GetDraggedWindow();
-			float fDraggedTabWidth = 0.f;
-			int iDraggedTabPosition = 0;
-			if (pDraggedWindow != NULL)
-			{
-				if (ImwWindowManager::GetInstance()->GetDragBestContainer() == this &&
-					ImwWindowManager::GetInstance()->GetDragOnTabArea())
-				{
-					iDraggedTabPosition = ImwWindowManager::GetInstance()->GetDragTabPosition();
-					fMaxTabSize = GetTabAreaWidth() / (iSize + 1);
-					//Tab(pDraggedWindow, true, oMin.x, oMax.x, fMaxTabSize);
-					ImGuiWindow* window = ImGui::GetCurrentWindow();
-					ImVec2 oTabSize;
-					float fMin = window->DC.CursorPos.x;
-					float fMax = fMin + m_oLastSize.x - fMaxTabSize;
-
-					float fTabPosX = oCursorPos.x + ImwWindowManager::GetInstance()->GetDragOffset().x;
-				
-					if (fTabPosX < fMin) fTabPosX = fMin;
-					if (fTabPosX > fMax) fTabPosX = fMax;
-
-					ImVec2 oDraggedTabPos = ImVec2(fTabPosX, window->DC.CursorPos.y);
-					DrawTab(pDraggedWindow->GetTitle(), true, oDraggedTabPos, oMin.x, oMax.x, fMaxTabSize, &oTabSize);
-					fDraggedTabWidth = oTabSize.x;
-				}
-				else
-				{
-					pDraggedWindow = NULL;
-				}
-			}
-
-			bool bCanCreateMultipleWindow = ImwWindowManager::GetInstance()->CanCreateMultipleWindow();
-
-			int iIndex = 0;
-			int iNewActive = -1;
-			bool bFirstTab = true;
-			ImVec2 oFirstTabPos;
-			for (ImwWindowList::iterator it = m_lWindows.begin(); it != m_lWindows.end(); ++it)
-			{
-				if (pDraggedWindow != NULL && iDraggedTabPosition == iIndex)
-				{
-					ImGui::Dummy(ImVec2(fDraggedTabWidth, 1.f));
-					ImGui::SameLine();
-				}
-				ImGui::PushID(iIndex);
-
-				bool bSelected = iIndex == m_iActiveWindow && pDraggedWindow == NULL;
-				if (Tab(*it, bSelected, oMin.x, oMax.x, fMaxTabSize))
-				{
-					iNewActive = iIndex;
-				}
-
-				if (bFirstTab)
-				{
-					bFirstTab = false;
-					oFirstTabPos = ImGui::GetItemRectMin();
-				}
-
-				if (iIndex < (iSize - 1))
-				{
-					ImGui::SameLine();
-				}
-
-				if (ImGui::IsItemActive())
-				{
-					if (ImGui::IsMouseDragging())
+					bool bSelected = iIndex == m_iActiveWindow && pDraggedWindow == NULL;
+					if (Tab(*it, bSelected, oMin.x, oMax.x, fMaxTabSize))
 					{
-						//ImGui::GetIO().MouseClickedPos[0];
-						float fOffsetX = (oCursorPos.x - ImGui::GetItemRectMin().x) + (oFirstTabPos.x - oPos.x);
-						float fOffsetY = (oCursorPos.y - ImGui::GetItemRectMin().y);
-						ImVec2 oOffset = ImVec2(-fOffsetX, -fOffsetY);
-						pWindowManager->StartDragWindow(*it, oOffset);
+						iNewActive = iIndex;
 					}
-				}
-				else if (ImGui::IsItemHovered() && (*it)->IsClosable() && ImGui::GetIO().MouseClicked[2])
-				{
-					(*it)->Destroy();
-				}
 
-				if (ImGui::BeginPopupContextItem("TabMenu"))
-				{
-					if ((*it)->IsClosable() && ImGui::Selectable("Close"))
+					if (bFirstTab)
+					{
+						bFirstTab = false;
+						oFirstTabPos = ImGui::GetItemRectMin();
+					}
+
+					if (iIndex < (iSize - 1))
+					{
+						ImGui::SameLine();
+					}
+
+					if (ImGui::IsItemActive())
+					{
+						if (ImGui::IsMouseDragging())
+						{
+							//ImGui::GetIO().MouseClickedPos[0];
+							float fOffsetX = (oCursorPos.x - ImGui::GetItemRectMin().x) + (oFirstTabPos.x - oPos.x);
+							float fOffsetY = (oCursorPos.y - ImGui::GetItemRectMin().y);
+							ImVec2 oOffset = ImVec2(-fOffsetX, -fOffsetY);
+							pWindowManager->StartDragWindow(*it, oOffset);
+						}
+					}
+					else if (ImGui::IsItemHovered() && (*it)->IsClosable() && ImGui::GetIO().MouseClicked[2])
 					{
 						(*it)->Destroy();
 					}
 
-					if (ImGui::BeginMenu("Dock to"))
+					if (ImGui::BeginPopupContextItem("TabMenu"))
 					{
-						int iIndex = 0;
-
-						if (pWindowManager->GetMainPlatformWindow()->GetContainer()->IsEmpty())
+						if ((*it)->IsClosable() && ImGui::Selectable("Close"))
 						{
-							ImGui::PushID(0);
-							if (ImGui::Selectable("Main")) pWindowManager->Dock((*it));
-							ImGui::PopID();
-							++iIndex;
+							(*it)->Destroy();
 						}
-						const ImwWindowList& lWindows = pWindowManager->GetWindowList();
-						for (ImwWindowList::const_iterator itWindow = lWindows.begin(); itWindow != lWindows.end(); ++itWindow)
+
+						if (ImGui::BeginMenu("Dock to"))
 						{
-							if ((*it) != (*itWindow))
+							int iIndex = 0;
+
+							if (pWindowManager->GetMainPlatformWindow()->GetContainer()->IsEmpty())
 							{
-								ImGui::PushID(iIndex);
-								if (ImGui::BeginMenu((*itWindow)->GetTitle()))
-								{
-									bool bHovered = false;
-									ImwPlatformWindow* pPlatformWindow = pWindowManager->GetWindowParent((*itWindow));
-								
-									ImVec2 oLastWinPos = (*itWindow)->GetLastPosition();
-									ImVec2 oLastWinSize = (*itWindow)->GetLastSize();
-								
-									ImGui::PushID(0);
-									if (ImGui::Selectable("Tab")) pWindowManager->DockWith((*it), (*itWindow), E_DOCK_ORIENTATION_CENTER);
-									if (ImGui::IsItemHovered() && NULL != pPlatformWindow)
-									{
-										bHovered = true;
-										pWindowManager->DrawWindowArea(pPlatformWindow, oLastWinPos, oLastWinSize, ImColor(0.f, 0.5f, 1.f, 0.5f));
-									}
-									ImGui::PopID();
-
-									ImGui::PushID(1);
-									if (ImGui::Selectable("Top")) pWindowManager->DockWith((*it), (*itWindow), E_DOCK_ORIENTATION_TOP);
-									if (ImGui::IsItemHovered() && NULL != pPlatformWindow)
-									{
-										bHovered = true;
-										pWindowManager->DrawWindowArea(pPlatformWindow, oLastWinPos, ImVec2(oLastWinSize.x, oLastWinSize.y / 2.f), ImColor(0.f, 0.5f, 1.f, 0.5f));
-									}
-									ImGui::PopID();
-
-									ImGui::PushID(2);
-									if (ImGui::Selectable("Left")) pWindowManager->DockWith((*it), (*itWindow), E_DOCK_ORIENTATION_LEFT);
-									if (ImGui::IsItemHovered() && NULL != pPlatformWindow)
-									{
-										bHovered = true;
-										pWindowManager->DrawWindowArea(pPlatformWindow, oLastWinPos, ImVec2(oLastWinSize.x / 2.f, oLastWinSize.y), ImColor(0.f, 0.5f, 1.f, 0.5f));
-									}
-									ImGui::PopID();
-
-									ImGui::PushID(3);
-									if (ImGui::Selectable("Right")) pWindowManager->DockWith((*it), (*itWindow), E_DOCK_ORIENTATION_RIGHT);
-									if (ImGui::IsItemHovered() && NULL != pPlatformWindow)
-									{
-										bHovered = true;
-										pWindowManager->DrawWindowArea(pPlatformWindow, ImVec2(oLastWinPos.x + oLastWinSize.x / 2.f, oLastWinPos.y), ImVec2(oLastWinSize.x / 2.f, oLastWinSize.y), ImColor(0.f, 0.5f, 1.f, 0.5f));
-									}
-									ImGui::PopID();
-
-									ImGui::PushID(4);
-									if (ImGui::Selectable("Bottom")) pWindowManager->DockWith((*it), (*itWindow), E_DOCK_ORIENTATION_BOTTOM);
-									if (ImGui::IsItemHovered() && NULL != pPlatformWindow)
-									{
-										bHovered = true;
-										pWindowManager->DrawWindowArea(pPlatformWindow, ImVec2(oLastWinPos.x, oLastWinPos.y + oLastWinSize.y / 2.f), ImVec2(oLastWinSize.x, oLastWinSize.y / 2.f), ImColor(0.f, 0.5f, 1.f, 0.5f));
-									}
-									ImGui::PopID();
-
-									if (!bHovered)
-									{
-										if ( NULL != pPlatformWindow )
-										{
-											pWindowManager->DrawWindowArea(pPlatformWindow, oLastWinPos, oLastWinSize, ImColor(0.f, 0.5f, 1.f, 0.5f));
-										}
-									}
-
-									ImGui::EndMenu();
-								}
+								ImGui::PushID(0);
+								if (ImGui::Selectable("Main")) pWindowManager->Dock((*it));
 								ImGui::PopID();
+								++iIndex;
 							}
-							++iIndex;
+							const ImwWindowList& lWindows = pWindowManager->GetWindowList();
+							for (ImwWindowList::const_iterator itWindow = lWindows.begin(); itWindow != lWindows.end(); ++itWindow)
+							{
+								if ((*it) != (*itWindow))
+								{
+									ImGui::PushID(iIndex);
+									if (ImGui::BeginMenu((*itWindow)->GetTitle()))
+									{
+										bool bHovered = false;
+										ImwPlatformWindow* pPlatformWindow = pWindowManager->GetWindowParent((*itWindow));
+
+										ImVec2 oLastWinPos = (*itWindow)->GetLastPosition();
+										ImVec2 oLastWinSize = (*itWindow)->GetLastSize();
+
+										if (!(*itWindow)->IsAlone())
+										{
+											ImGui::PushID(0);
+											if (ImGui::Selectable("Tab")) pWindowManager->DockWith((*it), (*itWindow), E_DOCK_ORIENTATION_CENTER);
+											if (ImGui::IsItemHovered() && NULL != pPlatformWindow)
+											{
+												bHovered = true;
+												pWindowManager->DrawWindowArea(pPlatformWindow, oLastWinPos, oLastWinSize, ImColor(0.f, 0.5f, 1.f, 0.5f));
+											}
+											ImGui::PopID();
+										}
+
+										ImGui::PushID(1);
+										if (ImGui::Selectable("Top")) pWindowManager->DockWith((*it), (*itWindow), E_DOCK_ORIENTATION_TOP);
+										if (ImGui::IsItemHovered() && NULL != pPlatformWindow)
+										{
+											bHovered = true;
+											pWindowManager->DrawWindowArea(pPlatformWindow, oLastWinPos, ImVec2(oLastWinSize.x, oLastWinSize.y / 2.f), ImColor(0.f, 0.5f, 1.f, 0.5f));
+										}
+										ImGui::PopID();
+
+										ImGui::PushID(2);
+										if (ImGui::Selectable("Left")) pWindowManager->DockWith((*it), (*itWindow), E_DOCK_ORIENTATION_LEFT);
+										if (ImGui::IsItemHovered() && NULL != pPlatformWindow)
+										{
+											bHovered = true;
+											pWindowManager->DrawWindowArea(pPlatformWindow, oLastWinPos, ImVec2(oLastWinSize.x / 2.f, oLastWinSize.y), ImColor(0.f, 0.5f, 1.f, 0.5f));
+										}
+										ImGui::PopID();
+
+										ImGui::PushID(3);
+										if (ImGui::Selectable("Right")) pWindowManager->DockWith((*it), (*itWindow), E_DOCK_ORIENTATION_RIGHT);
+										if (ImGui::IsItemHovered() && NULL != pPlatformWindow)
+										{
+											bHovered = true;
+											pWindowManager->DrawWindowArea(pPlatformWindow, ImVec2(oLastWinPos.x + oLastWinSize.x / 2.f, oLastWinPos.y), ImVec2(oLastWinSize.x / 2.f, oLastWinSize.y), ImColor(0.f, 0.5f, 1.f, 0.5f));
+										}
+										ImGui::PopID();
+
+										ImGui::PushID(4);
+										if (ImGui::Selectable("Bottom")) pWindowManager->DockWith((*it), (*itWindow), E_DOCK_ORIENTATION_BOTTOM);
+										if (ImGui::IsItemHovered() && NULL != pPlatformWindow)
+										{
+											bHovered = true;
+											pWindowManager->DrawWindowArea(pPlatformWindow, ImVec2(oLastWinPos.x, oLastWinPos.y + oLastWinSize.y / 2.f), ImVec2(oLastWinSize.x, oLastWinSize.y / 2.f), ImColor(0.f, 0.5f, 1.f, 0.5f));
+										}
+										ImGui::PopID();
+
+										if (!bHovered)
+										{
+											if (NULL != pPlatformWindow)
+											{
+												pWindowManager->DrawWindowArea(pPlatformWindow, oLastWinPos, oLastWinSize, ImColor(0.f, 0.5f, 1.f, 0.5f));
+											}
+										}
+
+										ImGui::EndMenu();
+									}
+									ImGui::PopID();
+								}
+								++iIndex;
+							}
+
+							ImGui::EndMenu();
 						}
-					
-						ImGui::EndMenu();
+
+						if (bCanCreateMultipleWindow && ImGui::Selectable("Float"))
+						{
+							pWindowManager->Float((*it), ImVec2(-1.f, -1.f), (*it)->m_oLastSize);
+						}
+
+						(*it)->OnContextMenu();
+
+						ImGui::EndPopup();
 					}
 
-					if (bCanCreateMultipleWindow && ImGui::Selectable("Float"))
-					{
-						pWindowManager->Float((*it), ImVec2(-1.f,-1.f), (*it)->m_oLastSize);
-					}
+					ImGui::PopID();
 
-					(*it)->OnContextMenu();
-
-					ImGui::EndPopup();
+					++iIndex;
 				}
 
-				ImGui::PopID();
+				if (iNewActive >= 0)
+					m_iActiveWindow = iNewActive;
 
-				++iIndex;
+				pDrawList->ChannelsMerge();
+
+				ImGui::GetStyle().ItemSpacing = oItemSpacing;
+
+				pActiveWindow = pDraggedWindow;
 			}
-			
-			if (iNewActive >= 0)
-				m_iActiveWindow = iNewActive;
 
-			pDrawList->ChannelsMerge();
-
-			ImwWindow* pActiveWindow = pDraggedWindow;
 			if (pActiveWindow == NULL)
 			{
 				ImwWindowList::iterator itActiveWindow = m_lWindows.begin();
@@ -773,8 +784,8 @@ namespace ImWindow
 				oStyle.Colors[ImGuiCol_Border] = oBorderColor;
 				oStyle.Colors[ImGuiCol_BorderShadow] = oBorderShadowColor;
 
-				ImGui::Dummy(ImVec2(0.f, 2.f)); //2 pixels space;
-				ImGui::GetStyle().ItemSpacing = oItemSpacing;
+				if (!bAlone)
+					ImGui::Dummy(ImVec2(0.f, 2.f)); //2 pixels space;
 
 				ImVec2 oWinPos = ImGui::GetWindowPos();
 				ImVec2 oWinSize = ImGui::GetWindowSize();
@@ -1058,10 +1069,13 @@ namespace ImWindow
 						}
 						else
 						{
-							//Center
-							ImRect oRectCenter(ImVec2(oCenter.x - c_fBoxHalfSize, oCenter.y - c_fBoxHalfSize), ImVec2(oCenter.x + c_fBoxHalfSize, oCenter.y + c_fBoxHalfSize));
-							bIsInCenter = oRectCenter.Contains(oCursorPos);
-							ImwWindowManager::GetInstance()->DrawWindowArea(m_pParentWindow, oRectCenter.Min, oRectCenter.GetSize(), bIsInCenter ? oBoxHightlightColor : oBoxColor);
+							if (!m_lWindows.front()->IsAlone())
+							{
+								//Center
+								ImRect oRectCenter(ImVec2(oCenter.x - c_fBoxHalfSize, oCenter.y - c_fBoxHalfSize), ImVec2(oCenter.x + c_fBoxHalfSize, oCenter.y + c_fBoxHalfSize));
+								bIsInCenter = oRectCenter.Contains(oCursorPos);
+								ImwWindowManager::GetInstance()->DrawWindowArea(m_pParentWindow, oRectCenter.Min, oRectCenter.GetSize(), bIsInCenter ? oBoxHightlightColor : oBoxColor);
+							}
 
 							if (m_oLastSize.y >= c_fMinSize)
 							{
