@@ -1162,6 +1162,7 @@ namespace ImWindow
 		if (m_lWindows.size() > 0)
 		{
 			ImwWindowManager* pWindowManager = ImwWindowManager::GetInstance();
+			oJson["CurrentWindow"] = (long)m_iActiveWindow;
 			JsonValue& oJsonWindows = oJson["Windows"];
 			int iCurrentWindow = 0;
 			for (ImwWindowList::const_iterator itWindow = m_lWindows.begin(); itWindow != m_lWindows.end(); ++itWindow)
@@ -1225,9 +1226,13 @@ namespace ImWindow
 		{
 			ImwWindowManager* pWindowManager = ImwWindowManager::GetInstance();
 
+			const JsonValue& oJsonCurrentWindow = oJson["CurrentWindow"];
 			const JsonValue& oJsonWindows = oJson["Windows"];
 			int iWindowCount = oJsonWindows.GetMemberCount();
 			//Check
+			if (!(oJsonCurrentWindow.IsNull() || oJsonCurrentWindow.IsInteger()))
+				return false;
+
 			for (int iCurrent = 0; iCurrent < iWindowCount; ++iCurrent)
 			{
 				const JsonValue& oJsonWindow = oJsonWindows[iCurrent];
@@ -1245,6 +1250,17 @@ namespace ImWindow
 					ImwWindow* pWindow = pWindowManager->CreateWindowByClassName(oJsonWindow["Class"]);
 					pWindow->SetParameters(oJsonWindow["Parameters"]);
 					m_lWindows.push_back(pWindow);
+				}
+
+				if (oJsonCurrentWindow.IsInteger())
+				{
+					m_iActiveWindow = (int)(long)oJsonCurrentWindow;
+					if (m_iActiveWindow < 0 || m_iActiveWindow >= iWindowCount)
+						m_iActiveWindow = 0;
+				}
+				else
+				{
+					m_iActiveWindow = 0;
 				}
 			}
 		}
