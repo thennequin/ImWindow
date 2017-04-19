@@ -86,6 +86,9 @@ namespace ImWindow
 
 	JsonValue::~JsonValue()
 	{
+		if ( m_pName )
+			ImwSafeFree(m_pName);
+		
 		Reset();
 	}
 
