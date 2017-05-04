@@ -7,7 +7,7 @@
 #include "ImwMenu.h"
 #include "ImwPlatformWindow.h"
 #include "ImwStatusBar.h"
-#include "ImwToolbar.h"
+#include "ImwToolBar.h"
 #include "JsonValue.h"
 
 namespace ImWindow
