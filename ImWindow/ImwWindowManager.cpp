@@ -986,7 +986,9 @@ namespace ImWindow
 		{
 			ImVec2 oRectPos(oCursorPos.x - oPos.x, oCursorPos.y - oPos.y);
 
+			pPlatformWindow->SetState();
 			ImwContainer* pBestContainer = pPlatformWindow->GetContainer()->GetBestDocking(oRectPos, oOutOrientation, oOutAreaPos, oOutAreaSize, bOutOnTabArea, iOutPosition, bLargeCheck);
+			pPlatformWindow->RestoreState();
 			if (NULL != pBestContainer)
 			{
 				fOutRatio = 0.5f; //Default value
