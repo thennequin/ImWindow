@@ -1069,7 +1069,7 @@ namespace ImWindow
 						}
 						else
 						{
-							if (!m_lWindows.front()->IsAlone())
+							if (!m_lWindows.empty() && !m_lWindows.front()->IsAlone())
 							{
 								//Center
 								ImRect oRectCenter(ImVec2(oCenter.x - c_fBoxHalfSize, oCenter.y - c_fBoxHalfSize), ImVec2(oCenter.x + c_fBoxHalfSize, oCenter.y + c_fBoxHalfSize));
