@@ -26,7 +26,7 @@
 #endif // ImwChar
 
 #define ImwSafeDelete(pObj) { if (NULL != pObj) { delete pObj; pObj = NULL; } }
-#define ImwSafeRelease(pObj) { if (NULL != pObj) pObj->Release(); }
+#define ImwSafeRelease(pObj) { if (NULL != pObj) { pObj->Release(); pObj = NULL; } }
 #define ImwIsSafe(pObj) if (NULL != pObj) pObj
 
 #define ImwMalloc(iSize) malloc(iSize)
