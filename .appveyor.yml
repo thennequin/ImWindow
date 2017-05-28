@@ -13,9 +13,11 @@ configuration:
 
 install:
   - git clone https://github.com/bkaradzic/bx ..\bx
+  - git clone https://github.com/bkaradzic/bgfx ..\bgfx
+  - git clone https://github.com/bkaradzic/bimg ..\bimg
   - git submodule update --init --recursive
   - cd build
-  - ..\..\bx\tools\bin\windows\genie %TOOLSET% sff
+  - ..\..\bx\tools\bin\windows\genie --with-sff -with-bgfx %TOOLSET%
 
 build:
   project: build/$(TOOLSET)/ImWindow.sln
