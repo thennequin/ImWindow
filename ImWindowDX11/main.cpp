@@ -44,6 +44,7 @@ class MyImwWindow3 : public ImwWindow, ImwMenu
 {
 public:
 	MyImwWindow3(const char* pTitle = "MyImwWindow3")
+		: ImwMenu(0, false)
 	{
 		SetTitle(pTitle);
 	}
@@ -74,6 +75,7 @@ class MyImwWindow2 : public ImwWindow, ImwMenu
 {
 public:
 	MyImwWindow2(const char* pTitle = "MyImwWindow2")
+		: ImwMenu(0, false)
 	{
 		SetTitle(pTitle);
 	}
