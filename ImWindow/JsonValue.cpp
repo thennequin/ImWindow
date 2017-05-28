@@ -478,7 +478,7 @@ namespace ImWindow
 		{
 			InitType(oValue.m_eType);
 			
-			JsonValue* pSourceChild = oValue.m_oChilds.m_pFirst;;
+			JsonValue* pSourceChild = oValue.m_oChilds.m_pFirst;
 			while (pSourceChild != NULL)
 			{
 				JsonValue* pNewChild = new JsonValue(*pSourceChild);

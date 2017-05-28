@@ -856,7 +856,7 @@ namespace ImWindow
 					oStyle.Colors[ImGuiCol_WindowBg].y + (oStyle.Colors[ImGuiCol_ChildWindowBg].y - oStyle.Colors[ImGuiCol_WindowBg].y) * 0.5f,
 					oStyle.Colors[ImGuiCol_WindowBg].z + (oStyle.Colors[ImGuiCol_ChildWindowBg].z - oStyle.Colors[ImGuiCol_WindowBg].z) * 0.5f,
 					oStyle.Colors[ImGuiCol_WindowBg].w + (oStyle.Colors[ImGuiCol_ChildWindowBg].w - oStyle.Colors[ImGuiCol_WindowBg].w) * 0.5f
-				);;
+				);
 				oSelectedTab = oStyle.Colors[ImGuiCol_ChildWindowBg];
 				oBorderColor = oStyle.Colors[ImGuiCol_Border];
 				break;
