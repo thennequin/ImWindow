@@ -138,13 +138,13 @@ namespace ImWindow
 				m_lToolBars.pop_back();
 		}
 
-		ImwSafeDelete(m_pMainPlatformWindow);
 		ImwSafeDelete(m_pDragPlatformWindow);
-		for ( ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
+		while (m_lPlatformWindows.begin() != m_lPlatformWindows.end())
 		{
-			ImwSafeDelete(*it);
+			delete *m_lPlatformWindows.begin();
+			m_lPlatformWindows.erase(m_lPlatformWindows.begin());
 		}
-		m_lPlatformWindows.clear();
+		ImwSafeDelete(m_pMainPlatformWindow);
 	}
 
 	ImwPlatformWindow* ImwWindowManager::GetMainPlatformWindow()
@@ -529,13 +529,7 @@ namespace ImWindow
 				bool bFound = false;
 				if (m_pMainPlatformWindow == pAction->m_pPlatformWindow)
 				{
-					while (m_lPlatformWindows.begin() != m_lPlatformWindows.end())
-					{
-						delete *m_lPlatformWindows.begin();
-						m_lPlatformWindows.erase(m_lPlatformWindows.begin());
-					}
-					delete m_pMainPlatformWindow;
-					m_pMainPlatformWindow = NULL;
+					Destroy();
 					bFound = true;
 				}
 				else
