@@ -1,11 +1,22 @@
 
--- Single file format
-local generateSFF = false
-if _ARGS[1] == "sff" then
-	generateSFF = true;
-end
+newoption {
+	trigger = "with-sff",
+	description = "Enable generation of single file format",
+}
 
-if generateSFF == true then
+newoption {
+	trigger = "with-bgfx",
+	description = "Enable BGFX sample (need bgfx/bimg/bx repositories next to ImWindow repositorie)",
+}
+
+local PROJECT_DIR          = (path.getabsolute("..") .. "/")
+local PROJECT_BUILD_DIR    = path.join(PROJECT_DIR, ".build/")
+local PROJECT_PROJECTS_DIR = path.join(PROJECT_DIR, ".projects")
+local PROJECT_RUNTIME_DIR  = path.join(PROJECT_DIR, "Output/")
+local BGFX_ROOT_DIR        = path.join(PROJECT_DIR, "..")
+
+-- Single file format
+if _OPTIONS["with-sff"] then
 	print "=================="
 	print "Generate SFF files"
 	print "=================="
@@ -85,20 +96,79 @@ if generateSFF == true then
 	print "=================="
 end
 
+if _OPTIONS["with-bgfx"] then
+	BGFX_DIR        = path.join(BGFX_ROOT_DIR, "bgfx")
+	BX_DIR          = path.join(BGFX_ROOT_DIR, "bx")
+	BIMG_DIR        = path.join(BGFX_ROOT_DIR, "bimg")
+
+	-- Required for bgfx and example-common
+	function copyLib()
+	end
+
+	function compat(_bxDir)
+	-- VS
+	configuration { "vs*" }
+		includedirs { path.join(_bxDir, "include/compat/msvc") }
+
+	configuration { "vs2008" }
+		includedirs { path.join(_bxDir, "include/compat/msvc/pre1600") }
+
+	-- MinGW
+	configuration { "*mingw*" }
+		includedirs { path.join(_bxDir, "include/compat/mingw") }
+
+	-- OSX
+	configuration { "osx* or xcode*" }
+		includedirs { path.join(_bxDir, "include/compat/osx") }
+
+	configuration {} -- reset configuration
+	end
+end
+
 solution "ImWindow"
-	location				(_ACTION)
 	language				"C++"
 	configurations			{ "Debug", "Release" }
 	platforms				{ "x32", "x64" }
-	objdir					("../Intermediate/".._ACTION)
+
+	if _OPTIONS["with-bgfx"] then
+		defines
+		{
+			"ENTRY_CONFIG_IMPLEMENT_DEFAULT_ALLOCATOR=1",
+			"BX_CONFIG_ENABLE_MSVC_LEVEL4_WARNINGS=1",
+			"BGFX_CONFIG_DEBUG=1",
+		}
+
+		configuration { "vs* or mingw-*" }
+			defines
+			{
+				"BGFX_CONFIG_RENDERER_DIRECT3D11=1",
+			}
+
+		configuration {}
+
+		dofile (path.join(BX_DIR, "scripts/toolchain.lua"))
+		if not toolchain(PROJECT_PROJECTS_DIR, BGFX_ROOT_DIR) then
+			return -- no action specified
+		end
+	end
+	
+	location				(path.join(PROJECT_PROJECTS_DIR, _ACTION))
+	objdir					(path.join(PROJECT_BUILD_DIR, _ACTION))
+
+	if _OPTIONS["with-bgfx"] then
+		dofile (path.join(BX_DIR, "scripts/bx.lua"))
+		dofile (path.join(BIMG_DIR, "scripts/bimg.lua"))
+		dofile (path.join(BGFX_DIR, "scripts/bgfx.lua"))
+
+		bgfxProject("", "StaticLib", {})
+	end
 
 	-- Inlude only SFF files in project
-	if generateSFF == true then
-
+	if _OPTIONS["with-sff"] then
 		project "ImWindowSFF"
 			uuid			"458E707F-2347-47D2-842A-A431CA538063"
 			kind			"StaticLib"
-			targetdir		"../Output/"
+			targetdir		(PROJECT_RUNTIME_DIR)
 
 			files {
 							"../ImWindow.cpp",
@@ -127,7 +197,7 @@ solution "ImWindow"
 	project "ImWindow"
 		uuid				"99AABCFD-6ED6-43E5-BD14-EFDC04CBE09F"
 		kind				"StaticLib"
-		targetdir			"../Output/"
+		targetdir			(PROJECT_RUNTIME_DIR)
 
 		files {
 							"../ImWindow/**.cpp",
@@ -159,10 +229,11 @@ solution "ImWindow"
 			targetsuffix	"_r"
 			flags			{ "Optimize" }
 
+	startproject "ImWindowDX11"
 	project "ImWindowDX11"
 		uuid				"449C0C09-919A-4337-A09A-DFC2420A41B0"
 		kind				"WindowedApp"
-		targetdir			"../Output/"
+		targetdir			(PROJECT_RUNTIME_DIR)
 		
 		links				{ "ImWindow" }
 		files {
@@ -196,3 +267,85 @@ solution "ImWindow"
 		configuration		"Release"
 			targetsuffix	"_r"
 			flags			{ "Optimize" }
+
+	if _OPTIONS["with-bgfx"] then
+		startproject "ImwWindowBGFX"
+		project "ImwWindowBGFX"
+			uuid				"DF12277C-C20B-4CD7-92D8-95ABD26986B1"
+			kind				"ConsoleApp"
+			targetdir			(PROJECT_RUNTIME_DIR)
+			
+			links {
+								"ImWindow",
+								"bgfx",
+								"bimg",
+								"bx"
+			}
+			files {
+								"../ImWindowBGFX/**.cpp",
+								"../ImWindowBGFX/**.h",
+			}
+			
+			includedirs {
+								"../ImWindow",
+								"../Externals/imgui",
+
+								path.join(BX_DIR, "include"),
+								path.join(BX_DIR, "3rdparty"),
+								path.join(BGFX_DIR, "include"),
+								path.join(BGFX_DIR, "3rdparty"),
+								path.join(BGFX_DIR, "examples/common"),
+								--path.join(BGFX_DIR, "3rdparty/forsyth-too"),
+								path.join(BIMG_DIR, "include"),
+								path.join(BIMG_DIR, "3rdparty"),
+			}		
+			
+			platforms			"x32"
+				libdirs {
+								--"../Externals/glfw-3.2/lib-vc2015/x86"
+				}
+				
+			platforms			"x64"
+				libdirs {
+								--"../Externals/glfw-3.2/lib-vc2015/x64"
+				}
+
+			configuration		"Debug"
+				targetsuffix	"_d"
+				flags			{ "Symbols" }
+				
+			configuration		"Release"
+				targetsuffix	"_r"
+				flags			{ "Optimize" }
+
+			configuration {}
+
+			configuration { "vs*" }
+				buildoptions
+				{
+					"/wd 4127", -- Disable 'Conditional expression is constant' for do {} while(0).
+					"/wd 4201", -- Disable 'Nonstandard extension used: nameless struct/union'. Used for uniforms in the project.
+					"/wd 4345", -- Disable 'An object of POD type constructed with an initializer of the form () will be default-initialized'. It's an obsolete warning.
+				}
+				linkoptions
+				{
+					"/ignore:4199", -- LNK4199: /DELAYLOAD:*.dll ignored; no imports found from *.dll
+				}
+				links
+				{ -- this is needed only for testing with GLES2/3 on Windows with VS2008
+					"DelayImp",
+				}
+
+			configuration { "vs*", "x32" }
+				links
+				{
+					"psapi",
+				}
+
+			configuration { "vs2010" }
+				linkoptions
+				{ -- this is needed only for testing with GLES2/3 on Windows with VS201x
+					"/DELAYLOAD:\"libEGL.dll\"",
+					"/DELAYLOAD:\"libGLESv2.dll\"",
+				}
+	end
