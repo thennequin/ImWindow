@@ -17,10 +17,8 @@ namespace ImWindow
 		m_bShowContent = true;
 
 		if (bCreateState)
-
 		{
 			void* pTemp = ImGui::GetInternalState();
-
 
 			ImGuiIO& oCurrentIO = ImGui::GetIO();
 			m_pState = ImwMalloc(ImGui::GetInternalStateSize());
@@ -37,7 +35,6 @@ namespace ImWindow
 			ImGui::GetIO().IniFilename = NULL;
 
 			ImGui::SetInternalState(pTemp);
-
 		}
 	}
 
