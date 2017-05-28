@@ -22,12 +22,14 @@ namespace ImWindow
 		virtual ImVec2						GetPosition() const;
 		virtual ImVec2						GetSize() const;
 		virtual bool						IsWindowMaximized() const;
+		virtual bool						IsWindowMinimized() const;
 
 		virtual void						Show();
 		virtual void						Hide();
 		virtual void						SetSize(int iWidth, int iHeight);
 		virtual void						SetPosition(int iX, int iY);
 		virtual void						SetWindowMaximized(bool bMaximized);
+		virtual void						SetWindowMinimized();
 		virtual void						SetTitle(const char* pTtile);
 		bool								IsShowContent() const;
 		void								SetShowContent(bool bShow);

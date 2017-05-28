@@ -73,6 +73,11 @@ namespace ImWindow
 		return false;
 	}
 
+	bool ImwPlatformWindow::IsWindowMinimized() const
+	{
+		return false;
+	}
+
 	void ImwPlatformWindow::Show()
 	{
 	}
@@ -90,6 +95,10 @@ namespace ImWindow
 	}
 
 	void ImwPlatformWindow::SetWindowMaximized(bool /*bMaximized*/)
+	{
+	}
+
+	void  ImwPlatformWindow::SetWindowMinimized()
 	{
 	}
 
