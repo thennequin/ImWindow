@@ -5,6 +5,16 @@
 namespace ImWindow
 {
 //SFF_BEGIN
+
+	ImwWindowManager::PlatformWindowAction::PlatformWindowAction(ImwPlatformWindow* pPlatformWindow, EPlatformWindowAction eAction, ImVec2 oValue)
+	{
+		m_pPlatformWindow = pPlatformWindow;
+		m_eAction = eAction;
+		m_oValue = oValue;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+
 	ImwWindowManager::DrawWindowAreaAction::DrawWindowAreaAction( ImwPlatformWindow* pWindow, const ImVec2& oRectPos, const ImVec2& oRectSize, const ImColor& oColor )
 		: m_oColor( oColor )
 	{
@@ -111,40 +121,47 @@ namespace ImWindow
 
 	void ImwWindowManager::Destroy()
 	{
-		while (m_lMenus.begin() != m_lMenus.end())
+		if (m_pCurrentPlatformWindow != NULL)
 		{
-			ImwMenu* pMenu = m_lMenus.back();
-			if (pMenu->IsAutoDeleted())
-				delete pMenu;
-			else
-				m_lMenus.pop_back();
+			OnClosePlatformWindow(m_pMainPlatformWindow);
 		}
+		else
+		{
+			while (m_lMenus.begin() != m_lMenus.end())
+			{
+				ImwMenu* pMenu = m_lMenus.back();
+				if (pMenu->IsAutoDeleted())
+					delete pMenu;
+				else
+					m_lMenus.pop_back();
+			}
 		
-		while (m_lStatusBars.begin() != m_lStatusBars.end())
-		{
-			ImwStatusBar* pStatusBar = m_lStatusBars.back();
-			if (pStatusBar->IsAutoDeleted())
-				delete pStatusBar;
-			else
-				m_lStatusBars.pop_back();
-		}
+			while (m_lStatusBars.begin() != m_lStatusBars.end())
+			{
+				ImwStatusBar* pStatusBar = m_lStatusBars.back();
+				if (pStatusBar->IsAutoDeleted())
+					delete pStatusBar;
+				else
+					m_lStatusBars.pop_back();
+			}
 
-		while (m_lToolBars.begin() != m_lToolBars.end())
-		{
-			ImwToolBar* pToolBar = m_lToolBars.back();
-			if (pToolBar->IsAutoDeleted())
-				delete pToolBar;
-			else
-				m_lToolBars.pop_back();
-		}
+			while (m_lToolBars.begin() != m_lToolBars.end())
+			{
+				ImwToolBar* pToolBar = m_lToolBars.back();
+				if (pToolBar->IsAutoDeleted())
+					delete pToolBar;
+				else
+					m_lToolBars.pop_back();
+			}
 
-		ImwSafeDelete(m_pDragPlatformWindow);
-		while (m_lPlatformWindows.begin() != m_lPlatformWindows.end())
-		{
-			delete *m_lPlatformWindows.begin();
-			m_lPlatformWindows.erase(m_lPlatformWindows.begin());
+			ImwSafeDelete(m_pDragPlatformWindow);
+			while (m_lPlatformWindows.begin() != m_lPlatformWindows.end())
+			{
+				delete *m_lPlatformWindows.begin();
+				m_lPlatformWindows.erase(m_lPlatformWindows.begin());
+			}
+			ImwSafeDelete(m_pMainPlatformWindow);
 		}
-		ImwSafeDelete(m_pMainPlatformWindow);
 	}
 
 	ImwPlatformWindow* ImwWindowManager::GetMainPlatformWindow()
@@ -268,6 +285,24 @@ namespace ImWindow
 		}
 		IM_ASSERT(false);
 		return NULL;
+	}
+
+	void ImwWindowManager::MaximizeCurrentPlatformWindow()
+	{
+		if (m_pCurrentPlatformWindow != NULL)
+			m_lPlatformWindowActions.push_back(new PlatformWindowAction(m_pCurrentPlatformWindow, E_PLATFORM_WINDOW_ACTION_MAXIMIZE));
+	}
+
+	void ImwWindowManager::MinimizeCurrentPlatformWindow()
+	{
+		if (m_pCurrentPlatformWindow != NULL)
+			m_lPlatformWindowActions.push_back(new PlatformWindowAction(m_pCurrentPlatformWindow, E_PLATFORM_WINDOW_ACTION_MINIMIZE));
+	}
+
+	void ImwWindowManager::RestoreCurrentPlatformWindow()
+	{
+		if (m_pCurrentPlatformWindow != NULL)
+			m_lPlatformWindowActions.push_back(new PlatformWindowAction(m_pCurrentPlatformWindow, E_PLATFORM_WINDOW_ACTION_RESTORE));
 	}
 
 	bool ImwWindowManager::SaveLayoutToString(ImwString& sLayout, bool bCompact)
@@ -519,13 +554,9 @@ namespace ImWindow
 		while (m_lPlatformWindowActions.begin() != m_lPlatformWindowActions.end())
 		{
 			PlatformWindowAction* pAction = *m_lPlatformWindowActions.begin();
-		
-			IM_ASSERT((pAction->m_iFlags & E_PLATFORM_WINDOW_ACTION_SHOW & E_PLATFORM_WINDOW_ACTION_HIDE) == 0); // Can't show and hide		
-
-			if (pAction->m_iFlags & E_PLATFORM_WINDOW_ACTION_DESTROY)
+	
+			if (pAction->m_eAction == E_PLATFORM_WINDOW_ACTION_DESTROY)
 			{
-				//pAction->m_pPlatformWindow->Show();
-				//todo destroy
 				bool bFound = false;
 				if (m_pMainPlatformWindow == pAction->m_pPlatformWindow)
 				{
@@ -551,21 +582,33 @@ namespace ImWindow
 					IM_ASSERT(false); // ImwPlatformWindow not found, maybe already closed
 				}
 			}
-			if (pAction->m_iFlags & E_PLATFORM_WINDOW_ACTION_SHOW)
+			else if (pAction->m_eAction == E_PLATFORM_WINDOW_ACTION_SHOW)
 			{
 				pAction->m_pPlatformWindow->Show();
 			}
-			if (pAction->m_iFlags & E_PLATFORM_WINDOW_ACTION_HIDE)
+			else if (pAction->m_eAction == E_PLATFORM_WINDOW_ACTION_HIDE)
 			{
 				pAction->m_pPlatformWindow->Hide();
 			}
-			if (pAction->m_iFlags & E_PLATFORM_WINDOW_ACTION_SET_POSITION)
+			else if (pAction->m_eAction == E_PLATFORM_WINDOW_ACTION_SET_POSITION)
 			{
-				pAction->m_pPlatformWindow->SetPosition((int)pAction->m_oPosition.x, (int)pAction->m_oPosition.y);
+				pAction->m_pPlatformWindow->SetPosition((int)pAction->m_oValue.x, (int)pAction->m_oValue.y);
 			}
-			if (pAction->m_iFlags & E_PLATFORM_WINDOW_ACTION_SET_SIZE)
+			else if (pAction->m_eAction == E_PLATFORM_WINDOW_ACTION_SET_SIZE)
 			{
-				pAction->m_pPlatformWindow->SetSize((int)pAction->m_oSize.x, (int)pAction->m_oSize.y);
+				pAction->m_pPlatformWindow->SetSize((int)pAction->m_oValue.x, (int)pAction->m_oValue.y);
+			}
+			else if (pAction->m_eAction == E_PLATFORM_WINDOW_ACTION_MAXIMIZE)
+			{
+				pAction->m_pPlatformWindow->SetWindowMaximized(true);
+			}
+			else if (pAction->m_eAction == E_PLATFORM_WINDOW_ACTION_MINIMIZE)
+			{
+				pAction->m_pPlatformWindow->SetWindowMinimized();
+			}
+			else if (pAction->m_eAction == E_PLATFORM_WINDOW_ACTION_RESTORE)
+			{
+				pAction->m_pPlatformWindow->SetWindowMaximized(false);
 			}
 
 			delete *m_lPlatformWindowActions.begin();
@@ -690,7 +733,6 @@ namespace ImWindow
 					fBottom = 25.f;
 				}
 			}
-			
 		}
 
 		if (pWindow->IsShowContent())
@@ -854,13 +896,14 @@ namespace ImWindow
 
 			if (NULL != m_pDragPlatformWindow)
 			{
-				PlatformWindowAction* pAction = new PlatformWindowAction();
-				pAction->m_pPlatformWindow = m_pDragPlatformWindow;
-				pAction->m_iFlags = E_PLATFORM_WINDOW_ACTION_SHOW | E_PLATFORM_WINDOW_ACTION_SET_POSITION | E_PLATFORM_WINDOW_ACTION_SET_SIZE;
 				ImVec2 oCursorPos = GetCursorPos();
-				pAction->m_oPosition = ImVec2(oCursorPos.x + m_oDragPreviewOffset.x, oCursorPos.y + m_oDragPreviewOffset.y);
-				pAction->m_oSize = ImVec2(pWindow->GetLastSize().x, pWindow->GetLastSize().y);
-				m_lPlatformWindowActions.push_back(pAction);
+				ImVec2 oPosition = ImVec2(oCursorPos.x + m_oDragPreviewOffset.x, oCursorPos.y + m_oDragPreviewOffset.y);
+				ImVec2 oSize = ImVec2(pWindow->GetLastSize().x, pWindow->GetLastSize().y);
+
+				m_lPlatformWindowActions.push_back(new PlatformWindowAction(m_pDragPlatformWindow, E_PLATFORM_WINDOW_ACTION_SHOW));
+				m_lPlatformWindowActions.push_back(new PlatformWindowAction(m_pDragPlatformWindow, E_PLATFORM_WINDOW_ACTION_SET_POSITION, oPosition));
+				m_lPlatformWindowActions.push_back(new PlatformWindowAction(m_pDragPlatformWindow, E_PLATFORM_WINDOW_ACTION_SET_SIZE, oSize));
+
 				Dock(pWindow, E_DOCK_ORIENTATION_CENTER, 0.5f, m_pDragPlatformWindow);
 				((ImGuiState*)m_pDragPlatformWindow->m_pState)->IO.MouseDown[0] = true;
 			}
@@ -875,12 +918,9 @@ namespace ImWindow
 	{
 		if ( NULL != m_pDragPlatformWindow )
 		{
-			PlatformWindowAction* pAction = new PlatformWindowAction();
-			pAction->m_pPlatformWindow = m_pDragPlatformWindow;
-			pAction->m_iFlags = E_PLATFORM_WINDOW_ACTION_HIDE;
 			m_pDragPlatformWindow->Hide();
 			m_pDragPlatformWindow->m_bNeedRender = false;
-			m_lPlatformWindowActions.push_back(pAction);
+			m_lPlatformWindowActions.push_back(new PlatformWindowAction(m_pDragPlatformWindow, E_PLATFORM_WINDOW_ACTION_HIDE));
 		}
 		m_pDraggedWindow = NULL;
 	}
@@ -1219,10 +1259,7 @@ void ImwWindowManager::AddStatusBar(ImwStatusBar* pStatusBar)
 	{
 		if (NULL != pWindow && !pWindow->m_pContainer->HasUnclosableWindow())
 		{
-			PlatformWindowAction* pAction = new PlatformWindowAction();
-			pAction->m_iFlags = E_PLATFORM_WINDOW_ACTION_DESTROY;
-			pAction->m_pPlatformWindow = pWindow;
-			m_lPlatformWindowActions.push_back(pAction);
+			m_lPlatformWindowActions.push_back(new PlatformWindowAction(pWindow, E_PLATFORM_WINDOW_ACTION_DESTROY));
 		}
 	}
 

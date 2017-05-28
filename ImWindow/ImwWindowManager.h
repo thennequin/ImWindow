@@ -24,19 +24,22 @@ namespace ImWindow
 
 		enum EPlatformWindowAction
 		{
-			E_PLATFORM_WINDOW_ACTION_DESTROY		= 1,
-			E_PLATFORM_WINDOW_ACTION_SHOW			= 2,
-			E_PLATFORM_WINDOW_ACTION_HIDE			= 4,
-			E_PLATFORM_WINDOW_ACTION_SET_POSITION	= 8,
-			E_PLATFORM_WINDOW_ACTION_SET_SIZE		= 16,
+			E_PLATFORM_WINDOW_ACTION_DESTROY,
+			E_PLATFORM_WINDOW_ACTION_SHOW,
+			E_PLATFORM_WINDOW_ACTION_HIDE,
+			E_PLATFORM_WINDOW_ACTION_SET_POSITION,
+			E_PLATFORM_WINDOW_ACTION_SET_SIZE,
+			E_PLATFORM_WINDOW_ACTION_MAXIMIZE,
+			E_PLATFORM_WINDOW_ACTION_MINIMIZE,
+			E_PLATFORM_WINDOW_ACTION_RESTORE,
 		};
 
 		struct PlatformWindowAction
 		{
+			PlatformWindowAction(ImwPlatformWindow* pPlatformWindow, EPlatformWindowAction eAction, ImVec2 oValue = ImVec2(0.f, 0.f));
 			ImwPlatformWindow*		m_pPlatformWindow;
-			unsigned int			m_iFlags;
-			ImVec2					m_oPosition;
-			ImVec2					m_oSize;
+			EPlatformWindowAction	m_eAction;
+			ImVec2					m_oValue;
 		};
 
 		struct DockAction
@@ -118,6 +121,10 @@ namespace ImWindow
 		const ImwWindowList&				GetWindowList() const;
 		ImwPlatformWindow*					GetCurrentPlatformWindow();
 		ImwPlatformWindow*					GetWindowParent(ImwWindow* pWindow);
+
+		void								MaximizeCurrentPlatformWindow();
+		void								MinimizeCurrentPlatformWindow();
+		void								RestoreCurrentPlatformWindow();
 
 		bool								HasWantCaptureKeyboard() const { return m_bHasWantCaptureKeyboard; }
 		bool								HasWantCaptureMouse() const { return m_bHasWantCaptureMouse; }
