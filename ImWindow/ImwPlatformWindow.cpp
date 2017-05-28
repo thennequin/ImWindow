@@ -16,14 +16,17 @@ namespace ImWindow
 		m_bNeedRender = false;
 		m_bShowContent = true;
 
-		if (bCreateState)
+		if (bCreateState)
+
 		{
 			void* pTemp = ImGui::GetInternalState();
-
+
+
 			ImGuiIO& oCurrentIO = ImGui::GetIO();
 			m_pState = ImwMalloc(ImGui::GetInternalStateSize());
 			ImGui::SetInternalState(m_pState, true);
-			ImGuiIO& oNewIO = ImGui::GetIO();
+			ImGuiIO& oNewIO = ImGui::GetIO();
+
 			memcpy(&((ImGuiState*)m_pState)->IO.KeyMap, &((ImGuiState*)pTemp)->IO.KeyMap, sizeof(int) * ImGuiKey_COUNT);
 			oNewIO.RenderDrawListsFn = oCurrentIO.RenderDrawListsFn;
 			oNewIO.GetClipboardTextFn = oCurrentIO.GetClipboardTextFn;
@@ -33,7 +36,8 @@ namespace ImWindow
 			oNewIO.ImeSetInputScreenPosFn = oCurrentIO.ImeSetInputScreenPosFn;
 			ImGui::GetIO().IniFilename = NULL;
 
-			ImGui::SetInternalState(pTemp);
+			ImGui::SetInternalState(pTemp);
+
 		}
 	}
 
@@ -194,23 +198,6 @@ namespace ImWindow
 
 	void ImwPlatformWindow::PreUpdate()
 	{
-	}
-
-	void ImwPlatformWindow::Destroy()
-	{
-	}
-
-	void ImwPlatformWindow::StartDrag()
-	{
-	}
-
-	void ImwPlatformWindow::StopDrag()
-	{
-	}
-
-	bool ImwPlatformWindow::IsDraging()
-	{
-		return false;
 	}
 
 	void ImwPlatformWindow::Render()

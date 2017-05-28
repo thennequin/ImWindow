@@ -49,10 +49,6 @@ namespace ImWindow
 		void								OnLoseFocus();
 		virtual void						PreUpdate();
 		virtual void						Render();
-		virtual void						Destroy();
-		virtual void						StartDrag();
-		virtual void						StopDrag();
-		virtual bool						IsDraging();
 
 		void								PaintContainer();
 		void								OnClose();
