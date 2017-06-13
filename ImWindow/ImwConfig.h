@@ -41,6 +41,9 @@
 //#define IMW_CUSTOM_DECLARE_IMWWINDOW
 //#define IMW_CUSTOM_IMPLEMENT_IMWWINDOW
 
+// Define IMW_BEFORE_WINDOW_PAINT for calling function of instancing object before painting window
+//#define IMW_BEFORE_WINDOW_PAINT(pName) printf("Painting %s\n", pName);
+
 //////////////////////////////////////////////////////////////////////////
 // Include here imgui.h
 //////////////////////////////////////////////////////////////////////////

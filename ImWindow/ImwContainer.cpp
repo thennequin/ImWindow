@@ -796,7 +796,12 @@ namespace ImWindow
 					(*it)->m_oLastSize = oWinSize;
 				}
 				
-				pActiveWindow->OnGui();
+				{
+#ifdef IMW_BEFORE_WINDOW_PAINT
+					IMW_BEFORE_WINDOW_PAINT(pActiveWindow->GetTitle())
+#endif //IMW_BEFORE_WINDOW_PAINT
+					pActiveWindow->OnGui();
+				}
 
 				ImGui::EndChild();
 			}
