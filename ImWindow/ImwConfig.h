@@ -31,7 +31,7 @@
 
 #define ImwMalloc(iSize) malloc(iSize)
 #define ImwFree(pObj) free(pObj)
-#define ImwSafeFree(pObj) {free(pObj); pObj = NULL;}
+#define ImwSafeFree(pObj) if (pObj != NULL) { free(pObj); pObj = NULL; }
 
 // Define IMW_INHERITED_BY_IMWWINDOW when you want ImwWindow inherit from one of your class
 //#define IMW_INHERITED_BY_IMWWINDOW MyInheritedClass
