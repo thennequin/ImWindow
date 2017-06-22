@@ -264,7 +264,8 @@ void ImwPlatformWindowBGFX::OnFocus(bool bHasFocus)
 
 void ImwPlatformWindowBGFX::OnSize(int iWidth, int iHeight)
 {
-	bgfx::destroyFrameBuffer(m_hFrameBufferHandle);
+	if (bgfx::isValid(m_hFrameBufferHandle))
+		bgfx::destroyFrameBuffer(m_hFrameBufferHandle);
 	m_hFrameBufferHandle = bgfx::createFrameBuffer(m_pWindow->GetHandle(), uint16_t(m_pWindow->GetClientWidth()), uint16_t(m_pWindow->GetClientHeight()));
 	
 	if (m_bMain)
@@ -305,7 +306,7 @@ void ImwPlatformWindowBGFX::RenderDrawList(ImDrawData* pDrawData)
 
 	{
 		float ortho[16];
-		bx::mtxOrtho(ortho, 0.0f, width, height, 0.0f, -1.0f, 1.0f);
+		bx::mtxOrtho(ortho, 0.0f, width, height, 0.0f, -1.0f, 1.0f, 0.f, false);
 		bgfx::setViewTransform(255, NULL, ortho);
 	}
 
