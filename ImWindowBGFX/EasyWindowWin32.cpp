@@ -180,7 +180,7 @@ public:
 			}
 		}
 
-		SetWindowLongPtr(m_pHandle, GWL_USERDATA, (long)this);
+		SetWindowLongPtr(m_pHandle, GWLP_USERDATA, (LONG_PTR)this);
 	}
 
 	virtual							~EasyWindowWin32()
@@ -359,7 +359,7 @@ protected:
 
 	static LRESULT					CALLBACK Proc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	{
-		EasyWindowWin32* pThis = (EasyWindowWin32*)GetWindowLongPtr(hWnd, GWL_USERDATA);
+		EasyWindowWin32* pThis = (EasyWindowWin32*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
 		if (pThis != NULL)
 		{
