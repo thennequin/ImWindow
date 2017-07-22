@@ -41,6 +41,7 @@ namespace ImWindow
 		void								OnSize(int iWidth, int iHeight);
 		void								OnMouseButton(int iButton, bool bDown);
 		void								OnMouseMove(int iX, int iY);
+		void								OnMouseWheel( int iStep );
 		void								OnKey(EasyWindow::EKey eKey, bool bDown);
 		void								OnChar(int iChar);
 

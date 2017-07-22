@@ -374,7 +374,8 @@ public:
 	CallbackTwoArg<int, bool, void>		OnMouseButton;
 	/* int PosX, int PosY */
 	CallbackTwoArg<int, int, void>		OnMouseMove;
-
+	/* int wheel step */
+	CallbackOneArg<int, void>			OnMouseWheel;
 	/* int Key, bool IsDown */
 	CallbackTwoArg<EKey, bool, void>	OnKey;
 	/* int Char */

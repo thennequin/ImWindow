@@ -479,6 +479,9 @@ protected:
 					pThis->OnMouseMove((signed short)(lParam), (signed short)(lParam >> 16));
 				}
 				break;
+			case WM_MOUSEWHEEL:
+				pThis->OnMouseWheel( GET_WHEEL_DELTA_WPARAM( wParam ) / WHEEL_DELTA );
+				break;
 			case WM_SYSKEYDOWN:
 			case WM_SYSKEYUP:
 				return 1;
