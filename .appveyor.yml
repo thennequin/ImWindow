@@ -13,11 +13,20 @@ configuration:
 
 install:
   - git clone https://github.com/bkaradzic/bx ..\bx
-  - git checkout 335cec71219919218a7c14f748750ef40df38232 ..\bx
+  - pushd ..\bx
+  - git fetch origin 335cec71219919218a7c14f748750ef40df38232
+  - git reset --hard FETCH_HEAD
+  - popd
   - git clone https://github.com/bkaradzic/bgfx ..\bgfx
-  - git checkout d89a4e034610becb8aae7df422a53e986dd8c7f7 ..\bgfx
+  - pushd ..\bgfx
+  - git fetch origin d89a4e034610becb8aae7df422a53e986dd8c7f7
+  - git reset --hard FETCH_HEAD
+  - popd
   - git clone https://github.com/bkaradzic/bimg ..\bimg
-  - git checkout 8f89c161d99baa973dcb4cdd46dd135a3febb016 ..\bimg
+  - pushd ..\bimg
+  - git fetch origin 8f89c161d99baa973dcb4cdd46dd135a3febb016
+  - git reset --hard FETCH_HEAD
+  - popd
   - git submodule update --init --recursive
   - cd scripts
   - ..\..\bx\tools\bin\windows\genie --with-sff --with-bgfx %TOOLSET%
