@@ -59,6 +59,7 @@ bool ImwPlatformWindowBGFX::Init(ImwPlatformWindow* pMain)
 	m_pWindow->OnSize.Set(this, &ImwPlatformWindowBGFX::OnSize);
 	m_pWindow->OnMouseButton.Set(this, &ImwPlatformWindowBGFX::OnMouseButton);
 	m_pWindow->OnMouseMove.Set(this, &ImwPlatformWindowBGFX::OnMouseMove);
+	m_pWindow->OnMouseWheel.Set(this, &ImwPlatformWindowBGFX::OnMouseWheel);	
 	m_pWindow->OnKey.Set(this, &ImwPlatformWindowBGFX::OnKey);
 	m_pWindow->OnChar.Set(this, &ImwPlatformWindowBGFX::OnChar);
 
@@ -283,6 +284,11 @@ void ImwPlatformWindowBGFX::OnMouseButton(int iButton, bool bDown)
 void ImwPlatformWindowBGFX::OnMouseMove(int iX, int iY)
 {
 	((ImGuiState*)m_pState)->IO.MousePos = ImVec2((float)iX, (float)iY);
+}
+
+void ImwPlatformWindowBGFX::OnMouseWheel( int iStep )
+{
+	( ( ImGuiState* )m_pState )->IO.MouseWheel += iStep;
 }
 
 void ImwPlatformWindowBGFX::OnKey(EasyWindow::EKey eKey, bool bDown)
