@@ -4,6 +4,11 @@
 *.o
 *.obj
 
+# Debug Objects files
+*.pdb
+*.ilk
+*.exp
+
 # Precompiled Headers
 *.gch
 *.pch
