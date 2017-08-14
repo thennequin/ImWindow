@@ -6,7 +6,6 @@ environment:
   - TOOLSET: vs2012
   - TOOLSET: vs2013
   - TOOLSET: vs2015
-  - TOOLSET: "v141"
 
 configuration:
   - Debug
