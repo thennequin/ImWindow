@@ -189,6 +189,9 @@ solution "ImWindow"
 							"../Externals/imgui/SFF_truetype.h",
 			}
 			
+			
+			flags			{ "ExtraWarnings" }
+
 			vpaths {
 							["ImGui"] = "../Externals/imgui/**"
 			}
@@ -226,6 +229,7 @@ solution "ImWindow"
 							"../ImWindow/"
 		}
 		
+		flags				{ "ExtraWarnings" }
 		configuration		"Debug"
 			targetsuffix	"_d"
 			flags			{ "Symbols" }
