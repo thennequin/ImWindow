@@ -5,8 +5,13 @@ newoption {
 }
 
 newoption {
+	trigger = "with-dx11",
+	description = "Enable DX11 backend sample",
+}
+
+newoption {
 	trigger = "with-bgfx",
-	description = "Enable BGFX sample (need bgfx/bimg/bx repositories next to ImWindow repositorie)",
+	description = "Enable BGFX backend sample (need bgfx/bimg/bx repositories next to ImWindow repositorie)",
 }
 
 local PROJECT_DIR          = (path.getabsolute("..") .. "/")
@@ -229,6 +234,7 @@ solution "ImWindow"
 			targetsuffix	"_r"
 			flags			{ "Optimize" }
 
+if _OPTIONS["with-dx11"] then
 	startproject "ImWindowDX11"
 	project "ImWindowDX11"
 		uuid				"449C0C09-919A-4337-A09A-DFC2420A41B0"
@@ -267,7 +273,8 @@ solution "ImWindow"
 		configuration		"Release"
 			targetsuffix	"_r"
 			flags			{ "Optimize" }
-
+	end
+	
 	if _OPTIONS["with-bgfx"] then
 		startproject "ImwWindowBGFX"
 		project "ImwWindowBGFX"
