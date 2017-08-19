@@ -649,21 +649,21 @@ namespace ImWindow
 
 						if (ImGui::BeginMenu("Dock to"))
 						{
-							int iIndex = 0;
+							int iDockIndex = 0;
 
 							if (pWindowManager->GetMainPlatformWindow()->GetContainer()->IsEmpty())
 							{
 								ImGui::PushID(0);
 								if (ImGui::Selectable("Main")) pWindowManager->Dock((*it));
 								ImGui::PopID();
-								++iIndex;
+								++iDockIndex;
 							}
 							const ImwWindowList& lWindows = pWindowManager->GetWindowList();
 							for (ImwWindowList::const_iterator itWindow = lWindows.begin(); itWindow != lWindows.end(); ++itWindow)
 							{
 								if ((*it) != (*itWindow))
 								{
-									ImGui::PushID(iIndex);
+									ImGui::PushID(iDockIndex);
 									if (ImGui::BeginMenu((*itWindow)->GetTitle()))
 									{
 										bool bHovered = false;
@@ -732,7 +732,7 @@ namespace ImWindow
 									}
 									ImGui::PopID();
 								}
-								++iIndex;
+								++iDockIndex;
 							}
 
 							ImGui::EndMenu();
