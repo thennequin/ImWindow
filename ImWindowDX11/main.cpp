@@ -52,42 +52,60 @@ public:
 	}
 };
 
-class MyImwWindow3 : public ImwWindow, ImwMenu
+class MyMenu : public ImwMenu
 {
 public:
-	MyImwWindow3(const char* pTitle = "MyImwWindow3")
-		: ImwMenu(0, false)
+	MyMenu()
+		: ImwMenu( -1 )
 	{
-		SetTitle(pTitle);
-	}
-	virtual void OnGui()
-	{
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-
-		if (ImGui::Button("Close"))
-		{
-			Destroy();
-		}
 	}
 
 	virtual void OnMenu()
 	{
-		if (ImGui::BeginMenu("MyImwWindow3 menu"))
+		if (ImGui::BeginMenu("My menu"))
 		{
-			if (ImGui::MenuItem("Close it"))
+			if (ImGui::MenuItem("Show content", NULL, ImWindow::ImwWindowManager::GetInstance()->GetMainPlatformWindow()->IsShowContent()))
 			{
-				Destroy();
+				ImWindow::ImwWindowManager::GetInstance()->GetMainPlatformWindow()->SetShowContent(!ImWindow::ImwWindowManager::GetInstance()->GetMainPlatformWindow()->IsShowContent());
 			}
 			ImGui::EndMenu();
 		}
 	}
 };
 
-class MyImwWindow2 : public ImwWindow, ImwMenu
+class MyImwWindow3 : public ImwWindow
+{
+public:
+	MyImwWindow3(const char* pTitle = "MyImwWindow3")
+	{
+		SetTitle(pTitle);
+	}
+
+	virtual void OnGui()
+	{
+		if (!IsClosable())
+		{
+			ImGui::TextWrapped("I'm not closeable.\n");
+			ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
+			ImGui::TextWrapped("So you can't close the platform window\nuntil closing me.");
+			ImGui::PopStyleColor();
+			ImGui::TextWrapped("For close me, click on button 'Close'");
+			ImGui::Separator();
+		}
+
+		ImGui::TextWrapped("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+		if (ImGui::Button("Close"))
+		{
+			Destroy();
+		}
+	}
+};
+
+class MyImwWindow2 : public ImwWindow
 {
 public:
 	MyImwWindow2(const char* pTitle = "MyImwWindow2")
-		: ImwMenu(0, false)
 	{
 		SetTitle(pTitle);
 	}
@@ -95,42 +113,23 @@ public:
 	{
 		static float f = 0.0f;
 		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-		/*ImGui::ColorEdit3("clear color", (float*)&clear_col);
-		if (ImGui::Button("Test Window")) show_test_window ^= 1;
-		if (ImGui::Button("Another Window")) show_another_window ^= 1;*/
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-	}
-
-	virtual void OnMenu()
-	{
-		/*if (ImGui::BeginMenu("Mon menu"))
-		{
-			ImGui::EndMenu();
-		}*/
-
-		if (ImGui::BeginMenu("Platform window"))
-		{
-			if (ImGui::MenuItem("Show content", NULL, ImWindow::ImwWindowManager::GetInstance()->GetMainPlatformWindow()->IsShowContent()))
-			{
-				ImWindow::ImwWindowManager::GetInstance()->GetMainPlatformWindow()->SetShowContent( !ImWindow::ImwWindowManager::GetInstance()->GetMainPlatformWindow()->IsShowContent() );
-			}
-			ImGui::EndMenu();
-		}
 	}
 };
 
-class MyImwWindow : public ImwWindow
+class MyImwWindow : public ImwWindow, ImwMenu
 {
 public:
 	MyImwWindow(const char* pTitle = "MyImwWindow")
+		: ImwMenu( 0, false )
 	{
 		SetTitle(pTitle);
+		SetAlone(true);
 	}
 	virtual void OnGui()
 	{
-		ImGui::Text("Hello, world!");
+		ImGui::Text("Hello, world! I'm an alone window");
 
-		if (ImGui::Button("Create"))
+		if (ImGui::Button("Create new MyImwWindow3"))
 		{
 			new MyImwWindow3();
 		}
@@ -141,6 +140,18 @@ public:
 		if (ImGui::MenuItem("Focus"))
 		{
 			ImwWindowManager::GetInstance()->FocusWindow(this);
+		}
+	}
+
+	virtual void OnMenu()
+	{
+		if (ImGui::BeginMenu("MyImwWindow"))
+		{
+			if (ImGui::MenuItem("Create new MyImwWindow3"))
+			{
+				new MyImwWindow3();
+			}
+			ImGui::EndMenu();
 		}
 	}
 };
@@ -165,22 +176,26 @@ public:
 		ImGui::RadioButton("1. Button", (int*)&oConfig.m_eTabColorMode, ImwWindowManager::E_TABCOLORMODE_TITLE);
 		ImGui::RadioButton("2. Background", (int*)&oConfig.m_eTabColorMode, ImwWindowManager::E_TABCOLORMODE_BACKGROUND);
 		ImGui::RadioButton("3. Custom", (int*)&oConfig.m_eTabColorMode, ImwWindowManager::E_TABCOLORMODE_CUSTOM);
-		ImGui::DragFloat("Drag margin ratio", &oConfig.m_fDragMarginRatio);
-		ImGui::DragFloat("Drag margin size ratio", &oConfig.m_fDragMarginSizeRatio);
+		
+		ImGui::PushItemWidth(100.f);
+		ImGui::DragFloat("Drag margin ratio", &oConfig.m_fDragMarginRatio, 0.01f, 0.f, 1.f);
+		ImGui::DragFloat("Drag margin size ratio", &oConfig.m_fDragMarginSizeRatio, 0.01f, 0.f, 1.f);
+		ImGui::PopItemWidth();
 
 		ImGui::Checkbox("Show tab border", &oConfig.m_bShowTabBorder);
 		ImGui::Checkbox("Show tab shadows", &oConfig.m_bShowTabShadows);
 		//ImGui::Color("Drag margin ratio", &oConfig.m_oHightlightAreaColor);
 
-
+		ImGui::PushItemWidth(100.f);
 		ImGui::DragFloat("Tab overlap", &oConfig.m_fTabOverlap);
 		ImGui::DragFloat("Tab Slop Width", &oConfig.m_fTabSlopWidth);
-		ImGui::DragFloat("Tab fTabSlopP1Ratio", &oConfig.m_fTabSlopP1Ratio);
-		ImGui::DragFloat("Tab fTabSlopP2Ratio", &oConfig.m_fTabSlopP2Ratio);
-		ImGui::DragFloat("Tab fTabSlopHRatio", &oConfig.m_fTabSlopHRatio);
-		ImGui::DragFloat("Tab fTabShadowDropSize", &oConfig.m_fTabShadowDropSize);
-		ImGui::DragFloat("Tab fTabShadowSlopRatio", &oConfig.m_fTabShadowSlopRatio);
-		ImGui::DragFloat("Tab fTabShadowAlpha", &oConfig.m_fTabShadowAlpha);
+		ImGui::DragFloat("Tab fTabSlopP1Ratio", &oConfig.m_fTabSlopP1Ratio, 0.01f);
+		ImGui::DragFloat("Tab fTabSlopP2Ratio", &oConfig.m_fTabSlopP2Ratio, 0.01f);
+		ImGui::DragFloat("Tab fTabSlopHRatio", &oConfig.m_fTabSlopHRatio, 0.01f);
+		ImGui::DragFloat("Tab fTabShadowDropSize", &oConfig.m_fTabShadowDropSize, 0.01f);
+		ImGui::DragFloat("Tab fTabShadowSlopRatio", &oConfig.m_fTabShadowSlopRatio, 0.01f);
+		ImGui::DragFloat("Tab fTabShadowAlpha", &oConfig.m_fTabShadowAlpha, 0.01f);
+		ImGui::PopItemWidth();
 
 		ImGui::Separator();
 
@@ -313,7 +328,8 @@ int main(int argc, char* argv[])
 	ImwWindow* pWindow5 = new MyImwWindow3();
 	pWindow5->SetClosable(false);
 
-	//ImwWindow* pStyleEditor = new StyleEditorWindow();
+	ImwWindow* pStyleEditor = new StyleEditorWindow();
+	new MyMenu();
 	new MyStatusBar();
 	new MyToolBar();
 
@@ -322,11 +338,11 @@ int main(int argc, char* argv[])
 	oMgr.Dock(pWindow1);
 	oMgr.Dock(pWindow2, E_DOCK_ORIENTATION_LEFT);
 	oMgr.DockWith(pWindow3, pWindow2, E_DOCK_ORIENTATION_TOP);
-	oMgr.DockWith(pWindow4, pWindow3, E_DOCK_ORIENTATION_LEFT);
-	oMgr.DockWith(pWindow5, pWindow4, E_DOCK_ORIENTATION_CENTER);
+	oMgr.DockWith(pWindow4, pWindow3, E_DOCK_ORIENTATION_CENTER);
+	oMgr.DockWith(pWindow5, pWindow1, E_DOCK_ORIENTATION_BOTTOM, 0.7f);
 
 	//oMgr.Dock(pNodeWindow, E_DOCK_ORIENTATION_LEFT);
-	//oMgr.Dock(pStyleEditor, E_DOCK_ORIENTATION_LEFT);
+	oMgr.Dock(pStyleEditor, E_DOCK_ORIENTATION_RIGHT, 0.4f);
 
 	//oMgr.Dock
 	//MyImwWindow* pWindow2 = new MyImwWindow(pWindow1);
