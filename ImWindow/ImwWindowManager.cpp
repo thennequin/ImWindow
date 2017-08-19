@@ -46,6 +46,8 @@ namespace ImWindow
 		, m_fTabShadowDropSize( 15.f )
 		, m_fTabShadowSlopRatio( 0.6f )
 		, m_fTabShadowAlpha( 0.75f )
+		, m_oStatusBarWindowPadding( 4.f, 4.f )
+		, m_oStatusBarFramePadding( 4.f, 2.f )
 	{
 	}
 
@@ -730,7 +732,7 @@ namespace ImWindow
 				ImGui::EndMainMenuBar();
 				if (m_lStatusBars.size() > 0)
 				{
-					fBottom = 25.f;
+					fBottom = m_oConfig.m_oStatusBarFramePadding.y * 2.f + m_oConfig.m_oStatusBarWindowPadding.y * 2.f + ImGui::GetTextLineHeight();
 				}
 			}
 		}
@@ -789,10 +791,11 @@ namespace ImWindow
 				ImGui::SetNextWindowPos(ImVec2(0, pWindow->GetSize().y - fBottom), ImGuiSetCond_Always);
 				ImGui::SetNextWindowSize(ImVec2(pWindow->GetSize().x, fBottom), ImGuiSetCond_Always);
 
-				PushStyle(true, false);
+				ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
+				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, m_oConfig.m_oStatusBarWindowPadding);
+				ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, m_oConfig.m_oStatusBarFramePadding);
 				ImGui::Begin("##StatusBar", NULL, ImVec2(0,0), 1.f, iFlags);
 
-				PopStyle();
 				ImGui::Columns((int)m_lStatusBars.size());
 				for (ImwStatusBarList::iterator it = m_lStatusBars.begin(); it != m_lStatusBars.end(); ++it )
 				{
@@ -800,10 +803,9 @@ namespace ImWindow
 					ImGui::NextColumn();
 				}
 				ImGui::Columns(1);
-				PushStyle(true, false);
 
 				ImGui::End();
-				PopStyle();
+				ImGui::PopStyleVar(3);
 			}
 		}
 

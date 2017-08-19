@@ -97,6 +97,9 @@ namespace ImWindow
 			float					m_fTabShadowDropSize;
 			float					m_fTabShadowSlopRatio;
 			float					m_fTabShadowAlpha;
+
+			ImVec2					m_oStatusBarWindowPadding;
+			ImVec2					m_oStatusBarFramePadding;
 		};
 	public:
 		ImwWindowManager();

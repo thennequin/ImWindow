@@ -25,10 +25,22 @@ using namespace ImWindow;
 class MyStatusBar : public ImwStatusBar
 {
 public:
+	MyStatusBar()
+	{
+		m_fTime = 0.f;
+	}
+
 	virtual void OnStatusBar()
 	{
+		m_fTime += ImGui::GetIO().DeltaTime;
 		ImGui::Text("My status bar");
+		ImGui::SameLine();
+		while (m_fTime > 5.f)
+			m_fTime -= 5.f;
+		ImGui::ProgressBar(m_fTime / 5.f, ImVec2(150.f, 0.f));
 	}
+
+	float m_fTime;
 };
 
 class MyToolBar : public ImwToolBar
