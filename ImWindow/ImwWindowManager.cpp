@@ -809,13 +809,10 @@ namespace ImWindow
 			}
 		}
 
-		bool bWantCaptureKeyboard = ImGui::GetIO().WantCaptureKeyboard;
-		bool bWantCaptureMouse = ImGui::GetIO().WantCaptureMouse;
+		m_bHasWantCaptureKeyboard |= ImGui::GetIO().WantCaptureKeyboard;
+		m_bHasWantCaptureMouse |= ImGui::GetIO().WantCaptureMouse;
 
 		pWindow->RestoreState();
-
-		m_bHasWantCaptureKeyboard |= bWantCaptureKeyboard;
-		m_bHasWantCaptureMouse |= bWantCaptureMouse;
 	}
 
 	void ImwWindowManager::PostPaint(ImwPlatformWindow* pWindow)
