@@ -109,10 +109,27 @@ public:
 	{
 		SetTitle(pTitle);
 	}
+
 	virtual void OnGui()
 	{
 		static float f = 0.0f;
 		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+	}
+};
+
+class MyImwWindowFillSpace : public ImwWindow
+{
+public:
+	MyImwWindowFillSpace()
+	{
+		SetTitle("Filling space");
+		SetFillingSpace(true);
+	}
+
+	virtual void OnGui()
+	{
+		ImVec2 oSize = ImGui::GetContentRegionAvail();
+		ImGui::Selectable("I'm a selectable\nwho fills the whole space", true, 0, oSize);
 	}
 };
 
@@ -321,10 +338,10 @@ int main(int argc, char* argv[])
 
 	ImwWindow* pWindow1 = new MyImwWindow();
 
-	ImwWindow* pWindow2 = new MyImwWindow2();
+	ImwWindow* pWindow2 = new MyImwWindowFillSpace();
 
-	ImwWindow* pWindow3 = new MyImwWindow2("MyImwWindow2(2)");
-	ImwWindow* pWindow4 = new MyImwWindow2("MyImwWindow2(3)");
+	ImwWindow* pWindow3 = new MyImwWindow2("MyImwWindow2(1)");
+	ImwWindow* pWindow4 = new MyImwWindow2("MyImwWindow2(2)");
 	ImwWindow* pWindow5 = new MyImwWindow3();
 	pWindow5->SetClosable(false);
 
@@ -342,7 +359,7 @@ int main(int argc, char* argv[])
 	oMgr.DockWith(pWindow5, pWindow1, E_DOCK_ORIENTATION_BOTTOM, 0.7f);
 
 	//oMgr.Dock(pNodeWindow, E_DOCK_ORIENTATION_LEFT);
-	oMgr.Dock(pStyleEditor, E_DOCK_ORIENTATION_RIGHT, 0.4f);
+	oMgr.Dock(pStyleEditor, E_DOCK_ORIENTATION_RIGHT, 0.375f);
 
 	//oMgr.Dock
 	//MyImwWindow* pWindow2 = new MyImwWindow(pWindow1);
