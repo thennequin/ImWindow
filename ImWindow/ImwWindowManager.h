@@ -109,7 +109,8 @@ namespace ImWindow
 		bool								Run(bool bRender);
 		void								Destroy();
 
-		ImwPlatformWindow*					GetMainPlatformWindow();
+		ImwPlatformWindow*					GetMainPlatformWindow() const;
+		const ImwPlatformWindowList&		GetSecondariesPlatformWindows() const;
 		Config&								GetConfig();
 
 		void								SetMainTitle(const ImwChar* pTitle);

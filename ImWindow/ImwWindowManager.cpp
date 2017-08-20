@@ -167,9 +167,14 @@ namespace ImWindow
 		}
 	}
 
-	ImwPlatformWindow* ImwWindowManager::GetMainPlatformWindow()
+	ImwPlatformWindow* ImwWindowManager::GetMainPlatformWindow() const
 	{
 		return m_pMainPlatformWindow;
+	}
+
+	const ImwPlatformWindowList& ImwWindowManager::GetSecondariesPlatformWindows() const
+	{
+		return m_lPlatformWindows;
 	}
 
 	ImwWindowManager::Config& ImwWindowManager::GetConfig()
