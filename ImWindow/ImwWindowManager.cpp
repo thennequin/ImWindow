@@ -125,7 +125,8 @@ namespace ImWindow
 	{
 		if (m_pCurrentPlatformWindow != NULL)
 		{
-			OnClosePlatformWindow(m_pMainPlatformWindow);
+			if(m_pMainPlatformWindow != NULL)
+				m_lPlatformWindowActions.push_back(new PlatformWindowAction(m_pMainPlatformWindow, E_PLATFORM_WINDOW_ACTION_DESTROY));
 		}
 		else
 		{
