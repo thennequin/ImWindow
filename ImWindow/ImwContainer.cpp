@@ -779,7 +779,7 @@ namespace ImWindow
 				ImVec4 oBorderShadowColor = oStyle.Colors[ImGuiCol_BorderShadow];
 				oStyle.Colors[ImGuiCol_Border] = ImVec4(0.f, 0.f, 0.f, 0.f);
 				oStyle.Colors[ImGuiCol_BorderShadow] = ImVec4(0.f, 0.f, 0.f, 0.f);
-				ImGui::BeginChild(pActiveWindow->GetId(), ImVec2(0.f, 0.f), true, ImGuiWindowFlags_HorizontalScrollbar);
+				ImGui::BeginChild(pActiveWindow->GetId(), ImVec2(0.f, 0.f), !pActiveWindow->IsFillingSpace(), ImGuiWindowFlags_HorizontalScrollbar);
 
 				oStyle.Colors[ImGuiCol_Border] = oBorderColor;
 				oStyle.Colors[ImGuiCol_BorderShadow] = oBorderShadowColor;

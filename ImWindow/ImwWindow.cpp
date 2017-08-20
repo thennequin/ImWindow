@@ -16,6 +16,7 @@ namespace ImWindow
 		m_pTitle = NULL;
 		m_bClosable  = true;
 		m_bAlone = false;
+		m_bFillingSpace = false;
 		m_iId = s_iNextId++;
 	
 		//Write Id to string
@@ -39,6 +40,16 @@ namespace ImWindow
 
 	void ImwWindow::OnContextMenu()
 	{
+	}
+
+	bool ImwWindow::IsFillingSpace() const
+	{
+		return m_bFillingSpace;
+	}
+
+	void ImwWindow::SetFillingSpace(bool bFilling)
+	{
+		m_bFillingSpace = bFilling;
 	}
 
 	void ImwWindow::GetParameters(JsonValue& /*oOutParameters*/)

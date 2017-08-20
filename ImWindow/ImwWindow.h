@@ -36,6 +36,9 @@ namespace ImWindow
 	public:
 		virtual void			OnGui() = 0;
 		virtual void			OnContextMenu();
+		
+		bool					IsFillingSpace() const;
+		void					SetFillingSpace(bool bFilling);
 
 		virtual void			GetParameters(JsonValue& oOutParameters);
 		virtual void			SetParameters(const JsonValue& oParameters);
@@ -66,6 +69,7 @@ namespace ImWindow
 		ImwChar					m_pId[11];
 		bool					m_bClosable;
 		bool					m_bAlone;
+		bool					m_bFillingSpace;
 		ImVec2					m_oLastPosition;
 		ImVec2					m_oLastSize;
 
