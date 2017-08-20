@@ -784,9 +784,6 @@ namespace ImWindow
 				oStyle.Colors[ImGuiCol_Border] = oBorderColor;
 				oStyle.Colors[ImGuiCol_BorderShadow] = oBorderShadowColor;
 
-				if (!bAlone)
-					ImGui::Dummy(ImVec2(0.f, 2.f)); //2 pixels space;
-
 				ImVec2 oWinPos = ImGui::GetWindowPos();
 				ImVec2 oWinSize = ImGui::GetWindowSize();
 
