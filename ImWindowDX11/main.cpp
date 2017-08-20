@@ -68,6 +68,14 @@ public:
 			{
 				ImWindow::ImwWindowManager::GetInstance()->GetMainPlatformWindow()->SetShowContent(!ImWindow::ImwWindowManager::GetInstance()->GetMainPlatformWindow()->IsShowContent());
 			}
+
+			ImGui::Separator();
+
+			if (ImGui::MenuItem("Exit"))
+			{
+				ImWindow::ImwWindowManager::GetInstance()->Destroy();
+			}
+
 			ImGui::EndMenu();
 		}
 	}
