@@ -295,11 +295,14 @@ if _OPTIONS["with-dx11"] then
 			files {
 								"../ImWindowBGFX/**.cpp",
 								"../ImWindowBGFX/**.h",
+								"../Externals/EasyWindow/EasyWindow*.cpp",
+								"../Externals/EasyWindow/EasyWindow*.h",
 			}
 			
 			includedirs {
 								"../ImWindow",
 								"../Externals/imgui",
+								"../Externals/EasyWindow",
 
 								path.join(BX_DIR, "include"),
 								path.join(BX_DIR, "3rdparty"),
