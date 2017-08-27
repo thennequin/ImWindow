@@ -1,11 +1,23 @@
-os:
+version: 0.3.{build}
+
+image:
   - Visual Studio 2015
+  - Visual Studio 2017
 
 environment:
   matrix:
-  - TOOLSET: vs2012
-  - TOOLSET: vs2013
-  - TOOLSET: vs2015
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    TOOLSET: vs2012
+    BACKEND: --with-sff --with-opengl --with-glfw --with-dx11
+    BACKEND: --with-bgfx
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    TOOLSET: vs2015
+    BACKEND: --with-sff --with-opengl --with-glfw --with-dx11
+    BACKEND: --with-bgfx
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    TOOLSET: vs2017
+    BACKEND: --with-sff --with-opengl --with-glfw --with-dx11
+    BACKEND: --with-bgfx
 
 configuration:
   - Debug
@@ -31,8 +43,19 @@ install:
   - ps: popd
   
   - git submodule update --init --recursive
+
+  - ps: pushd scripts
+  - ps: powershell Invoke-WebRequest -Uri "https://github.com/glfw/glfw/releases/download/3.2.1/glfw-3.2.1.bin.WIN32.zip" -OutFile 'glfw-3.2.1.bin.WIN32.zip'
+  - ps: powershell Invoke-WebRequest -Uri "https://github.com/glfw/glfw/releases/download/3.2.1/glfw-3.2.1.bin.WIN64.zip" -OutFile 'glfw-3.2.1.bin.WIN64.zip'
+  - ps: Expand-Archive 'glfw-3.2.1.bin.WIN32.zip' -DestinationPath '..\Externals\'
+  - ps: Expand-Archive 'glfw-3.2.1.bin.WIN64.zip' -DestinationPath '..\Externals\'
+  - ps: popd
+  
   - cd scripts
-  - ..\..\bx\tools\bin\windows\genie --with-sff --with-opengl --with-dx11 --with-bgfx %TOOLSET%
+  - ..\..\bx\tools\bin\windows\genie %BACKEND% %TOOLSET%
 
 build:
   project: .projects/$(TOOLSET)/ImWindow.sln
+
+artifacts:
+  - path: Output\*.exe
