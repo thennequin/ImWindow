@@ -15,6 +15,11 @@ newoption {
 }
 
 newoption {
+	trigger = "with-glfw",
+	description = "Enable GLFW and OpenGL backend sample",
+}
+
+newoption {
 	trigger = "with-bgfx",
 	description = "Enable BGFX backend sample (need bgfx/bimg/bx repositories next to ImWindow repositorie)",
 }
@@ -106,6 +111,22 @@ if _OPTIONS["with-sff"] then
 	print "=================="
 end
 
+function SetupSuffix()
+	configuration {}
+	
+	configuration { "Debug", "x32" }
+		targetsuffix	"_d"
+	configuration { "Debug", "x64" }
+		targetsuffix	"_x64_d"
+	
+	configuration { "Release", "x32" }
+		targetsuffix	""
+	configuration { "Release", "x64" }
+		targetsuffix	"_x64"
+	
+	configuration {}
+end
+
 if _OPTIONS["with-bgfx"] then
 	BGFX_DIR        = path.join(BGFX_ROOT_DIR, "bgfx")
 	BX_DIR          = path.join(BGFX_ROOT_DIR, "bx")
@@ -140,7 +161,7 @@ solution "ImWindow"
 	configurations			{ "Debug", "Release" }
 	platforms				{ "x32", "x64" }
 
-	if _OPTIONS["with-bgfx"] then
+if _OPTIONS["with-bgfx"] then
 		defines
 		{
 			"ENTRY_CONFIG_IMPLEMENT_DEFAULT_ALLOCATOR=1",
@@ -160,21 +181,21 @@ solution "ImWindow"
 		if not toolchain(PROJECT_PROJECTS_DIR, BGFX_ROOT_DIR) then
 			return -- no action specified
 		end
-	end
+end
 	
 	location				(path.join(PROJECT_PROJECTS_DIR, _ACTION))
 	objdir					(path.join(PROJECT_BUILD_DIR, _ACTION))
 
-	if _OPTIONS["with-bgfx"] then
+if _OPTIONS["with-bgfx"] then
 		dofile (path.join(BX_DIR, "scripts/bx.lua"))
 		dofile (path.join(BIMG_DIR, "scripts/bimg.lua"))
 		dofile (path.join(BGFX_DIR, "scripts/bgfx.lua"))
 
 		bgfxProject("", "StaticLib", {})
-	end
+end
 
 	-- Inlude only SFF files in project
-	if _OPTIONS["with-sff"] then
+if _OPTIONS["with-sff"] then
 		project "ImWindowSFF"
 			uuid			"458E707F-2347-47D2-842A-A431CA538063"
 			kind			"StaticLib"
@@ -205,7 +226,9 @@ solution "ImWindow"
 							"../Externals/imgui",
 							"../ImWindow/"
 			}
-	end
+
+			SetupSuffix()
+end
 
 	project "ImWindow"
 		uuid				"99AABCFD-6ED6-43E5-BD14-EFDC04CBE09F"
@@ -234,14 +257,15 @@ solution "ImWindow"
 							"../ImWindow/"
 		}
 		
-		flags				{ "ExtraWarnings" }
+		flags				"ExtraWarnings"
+
 		configuration		"Debug"
-			targetsuffix	"_d"
-			flags			{ "Symbols" }
+			flags			"Symbols"
 			
 		configuration		"Release"
-			targetsuffix	"_r"
-			flags			{ "Optimize" }
+			flags			"Optimize"
+
+		SetupSuffix()
 
 if _OPTIONS["with-dx11"] then
 	startproject "ImWindowDX11"
@@ -264,24 +288,19 @@ if _OPTIONS["with-dx11"] then
 							"../Externals/DirectX/include"
 		}
 		
-		
-		platforms			"x32"
-			libdirs {
-							"../Externals/DirectX/lib/x86"
-			}
+		configuration		"x32"
+			libdirs			"../Externals/DirectX/lib/x86"
 			
-		platforms			"x64"
-			libdirs {
-							"../Externals/DirectX/lib/x64"
-			}
+		configuration		"x64"
+			libdirs			"../Externals/DirectX/lib/x64"
 
 		configuration		"Debug"
-			targetsuffix	"_d"
-			flags			{ "Symbols" }
+			flags			"Symbols"
 			
 		configuration		"Release"
-			targetsuffix	"_r"
-			flags			{ "Optimize" }
+			flags			"Optimize"
+
+		SetupSuffix()
 end
 
 if _OPTIONS["with-opengl"] then
@@ -311,15 +330,70 @@ if _OPTIONS["with-opengl"] then
 		}
 
 		configuration		"Debug"
-			targetsuffix	"_d"
-			flags			{ "Symbols" }
+			flags			"Symbols"
 			
 		configuration		"Release"
-			targetsuffix	"_r"
-			flags			{ "Optimize" }
+			flags			"Optimize"
+
+		SetupSuffix()
+end
+
+if _OPTIONS["with-glfw"] then
+	startproject "ImWindowGLFW"
+	project "ImWindowGLFW"
+		uuid				"3da873e6-1acd-486c-a941-9b45018d9eca"
+		kind				"WindowedApp"
+		targetdir			(PROJECT_RUNTIME_DIR)
+		
+		links				{ "ImWindow" }
+		files {
+							"../ImWindowGLFW/**.cpp",
+							"../ImWindowGLFW/**.h",
+		}	
+		
+		includedirs {
+							"../ImWindow",
+							"../Externals/imgui"
+		}
+
+		configuration "x32"
+			includedirs		"../Externals/glfw-3.2.1.bin.WIN32/include"
+		configuration "x64"
+			includedirs		"../Externals/glfw-3.2.1.bin.WIN64/include"
+
+		configuration { "vs2010", "x32" }
+			libdirs			"../Externals/glfw-3.2.1.bin.WIN32/lib-vc2010"
+		configuration { "vs2012", "x32" }
+			libdirs			"../Externals/glfw-3.2.1.bin.WIN32/lib-vc2012"
+		configuration { "vs2013", "x32" }
+			libdirs			"../Externals/glfw-3.2.1.bin.WIN32/lib-vc2013"
+		configuration { "vs2015 or vs2017", "x32" }
+			libdirs			"../Externals/glfw-3.2.1.bin.WIN32/lib-vc2015"
+		
+		configuration { "vs2012", "x64" }
+			libdirs			"../Externals/glfw-3.2.1.bin.WIN64/lib-vc2012"
+		configuration { "vs2013", "x64" }
+			libdirs			"../Externals/glfw-3.2.1.bin.WIN64/lib-vc2013"
+		configuration { "vs2015 or vs2017", "x64" }
+			libdirs			"../Externals/glfw-3.2.1.bin.WIN64/lib-vc2015"
+
+		configuration {}
+
+		links {
+							"glfw3",
+							"OpenGL32"
+		}
+
+		configuration		"Debug"
+			flags			"Symbols"
+			
+		configuration		"Release"
+			flags			"Optimize"
+
+		SetupSuffix()
 end
 	
-	if _OPTIONS["with-bgfx"] then
+if _OPTIONS["with-bgfx"] then
 		startproject "ImwWindowBGFX"
 		project "ImwWindowBGFX"
 			uuid				"DF12277C-C20B-4CD7-92D8-95ABD26986B1"
@@ -352,25 +426,15 @@ end
 								--path.join(BGFX_DIR, "3rdparty/forsyth-too"),
 								path.join(BIMG_DIR, "include"),
 								path.join(BIMG_DIR, "3rdparty"),
-			}		
-			
-			platforms			"x32"
-				libdirs {
-								--"../Externals/glfw-3.2/lib-vc2015/x86"
-				}
-				
-			platforms			"x64"
-				libdirs {
-								--"../Externals/glfw-3.2/lib-vc2015/x64"
-				}
+			}
 
 			configuration		"Debug"
-				targetsuffix	"_d"
 				flags			{ "Symbols" }
 				
 			configuration		"Release"
-				targetsuffix	"_r"
 				flags			{ "Optimize" }
+
+			SetupSuffix()
 
 			configuration {}
 
@@ -402,4 +466,4 @@ end
 					"/DELAYLOAD:\"libEGL.dll\"",
 					"/DELAYLOAD:\"libGLESv2.dll\"",
 				}
-	end
+end
