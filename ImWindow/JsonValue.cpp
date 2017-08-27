@@ -609,6 +609,8 @@ namespace ImWindow
 	{
 		if (m_eType == E_TYPE_INTEGER)
 			return m_iInteger;
+		else if (m_eType == E_TYPE_FLOAT)
+			return (long)m_fFloat;
 		return 0;
 	}
 
@@ -616,6 +618,8 @@ namespace ImWindow
 	{
 		if (m_eType == E_TYPE_FLOAT)
 			return m_fFloat;
+		else if (m_eType == E_TYPE_INTEGER)
+			return (double)m_iInteger;
 		return 0.0;
 	}
 
