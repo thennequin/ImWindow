@@ -33,8 +33,7 @@ namespace ImWindow
 		virtual bool						IsWindowMaximized() const;
 		virtual bool						IsWindowMinimized() const;
 
-		virtual void						Show();
-		virtual void						Hide();
+		virtual void						Show(bool bShow);
 		virtual void						SetSize(int iWidth, int iHeight);
 		virtual void						SetPosition(int iX, int iY);
 		virtual void						SetWindowMaximized(bool bMaximized);

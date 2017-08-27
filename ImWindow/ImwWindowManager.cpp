@@ -88,7 +88,7 @@ namespace ImWindow
 		m_pMainPlatformWindow = CreatePlatformWindow(E_PLATFORM_WINDOW_TYPE_MAIN, NULL);
 		if (NULL != m_pMainPlatformWindow)
 		{
-			m_pMainPlatformWindow->Show();
+			m_pMainPlatformWindow->Show(true);
 
 			if (CanCreateMultipleWindow())
 			{
@@ -391,7 +391,7 @@ namespace ImWindow
 				JsonValue& oJsonPlatformWindow = oJsonPlatformWindows[iCurrent];
 				ImwPlatformWindow* pNewPlatformWindow = CreatePlatformWindow(E_PLATFORM_WINDOW_TYPE_SECONDARY, m_pMainPlatformWindow);
 				m_lPlatformWindows.push_back(pNewPlatformWindow);
-				pNewPlatformWindow->Show();
+				pNewPlatformWindow->Show(true);
 				if (!pNewPlatformWindow->Load(oJsonPlatformWindow, false))
 					return false; //Something wrong
 			}
@@ -592,11 +592,11 @@ namespace ImWindow
 			}
 			else if (pAction->m_eAction == E_PLATFORM_WINDOW_ACTION_SHOW)
 			{
-				pAction->m_pPlatformWindow->Show();
+				pAction->m_pPlatformWindow->Show(true);
 			}
 			else if (pAction->m_eAction == E_PLATFORM_WINDOW_ACTION_HIDE)
 			{
-				pAction->m_pPlatformWindow->Hide();
+				pAction->m_pPlatformWindow->Show(false);
 			}
 			else if (pAction->m_eAction == E_PLATFORM_WINDOW_ACTION_SET_POSITION)
 			{
@@ -923,7 +923,7 @@ namespace ImWindow
 	{
 		if ( NULL != m_pDragPlatformWindow )
 		{
-			m_pDragPlatformWindow->Hide();
+			m_pDragPlatformWindow->Show(false);
 			m_pDragPlatformWindow->m_bNeedRender = false;
 			m_lPlatformWindowActions.push_back(new PlatformWindowAction(m_pDragPlatformWindow, E_PLATFORM_WINDOW_ACTION_HIDE));
 		}
@@ -959,11 +959,11 @@ namespace ImWindow
 			{
 				if (m_bDragOnTab || m_pDragBestContainer != NULL)
 				{
-					m_pDragPlatformWindow->Hide();
+					m_pDragPlatformWindow->Show(false);
 				}
 				else
 				{
-					m_pDragPlatformWindow->Show();
+					m_pDragPlatformWindow->Show(true);
 
 					m_pDragPlatformWindow->SetPosition((int)(oCursorPos.x + m_oDragPreviewOffset.x), (int)(oCursorPos.y + m_oDragPreviewOffset.y));
 				}
@@ -1230,7 +1230,7 @@ void ImwWindowManager::AddStatusBar(ImwStatusBar* pStatusBar)
 			pPlatformWindow->Dock(pWindow);
 			pPlatformWindow->SetSize((int)oSize.x, (int)oSize.y);
 			pPlatformWindow->SetPosition((int)oPosition.x, (int)oPosition.y);
-			pPlatformWindow->Show();
+			pPlatformWindow->Show(true);
 		}
 	}
 

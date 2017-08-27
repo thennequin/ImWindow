@@ -186,14 +186,9 @@ bool ImwPlatformWindowBGFX::IsWindowMinimized() const
 	return m_pWindow->IsMinimized();
 }
 
-void ImwPlatformWindowBGFX::Show()
+void ImwPlatformWindowBGFX::Show(bool bShow)
 {
-	m_pWindow->Show(true);
-}
-
-void ImwPlatformWindowBGFX::Hide()
-{
-	m_pWindow->Show(false);
+	m_pWindow->Show(bShow);
 }
 
 void ImwPlatformWindowBGFX::SetSize(int iWidth, int iHeight)

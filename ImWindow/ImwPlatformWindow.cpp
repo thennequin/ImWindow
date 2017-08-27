@@ -82,11 +82,7 @@ namespace ImWindow
 		return false;
 	}
 
-	void ImwPlatformWindow::Show()
-	{
-	}
-
-	void ImwPlatformWindow::Hide()
+	void ImwPlatformWindow::Show(bool /*bShow*/)
 	{
 	}
 

@@ -211,14 +211,9 @@ bool ImwPlatformWindowDX11::IsWindowMaximized() const
 	return IsMaximized(m_hWnd);
 }
 
-void ImwPlatformWindowDX11::Show()
+void ImwPlatformWindowDX11::Show(bool bShow)
 {
-	ShowWindow(m_hWnd, SW_SHOW);
-}
-
-void ImwPlatformWindowDX11::Hide()
-{
-	ShowWindow(m_hWnd, SW_HIDE);
+	ShowWindow(m_hWnd, bShow ? SW_SHOW : SW_HIDE);
 }
 
 void ImwPlatformWindowDX11::SetSize(int iWidth, int iHeight)
