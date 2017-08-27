@@ -85,14 +85,14 @@ namespace ImWindow
 		//io.Fonts->AddFontFromFileTTF( "res/DroidSans.ttf", 16 ) || io.Fonts->AddFontDefault();
 		//io.Fonts->AddFontFromFileTTF( "res/DroidSans-Bold.ttf", 16 ) || io.Fonts->AddFontDefault();
 
-		m_pMainPlatformWindow = CreatePlatformWindow(true, NULL, false);
+		m_pMainPlatformWindow = CreatePlatformWindow(E_PLATFORM_WINDOW_TYPE_MAIN, NULL);
 		if (NULL != m_pMainPlatformWindow)
 		{
 			m_pMainPlatformWindow->Show();
 
 			if (CanCreateMultipleWindow())
 			{
-				m_pDragPlatformWindow = CreatePlatformWindow(false, m_pMainPlatformWindow, true);
+				m_pDragPlatformWindow = CreatePlatformWindow(E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW, m_pMainPlatformWindow);
 			}
 		
 			return true;
@@ -389,7 +389,7 @@ namespace ImWindow
 			for (int iCurrent = 0; iCurrent < iPlatformWindowCount; ++iCurrent)
 			{
 				JsonValue& oJsonPlatformWindow = oJsonPlatformWindows[iCurrent];
-				ImwPlatformWindow* pNewPlatformWindow = CreatePlatformWindow(false, m_pMainPlatformWindow, false);
+				ImwPlatformWindow* pNewPlatformWindow = CreatePlatformWindow(E_PLATFORM_WINDOW_TYPE_SECONDARY, m_pMainPlatformWindow);
 				m_lPlatformWindows.push_back(pNewPlatformWindow);
 				pNewPlatformWindow->Show();
 				if (!pNewPlatformWindow->Load(oJsonPlatformWindow, false))
@@ -449,11 +449,11 @@ namespace ImWindow
 		return true;
 	}
 
-	ImwPlatformWindow* ImwWindowManager::CreatePlatformWindow(bool bMain, ImwPlatformWindow* /*pParent*/, bool bDragWindow)
+	ImwPlatformWindow* ImwWindowManager::CreatePlatformWindow(EPlatformWindowType eType, ImwPlatformWindow* /*pParent*/)
 	{
-		if (bMain)
+		if (eType == E_PLATFORM_WINDOW_TYPE_MAIN)
 		{
-			return (ImWindow::ImwPlatformWindow*)new ImwPlatformWindow(bMain, bDragWindow, CanCreateMultipleWindow());
+			return (ImWindow::ImwPlatformWindow*)new ImwPlatformWindow(eType, CanCreateMultipleWindow());
 		}
 		return NULL;
 	}
@@ -710,7 +710,7 @@ namespace ImWindow
 			return;
 
 		pWindow->m_bNeedRender = false;
-		if (pWindow->m_bIsDragWindow && (NULL == m_pDraggedWindow || m_bDragOnTab || m_pDragBestContainer != NULL))
+		if (pWindow->m_eType == E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW && (NULL == m_pDraggedWindow || m_bDragOnTab || m_pDragBestContainer != NULL))
 			return;
 
 		pWindow->m_bNeedRender = true;
@@ -724,7 +724,7 @@ namespace ImWindow
 
 		float fTop = 0.f;
 		float fBottom = 0.f;
-		if (pWindow->IsMain())
+		if (pWindow->GetType() == E_PLATFORM_WINDOW_TYPE_MAIN)
 		{
 			ImGuiIO& oIO = ImGui::GetIO();
 			if (pWindow->IsShowContent() || oIO.MousePos.y <= 50.f  || oIO.MetricsActiveWindows > 2) // Autohide menu bar
@@ -773,7 +773,7 @@ namespace ImWindow
 				ImGui::SetActiveID(oId, ImGui::GetCurrentWindow());
 			}
 
-			if (pWindow->IsMain())
+			if (pWindow->GetType() == E_PLATFORM_WINDOW_TYPE_MAIN)
 			{
 				if (!m_lToolBars.empty())
 				{
@@ -792,7 +792,7 @@ namespace ImWindow
 
 			PopStyle();
 
-			if (pWindow->IsMain() && m_lStatusBars.size() > 0)
+			if (pWindow->GetType() == E_PLATFORM_WINDOW_TYPE_MAIN && m_lStatusBars.size() > 0)
 			{
 				ImGui::SetNextWindowPos(ImVec2(0, pWindow->GetSize().y - fBottom), ImGuiSetCond_Always);
 				ImGui::SetNextWindowSize(ImVec2(pWindow->GetSize().x, fBottom), ImGuiSetCond_Always);
@@ -1209,7 +1209,7 @@ void ImwWindowManager::AddStatusBar(ImwStatusBar* pStatusBar)
 
 	void ImwWindowManager::InternalFloat(ImwWindow* pWindow, ImVec2 oPosition, ImVec2 oSize)
 	{
-		ImwPlatformWindow* pPlatformWindow = CreatePlatformWindow(false, m_pMainPlatformWindow, false);
+		ImwPlatformWindow* pPlatformWindow = CreatePlatformWindow(E_PLATFORM_WINDOW_TYPE_SECONDARY, m_pMainPlatformWindow);
 		if (NULL != pPlatformWindow)
 		{
 			m_lPlatformWindows.push_back(pPlatformWindow);
@@ -1246,7 +1246,7 @@ void ImwWindowManager::AddStatusBar(ImwStatusBar* pStatusBar)
 			if ( (*it)->UnDock(pWindow) )
 			{
 				//Destroy empty platform window if not main window
-				if ( !(*it)->IsMain() && (*it)->GetContainer()->IsEmpty() )
+				if ( (*it)->GetType() != E_PLATFORM_WINDOW_TYPE_MAIN && (*it)->GetContainer()->IsEmpty() )
 				{
 					m_lToDestroyPlatformWindows.push_back(*it);
 				}

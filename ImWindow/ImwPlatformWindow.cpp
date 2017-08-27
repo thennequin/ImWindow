@@ -6,10 +6,9 @@
 namespace ImWindow
 {
 //SFF_BEGIN
-	ImwPlatformWindow::ImwPlatformWindow(bool bMain, bool bIsDragWindow, bool bCreateState)
+	ImwPlatformWindow::ImwPlatformWindow(EPlatformWindowType eType, bool bCreateState)
 	{
-		m_bMain = bMain;
-		m_bIsDragWindow = bIsDragWindow;
+		m_eType = eType;
 		m_pContainer = new ImwContainer(this);
 		m_pState = NULL;
 		m_pPreviousState = NULL;
@@ -43,7 +42,7 @@ namespace ImWindow
 		ImwSafeDelete(m_pContainer);
 
 		SetState();
-		if (!IsMain())
+		if (GetType() != E_PLATFORM_WINDOW_TYPE_MAIN)
 		{
 			ImGui::GetIO().Fonts = NULL;
 		}
@@ -55,6 +54,11 @@ namespace ImWindow
 	bool ImwPlatformWindow::Init(ImwPlatformWindow* /*pParent*/)
 	{
 		return true;
+	}
+
+	EPlatformWindowType ImwPlatformWindow::GetType() const
+	{
+		return m_eType;
 	}
 
 	const ImVec2 c_oVec2_0 = ImVec2(0,0);
@@ -215,11 +219,6 @@ namespace ImWindow
 			ImGui::Render();
 			RestoreState();
 		}
-	}
-
-	bool ImwPlatformWindow::IsMain()
-	{
-		return m_bMain;
 	}
 
 	void ImwPlatformWindow::Dock(ImwWindow* pWindow)

@@ -10,15 +10,24 @@
 namespace ImWindow
 {
 //SFF_BEGIN
+	enum EPlatformWindowType
+	{
+		E_PLATFORM_WINDOW_TYPE_MAIN,
+		E_PLATFORM_WINDOW_TYPE_SECONDARY,
+		E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW,
+		E_PLATFORM_WINDOW_TYPE_DIALOG_BOX
+	};
+
 	class IMGUI_API ImwPlatformWindow
 	{
 		friend class ImwWindowManager;
 	public:
-											ImwPlatformWindow(bool bMainWindow, bool bIsDragWindow, bool bCreateState);
+											ImwPlatformWindow(EPlatformWindowType eType, bool bCreateState);
 		virtual								~ImwPlatformWindow();
 
 		virtual bool						Init(ImwPlatformWindow* pParent);
 
+		EPlatformWindowType					GetType() const;
 		virtual ImVec2						GetPosition() const;
 		virtual ImVec2						GetSize() const;
 		virtual bool						IsWindowMaximized() const;
@@ -33,8 +42,6 @@ namespace ImWindow
 		virtual void						SetTitle(const char* pTtile);
 		bool								IsShowContent() const;
 		void								SetShowContent(bool bShow);
-
-		bool								IsMain();
 
 		void								Dock(ImwWindow* pWindow);
 		bool								UnDock(ImwWindow* pWindow);
@@ -58,8 +65,7 @@ namespace ImWindow
 		bool								Save(JsonValue& oJson);
 		bool								Load(const JsonValue& oJson, bool bJustCheck);
 
-		bool								m_bMain;
-		bool								m_bIsDragWindow;
+		EPlatformWindowType					m_eType;
 		ImwContainer*						m_pContainer;
 		void*								m_pState;
 		void*								m_pPreviousState;
