@@ -16,10 +16,10 @@ ImwWindowManagerDX11::~ImwWindowManagerDX11()
 	//ImGui_ImplDX11_Shutdown();
 }
 
-ImwPlatformWindow* ImwWindowManagerDX11::CreatePlatformWindow(bool bMain, ImwPlatformWindow* pParent, bool bDragWindow)
+ImwPlatformWindow* ImwWindowManagerDX11::CreatePlatformWindow(EPlatformWindowType eType, ImwPlatformWindow* pParent)
 {
 	IM_ASSERT(m_pCurrentPlatformWindow == NULL);
-	ImwPlatformWindowDX11* pWindow = new ImwPlatformWindowDX11(bMain, bDragWindow, CanCreateMultipleWindow());
+	ImwPlatformWindowDX11* pWindow = new ImwPlatformWindowDX11(eType, CanCreateMultipleWindow());
 	if (pWindow->Init(pParent))
 	{
 		return (ImwPlatformWindow*)pWindow;

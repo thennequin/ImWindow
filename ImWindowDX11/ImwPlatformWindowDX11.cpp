@@ -35,8 +35,8 @@ INT64									ImwPlatformWindowDX11::g_TicksPerSecond = 0;
 IMGUI_API void							ImGui_ImplDX11_RenderDrawLists(ImDrawData* draw_data);
 
 
-ImwPlatformWindowDX11::ImwPlatformWindowDX11( bool bMain, bool bIsDragWindow, bool bCreateState )
-	: ImwPlatformWindow( bMain, bIsDragWindow, bCreateState )
+ImwPlatformWindowDX11::ImwPlatformWindowDX11(EPlatformWindowType eType, bool bCreateState)
+	: ImwPlatformWindow( eType, bCreateState )
 {
 	m_pSwapChain = NULL;
 	m_pRenderTargetView = NULL;
@@ -65,11 +65,11 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 	HRESULT hr;
 
 	DWORD iWindowStyle;
-	if (m_bIsDragWindow)
+	if (m_eType == E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW)
 	{
 		iWindowStyle = WS_POPUP;
 	}
-	else if (pMain != NULL)
+	else if (m_eType == E_PLATFORM_WINDOW_TYPE_SECONDARY)
 	{
 		iWindowStyle = WS_POPUP | WS_VISIBLE | WS_THICKFRAME;
 		iWindowStyle = WS_OVERLAPPEDWINDOW;
@@ -95,7 +95,7 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 		GetModuleHandle(NULL),
 		NULL);
 
-	if (m_bIsDragWindow)
+	if (m_eType == E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW)
 	{
 		SetWindowLong(m_hWnd, GWL_EXSTYLE, GetWindowLong(m_hWnd, GWL_EXSTYLE) | WS_EX_LAYERED);
 		SetLayeredWindowAttributes(m_hWnd, RGB(0, 0, 0), 128, LWA_ALPHA);

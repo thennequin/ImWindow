@@ -15,7 +15,7 @@ namespace ImWindow
 		virtual							~ImwWindowManagerDX11();
 	protected:
 		virtual bool					CanCreateMultipleWindow() { return true; }
-		virtual ImwPlatformWindow*		CreatePlatformWindow(bool bMain, ImwPlatformWindow* pParent, bool bDragWindow);
+		virtual ImwPlatformWindow*		CreatePlatformWindow(EPlatformWindowType eType, ImwPlatformWindow* pParent);
 
 		virtual ImVec2					GetCursorPos();
 		virtual bool					IsLeftClickDown();
