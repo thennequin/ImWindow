@@ -16,10 +16,10 @@ ImwWindowManagerBGFX::~ImwWindowManagerBGFX()
 	bgfx::shutdown();
 }
 
-ImwPlatformWindow* ImwWindowManagerBGFX::CreatePlatformWindow(bool bMain, ImwPlatformWindow* pParent, bool bDragWindow)
+ImwPlatformWindow* ImwWindowManagerBGFX::CreatePlatformWindow(EPlatformWindowType eType, ImwPlatformWindow* pParent)
 {
 	IM_ASSERT(m_pCurrentPlatformWindow == NULL);
-	ImwPlatformWindowBGFX* pWindow = new ImwPlatformWindowBGFX(bMain, bDragWindow, CanCreateMultipleWindow(), m_eRenderer);
+	ImwPlatformWindowBGFX* pWindow = new ImwPlatformWindowBGFX(eType, CanCreateMultipleWindow(), m_eRenderer);
 	if (pWindow->Init(pParent))
 	{
 		return (ImwPlatformWindow*)pWindow;

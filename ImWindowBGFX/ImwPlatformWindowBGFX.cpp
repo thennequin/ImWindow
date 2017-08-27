@@ -21,15 +21,15 @@ static const bgfx::EmbeddedShader s_embeddedShaders[] =
 
 using namespace ImWindow;
 
-ImwPlatformWindowBGFX::ImwPlatformWindowBGFX(bool bMain, bool bIsDragWindow, bool bCreateState, bgfx::RendererType::Enum eRenderer)
-	: ImwPlatformWindow(bMain, bIsDragWindow, bCreateState)
+ImwPlatformWindowBGFX::ImwPlatformWindowBGFX(EPlatformWindowType eType, bool bCreateState, bgfx::RendererType::Enum eRenderer)
+	: ImwPlatformWindow(eType, bCreateState)
 {
 	m_eRenderer = eRenderer;
 }
 
 ImwPlatformWindowBGFX::~ImwPlatformWindowBGFX()
 {
-	if (m_bMain)
+	if (m_eType == E_PLATFORM_WINDOW_TYPE_MAIN)
 	{
 		bgfx::destroyProgram(m_hProgram);
 		bgfx::destroyTexture(m_hTexture);
@@ -67,7 +67,7 @@ bool ImwPlatformWindowBGFX::Init(ImwPlatformWindow* pMain)
 	m_pWindow->OnKey.Set(this, &ImwPlatformWindowBGFX::OnKey);
 	m_pWindow->OnChar.Set(this, &ImwPlatformWindowBGFX::OnChar);
 
-	if (m_bMain)
+	if (m_eType == E_PLATFORM_WINDOW_TYPE_MAIN)
 	{
 		bgfx::PlatformData pd;
 		memset(&pd, 0, sizeof(pd));
@@ -78,7 +78,7 @@ bool ImwPlatformWindowBGFX::Init(ImwPlatformWindow* pMain)
 		bgfx::reset(m_pWindow->GetClientWidth(), m_pWindow->GetClientHeight());
 	}
 
-	if (m_bIsDragWindow)
+	if (m_eType == E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW)
 		m_pWindow->SetAlpha(128);
 
 	m_hFrameBufferHandle = bgfx::createFrameBuffer(m_pWindow->GetHandle(), uint16_t(m_pWindow->GetClientWidth()), uint16_t(m_pWindow->GetClientHeight()));
@@ -273,7 +273,7 @@ void ImwPlatformWindowBGFX::OnSize(int iWidth, int iHeight)
 		bgfx::destroyFrameBuffer(m_hFrameBufferHandle);
 	m_hFrameBufferHandle = bgfx::createFrameBuffer(m_pWindow->GetHandle(), uint16_t(m_pWindow->GetClientWidth()), uint16_t(m_pWindow->GetClientHeight()));
 	
-	if (m_bMain)
+	if (m_eType == E_PLATFORM_WINDOW_TYPE_MAIN)
 	{
 		bgfx::setViewFrameBuffer(255, m_hFrameBufferHandle);
 		bgfx::reset(iWidth, iHeight);

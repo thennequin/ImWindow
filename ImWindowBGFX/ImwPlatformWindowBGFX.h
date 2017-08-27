@@ -14,7 +14,7 @@ namespace ImWindow
 	{
 		friend class ImwWindowManagerBGFX;
 	public:
-											ImwPlatformWindowBGFX(bool bMain, bool bIsDragWindow, bool bCreateState, bgfx::RendererType::Enum eRenderer);
+											ImwPlatformWindowBGFX(EPlatformWindowType eType, bool bCreateState, bgfx::RendererType::Enum eRenderer);
 		virtual								~ImwPlatformWindowBGFX();
 
 		virtual bool						Init(ImwPlatformWindow* pMain);
