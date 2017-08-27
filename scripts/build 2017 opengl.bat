@@ -1,0 +1,1 @@
+build --with-opengl vs2017

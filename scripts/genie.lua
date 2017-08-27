@@ -10,6 +10,11 @@ newoption {
 }
 
 newoption {
+	trigger = "with-opengl",
+	description = "Enable OpenGL backend sample",
+}
+
+newoption {
 	trigger = "with-bgfx",
 	description = "Enable BGFX backend sample (need bgfx/bimg/bx repositories next to ImWindow repositorie)",
 }
@@ -277,7 +282,42 @@ if _OPTIONS["with-dx11"] then
 		configuration		"Release"
 			targetsuffix	"_r"
 			flags			{ "Optimize" }
-	end
+end
+
+if _OPTIONS["with-opengl"] then
+	startproject "ImWindowOGL"
+	project "ImWindowOGL"
+		uuid				"9f3441f5-4523-4464-b05e-d9668bd99efa"
+		kind				"WindowedApp"
+		targetdir			(PROJECT_RUNTIME_DIR)
+		
+		links				{ "ImWindow" }
+		files {
+							"../ImWindowOGL/**.cpp",
+							"../ImWindowOGL/**.h",
+							"../Externals/EasyWindow/EasyWindow*.cpp",
+							"../Externals/EasyWindow/EasyWindow*.h"
+		}	
+		
+		includedirs {
+							"../ImWindow",
+							"../Externals/imgui",
+							"../Externals/EasyWindow"
+		}
+
+		links {
+							"OpenGL32",
+							"glu32"
+		}
+
+		configuration		"Debug"
+			targetsuffix	"_d"
+			flags			{ "Symbols" }
+			
+		configuration		"Release"
+			targetsuffix	"_r"
+			flags			{ "Optimize" }
+end
 	
 	if _OPTIONS["with-bgfx"] then
 		startproject "ImwWindowBGFX"
