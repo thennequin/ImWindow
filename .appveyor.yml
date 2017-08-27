@@ -9,14 +9,20 @@ environment:
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     TOOLSET: vs2012
     BACKEND: --with-sff --with-opengl --with-glfw --with-dx11
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    TOOLSET: vs2012
     BACKEND: --with-bgfx
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     TOOLSET: vs2015
     BACKEND: --with-sff --with-opengl --with-glfw --with-dx11
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    TOOLSET: vs2015
     BACKEND: --with-bgfx
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     TOOLSET: vs2017
     BACKEND: --with-sff --with-opengl --with-glfw --with-dx11
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    TOOLSET: vs2017
     BACKEND: --with-bgfx
 
 configuration:
