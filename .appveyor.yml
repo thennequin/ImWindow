@@ -32,7 +32,7 @@ install:
   
   - git submodule update --init --recursive
   - cd scripts
-  - ..\..\bx\tools\bin\windows\genie --with-sff --with-dx11 --with-bgfx %TOOLSET%
+  - ..\..\bx\tools\bin\windows\genie --with-sff --with-opengl --with-dx11 --with-bgfx %TOOLSET%
 
 build:
   project: .projects/$(TOOLSET)/ImWindow.sln
