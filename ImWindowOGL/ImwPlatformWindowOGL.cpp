@@ -326,9 +326,6 @@ void ImwPlatformWindowOGL::OnChar(int iChar)
 	((ImGuiState*)m_pState)->IO.AddInputCharacter((ImwChar)iChar);
 }
 
-#define IMGUI_FLAGS_NONE        UINT8_C(0x00)
-#define IMGUI_FLAGS_ALPHA_BLEND UINT8_C(0x01)
-
 void ImwPlatformWindowOGL::RenderDrawList(ImDrawData* pDrawData)
 {
 	// Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
