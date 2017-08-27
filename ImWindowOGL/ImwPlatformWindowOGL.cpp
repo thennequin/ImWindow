@@ -155,9 +155,9 @@ bool ImwPlatformWindowOGL::Init(ImwPlatformWindow* pMain)
 	}
 	else
 	{
-		uint8_t* pPixels;
-		int32_t iWidth;
-		int32_t iHeight;
+		unsigned char* pPixels;
+		int iWidth;
+		int iHeight;
 		io.Fonts->AddFontDefault();
 		io.Fonts->GetTexDataAsAlpha8(&pPixels, &iWidth, &iHeight);
 
@@ -168,7 +168,7 @@ bool ImwPlatformWindowOGL::Init(ImwPlatformWindow* pMain)
 		glBindTexture(GL_TEXTURE_2D, m_iTextureID);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, iWidth, iHeight, 0, GL_ALPHA, GL_UNSIGNED_BYTE, pPixels);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, (GLint)iWidth, (GLint)iHeight, 0, GL_ALPHA, GL_UNSIGNED_BYTE, (GLvoid*)pPixels);
 
 		// Store our identifier
 		io.Fonts->TexID = (void *)(intptr_t)m_iTextureID;
