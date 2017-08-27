@@ -1,72 +1,21 @@
 
-#include "bgfx\bgfx.h"
-
+#include "bgfx/bgfx.h"
 #include "ImwWindowManagerBGFX.h"
-
-class MyMenu : public ImWindow::ImwMenu
-{
-public:
-	virtual void OnMenu()
-	{
-		if (ImGui::BeginMenu("File"))
-		{
-			if (ImGui::MenuItem("Exit"))
-				ImWindow::ImwWindowManager::GetInstance()->Destroy();
-			ImGui::EndMenu();
-		}
-	}
-};
-
-class MyWindow : public ImWindow::ImwWindow
-{
-public:
-	MyWindow()
-	{
-		SetTitle("My window");
-	}
-	virtual void OnGui()
-	{
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-	}
-};
-
-class MyWindow2 : public ImWindow::ImwWindow
-{
-public:
-	MyWindow2()
-	{
-		SetTitle("My window 2");
-		memset(m_pBuffer, 0, sizeof(m_pBuffer));
-	}
-
-	virtual void OnGui()
-	{
-		ImGui::Text("super\ntest");
-		
-		ImGui::InputText("Input text", m_pBuffer, 256);
-	}
-
-	char m_pBuffer[256];
-};
+#include "../sample.h"
 
 int main()
 {
-	ImWindow::ImwWindowManagerBGFX oManager(bgfx::RendererType::Direct3D11);
+	PreInitSample();
 
-	new MyMenu();
-	new MyWindow();
-	new MyWindow2();
+	ImwWindowManagerBGFX oMgr(bgfx::RendererType::Direct3D11);
 
-	if (oManager.Init())
-	{
-		oManager.SetMainTitle("Sample");
+	oMgr.Init();
 
-		ImGuiStyle& style = ImGui::GetStyle();
+	InitSample();
 
-		style.Colors[ImGuiCol_WindowBg] = ImVec4(0.095f, 0.095f, 0.095f, 1.f);
-		style.Colors[ImGuiCol_ChildWindowBg] = ImVec4(0.204f, 0.204f, 0.204f, 1.f);
-		style.Colors[ImGuiCol_MenuBarBg] = style.Colors[ImGuiCol_WindowBg];
+	while (oMgr.Run(false) && oMgr.Run(true)) Sleep(16);
 
-		while (oManager.Run(false) && oManager.Run(true));
-	}
+	ImGui::Shutdown();
+
+	return 0;
 }
