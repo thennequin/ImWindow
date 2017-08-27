@@ -133,15 +133,6 @@ bool ImwPlatformWindowOGL::Init(ImwPlatformWindow* pMain)
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	if (m_eType == E_PLATFORM_WINDOW_TYPE_MAIN)
-	{
-		//Setup opengl context
-	}
-	else
-	{
-		//share context
-	}
-
 	if (m_eType == E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW)
 		m_pWindow->SetAlpha(128);
 
