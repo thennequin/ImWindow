@@ -33,10 +33,10 @@ ImVec2 ImwWindowManagerOGL::GetCursorPos()
 {
 	POINT oPoint;
 	::GetCursorPos(&oPoint);
-	return ImVec2(oPoint.x, oPoint.y);
+	return ImVec2((float)oPoint.x, (float)oPoint.y);
 }
 
 bool ImwWindowManagerOGL::IsLeftClickDown()
 {
-	return GetAsyncKeyState(VK_LBUTTON);
+	return GetAsyncKeyState(VK_LBUTTON) != 0;
 }
