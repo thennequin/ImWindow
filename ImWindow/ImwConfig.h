@@ -2,6 +2,8 @@
 #ifndef __IM_CONFIG_H__
 #define __IM_CONFIG_H__
 
+#include <stdlib.h>
+
 #ifndef NULL
 #define NULL 0
 #endif // NULL
