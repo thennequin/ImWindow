@@ -66,6 +66,7 @@ bool ImwPlatformWindowBGFX::Init(ImwPlatformWindow* pMain)
 	m_pWindow->OnMouseWheel.Set(this, &ImwPlatformWindowBGFX::OnMouseWheel);	
 	m_pWindow->OnKey.Set(this, &ImwPlatformWindowBGFX::OnKey);
 	m_pWindow->OnChar.Set(this, &ImwPlatformWindowBGFX::OnChar);
+	m_pWindow->OnSetCursor.Set(this, &ImwPlatformWindowBGFX::OnSetCursor);
 
 	if (m_eType == E_PLATFORM_WINDOW_TYPE_MAIN)
 	{
@@ -298,6 +299,45 @@ void ImwPlatformWindowBGFX::OnKey(EasyWindow::EKey eKey, bool bDown)
 void ImwPlatformWindowBGFX::OnChar(int iChar)
 {
 	((ImGuiState*)m_pState)->IO.AddInputCharacter((ImwChar)iChar);
+}
+
+void ImwPlatformWindowBGFX::OnSetCursor()
+{
+	if (m_pState == NULL)
+		return;
+
+	ImGuiIO& oIO = ((ImGuiState*)m_pState)->IO;
+	if (oIO.MouseDrawCursor)
+	{
+		m_pWindow->SetCursor(EasyWindow::E_CURSOR_DEFAULT);
+	}
+	else if (oIO.MousePos.x != -1.f && oIO.MousePos.y != -1.f)
+	{
+		switch (((ImGuiState*)m_pState)->MouseCursor)
+		{
+		case ImGuiMouseCursor_Arrow:
+			m_pWindow->SetCursor(EasyWindow::E_CURSOR_ARROW);
+			break;
+		case ImGuiMouseCursor_TextInput:         // When hovering over InputText, etc.
+			m_pWindow->SetCursor(EasyWindow::E_CURSOR_TEXT_INPUT);
+			break;
+		case ImGuiMouseCursor_Move:              // Unused
+			m_pWindow->SetCursor(EasyWindow::E_CURSOR_HAND);
+			break;
+		case ImGuiMouseCursor_ResizeNS:          // Unused
+			m_pWindow->SetCursor(EasyWindow::E_CURSOR_RESIZE_NS);
+			break;
+		case ImGuiMouseCursor_ResizeEW:          // When hovering over a column
+			m_pWindow->SetCursor(EasyWindow::E_CURSOR_RESIZE_EW);
+			break;
+		case ImGuiMouseCursor_ResizeNESW:        // Unused
+			m_pWindow->SetCursor(EasyWindow::E_CURSOR_RESIZE_NESW);
+			break;
+		case ImGuiMouseCursor_ResizeNWSE:        // When hovering over the bottom-right corner of a window
+			m_pWindow->SetCursor(EasyWindow::E_CURSOR_RESIZE_NWSE);
+			break;
+		}
+	}
 }
 
 #define IMGUI_FLAGS_NONE        UINT8_C(0x00)
