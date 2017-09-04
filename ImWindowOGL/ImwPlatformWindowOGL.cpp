@@ -254,6 +254,38 @@ void ImwPlatformWindowOGL::PreUpdate()
 	oIO.KeyShift = m_pWindow->IsKeyShiftDown();
 	oIO.KeyAlt = m_pWindow->IsKeyAltDown();
 	oIO.KeySuper = false;
+
+	if (oIO.MouseDrawCursor)
+	{
+		m_pWindow->SetCursor(EasyWindow::E_CURSOR_NONE);
+	}
+	else if (oIO.MousePos.x != -1.f && oIO.MousePos.y != -1.f)
+	{
+		switch (((ImGuiState*)m_pState)->MouseCursor)
+		{
+		case ImGuiMouseCursor_Arrow:
+			m_pWindow->SetCursor(EasyWindow::E_CURSOR_ARROW);
+			break;
+		case ImGuiMouseCursor_TextInput:         // When hovering over InputText, etc.
+			m_pWindow->SetCursor(EasyWindow::E_CURSOR_TEXT_INPUT);
+			break;
+		case ImGuiMouseCursor_Move:              // Unused
+			m_pWindow->SetCursor(EasyWindow::E_CURSOR_HAND);
+			break;
+		case ImGuiMouseCursor_ResizeNS:          // Unused
+			m_pWindow->SetCursor(EasyWindow::E_CURSOR_RESIZE_NS);
+			break;
+		case ImGuiMouseCursor_ResizeEW:          // When hovering over a column
+			m_pWindow->SetCursor(EasyWindow::E_CURSOR_RESIZE_EW);
+			break;
+		case ImGuiMouseCursor_ResizeNESW:        // Unused
+			m_pWindow->SetCursor(EasyWindow::E_CURSOR_RESIZE_NESW);
+			break;
+		case ImGuiMouseCursor_ResizeNWSE:        // When hovering over the bottom-right corner of a window
+			m_pWindow->SetCursor(EasyWindow::E_CURSOR_RESIZE_NWSE);
+			break;
+		}
+	}
 }
 
 void ImwPlatformWindowOGL::Render()
