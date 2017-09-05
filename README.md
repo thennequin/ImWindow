@@ -14,7 +14,7 @@ Include docking/floating window, multi window and multi render support.
 Actually work on Windows with different backend
   * DX11
   * OpenGL
-  * OpenGl with GLFW
+  * OpenGL with GLFW
   * BGFX
   
 Linux support is in progress.
