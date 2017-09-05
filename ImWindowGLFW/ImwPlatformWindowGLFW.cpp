@@ -6,6 +6,12 @@ using namespace ImWindow;
 ImwPlatformWindowGLFW::ImwPlatformWindowGLFW(EPlatformWindowType eType, bool bCreateState)
 	: ImwPlatformWindow(eType, bCreateState)
 	, m_pWindow( NULL )
+	, m_pCursorArrow( NULL )
+	, m_pCursorCrosshair( NULL )
+	, m_pCursorHand( NULL )
+	, m_pCursorIBeam( NULL )
+	, m_pCursorHResize( NULL )
+	, m_pCursorVResize( NULL )
 	, m_iLastMods( 0 )
 	, m_iTextureID( 0 )
 {
@@ -13,6 +19,20 @@ ImwPlatformWindowGLFW::ImwPlatformWindowGLFW(EPlatformWindowType eType, bool bCr
 
 ImwPlatformWindowGLFW::~ImwPlatformWindowGLFW()
 {
+	if (m_pCursorArrow != NULL)
+		glfwDestroyCursor(m_pCursorArrow);
+	if (m_pCursorCrosshair != NULL)
+		glfwDestroyCursor(m_pCursorCrosshair);
+	if (m_pCursorHand != NULL)
+		glfwDestroyCursor(m_pCursorHand);
+	if (m_pCursorIBeam != NULL)
+		glfwDestroyCursor(m_pCursorIBeam);
+	if (m_pCursorHResize != NULL)
+		glfwDestroyCursor(m_pCursorHResize);
+	if (m_pCursorVResize != NULL)
+		glfwDestroyCursor(m_pCursorVResize);
+
+
 	if (m_eType == E_PLATFORM_WINDOW_TYPE_MAIN)
 	{
 		if (m_iTextureID != 0)
@@ -120,6 +140,13 @@ bool ImwPlatformWindowGLFW::Init(ImwPlatformWindow* pMain)
 
 	RestoreState();
 
+	m_pCursorArrow = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
+	m_pCursorCrosshair = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
+	m_pCursorHand = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
+	m_pCursorIBeam = glfwCreateStandardCursor(GLFW_IBEAM_CURSOR);
+	m_pCursorHResize = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
+	m_pCursorVResize = glfwCreateStandardCursor	(GLFW_VRESIZE_CURSOR);
+
 	return true;
 }
 
@@ -193,6 +220,39 @@ void ImwPlatformWindowGLFW::PreUpdate()
 	oIO.KeyShift = 0 != (m_iLastMods & GLFW_MOD_SHIFT);
 	oIO.KeyAlt = 0 != (m_iLastMods & GLFW_MOD_ALT);
 	oIO.KeySuper = 0 != (m_iLastMods & GLFW_MOD_SUPER);
+
+	if (oIO.MouseDrawCursor)
+	{
+		glfwSetInputMode(m_pWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+	}
+	else if (oIO.MousePos.x != -1.f && oIO.MousePos.y != -1.f)
+	{
+		glfwSetInputMode(m_pWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		switch (((ImGuiState*)m_pState)->MouseCursor)
+		{
+		case ImGuiMouseCursor_Arrow:
+			glfwSetCursor(m_pWindow, m_pCursorArrow);
+			break;
+		case ImGuiMouseCursor_TextInput:         // When hovering over InputText, etc.
+			glfwSetCursor(m_pWindow, m_pCursorIBeam);
+			break;
+		case ImGuiMouseCursor_Move:              // Unused
+			glfwSetCursor(m_pWindow, m_pCursorHand);
+			break;
+		case ImGuiMouseCursor_ResizeNS:          // Unused
+			glfwSetCursor(m_pWindow, m_pCursorVResize);
+			break;
+		case ImGuiMouseCursor_ResizeEW:          // When hovering over a column
+			glfwSetCursor(m_pWindow, m_pCursorHResize);
+			break;
+		case ImGuiMouseCursor_ResizeNESW:        // Unused
+			glfwSetCursor(m_pWindow, m_pCursorCrosshair);
+			break;
+		case ImGuiMouseCursor_ResizeNWSE:        // When hovering over the bottom-right corner of a window
+			glfwSetCursor(m_pWindow, m_pCursorCrosshair);
+			break;
+		}
+	}
 }
 
 void ImwPlatformWindowGLFW::Render()

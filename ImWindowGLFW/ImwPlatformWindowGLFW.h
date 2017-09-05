@@ -46,6 +46,12 @@ namespace ImWindow
 		void								RenderDrawList(ImDrawData* pDrawData);
 
 		GLFWwindow*							m_pWindow;
+		GLFWcursor*							m_pCursorArrow;
+		GLFWcursor*							m_pCursorCrosshair;
+		GLFWcursor*							m_pCursorHand;
+		GLFWcursor*							m_pCursorIBeam;
+		GLFWcursor*							m_pCursorHResize;
+		GLFWcursor*							m_pCursorVResize;
 		int									m_iLastMods;
 		GLuint								m_iTextureID;
 	};
