@@ -1,19 +1,16 @@
 #include "ImwWindowManagerDX11.h"
 #include "ImwPlatformWindowDX11.h"
 
-#include <imgui_impl_dx11.h>
+#include "windows.h"
 
 using namespace ImWindow;
 
 ImwWindowManagerDX11::ImwWindowManagerDX11()
 {
-	ImwPlatformWindowDX11::InitDX11();
 }
 
 ImwWindowManagerDX11::~ImwWindowManagerDX11()
 {
-	ImwPlatformWindowDX11::ShutdownDX11();
-	//ImGui_ImplDX11_Shutdown();
 }
 
 ImwPlatformWindow* ImwWindowManagerDX11::CreatePlatformWindow(EPlatformWindowType eType, ImwPlatformWindow* pParent)
@@ -35,10 +32,10 @@ ImVec2 ImwWindowManagerDX11::GetCursorPos()
 {
 	POINT oPoint;
 	::GetCursorPos(&oPoint);
-	return ImVec2(oPoint.x, oPoint.y);
+	return ImVec2((float)oPoint.x, (float)oPoint.y);
 }
 
 bool ImwWindowManagerDX11::IsLeftClickDown()
 {
-	return GetAsyncKeyState(VK_LBUTTON);
+	return GetAsyncKeyState(VK_LBUTTON) != 0;
 }

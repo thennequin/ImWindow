@@ -278,13 +278,14 @@ if _OPTIONS["with-dx11"] then
 		files {
 							"../ImWindowDX11/**.cpp",
 							"../ImWindowDX11/**.h",
-							"../Externals/imgui/examples/directx11_example/imgui_impl_dx11.cpp"
+							"../Externals/EasyWindow/EasyWindow*.cpp",
+							"../Externals/EasyWindow/EasyWindow*.h"
 		}	
 		
 		includedirs {
 							"../ImWindow",
 							"../Externals/imgui",
-							"../Externals/imgui/examples/directx11_example",
+							"../Externals/EasyWindow",
 							"../Externals/DirectX/include"
 		}
 		
