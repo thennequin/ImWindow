@@ -165,6 +165,8 @@ namespace ImWindow
 			}
 			ImwSafeDelete(m_pMainPlatformWindow);
 		}
+
+		InternalDestroy();
 	}
 
 	ImwPlatformWindow* ImwWindowManager::GetMainPlatformWindow() const
@@ -447,6 +449,10 @@ namespace ImWindow
 	bool ImwWindowManager::InternalInit()
 	{
 		return true;
+	}
+
+	void ImwWindowManager::InternalDestroy()
+	{
 	}
 
 	ImwPlatformWindow* ImwWindowManager::CreatePlatformWindow(EPlatformWindowType eType, ImwPlatformWindow* /*pParent*/)
