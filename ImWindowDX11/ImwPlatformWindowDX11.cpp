@@ -1,18 +1,13 @@
 
 #include "ImwPlatformWindowDX11.h"
 
-#pragma comment (lib, "d3d11.lib")
-#pragma comment (lib, "d3dx11.lib")
-#pragma comment (lib, "d3dx10.lib")
-#pragma comment (lib, "d3dcompiler.lib")
-#pragma comment (lib, "dxgi.lib")
-#pragma comment (lib, "dxerr.lib")
+#include "ImwWindowManagerDX11.h"
 
 #include <d3dcommon.h>
 #include <d3d11.h>
 #include <d3dcompiler.h>
 #include <DxErr.h>
-int (WINAPIV * __vsnprintf)(char *, size_t, const char*, va_list) = _vsnprintf;
+extern int (WINAPIV * __vsnprintf)(char *, size_t, const char*, va_list);
 
 struct VERTEX_CONSTANT_BUFFER
 {
@@ -162,10 +157,6 @@ ImwPlatformWindowDX11::~ImwPlatformWindowDX11()
 	if (m_eType == E_PLATFORM_WINDOW_TYPE_MAIN)
 	{
 		// Shared
-		ImwSafeRelease(m_pDX11DeviceContext);
-		ImwSafeRelease(m_pDX11Device);
-		ImwSafeRelease(m_pDXGIFactory);
-
 		ImwSafeRelease(m_pDX11FontTexture);
 		ImwSafeRelease(m_pDX11FontSampler);
 		ImwSafeRelease(m_pDX11FontTextureView);
@@ -208,35 +199,17 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 	if (m_eType == E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW)
 		m_pWindow->SetAlpha(128);
 
+	ImwWindowManagerDX11* pWindowManagerDX11 = (ImwWindowManagerDX11*)ImWindow::ImwWindowManager::GetInstance();
+
+	m_pDXGIFactory = pWindowManagerDX11->GetDXGIFactory();
+	m_pDX11Device = pWindowManagerDX11->GetDX11Device();
+	m_pDX11DeviceContext = pWindowManagerDX11->GetDX11DeviceContext();
+
 	////
 	HRESULT iResult;
 
 	if (NULL == pMainWindow)
 	{
-		iResult = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&m_pDXGIFactory);
-		if (FAILED(iResult))
-		{
-			MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Can't create FXGI factory"), MB_ICONERROR | MB_OK);
-			return false;
-		}
-
-		iResult = D3D11CreateDevice(NULL,
-			D3D_DRIVER_TYPE_HARDWARE,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			D3D11_SDK_VERSION,
-			&m_pDX11Device,
-			NULL,
-			&m_pDX11DeviceContext);
-
-		if (FAILED(iResult))
-		{
-			MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Can't create DX11 device and device context"), MB_ICONERROR | MB_OK);
-			return false;
-		}
-
 		// Create the vertex shader
 		{
 			ID3D10Blob* pVertexShaderBlob = NULL;
