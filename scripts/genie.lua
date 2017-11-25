@@ -275,7 +275,9 @@ if _OPTIONS["with-dx11"] then
 		targetdir			(PROJECT_RUNTIME_DIR)
 		
 		links				{ "ImWindow" }
-		files {
+		files
+		{
+							"../sample.h",
 							"../ImWindowDX11/**.cpp",
 							"../ImWindowDX11/**.h",
 							"../Externals/EasyWindow/EasyWindow*.cpp",
@@ -312,7 +314,9 @@ if _OPTIONS["with-opengl"] then
 		targetdir			(PROJECT_RUNTIME_DIR)
 		
 		links				{ "ImWindow" }
-		files {
+		files
+		{
+							"../sample.h",
 							"../ImWindowOGL/**.cpp",
 							"../ImWindowOGL/**.h",
 							"../Externals/EasyWindow/EasyWindow*.cpp",
@@ -347,7 +351,9 @@ if _OPTIONS["with-glfw"] then
 		targetdir			(PROJECT_RUNTIME_DIR)
 		
 		links				{ "ImWindow" }
-		files {
+		files
+		{
+							"../sample.h",
 							"../ImWindowGLFW/**.cpp",
 							"../ImWindowGLFW/**.h",
 		}	
@@ -408,6 +414,7 @@ if _OPTIONS["with-bgfx"] then
 								"bx"
 			}
 			files {
+								"../sample.h",
 								"../ImWindowBGFX/**.cpp",
 								"../ImWindowBGFX/**.h",
 								"../Externals/EasyWindow/EasyWindow*.cpp",
