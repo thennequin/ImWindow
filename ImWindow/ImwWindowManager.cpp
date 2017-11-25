@@ -903,7 +903,7 @@ namespace ImWindow
 			{
 				ImVec2 oCursorPos = GetCursorPos();
 				ImVec2 oPosition = ImVec2(oCursorPos.x + m_oDragPreviewOffset.x, oCursorPos.y + m_oDragPreviewOffset.y);
-				ImVec2 oSize = ImVec2(pWindow->GetLastSize().x, pWindow->GetLastSize().y);
+				ImVec2 oSize = ImVec2(pWindow->GetLastSize().x, pWindow->GetLastSize().y + ImwContainer::c_fTabHeight);
 
 				m_lPlatformWindowActions.push_back(new PlatformWindowAction(m_pDragPlatformWindow, E_PLATFORM_WINDOW_ACTION_SHOW));
 				m_lPlatformWindowActions.push_back(new PlatformWindowAction(m_pDragPlatformWindow, E_PLATFORM_WINDOW_ACTION_SET_POSITION, oPosition));

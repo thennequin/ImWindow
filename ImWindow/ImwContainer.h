@@ -13,6 +13,7 @@ namespace ImWindow
 	class IMGUI_API ImwContainer
 	{
 		friend class ImwPlatformWindow;
+		friend class ImwWindowManager;
 	public:
 
 		void							Dock(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, float fRatio = 0.5f, int iPosition = -1);
