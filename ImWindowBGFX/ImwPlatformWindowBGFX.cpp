@@ -57,7 +57,7 @@ bool ImwPlatformWindowBGFX::Init(ImwPlatformWindow* pMain)
 	if (m_eType == E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW)
 		eStyle = EasyWindow::E_STYLE_POPUP;
 
-	m_pWindow = EasyWindow::Create("ImwPlatformWindowBGFX", 800, 600, false, pMain != NULL ? pMainBGFX->m_pWindow : NULL, eStyle);
+	m_pWindow = EasyWindow::Create("ImwPlatformWindowBGFX", 800, 600, false, pMain != NULL ? pMainBGFX->m_pWindow : NULL, eStyle, EasyWindow::E_FLAG_OWN_DC);
 	m_pWindow->OnClose.Set(this, &ImwPlatformWindowBGFX::OnClose);
 	m_pWindow->OnFocus.Set(this, &ImwPlatformWindowBGFX::OnFocus);
 	m_pWindow->OnSize.Set(this, &ImwPlatformWindowBGFX::OnSize);
