@@ -193,12 +193,12 @@ void ImwPlatformWindowBGFX::Show(bool bShow)
 
 void ImwPlatformWindowBGFX::SetSize(int iWidth, int iHeight)
 {
-	m_pWindow->SetSize(iWidth, iHeight, false);
+	m_pWindow->SetSize(iWidth, iHeight, true);
 }
 
 void ImwPlatformWindowBGFX::SetPosition(int iX, int iY)
 {
-	m_pWindow->SetPosition(iX, iY);
+	m_pWindow->SetPosition(iX, iY, true);
 }
 
 void ImwPlatformWindowBGFX::SetWindowMaximized(bool bMaximized)

@@ -220,12 +220,12 @@ void ImwPlatformWindowOGL::Show(bool bShow)
 
 void ImwPlatformWindowOGL::SetSize(int iWidth, int iHeight)
 {
-	m_pWindow->SetSize(iWidth, iHeight, false);
+	m_pWindow->SetSize(iWidth, iHeight, true);
 }
 
 void ImwPlatformWindowOGL::SetPosition(int iX, int iY)
 {
-	m_pWindow->SetPosition(iX, iY);
+	m_pWindow->SetPosition(iX, iY, true);
 }
 
 void ImwPlatformWindowOGL::SetWindowMaximized(bool bMaximized)

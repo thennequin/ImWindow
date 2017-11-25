@@ -479,12 +479,12 @@ void ImwPlatformWindowDX11::Show(bool bShow)
 
 void ImwPlatformWindowDX11::SetSize(int iWidth, int iHeight)
 {
-	m_pWindow->SetSize(iWidth, iHeight, false);
+	m_pWindow->SetSize(iWidth, iHeight, true);
 }
 
 void ImwPlatformWindowDX11::SetPosition(int iX, int iY)
 {
-	m_pWindow->SetPosition(iX, iY);
+	m_pWindow->SetPosition(iX, iY, true);
 }
 
 void ImwPlatformWindowDX11::SetWindowMaximized(bool bMaximized)
