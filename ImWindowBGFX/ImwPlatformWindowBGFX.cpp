@@ -296,6 +296,7 @@ void ImwPlatformWindowBGFX::OnFocus(bool bHasFocus)
 
 void ImwPlatformWindowBGFX::OnSize(int iWidth, int iHeight)
 {
+	bgfx::frame();
 	if (bgfx::isValid(m_hFrameBufferHandle))
 		bgfx::destroyFrameBuffer(m_hFrameBufferHandle);
 	m_hFrameBufferHandle = bgfx::createFrameBuffer(m_pWindow->GetHandle(), uint16_t(m_pWindow->GetClientWidth()), uint16_t(m_pWindow->GetClientHeight()));
