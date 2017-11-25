@@ -4,25 +4,28 @@
 
 #include "ImwConfig.h"
 #include "ImwPlatformWindow.h"
+#include "EasyWindow.h"
 
-#include <map>
-
-#include <imgui_impl_dx11.h>
-
-#include <windows.h>
-#include <windowsx.h>
-
-#include <d3d11.h>
-#include <d3dx11.h>
-#include <d3dx10.h>
+class IDXGIFactory;
+class IDXGISwapChain;
+class ID3D11Device;
+class ID3D11DeviceContext;
+class ID3D11RenderTargetView;
+class ID3D11Texture2D;
+class ID3D11SamplerState;
+class ID3D11ShaderResourceView;
+class ID3D11VertexShader;
+class ID3D11PixelShader;
+class ID3D11InputLayout;
+class ID3D11Buffer;
+class ID3D11RasterizerState;
+class ID3D11BlendState;
 
 namespace ImWindow
 {
 	class ImwPlatformWindowDX11 : ImwPlatformWindow
 	{
-		friend class ImwWindowManagerDX11;
-	public:
-		typedef ImwMap<HWND, ImwPlatformWindowDX11*> InstanceMap;
+		friend class ImwWindowManagerOGL;
 	public:
 											ImwPlatformWindowDX11(EPlatformWindowType eType, bool bCreateState);
 		virtual								~ImwPlatformWindowDX11();
@@ -32,63 +35,56 @@ namespace ImWindow
 		virtual ImVec2						GetPosition() const;
 		virtual ImVec2						GetSize() const;
 		virtual bool						IsWindowMaximized() const;
+		virtual bool						IsWindowMinimized() const;
 
 		virtual void						Show(bool bShow);
 		virtual void						SetSize(int iWidth, int iHeight);
 		virtual void						SetPosition(int iX, int iY);
 		virtual void						SetWindowMaximized(bool bMaximized);
+		virtual void						SetWindowMinimized();
 		virtual void						SetTitle(const ImwChar* pTtile);
 
-		HWND								GetHWnd();
 	protected:
 		virtual void						PreUpdate();
 		virtual void						Render();
-		virtual void						Destroy();
 
-		virtual void						StartDrag();
-		virtual void						StopDrag();
-		virtual bool						IsDraging();
+		bool								OnClose();
+		void								OnFocus(bool bHasFocus);
+		void								OnSize(int iWidth, int iHeight);
+		void								OnMouseButton(int iButton, bool bDown);
+		void								OnMouseMove(int iX, int iY);
+		void								OnMouseWheel( int iStep );
+		void								OnKey(EasyWindow::EKey eKey, bool bDown);
+		void								OnChar(int iChar);
 
-		LRESULT								OnMessage(UINT message, WPARAM wParam, LPARAM lParam);
+		void								RenderDrawList(ImDrawData* pDrawData);
 
-		HWND								m_hWnd;
+		EasyWindow*							m_pWindow;
 
-		// Static
-	public:
-		static int							GetInstanceCount();
+		IDXGISwapChain*						m_pDXGISwapChain;
+		ID3D11RenderTargetView*				m_pDX11RenderTargetView;
 
-	protected:
-		static void							InitWndClassEx();
-		static LRESULT CALLBACK				ImwPlatformWindowDX11Proc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+		ID3D11Buffer*						m_pDX11VertexBuffer;
+		int									m_iVertexBufferSize;
+		ID3D11Buffer*						m_pDX11IndexBuffer;
+		int									m_iIndexBufferSize;
 
-		static bool							InitDX11();
-		static void							ShutdownDX11();
+		// Shared
+		IDXGIFactory*						m_pDXGIFactory;
+		ID3D11Device*						m_pDX11Device;
+		ID3D11DeviceContext*				m_pDX11DeviceContext;
 
+		ID3D11Texture2D*					m_pDX11FontTexture;
+		ID3D11SamplerState*					m_pDX11FontSampler;
+		ID3D11ShaderResourceView*			m_pDX11FontTextureView;
 
-		static InstanceMap					s_mInstances;
-		static bool							s_bClassInitialized;
-		static WNDCLASSEX					s_oWndClassEx;
-		static IDXGIFactory*				s_pFactory;
-		static ID3D11Device*				s_pDevice;
-		static ID3D11DeviceContext*			s_pDeviceContext;
-		static ImwPlatformWindow*			s_pLastHoveredWindow;
-		static INT64						g_Time;
-		static INT64						g_TicksPerSecond;
+		ID3D11VertexShader*					m_pDX11VertexShader;
+		ID3D11PixelShader*					m_pDX11PixelShader;
+		ID3D11InputLayout*					m_pDX11InputLayout;
+		ID3D11Buffer*						m_pDX11VertexConstantBuffer;
 
-		ImVec2								m_oPosition;
-		ImVec2								m_oSize;
-
-		IDXGISwapChain*						m_pSwapChain;
-		ID3D11RenderTargetView*				m_pRenderTargetView;
-
-		bool								m_bDrag;
-		ImVec2								m_iCursorPosStartDrag;
-		ImVec2								m_iWindowPosStartDrag;
-
-		HCURSOR								m_hCursorArrow;
-		HCURSOR								m_hCursorResizeNS;
-		HCURSOR								m_hCursorResizeWE;
-
+		ID3D11BlendState*					m_pDX11BlendState;
+		ID3D11RasterizerState*				m_pDX11RasterizerState;
 	};
 }
 

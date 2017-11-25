@@ -10,5 +10,16 @@ Include docking/floating window, multi window and multi render support.
 
 ![Docking](https://raw.githubusercontent.com/wiki/thennequin/ImWindow/images/Docking.gif)
 
+# Platform
+Actually work on Windows with different backend
+  * DX11
+  * OpenGL
+  * OpenGL with GLFW
+  * BGFX
+  
+Linux support is in progress.
+
+For Mac it's not decided yet.
+
 # License
 ImWindow is licensed under the MIT License, see LICENSE for more information.
