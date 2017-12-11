@@ -1270,6 +1270,14 @@ void ImwWindowManager::AddStatusBar(ImwStatusBar* pStatusBar)
 	{
 		if (NULL != pWindow && !pWindow->m_pContainer->HasUnclosableWindow())
 		{
+			if (pWindow->GetType() == E_PLATFORM_WINDOW_TYPE_MAIN)
+			{
+				for (ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
+				{
+					if ((*it)->m_pContainer->HasUnclosableWindow())
+						return;
+				}
+			}
 			m_lPlatformWindowActions.push_back(new PlatformWindowAction(pWindow, E_PLATFORM_WINDOW_ACTION_DESTROY));
 		}
 	}
