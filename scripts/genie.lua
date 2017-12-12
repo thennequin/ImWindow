@@ -95,6 +95,7 @@ if _OPTIONS["with-sff"] then
 	local fileSFFSource = io.open("../ImWindow.cpp","w+")
 
 	fileSFFSource:write("#include \"ImWindow.h\""..EOL..EOL)
+	fileSFFSource:write("#include <algorithm>"..EOL..EOL)
 
 	fileSFFSource:write("namespace ImWindow {"..EOL)
 	IncludeSFF( "../ImWindow/JsonValue.cpp", fileSFFSource )
