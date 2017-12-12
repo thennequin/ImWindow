@@ -56,8 +56,9 @@ namespace ImWindow
 	protected:
 		void								OnLoseFocus();
 		virtual void						PreUpdate();
-		virtual void						Render();
+		virtual void						RenderDrawLists(ImDrawData* pDrawData);
 
+		void								Render();
 		void								PaintContainer();
 		void								OnClose();
 

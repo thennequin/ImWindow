@@ -444,7 +444,6 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 	io.KeyMap[ImGuiKey_Y] = EasyWindow::KEY_Y;
 	io.KeyMap[ImGuiKey_Z] = EasyWindow::KEY_Z;
 
-	io.RenderDrawListsFn = NULL;
 	io.ImeWindowHandle = m_pWindow->GetHandle();
 
 	RestoreContext(false);
@@ -547,34 +546,6 @@ void ImwPlatformWindowDX11::PreUpdate()
 	}
 }
 
-void ImwPlatformWindowDX11::Render()
-{
-	if (!m_bNeedRender)
-		return;
-
-	if (NULL != m_pDXGISwapChain)
-	{
-		float fBgColor[4] = { 0.4f, 0.4f, 0.4f, 1.0f };
-
-		m_pDX11DeviceContext->OMSetRenderTargets(1, &m_pDX11RenderTargetView, NULL);
-
-		ImwIsSafe(m_pDX11DeviceContext)->ClearRenderTargetView(m_pDX11RenderTargetView, fBgColor);
-
-		SetContext(false);
-
-		ImVec2 oSize = ImVec2(float(m_pWindow->GetClientWidth()), float(m_pWindow->GetClientHeight()));
-		ImGui::GetIO().DisplaySize = oSize;
-
-		ImGui::Render();
-		RenderDrawList(ImGui::GetDrawData());
-
-		RestoreContext(false);
-
-		//Present the backbuffer to the screen
-		m_pDXGISwapChain->Present(0, 0);
-	}
-}
-
 bool ImwPlatformWindowDX11::OnClose()
 {
 	ImwPlatformWindow::OnClose();
@@ -650,131 +621,143 @@ void ImwPlatformWindowDX11::OnChar(int iChar)
 	m_pContext->IO.AddInputCharacter((ImwChar)iChar);
 }
 
-void ImwPlatformWindowDX11::RenderDrawList(ImDrawData* pDrawData)
+void ImwPlatformWindowDX11::RenderDrawLists(ImDrawData* pDrawData)
 {
-	if ( m_pDX11VertexBuffer == NULL || m_iVertexBufferSize < pDrawData->TotalVtxCount)
+	if (NULL != m_pDXGISwapChain)
 	{
-		ImwSafeRelease(m_pDX11VertexBuffer);
-		m_iVertexBufferSize = pDrawData->TotalVtxCount + 5000;
-		D3D11_BUFFER_DESC oBufferDesc;
-		memset(&oBufferDesc, 0, sizeof(D3D11_BUFFER_DESC));
-		oBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-		oBufferDesc.ByteWidth = m_iVertexBufferSize * sizeof(ImDrawVert);
-		oBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		oBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		oBufferDesc.MiscFlags = 0;
-		if (m_pDX11Device->CreateBuffer(&oBufferDesc, NULL, &m_pDX11VertexBuffer) < 0)
-			return;
-	}
+		float fBgColor[4] = { 0.4f, 0.4f, 0.4f, 1.0f };
 
-	if (m_pDX11IndexBuffer == NULL || m_iIndexBufferSize < pDrawData->TotalIdxCount)
-	{
-		ImwSafeRelease(m_pDX11IndexBuffer);
-		D3D11_BUFFER_DESC oBufferDesc;
-		m_iIndexBufferSize = pDrawData->TotalIdxCount + 10000;
-		memset(&oBufferDesc, 0, sizeof(D3D11_BUFFER_DESC));
-		oBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-		oBufferDesc.ByteWidth = m_iIndexBufferSize * sizeof(ImDrawIdx);
-		oBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-		oBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		if (m_pDX11Device->CreateBuffer(&oBufferDesc, NULL, &m_pDX11IndexBuffer) < 0)
-			return;
-	}
+		m_pDX11DeviceContext->OMSetRenderTargets(1, &m_pDX11RenderTargetView, NULL);
 
-	// Copy and convert all vertices into a single contiguous buffer
-	D3D11_MAPPED_SUBRESOURCE oMappedVertexBuffer, oMappedIndexBuffer;
-	if (m_pDX11DeviceContext->Map(m_pDX11VertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &oMappedVertexBuffer) != S_OK)
-		return;
-	if (m_pDX11DeviceContext->Map(m_pDX11IndexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &oMappedIndexBuffer) != S_OK)
-		return;
-	ImDrawVert* pVertexBufferData = (ImDrawVert*)oMappedVertexBuffer.pData;
-	ImDrawIdx* pIndexBufferData = (ImDrawIdx*)oMappedIndexBuffer.pData;
-	for (int n = 0; n < pDrawData->CmdListsCount; n++)
-	{
-		const ImDrawList* pCmdList = pDrawData->CmdLists[n];
-		memcpy(pVertexBufferData, &pCmdList->VtxBuffer[0], pCmdList->VtxBuffer.size() * sizeof(ImDrawVert));
-		memcpy(pIndexBufferData, &pCmdList->IdxBuffer[0], pCmdList->IdxBuffer.size() * sizeof(ImDrawIdx));
-		pVertexBufferData += pCmdList->VtxBuffer.size();
-		pIndexBufferData += pCmdList->IdxBuffer.size();
-	}
-	m_pDX11DeviceContext->Unmap(m_pDX11VertexBuffer, 0);
-	m_pDX11DeviceContext->Unmap(m_pDX11IndexBuffer, 0);
+		ImwIsSafe(m_pDX11DeviceContext)->ClearRenderTargetView(m_pDX11RenderTargetView, fBgColor);
 
-	// Setup orthographic projection matrix into our constant buffer
-	{
-		D3D11_MAPPED_SUBRESOURCE oMappedConstantBuffer;
-		if (m_pDX11DeviceContext->Map(m_pDX11VertexConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &oMappedConstantBuffer) != S_OK)
-			return;
-		VERTEX_CONSTANT_BUFFER* pConstantBufferData = (VERTEX_CONSTANT_BUFFER*)oMappedConstantBuffer.pData;
-		float fL = 0.0f;
-		float fR = ImGui::GetIO().DisplaySize.x;
-		float fB = ImGui::GetIO().DisplaySize.y;
-		float vT = 0.0f;
-		float fMVP[4][4] =
+		if (m_pDX11VertexBuffer == NULL || m_iVertexBufferSize < pDrawData->TotalVtxCount)
 		{
-			{ 2.0f / (fR - fL),   0.0f,           0.0f,       0.0f },
-			{ 0.0f,         2.0f / (vT - fB),     0.0f,       0.0f },
-			{ 0.0f,         0.0f,           0.5f,       0.0f },
-			{ (fR + fL) / (fL - fR),  (vT + fB) / (fB - vT),    0.5f,       1.0f },
-		};
-		memcpy(&pConstantBufferData->mvp, fMVP, sizeof(fMVP));
-		m_pDX11DeviceContext->Unmap(m_pDX11VertexConstantBuffer, 0);
-	}
-
-	BACKUP_DX11_STATE oDeviceContextBackupState;
-	oDeviceContextBackupState.Backup(m_pDX11DeviceContext);
-
-	// Setup viewport
-	D3D11_VIEWPORT oViewport;
-	memset(&oViewport, 0, sizeof(D3D11_VIEWPORT));
-	oViewport.Width = ImGui::GetIO().DisplaySize.x;
-	oViewport.Height = ImGui::GetIO().DisplaySize.y;
-	oViewport.MinDepth = 0.0f;
-	oViewport.MaxDepth = 1.0f;
-	oViewport.TopLeftX = oViewport.TopLeftY = 0.0f;
-	m_pDX11DeviceContext->RSSetViewports(1, &oViewport);
-
-	// Bind shader and vertex buffers
-	unsigned int iStride = sizeof(ImDrawVert);
-	unsigned int iOffset = 0;
-	m_pDX11DeviceContext->IASetInputLayout(m_pDX11InputLayout);
-	m_pDX11DeviceContext->IASetVertexBuffers(0, 1, &m_pDX11VertexBuffer, &iStride, &iOffset);
-	m_pDX11DeviceContext->IASetIndexBuffer(m_pDX11IndexBuffer, sizeof(ImDrawIdx) == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT, 0);
-	m_pDX11DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	m_pDX11DeviceContext->VSSetShader(m_pDX11VertexShader, NULL, 0);
-	m_pDX11DeviceContext->VSSetConstantBuffers(0, 1, &m_pDX11VertexConstantBuffer);
-	m_pDX11DeviceContext->PSSetShader(m_pDX11PixelShader, NULL, 0);
-	m_pDX11DeviceContext->PSSetSamplers(0, 1, &m_pDX11FontSampler);
-
-	// Setup render state
-	const float fBlendFactor[4] = { 0.f, 0.f, 0.f, 0.f };
-	m_pDX11DeviceContext->OMSetBlendState(m_pDX11BlendState, fBlendFactor, 0xffffffff);
-	m_pDX11DeviceContext->RSSetState(m_pDX11RasterizerState);
-
-	// Render command lists
-	int iVertexOffset = 0;
-	int iIndexOffset = 0;
-	for (int iCommandListIndex = 0; iCommandListIndex < pDrawData->CmdListsCount; iCommandListIndex++)
-	{
-		const ImDrawList* pCmdList = pDrawData->CmdLists[iCommandListIndex];
-		for (int iCommandIndex = 0; iCommandIndex < pCmdList->CmdBuffer.size(); iCommandIndex++)
-		{
-			const ImDrawCmd* pCommand = &pCmdList->CmdBuffer[iCommandIndex];
-			if (pCommand->UserCallback)
-			{
-				pCommand->UserCallback(pCmdList, pCommand);
-			}
-			else
-			{
-				const D3D11_RECT oRect = { (LONG)pCommand->ClipRect.x, (LONG)pCommand->ClipRect.y, (LONG)pCommand->ClipRect.z, (LONG)pCommand->ClipRect.w };
-				m_pDX11DeviceContext->PSSetShaderResources(0, 1, (ID3D11ShaderResourceView**)&pCommand->TextureId);
-				m_pDX11DeviceContext->RSSetScissorRects(1, &oRect);
-				m_pDX11DeviceContext->DrawIndexed(pCommand->ElemCount, iIndexOffset, iVertexOffset);
-			}
-			iIndexOffset += pCommand->ElemCount;
+			ImwSafeRelease(m_pDX11VertexBuffer);
+			m_iVertexBufferSize = pDrawData->TotalVtxCount + 5000;
+			D3D11_BUFFER_DESC oBufferDesc;
+			memset(&oBufferDesc, 0, sizeof(D3D11_BUFFER_DESC));
+			oBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+			oBufferDesc.ByteWidth = m_iVertexBufferSize * sizeof(ImDrawVert);
+			oBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+			oBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+			oBufferDesc.MiscFlags = 0;
+			if (m_pDX11Device->CreateBuffer(&oBufferDesc, NULL, &m_pDX11VertexBuffer) < 0)
+				return;
 		}
-		iVertexOffset += pCmdList->VtxBuffer.size();
-	}
 
-	oDeviceContextBackupState.Restore(m_pDX11DeviceContext);
+		if (m_pDX11IndexBuffer == NULL || m_iIndexBufferSize < pDrawData->TotalIdxCount)
+		{
+			ImwSafeRelease(m_pDX11IndexBuffer);
+			D3D11_BUFFER_DESC oBufferDesc;
+			m_iIndexBufferSize = pDrawData->TotalIdxCount + 10000;
+			memset(&oBufferDesc, 0, sizeof(D3D11_BUFFER_DESC));
+			oBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+			oBufferDesc.ByteWidth = m_iIndexBufferSize * sizeof(ImDrawIdx);
+			oBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+			oBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+			if (m_pDX11Device->CreateBuffer(&oBufferDesc, NULL, &m_pDX11IndexBuffer) < 0)
+				return;
+		}
+
+		// Copy and convert all vertices into a single contiguous buffer
+		D3D11_MAPPED_SUBRESOURCE oMappedVertexBuffer, oMappedIndexBuffer;
+		if (m_pDX11DeviceContext->Map(m_pDX11VertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &oMappedVertexBuffer) != S_OK)
+			return;
+		if (m_pDX11DeviceContext->Map(m_pDX11IndexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &oMappedIndexBuffer) != S_OK)
+			return;
+		ImDrawVert* pVertexBufferData = (ImDrawVert*)oMappedVertexBuffer.pData;
+		ImDrawIdx* pIndexBufferData = (ImDrawIdx*)oMappedIndexBuffer.pData;
+		for (int n = 0; n < pDrawData->CmdListsCount; n++)
+		{
+			const ImDrawList* pCmdList = pDrawData->CmdLists[n];
+			memcpy(pVertexBufferData, &pCmdList->VtxBuffer[0], pCmdList->VtxBuffer.size() * sizeof(ImDrawVert));
+			memcpy(pIndexBufferData, &pCmdList->IdxBuffer[0], pCmdList->IdxBuffer.size() * sizeof(ImDrawIdx));
+			pVertexBufferData += pCmdList->VtxBuffer.size();
+			pIndexBufferData += pCmdList->IdxBuffer.size();
+		}
+		m_pDX11DeviceContext->Unmap(m_pDX11VertexBuffer, 0);
+		m_pDX11DeviceContext->Unmap(m_pDX11IndexBuffer, 0);
+
+		// Setup orthographic projection matrix into our constant buffer
+		{
+			D3D11_MAPPED_SUBRESOURCE oMappedConstantBuffer;
+			if (m_pDX11DeviceContext->Map(m_pDX11VertexConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &oMappedConstantBuffer) != S_OK)
+				return;
+			VERTEX_CONSTANT_BUFFER* pConstantBufferData = (VERTEX_CONSTANT_BUFFER*)oMappedConstantBuffer.pData;
+			float fL = 0.0f;
+			float fR = ImGui::GetIO().DisplaySize.x;
+			float fB = ImGui::GetIO().DisplaySize.y;
+			float vT = 0.0f;
+			float fMVP[4][4] =
+			{
+				{ 2.0f / (fR - fL),   0.0f,           0.0f,       0.0f },
+				{ 0.0f,         2.0f / (vT - fB),     0.0f,       0.0f },
+				{ 0.0f,         0.0f,           0.5f,       0.0f },
+				{ (fR + fL) / (fL - fR),  (vT + fB) / (fB - vT),    0.5f,       1.0f },
+			};
+			memcpy(&pConstantBufferData->mvp, fMVP, sizeof(fMVP));
+			m_pDX11DeviceContext->Unmap(m_pDX11VertexConstantBuffer, 0);
+		}
+
+		BACKUP_DX11_STATE oDeviceContextBackupState;
+		oDeviceContextBackupState.Backup(m_pDX11DeviceContext);
+
+		// Setup viewport
+		D3D11_VIEWPORT oViewport;
+		memset(&oViewport, 0, sizeof(D3D11_VIEWPORT));
+		oViewport.Width = ImGui::GetIO().DisplaySize.x;
+		oViewport.Height = ImGui::GetIO().DisplaySize.y;
+		oViewport.MinDepth = 0.0f;
+		oViewport.MaxDepth = 1.0f;
+		oViewport.TopLeftX = oViewport.TopLeftY = 0.0f;
+		m_pDX11DeviceContext->RSSetViewports(1, &oViewport);
+
+		// Bind shader and vertex buffers
+		unsigned int iStride = sizeof(ImDrawVert);
+		unsigned int iOffset = 0;
+		m_pDX11DeviceContext->IASetInputLayout(m_pDX11InputLayout);
+		m_pDX11DeviceContext->IASetVertexBuffers(0, 1, &m_pDX11VertexBuffer, &iStride, &iOffset);
+		m_pDX11DeviceContext->IASetIndexBuffer(m_pDX11IndexBuffer, sizeof(ImDrawIdx) == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT, 0);
+		m_pDX11DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		m_pDX11DeviceContext->VSSetShader(m_pDX11VertexShader, NULL, 0);
+		m_pDX11DeviceContext->VSSetConstantBuffers(0, 1, &m_pDX11VertexConstantBuffer);
+		m_pDX11DeviceContext->PSSetShader(m_pDX11PixelShader, NULL, 0);
+		m_pDX11DeviceContext->PSSetSamplers(0, 1, &m_pDX11FontSampler);
+
+		// Setup render state
+		const float fBlendFactor[4] = { 0.f, 0.f, 0.f, 0.f };
+		m_pDX11DeviceContext->OMSetBlendState(m_pDX11BlendState, fBlendFactor, 0xffffffff);
+		m_pDX11DeviceContext->RSSetState(m_pDX11RasterizerState);
+
+		// Render command lists
+		int iVertexOffset = 0;
+		int iIndexOffset = 0;
+		for (int iCommandListIndex = 0; iCommandListIndex < pDrawData->CmdListsCount; iCommandListIndex++)
+		{
+			const ImDrawList* pCmdList = pDrawData->CmdLists[iCommandListIndex];
+			for (int iCommandIndex = 0; iCommandIndex < pCmdList->CmdBuffer.size(); iCommandIndex++)
+			{
+				const ImDrawCmd* pCommand = &pCmdList->CmdBuffer[iCommandIndex];
+				if (pCommand->UserCallback)
+				{
+					pCommand->UserCallback(pCmdList, pCommand);
+				}
+				else
+				{
+					const D3D11_RECT oRect = { (LONG)pCommand->ClipRect.x, (LONG)pCommand->ClipRect.y, (LONG)pCommand->ClipRect.z, (LONG)pCommand->ClipRect.w };
+					m_pDX11DeviceContext->PSSetShaderResources(0, 1, (ID3D11ShaderResourceView**)&pCommand->TextureId);
+					m_pDX11DeviceContext->RSSetScissorRects(1, &oRect);
+					m_pDX11DeviceContext->DrawIndexed(pCommand->ElemCount, iIndexOffset, iVertexOffset);
+				}
+				iIndexOffset += pCommand->ElemCount;
+			}
+			iVertexOffset += pCmdList->VtxBuffer.size();
+		}
+
+		oDeviceContextBackupState.Restore(m_pDX11DeviceContext);
+
+		//Present the backbuffer to the screen
+		m_pDXGISwapChain->Present(0, 0);
+	}
 }

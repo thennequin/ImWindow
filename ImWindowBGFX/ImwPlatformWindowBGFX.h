@@ -33,7 +33,7 @@ namespace ImWindow
 
 	protected:
 		virtual void						PreUpdate();
-		virtual void						Render();
+		virtual void						RenderDrawLists(ImDrawData* pDrawData);
 
 		bool								OnClose();
 		void								OnFocus(bool bHasFocus);
@@ -45,7 +45,6 @@ namespace ImWindow
 		void								OnChar(int iChar);
 		void								OnSetCursor();
 
-		void								RenderDrawList(ImDrawData* pDrawData);
 
 		bgfx::RendererType::Enum			m_eRenderer;
 

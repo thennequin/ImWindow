@@ -149,7 +149,6 @@ bool ImwPlatformWindowBGFX::Init(ImwPlatformWindow* pMain)
 	io.KeyMap[ImGuiKey_Y] = EasyWindow::KEY_Y;
 	io.KeyMap[ImGuiKey_Z] = EasyWindow::KEY_Z;
 
-	io.RenderDrawListsFn = NULL;
 	io.ImeWindowHandle = m_pWindow->GetHandle();
 
 	RestoreContext(false);
@@ -261,27 +260,6 @@ void ImwPlatformWindowBGFX::PreUpdate()
 	}
 }
 
-void ImwPlatformWindowBGFX::Render()
-{
-	if (!m_bNeedRender)
-		return;
-
-	bgfx::reset(uint16_t(m_pWindow->GetClientWidth()), uint16_t(m_pWindow->GetClientHeight()));
-	bgfx::setViewFrameBuffer(255, m_hFrameBufferHandle);
-	bgfx::setViewRect(255, 0, 0, uint16_t(m_pWindow->GetClientWidth()), uint16_t(m_pWindow->GetClientHeight()));
-
-	SetContext(false);
-	ImVec2 oSize = ImVec2(float(m_pWindow->GetClientWidth()), float(m_pWindow->GetClientHeight()));
-	ImGui::GetIO().DisplaySize = oSize;
-
-	ImGui::Render();
-	RenderDrawList(ImGui::GetDrawData());
-
-	bgfx::frame();
-
-	RestoreContext(false);
-}
-
 bool ImwPlatformWindowBGFX::OnClose()
 {
 	ImwPlatformWindow::OnClose();
@@ -375,8 +353,12 @@ void ImwPlatformWindowBGFX::OnSetCursor()
 #define IMGUI_FLAGS_NONE        UINT8_C(0x00)
 #define IMGUI_FLAGS_ALPHA_BLEND UINT8_C(0x01)
 
-void ImwPlatformWindowBGFX::RenderDrawList(ImDrawData* pDrawData)
+void ImwPlatformWindowBGFX::RenderDrawLists(ImDrawData* pDrawData)
 {
+	bgfx::reset(uint16_t(m_pWindow->GetClientWidth()), uint16_t(m_pWindow->GetClientHeight()));
+	bgfx::setViewFrameBuffer(255, m_hFrameBufferHandle);
+	bgfx::setViewRect(255, 0, 0, uint16_t(m_pWindow->GetClientWidth()), uint16_t(m_pWindow->GetClientHeight()));
+
 	const ImGuiIO& io = ImGui::GetIO();
 	const float width = io.DisplaySize.x;
 	const float height = io.DisplaySize.y;
@@ -461,4 +443,6 @@ void ImwPlatformWindowBGFX::RenderDrawList(ImDrawData* pDrawData)
 			offset += cmd->ElemCount;
 		}
 	}
+
+	bgfx::frame();
 }

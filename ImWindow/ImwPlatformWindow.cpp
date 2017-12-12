@@ -26,7 +26,7 @@ namespace ImWindow
 			ImGuiIO& oNewIO = m_pContext->IO;
 
 			memcpy(&(oNewIO.KeyMap), &(oGlobalIO.KeyMap ), sizeof( pGlobalContext->IO.KeyMap ));
-			oNewIO.RenderDrawListsFn = oGlobalIO.RenderDrawListsFn;
+			oNewIO.RenderDrawListsFn = NULL;
 			oNewIO.GetClipboardTextFn = oGlobalIO.GetClipboardTextFn;
 			oNewIO.SetClipboardTextFn = oGlobalIO.SetClipboardTextFn;
 			oNewIO.ImeSetInputScreenPosFn = oGlobalIO.ImeSetInputScreenPosFn;
@@ -112,6 +112,32 @@ namespace ImWindow
 	void ImwPlatformWindow::SetShowContent(bool bShow)
 	{
 		m_bShowContent = bShow;
+	}
+
+	void ImwPlatformWindow::PreUpdate()
+	{
+	}
+
+	void ImwPlatformWindow::RenderDrawLists(ImDrawData* /*pDrawData */)
+	{
+	}
+
+	void ImwPlatformWindow::Render()
+	{
+		if( m_bNeedRender )
+		{
+			m_bNeedRender = false;
+			SetContext(false);
+			ImGui::GetIO().DisplaySize = GetSize();
+			ImGui::Render();
+			RenderDrawLists(ImGui::GetDrawData());
+			RestoreContext(false);
+		}
+	}
+
+	void ImwPlatformWindow::PaintContainer()
+	{
+		m_pContainer->Paint();
 	}
 
 	void ImwPlatformWindow::OnClose()
@@ -210,21 +236,6 @@ namespace ImWindow
 		}
 	}
 
-	void ImwPlatformWindow::PreUpdate()
-	{
-	}
-
-	void ImwPlatformWindow::Render()
-	{
-		if (m_bNeedRender)
-		{
-			m_bNeedRender = false;
-			SetContext(false);
-			ImGui::Render();
-			RestoreContext(false);
-		}
-	}
-
 	void ImwPlatformWindow::Dock(ImwWindow* pWindow)
 	{
 		m_pContainer->Dock(pWindow);
@@ -248,11 +259,6 @@ namespace ImWindow
 	bool ImwPlatformWindow::FocusWindow(ImwWindow* pWindow)
 	{
 		return m_pContainer->FocusWindow(pWindow);
-	}
-
-	void ImwPlatformWindow::PaintContainer()
-	{
-		m_pContainer->Paint();
 	}
 //SFF_END
 }
