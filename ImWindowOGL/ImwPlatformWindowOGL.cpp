@@ -29,7 +29,7 @@ ImwPlatformWindowOGL::~ImwPlatformWindowOGL()
 				MessageBox(NULL, "Release Of DC And RC Failed.", "SHUTDOWN ERROR", MB_OK | MB_ICONINFORMATION);
 			}
 
-			if (wglDeleteContext(m_hRC) == TRUE)
+			if (wglDeleteContext(m_hRC) != TRUE)
 			{
 				MessageBox(NULL, "Release Rendering Context Failed.", "SHUTDOWN ERROR", MB_OK | MB_ICONINFORMATION);
 			}
