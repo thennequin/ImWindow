@@ -542,11 +542,14 @@ namespace ImWindow
 			UpdateDragWindow();
 
 			Paint(m_pMainPlatformWindow);
-			Paint(m_pDragPlatformWindow);
-
-			for ( ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
+			if (CanCreateMultipleWindow())
 			{
-				Paint(*it);
+				Paint(m_pDragPlatformWindow);
+
+				for (ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
+				{
+					Paint(*it);
+				}
 			}
 
 			PostPaint(m_pMainPlatformWindow);
