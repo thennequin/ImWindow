@@ -85,7 +85,7 @@ bool ImwPlatformWindowGLFW::Init(ImwPlatformWindow* pMain)
 
 	glfwMakeContextCurrent(m_pWindow);
 
-	SetState();
+	SetContext(false);
 	ImGuiIO& io = ImGui::GetIO();
 	
 	if (pMainGLFW != NULL)
@@ -138,7 +138,7 @@ bool ImwPlatformWindowGLFW::Init(ImwPlatformWindow* pMain)
 
 	//io.ImeWindowHandle = m_pWindow->GetHandle();
 
-	RestoreState();
+	RestoreContext(false);
 
 	m_pCursorArrow = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
 	m_pCursorCrosshair = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
@@ -215,7 +215,7 @@ void ImwPlatformWindowGLFW::PreUpdate()
 	glfwMakeContextCurrent(m_pWindow);
 	glfwPollEvents();
 
-	ImGuiIO& oIO = ((ImGuiState*)m_pState)->IO;
+	ImGuiIO& oIO = m_pContext->IO;
 	oIO.KeyCtrl = 0 != (m_iLastMods & GLFW_MOD_CONTROL);
 	oIO.KeyShift = 0 != (m_iLastMods & GLFW_MOD_SHIFT);
 	oIO.KeyAlt = 0 != (m_iLastMods & GLFW_MOD_ALT);
@@ -228,7 +228,7 @@ void ImwPlatformWindowGLFW::PreUpdate()
 	else if (oIO.MousePos.x != -1.f && oIO.MousePos.y != -1.f)
 	{
 		glfwSetInputMode(m_pWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-		switch (((ImGuiState*)m_pState)->MouseCursor)
+		switch (m_pContext->MouseCursor)
 		{
 		case ImGuiMouseCursor_Arrow:
 			glfwSetCursor(m_pWindow, m_pCursorArrow);
@@ -264,14 +264,14 @@ void ImwPlatformWindowGLFW::Render()
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	SetState();
+	SetContext(false);
 
 	ImGui::Render();
 	RenderDrawList(ImGui::GetDrawData());
 
 	glfwSwapBuffers(m_pWindow);
 
-	RestoreState();
+	RestoreContext(false);
 }
 
 void ImwPlatformWindowGLFW::OnClose(GLFWwindow* pWindow)
@@ -299,21 +299,21 @@ void ImwPlatformWindowGLFW::OnMouseButton(GLFWwindow* pWindow, int iButton, int 
 	ImwPlatformWindowGLFW* pPlatformWindow = (ImwPlatformWindowGLFW*)glfwGetWindowUserPointer(pWindow);
 	pPlatformWindow->m_iLastMods = iMods;
 	if (iAction == GLFW_PRESS)
-		((ImGuiState*)pPlatformWindow->m_pState)->IO.MouseDown[iButton] = true;
+		pPlatformWindow->m_pContext->IO.MouseDown[iButton] = true;
 	else if (iAction == GLFW_RELEASE)
-		((ImGuiState*)pPlatformWindow->m_pState)->IO.MouseDown[iButton] = false;
+		pPlatformWindow->m_pContext->IO.MouseDown[iButton] = false;
 }
 
 void ImwPlatformWindowGLFW::OnMouseMove(GLFWwindow* pWindow, double fPosX, double fPosY)
 {
 	ImwPlatformWindowGLFW* pPlatformWindow = (ImwPlatformWindowGLFW*)glfwGetWindowUserPointer(pWindow);
-	((ImGuiState*)pPlatformWindow->m_pState)->IO.MousePos = ImVec2((float)fPosX, (float)fPosY);
+	pPlatformWindow->m_pContext->IO.MousePos = ImVec2((float)fPosX, (float)fPosY);
 }
 
 void ImwPlatformWindowGLFW::OnMouseWheel(GLFWwindow* pWindow, double fOffsetX, double fOffsetY)
 {
 	ImwPlatformWindowGLFW* pPlatformWindow = (ImwPlatformWindowGLFW*)glfwGetWindowUserPointer(pWindow);
-	((ImGuiState*)pPlatformWindow->m_pState)->IO.MouseWheel += (float)fOffsetY;
+	pPlatformWindow->m_pContext->IO.MouseWheel += (float)fOffsetY;
 }
 
 void ImwPlatformWindowGLFW::OnKey(GLFWwindow* pWindow, int iKey, int iScanCode, int iAction, int iMods)
@@ -321,16 +321,16 @@ void ImwPlatformWindowGLFW::OnKey(GLFWwindow* pWindow, int iKey, int iScanCode, 
 	ImwPlatformWindowGLFW* pPlatformWindow = (ImwPlatformWindowGLFW*)glfwGetWindowUserPointer(pWindow);
 	pPlatformWindow->m_iLastMods = iMods;
 	if (iAction == GLFW_PRESS)
-		((ImGuiState*)pPlatformWindow->m_pState)->IO.KeysDown[iKey] = true;
+		pPlatformWindow->m_pContext->IO.KeysDown[iKey] = true;
 	else if (iAction == GLFW_RELEASE)
-		((ImGuiState*)pPlatformWindow->m_pState)->IO.KeysDown[iKey] = false;
+		pPlatformWindow->m_pContext->IO.KeysDown[iKey] = false;
 }
 
 
 void ImwPlatformWindowGLFW::OnChar(GLFWwindow* pWindow, unsigned int iChar)
 {
 	ImwPlatformWindowGLFW* pPlatformWindow = (ImwPlatformWindowGLFW*)glfwGetWindowUserPointer(pWindow);
-	((ImGuiState*)pPlatformWindow->m_pState)->IO.AddInputCharacter((ImwChar)iChar);
+	pPlatformWindow->m_pContext->IO.AddInputCharacter((ImwChar)iChar);
 }
 
 void ImwPlatformWindowGLFW::RenderDrawList(ImDrawData* pDrawData)

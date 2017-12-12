@@ -721,11 +721,11 @@ namespace ImWindow
 
 		pWindow->m_bNeedRender = true;
 		m_pCurrentPlatformWindow = pWindow;
-		pWindow->SetState();
+		pWindow->SetContext(true);
 
 		ImGui::GetIO().DisplaySize = pWindow->GetSize();
-		ImGuiState* pState = (ImGuiState*)ImGui::GetInternalState();
-		if (pState->FrameCountEnded >= pState->FrameCount || !pState->Initialized)
+		ImGuiContext* pContext = ImGui::GetCurrentContext();
+		if (pContext->FrameCountEnded >= pContext->FrameCount || !pContext->Initialized)
 			ImGui::NewFrame();
 
 		float fTop = 0.f;
@@ -824,7 +824,7 @@ namespace ImWindow
 		m_bHasWantCaptureKeyboard |= ImGui::GetIO().WantCaptureKeyboard;
 		m_bHasWantCaptureMouse |= ImGui::GetIO().WantCaptureMouse;
 
-		pWindow->RestoreState();
+		pWindow->RestoreContext(true);
 	}
 
 	void ImwWindowManager::PostPaint(ImwPlatformWindow* pWindow)
@@ -834,7 +834,7 @@ namespace ImWindow
 			return;
 
 		m_pCurrentPlatformWindow = pWindow;
-		pWindow->SetState();
+		pWindow->SetContext(true);
 
 		ImGui::Begin("##Overlay", NULL, ImVec2(0, 0), 0.f, ImGuiWindowFlags_Tooltip | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize);
 		ImDrawList* pDrawList = ImGui::GetWindowDrawList();
@@ -864,7 +864,7 @@ namespace ImWindow
 		}
 		ImGui::End();
 
-		pWindow->RestoreState();
+		pWindow->RestoreContext(false);
 	}
 
 	void ImwWindowManager::PushStyle(bool bRounding, bool bPadding)
@@ -916,7 +916,7 @@ namespace ImWindow
 				m_lPlatformWindowActions.push_back(new PlatformWindowAction(m_pDragPlatformWindow, E_PLATFORM_WINDOW_ACTION_SET_SIZE, oSize));
 
 				Dock(pWindow, E_DOCK_ORIENTATION_CENTER, 0.5f, m_pDragPlatformWindow);
-				((ImGuiState*)m_pDragPlatformWindow->m_pState)->IO.MouseDown[0] = true;
+				m_pDragPlatformWindow->m_pContext->IO.MouseDown[0] = true;
 			}
 			else
 			{
@@ -1031,9 +1031,10 @@ namespace ImWindow
 		{
 			ImVec2 oRectPos(oCursorPos.x - oPos.x, oCursorPos.y - oPos.y);
 
-			pPlatformWindow->SetState();
+			// Set context because GetBestDocking call CalTextSize who need the Font
+			pPlatformWindow->SetContext(false);
 			ImwContainer* pBestContainer = pPlatformWindow->GetContainer()->GetBestDocking(oRectPos, oOutOrientation, oOutAreaPos, oOutAreaSize, bOutOnTabArea, iOutPosition, bLargeCheck);
-			pPlatformWindow->RestoreState();
+			pPlatformWindow->RestoreContext(false);
 			if (NULL != pBestContainer)
 			{
 				fOutRatio = 0.5f; //Default value

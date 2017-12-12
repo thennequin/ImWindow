@@ -136,7 +136,7 @@ bool ImwPlatformWindowOGL::Init(ImwPlatformWindow* pMain)
 	if (m_eType == E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW)
 		m_pWindow->SetAlpha(128);
 
-	SetState();
+	SetContext(false);
 	ImGuiIO& io = ImGui::GetIO();
 	
 	if (pMainOGL != NULL)
@@ -188,7 +188,7 @@ bool ImwPlatformWindowOGL::Init(ImwPlatformWindow* pMain)
 	io.RenderDrawListsFn = NULL;
 	io.ImeWindowHandle = m_pWindow->GetHandle();
 
-	RestoreState();
+	RestoreContext(false);
 
 	return true;
 }
@@ -249,7 +249,7 @@ void ImwPlatformWindowOGL::SetTitle(const ImwChar* pTitle)
 void ImwPlatformWindowOGL::PreUpdate()
 {
 	m_pWindow->Update();
-	ImGuiIO& oIO = ((ImGuiState*)m_pState)->IO;
+	ImGuiIO& oIO = m_pContext->IO;
 	oIO.KeyCtrl = m_pWindow->IsKeyCtrlDown();
 	oIO.KeyShift = m_pWindow->IsKeyShiftDown();
 	oIO.KeyAlt = m_pWindow->IsKeyAltDown();
@@ -261,7 +261,7 @@ void ImwPlatformWindowOGL::PreUpdate()
 	}
 	else if (oIO.MousePos.x != -1.f && oIO.MousePos.y != -1.f)
 	{
-		switch (((ImGuiState*)m_pState)->MouseCursor)
+		switch (m_pContext->MouseCursor)
 		{
 		case ImGuiMouseCursor_Arrow:
 			m_pWindow->SetCursor(EasyWindow::E_CURSOR_ARROW);
@@ -299,7 +299,7 @@ void ImwPlatformWindowOGL::Render()
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		SetState();	
+		SetContext(false);
 		ImVec2 oSize = ImVec2(float(m_pWindow->GetClientWidth()), float(m_pWindow->GetClientHeight()));
 		ImGui::GetIO().DisplaySize = oSize;
 
@@ -308,7 +308,7 @@ void ImwPlatformWindowOGL::Render()
 
 		SwapBuffers(m_hDC);
 
-		RestoreState();
+		RestoreContext(false);
 	}
 }
 
@@ -335,27 +335,27 @@ void ImwPlatformWindowOGL::OnSize(int iWidth, int iHeight)
 
 void ImwPlatformWindowOGL::OnMouseButton(int iButton, bool bDown)
 {
-	((ImGuiState*)m_pState)->IO.MouseDown[iButton] = bDown;
+	m_pContext->IO.MouseDown[iButton] = bDown;
 }
 
 void ImwPlatformWindowOGL::OnMouseMove(int iX, int iY)
 {
-	((ImGuiState*)m_pState)->IO.MousePos = ImVec2((float)iX, (float)iY);
+	m_pContext->IO.MousePos = ImVec2((float)iX, (float)iY);
 }
 
 void ImwPlatformWindowOGL::OnMouseWheel( int iStep )
 {
-	( ( ImGuiState* )m_pState )->IO.MouseWheel += iStep;
+	m_pContext->IO.MouseWheel += iStep;
 }
 
 void ImwPlatformWindowOGL::OnKey(EasyWindow::EKey eKey, bool bDown)
 {
-	((ImGuiState*)m_pState)->IO.KeysDown[eKey] = bDown;
+	m_pContext->IO.KeysDown[eKey] = bDown;
 }
 
 void ImwPlatformWindowOGL::OnChar(int iChar)
 {
-	((ImGuiState*)m_pState)->IO.AddInputCharacter((ImwChar)iChar);
+	m_pContext->IO.AddInputCharacter((ImwChar)iChar);
 }
 
 void ImwPlatformWindowOGL::RenderDrawList(ImDrawData* pDrawData)

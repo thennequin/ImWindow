@@ -85,7 +85,7 @@ bool ImwPlatformWindowBGFX::Init(ImwPlatformWindow* pMain)
 
 	bgfx::setViewFrameBuffer(255, m_hFrameBufferHandle);
 
-	SetState();
+	SetContext(false);
 	ImGuiIO& io = ImGui::GetIO();
 	
 	if (pMainBGFX != NULL)
@@ -152,7 +152,7 @@ bool ImwPlatformWindowBGFX::Init(ImwPlatformWindow* pMain)
 	io.RenderDrawListsFn = NULL;
 	io.ImeWindowHandle = m_pWindow->GetHandle();
 
-	RestoreState();
+	RestoreContext(false);
 
 	//m_hCursorArrow = LoadCursor( NULL, IDC_ARROW );
 	//m_hCursorResizeNS = LoadCursor( NULL, IDC_SIZENS );
@@ -222,7 +222,7 @@ void ImwPlatformWindowBGFX::SetTitle(const ImwChar* pTitle)
 void ImwPlatformWindowBGFX::PreUpdate()
 {
 	m_pWindow->Update();
-	ImGuiIO& oIO = ((ImGuiState*)m_pState)->IO;
+	ImGuiIO& oIO = m_pContext->IO;
 	oIO.KeyCtrl = m_pWindow->IsKeyCtrlDown();
 	oIO.KeyShift = m_pWindow->IsKeyShiftDown();
 	oIO.KeyAlt = m_pWindow->IsKeyAltDown();
@@ -234,7 +234,7 @@ void ImwPlatformWindowBGFX::PreUpdate()
 	}
 	else if (oIO.MousePos.x != -1.f && oIO.MousePos.y != -1.f)
 	{
-		switch (((ImGuiState*)m_pState)->MouseCursor)
+		switch (m_pContext->MouseCursor)
 		{
 		case ImGuiMouseCursor_Arrow:
 			m_pWindow->SetCursor(EasyWindow::E_CURSOR_ARROW);
@@ -270,7 +270,7 @@ void ImwPlatformWindowBGFX::Render()
 	bgfx::setViewFrameBuffer(255, m_hFrameBufferHandle);
 	bgfx::setViewRect(255, 0, 0, uint16_t(m_pWindow->GetClientWidth()), uint16_t(m_pWindow->GetClientHeight()));
 
-	SetState();
+	SetContext(false);
 	ImVec2 oSize = ImVec2(float(m_pWindow->GetClientWidth()), float(m_pWindow->GetClientHeight()));
 	ImGui::GetIO().DisplaySize = oSize;
 
@@ -279,7 +279,7 @@ void ImwPlatformWindowBGFX::Render()
 
 	bgfx::frame();
 
-	RestoreState();
+	RestoreContext(false);
 }
 
 bool ImwPlatformWindowBGFX::OnClose()
@@ -310,42 +310,42 @@ void ImwPlatformWindowBGFX::OnSize(int iWidth, int iHeight)
 
 void ImwPlatformWindowBGFX::OnMouseButton(int iButton, bool bDown)
 {
-	((ImGuiState*)m_pState)->IO.MouseDown[iButton] = bDown;
+	m_pContext->IO.MouseDown[iButton] = bDown;
 }
 
 void ImwPlatformWindowBGFX::OnMouseMove(int iX, int iY)
 {
-	((ImGuiState*)m_pState)->IO.MousePos = ImVec2((float)iX, (float)iY);
+	m_pContext->IO.MousePos = ImVec2((float)iX, (float)iY);
 }
 
 void ImwPlatformWindowBGFX::OnMouseWheel( int iStep )
 {
-	( ( ImGuiState* )m_pState )->IO.MouseWheel += iStep;
+	m_pContext->IO.MouseWheel += iStep;
 }
 
 void ImwPlatformWindowBGFX::OnKey(EasyWindow::EKey eKey, bool bDown)
 {
-	((ImGuiState*)m_pState)->IO.KeysDown[eKey] = bDown;
+	m_pContext->IO.KeysDown[eKey] = bDown;
 }
 
 void ImwPlatformWindowBGFX::OnChar(int iChar)
 {
-	((ImGuiState*)m_pState)->IO.AddInputCharacter((ImwChar)iChar);
+	m_pContext->IO.AddInputCharacter((ImwChar)iChar);
 }
 
 void ImwPlatformWindowBGFX::OnSetCursor()
 {
-	if (m_pState == NULL)
+	if (m_pContext == NULL)
 		return;
 
-	ImGuiIO& oIO = ((ImGuiState*)m_pState)->IO;
+	ImGuiIO& oIO = m_pContext->IO;
 	if (oIO.MouseDrawCursor)
 	{
 		m_pWindow->SetCursor(EasyWindow::E_CURSOR_NONE);
 	}
 	else if (oIO.MousePos.x != -1.f && oIO.MousePos.y != -1.f)
 	{
-		switch (((ImGuiState*)m_pState)->MouseCursor)
+		switch (m_pContext->MouseCursor)
 		{
 		case ImGuiMouseCursor_Arrow:
 			m_pWindow->SetCursor(EasyWindow::E_CURSOR_ARROW);

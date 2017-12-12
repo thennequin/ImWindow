@@ -22,7 +22,7 @@ namespace ImWindow
 	{
 		friend class ImwWindowManager;
 	public:
-											ImwPlatformWindow(EPlatformWindowType eType, bool bCreateState);
+											ImwPlatformWindow(EPlatformWindowType eType, bool bCreateContext);
 		virtual								~ImwPlatformWindow();
 
 		virtual bool						Init(ImwPlatformWindow* pParent);
@@ -49,10 +49,10 @@ namespace ImWindow
 		ImwContainer*						HasWindow(ImwWindow* pWindow);
 		bool								FocusWindow(ImwWindow* pWindow);
 
-		bool								HasState() const;
-		void								SetState();
-		void								RestoreState();
-		static bool							IsStateSet();
+		bool								HasContext() const;
+		void								SetContext(bool bCopyStyle);
+		void								RestoreContext(bool bCopyStyle);
+		static bool							IsContextSet();
 	protected:
 		void								OnLoseFocus();
 		virtual void						PreUpdate();
@@ -66,8 +66,8 @@ namespace ImWindow
 
 		EPlatformWindowType					m_eType;
 		ImwContainer*						m_pContainer;
-		void*								m_pState;
-		void*								m_pPreviousState;
+		ImGuiContext*						m_pContext;
+		ImGuiContext*						m_pPreviousContext;
 		bool								m_bNeedRender;
 		bool								m_bShowContent;
 	};

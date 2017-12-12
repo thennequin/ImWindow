@@ -369,7 +369,7 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 	//Set our Render Target
 	m_pDX11DeviceContext->OMSetRenderTargets(1, &m_pDX11RenderTargetView, NULL);
 
-	SetState();
+	SetContext(false);
 	ImGuiIO& io = ImGui::GetIO();
 
 	if (NULL == pMainWindow)
@@ -447,7 +447,7 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 	io.RenderDrawListsFn = NULL;
 	io.ImeWindowHandle = m_pWindow->GetHandle();
 
-	RestoreState();
+	RestoreContext(false);
 
 	return true;
 }
@@ -508,7 +508,7 @@ void ImwPlatformWindowDX11::SetTitle(const ImwChar* pTitle)
 void ImwPlatformWindowDX11::PreUpdate()
 {
 	m_pWindow->Update();
-	ImGuiIO& oIO = ((ImGuiState*)m_pState)->IO;
+	ImGuiIO& oIO = m_pContext->IO;
 	oIO.KeyCtrl = m_pWindow->IsKeyCtrlDown();
 	oIO.KeyShift = m_pWindow->IsKeyShiftDown();
 	oIO.KeyAlt = m_pWindow->IsKeyAltDown();
@@ -520,7 +520,7 @@ void ImwPlatformWindowDX11::PreUpdate()
 	}
 	else if (oIO.MousePos.x != -1.f && oIO.MousePos.y != -1.f)
 	{
-		switch (((ImGuiState*)m_pState)->MouseCursor)
+		switch (m_pContext->MouseCursor)
 		{
 		case ImGuiMouseCursor_Arrow:
 			m_pWindow->SetCursor(EasyWindow::E_CURSOR_ARROW);
@@ -560,7 +560,7 @@ void ImwPlatformWindowDX11::Render()
 
 		ImwIsSafe(m_pDX11DeviceContext)->ClearRenderTargetView(m_pDX11RenderTargetView, fBgColor);
 
-		SetState();
+		SetContext(false);
 
 		ImVec2 oSize = ImVec2(float(m_pWindow->GetClientWidth()), float(m_pWindow->GetClientHeight()));
 		ImGui::GetIO().DisplaySize = oSize;
@@ -568,7 +568,7 @@ void ImwPlatformWindowDX11::Render()
 		ImGui::Render();
 		RenderDrawList(ImGui::GetDrawData());
 
-		RestoreState();
+		RestoreContext(false);
 
 		//Present the backbuffer to the screen
 		m_pDXGISwapChain->Present(0, 0);
@@ -627,27 +627,27 @@ void ImwPlatformWindowDX11::OnSize(int iWidth, int iHeight)
 
 void ImwPlatformWindowDX11::OnMouseButton(int iButton, bool bDown)
 {
-	((ImGuiState*)m_pState)->IO.MouseDown[iButton] = bDown;
+	m_pContext->IO.MouseDown[iButton] = bDown;
 }
 
 void ImwPlatformWindowDX11::OnMouseMove(int iX, int iY)
 {
-	((ImGuiState*)m_pState)->IO.MousePos = ImVec2((float)iX, (float)iY);
+	m_pContext->IO.MousePos = ImVec2((float)iX, (float)iY);
 }
 
 void ImwPlatformWindowDX11::OnMouseWheel( int iStep )
 {
-	( ( ImGuiState* )m_pState )->IO.MouseWheel += iStep;
+	m_pContext->IO.MouseWheel += iStep;
 }
 
 void ImwPlatformWindowDX11::OnKey(EasyWindow::EKey eKey, bool bDown)
 {
-	((ImGuiState*)m_pState)->IO.KeysDown[eKey] = bDown;
+	m_pContext->IO.KeysDown[eKey] = bDown;
 }
 
 void ImwPlatformWindowDX11::OnChar(int iChar)
 {
-	((ImGuiState*)m_pState)->IO.AddInputCharacter((ImwChar)iChar);
+	m_pContext->IO.AddInputCharacter((ImwChar)iChar);
 }
 
 void ImwPlatformWindowDX11::RenderDrawList(ImDrawData* pDrawData)
