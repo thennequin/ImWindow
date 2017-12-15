@@ -841,6 +841,7 @@ namespace ImWindow
 
 		ImGui::Begin("##Overlay", NULL, ImVec2(0, 0), 0.f, ImGuiWindowFlags_Tooltip | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize);
 		ImDrawList* pDrawList = ImGui::GetWindowDrawList();
+		pDrawList->PushClipRectFullScreen();
 		for (ImwList<DrawWindowAreaAction>::iterator it = m_lDrawWindowAreas.begin(); it != m_lDrawWindowAreas.end(); )
 		{
 			DrawWindowAreaAction& oAction = *it;
