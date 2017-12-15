@@ -864,6 +864,8 @@ namespace ImWindow
 			{
 				++it;
 			}
+
+			pWindow->OnOverlay();
 		}
 		ImGui::End();
 

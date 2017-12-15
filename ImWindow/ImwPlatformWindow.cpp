@@ -118,6 +118,14 @@ namespace ImWindow
 	{
 	}
 
+	void ImwPlatformWindow::PreRender()
+	{
+	}
+
+	void ImwPlatformWindow::OnOverlay()
+	{
+	}
+
 	void ImwPlatformWindow::RenderDrawLists(ImDrawData* /*pDrawData */)
 	{
 	}
@@ -129,6 +137,7 @@ namespace ImWindow
 			m_bNeedRender = false;
 			SetContext(false);
 			ImGui::GetIO().DisplaySize = GetSize();
+			PreRender();
 			ImGui::Render();
 			RenderDrawLists(ImGui::GetDrawData());
 			RestoreContext(false);
