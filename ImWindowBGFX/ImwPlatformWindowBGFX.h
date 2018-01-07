@@ -55,6 +55,9 @@ namespace ImWindow
 		bgfx::VertexDecl					m_oVertexDecl;
 		bgfx::ProgramHandle					m_hProgram;
 		bgfx::UniformHandle					m_hUniformTexture;
+
+		bgfx::DynamicVertexBufferHandle		m_hVertexBuffer;
+		bgfx::DynamicIndexBufferHandle		m_hIndexBuffer;
 	};
 }
 
