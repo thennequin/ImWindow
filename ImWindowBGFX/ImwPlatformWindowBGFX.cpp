@@ -35,7 +35,10 @@ ImwPlatformWindowBGFX::~ImwPlatformWindowBGFX()
 		bgfx::destroyTexture(m_hTexture);
 		bgfx::destroyUniform(m_hUniformTexture);
 	}
-	
+
+	bgfx::destroyDynamicIndexBuffer(m_hIndexBuffer);
+	bgfx::destroyDynamicVertexBuffer(m_hVertexBuffer);
+
 	bgfx::destroyFrameBuffer(m_hFrameBufferHandle);
 	bgfx::frame();
 	bgfx::frame();
@@ -128,6 +131,11 @@ bool ImwPlatformWindowBGFX::Init(ImwPlatformWindow* pMain)
 			.add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8, true)
 			.end();
 	}
+	uint16_t iFlag = 0;
+	if (sizeof(ImDrawIdx) == 4)
+		iFlag |= BGFX_BUFFER_INDEX32;
+	m_hVertexBuffer = bgfx::createDynamicVertexBuffer((uint32_t)1, m_oVertexDecl, BGFX_BUFFER_ALLOW_RESIZE);
+	m_hIndexBuffer = bgfx::createDynamicIndexBuffer((uint32_t)1, BGFX_BUFFER_ALLOW_RESIZE| iFlag);
 
 	io.KeyMap[ImGuiKey_Tab] = EasyWindow::KEY_TAB;                       // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array that we will update during the application lifetime.
 	io.KeyMap[ImGuiKey_LeftArrow] = EasyWindow::KEY_LEFT;
@@ -369,32 +377,34 @@ void ImwPlatformWindowBGFX::RenderDrawLists(ImDrawData* pDrawData)
 		bgfx::setViewTransform(255, NULL, ortho);
 	}
 
-	// Render command lists
-	for (int32_t ii = 0, num = pDrawData->CmdListsCount; ii < num; ++ii)
-	{
-		bgfx::TransientVertexBuffer tvb;
-		bgfx::TransientIndexBuffer tib;
-
-		const ImDrawList* drawList = pDrawData->CmdLists[ii];
-		uint32_t numVertices = (uint32_t)drawList->VtxBuffer.size();
-		uint32_t numIndices = (uint32_t)drawList->IdxBuffer.size();
-
-		if (!checkAvailTransientBuffers(numVertices, m_oVertexDecl, numIndices))
+	{ // Copy all vertices/indices to monolithic arrays
+		const bgfx::Memory* pVertexBuffer = bgfx::alloc(pDrawData->TotalVtxCount * sizeof(ImDrawVert));
+		const bgfx::Memory* pIndexBuffer = bgfx::alloc(pDrawData->TotalIdxCount * sizeof(ImDrawIdx));
+		uint32_t iVertexOffset = 0;
+		uint32_t iIndexOffset = 0;
+		for (int32_t ii = 0, num = pDrawData->CmdListsCount; ii < num; ++ii)
 		{
-			// not enough space in transient buffer just quit drawing the rest...
-			break;
+			const ImDrawList* drawList = pDrawData->CmdLists[ ii ];
+			uint32_t numVertices = (uint32_t)drawList->VtxBuffer.size();
+			uint32_t numIndices = (uint32_t)drawList->IdxBuffer.size();
+			bx::memCopy(((ImDrawVert*)pVertexBuffer->data) + iVertexOffset, drawList->VtxBuffer.begin(), numVertices * sizeof(ImDrawVert));
+			bx::memCopy(((ImDrawIdx*)pIndexBuffer->data) + iIndexOffset, drawList->IdxBuffer.begin(), numIndices * sizeof(ImDrawIdx));
+
+			iVertexOffset += numVertices;
+			iIndexOffset += numIndices;
 		}
 
-		bgfx::allocTransientVertexBuffer(&tvb, numVertices, m_oVertexDecl);
-		bgfx::allocTransientIndexBuffer(&tib, numIndices);
+		bgfx::updateDynamicVertexBuffer(m_hVertexBuffer, 0, pVertexBuffer);
+		bgfx::updateDynamicIndexBuffer(m_hIndexBuffer, 0, pIndexBuffer);
+	}
 
-		ImDrawVert* verts = (ImDrawVert*)tvb.data;
-		bx::memCopy(verts, drawList->VtxBuffer.begin(), numVertices * sizeof(ImDrawVert));
-
-		ImDrawIdx* indices = (ImDrawIdx*)tib.data;
-		bx::memCopy(indices, drawList->IdxBuffer.begin(), numIndices * sizeof(ImDrawIdx));
-
-		uint32_t offset = 0;
+	// Render command lists
+	uint32_t iVertexOffset = 0;
+	uint32_t iIndexOffset = 0;
+	for (int32_t ii = 0, num = pDrawData->CmdListsCount; ii < num; ++ii)
+	{
+		const ImDrawList* drawList = pDrawData->CmdLists[ii];
+		uint32_t numVertices = (uint32_t)drawList->VtxBuffer.size();
 		for (const ImDrawCmd* cmd = drawList->CmdBuffer.begin(), *cmdEnd = drawList->CmdBuffer.end(); cmd != cmdEnd; ++cmd)
 		{
 			if (cmd->UserCallback)
@@ -435,13 +445,15 @@ void ImwPlatformWindowBGFX::RenderDrawLists(ImDrawData* pDrawData)
 
 				bgfx::setState(state);
 				bgfx::setTexture(0, m_hUniformTexture, th);
-				bgfx::setVertexBuffer(0, &tvb, 0, numVertices);
-				bgfx::setIndexBuffer(&tib, offset, cmd->ElemCount);
+
+				bgfx::setVertexBuffer(0, m_hVertexBuffer, iVertexOffset, numVertices);
+				bgfx::setIndexBuffer(m_hIndexBuffer, iIndexOffset, cmd->ElemCount);
 				bgfx::submit(255, program);
 			}
 
-			offset += cmd->ElemCount;
+			iIndexOffset += cmd->ElemCount;
 		}
+		iVertexOffset += numVertices;
 	}
 
 	bgfx::frame();
