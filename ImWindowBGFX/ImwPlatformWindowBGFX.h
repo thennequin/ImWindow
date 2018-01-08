@@ -43,7 +43,6 @@ namespace ImWindow
 		void								OnMouseWheel( int iStep );
 		void								OnKey(EasyWindow::EKey eKey, bool bDown);
 		void								OnChar(int iChar);
-		void								OnSetCursor();
 
 
 		bgfx::RendererType::Enum			m_eRenderer;
