@@ -839,9 +839,7 @@ namespace ImWindow
 		m_pCurrentPlatformWindow = pWindow;
 		pWindow->SetContext(true);
 
-		ImGui::Begin("##Overlay", NULL, ImVec2(0, 0), 0.f, ImGuiWindowFlags_Tooltip | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize);
-		ImDrawList* pDrawList = ImGui::GetWindowDrawList();
-		pDrawList->PushClipRectFullScreen();
+		ImDrawList* pDrawList = &(ImGui::GetCurrentContext()->OverlayDrawList);
 		for (ImwList<DrawWindowAreaAction>::iterator it = m_lDrawWindowAreas.begin(); it != m_lDrawWindowAreas.end(); )
 		{
 			DrawWindowAreaAction& oAction = *it;
@@ -866,8 +864,6 @@ namespace ImWindow
 			}
 		}
 		pWindow->OnOverlay();
-		pDrawList->PopClipRect();
-		ImGui::End();
 
 		pWindow->RestoreContext(false);
 	}
