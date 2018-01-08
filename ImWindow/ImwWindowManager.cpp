@@ -852,11 +852,10 @@ namespace ImWindow
 				ImVec2 oPosB = oAction.m_oRectSize;
 				oPosB.x += oPosA.x;
 				oPosB.y += oPosA.y;
-
-				pDrawList->PushClipRectFullScreen();
+				
 				//pDrawList->AddLine(ImGui::CalcItemRectClosestPoint(ImGui::GetIO().MousePos, true, -2.0f), ImGui::GetIO().MousePos, ImColor(ImGui::GetStyle().Colors[ImGuiCol_Button]), 4.0f);
 				pDrawList->AddRectFilled(oPosA, oPosB, oAction.m_oColor);
-				pDrawList->PopClipRect();
+				
 				ImwList<DrawWindowAreaAction>::iterator toRemove = it;
 				++it;
 				m_lDrawWindowAreas.erase(toRemove);
@@ -865,9 +864,9 @@ namespace ImWindow
 			{
 				++it;
 			}
-
-			pWindow->OnOverlay();
 		}
+		pWindow->OnOverlay();
+		pDrawList->PopClipRect();
 		ImGui::End();
 
 		pWindow->RestoreContext(false);
