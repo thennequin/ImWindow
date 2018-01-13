@@ -85,7 +85,7 @@ bool ImwPlatformWindowGLFW::Init(ImwPlatformWindow* pMain)
 
 	glfwMakeContextCurrent(m_pWindow);
 
-	SetState();
+	SetContext(false);
 	ImGuiIO& io = ImGui::GetIO();
 	
 	if (pMainGLFW != NULL)
@@ -113,8 +113,6 @@ bool ImwPlatformWindowGLFW::Init(ImwPlatformWindow* pMain)
 		// Store our identifier
 		io.Fonts->TexID = (void *)(intptr_t)m_iTextureID;
 	}
-
-	io.RenderDrawListsFn = NULL;
 	
 	io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;
 	io.KeyMap[ImGuiKey_LeftArrow] = GLFW_KEY_LEFT;
@@ -138,7 +136,7 @@ bool ImwPlatformWindowGLFW::Init(ImwPlatformWindow* pMain)
 
 	//io.ImeWindowHandle = m_pWindow->GetHandle();
 
-	RestoreState();
+	RestoreContext(false);
 
 	m_pCursorArrow = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
 	m_pCursorCrosshair = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
@@ -215,7 +213,7 @@ void ImwPlatformWindowGLFW::PreUpdate()
 	glfwMakeContextCurrent(m_pWindow);
 	glfwPollEvents();
 
-	ImGuiIO& oIO = ((ImGuiState*)m_pState)->IO;
+	ImGuiIO& oIO = m_pContext->IO;
 	oIO.KeyCtrl = 0 != (m_iLastMods & GLFW_MOD_CONTROL);
 	oIO.KeyShift = 0 != (m_iLastMods & GLFW_MOD_SHIFT);
 	oIO.KeyAlt = 0 != (m_iLastMods & GLFW_MOD_ALT);
@@ -228,7 +226,7 @@ void ImwPlatformWindowGLFW::PreUpdate()
 	else if (oIO.MousePos.x != -1.f && oIO.MousePos.y != -1.f)
 	{
 		glfwSetInputMode(m_pWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-		switch (((ImGuiState*)m_pState)->MouseCursor)
+		switch (m_pContext->MouseCursor)
 		{
 		case ImGuiMouseCursor_Arrow:
 			glfwSetCursor(m_pWindow, m_pCursorArrow);
@@ -253,25 +251,6 @@ void ImwPlatformWindowGLFW::PreUpdate()
 			break;
 		}
 	}
-}
-
-void ImwPlatformWindowGLFW::Render()
-{
-	if (!m_bNeedRender)
-		return;
-
-	glfwMakeContextCurrent(m_pWindow);
-	
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	SetState();
-
-	ImGui::Render();
-	RenderDrawList(ImGui::GetDrawData());
-
-	glfwSwapBuffers(m_pWindow);
-
-	RestoreState();
 }
 
 void ImwPlatformWindowGLFW::OnClose(GLFWwindow* pWindow)
@@ -299,21 +278,21 @@ void ImwPlatformWindowGLFW::OnMouseButton(GLFWwindow* pWindow, int iButton, int 
 	ImwPlatformWindowGLFW* pPlatformWindow = (ImwPlatformWindowGLFW*)glfwGetWindowUserPointer(pWindow);
 	pPlatformWindow->m_iLastMods = iMods;
 	if (iAction == GLFW_PRESS)
-		((ImGuiState*)pPlatformWindow->m_pState)->IO.MouseDown[iButton] = true;
+		pPlatformWindow->m_pContext->IO.MouseDown[iButton] = true;
 	else if (iAction == GLFW_RELEASE)
-		((ImGuiState*)pPlatformWindow->m_pState)->IO.MouseDown[iButton] = false;
+		pPlatformWindow->m_pContext->IO.MouseDown[iButton] = false;
 }
 
 void ImwPlatformWindowGLFW::OnMouseMove(GLFWwindow* pWindow, double fPosX, double fPosY)
 {
 	ImwPlatformWindowGLFW* pPlatformWindow = (ImwPlatformWindowGLFW*)glfwGetWindowUserPointer(pWindow);
-	((ImGuiState*)pPlatformWindow->m_pState)->IO.MousePos = ImVec2((float)fPosX, (float)fPosY);
+	pPlatformWindow->m_pContext->IO.MousePos = ImVec2((float)fPosX, (float)fPosY);
 }
 
 void ImwPlatformWindowGLFW::OnMouseWheel(GLFWwindow* pWindow, double fOffsetX, double fOffsetY)
 {
 	ImwPlatformWindowGLFW* pPlatformWindow = (ImwPlatformWindowGLFW*)glfwGetWindowUserPointer(pWindow);
-	((ImGuiState*)pPlatformWindow->m_pState)->IO.MouseWheel += (float)fOffsetY;
+	pPlatformWindow->m_pContext->IO.MouseWheel += (float)fOffsetY;
 }
 
 void ImwPlatformWindowGLFW::OnKey(GLFWwindow* pWindow, int iKey, int iScanCode, int iAction, int iMods)
@@ -321,91 +300,100 @@ void ImwPlatformWindowGLFW::OnKey(GLFWwindow* pWindow, int iKey, int iScanCode, 
 	ImwPlatformWindowGLFW* pPlatformWindow = (ImwPlatformWindowGLFW*)glfwGetWindowUserPointer(pWindow);
 	pPlatformWindow->m_iLastMods = iMods;
 	if (iAction == GLFW_PRESS)
-		((ImGuiState*)pPlatformWindow->m_pState)->IO.KeysDown[iKey] = true;
+		pPlatformWindow->m_pContext->IO.KeysDown[iKey] = true;
 	else if (iAction == GLFW_RELEASE)
-		((ImGuiState*)pPlatformWindow->m_pState)->IO.KeysDown[iKey] = false;
+		pPlatformWindow->m_pContext->IO.KeysDown[iKey] = false;
 }
 
 
 void ImwPlatformWindowGLFW::OnChar(GLFWwindow* pWindow, unsigned int iChar)
 {
 	ImwPlatformWindowGLFW* pPlatformWindow = (ImwPlatformWindowGLFW*)glfwGetWindowUserPointer(pWindow);
-	((ImGuiState*)pPlatformWindow->m_pState)->IO.AddInputCharacter((ImwChar)iChar);
+	pPlatformWindow->m_pContext->IO.AddInputCharacter((ImwChar)iChar);
 }
 
-void ImwPlatformWindowGLFW::RenderDrawList(ImDrawData* pDrawData)
+void ImwPlatformWindowGLFW::RenderDrawLists(ImDrawData* pDrawData)
 {
-	// Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
-	ImGuiIO& io = ImGui::GetIO();
-	int fb_width = (int)(io.DisplaySize.x * io.DisplayFramebufferScale.x);
-	int fb_height = (int)(io.DisplaySize.y * io.DisplayFramebufferScale.y);
-	if (fb_width == 0 || fb_height == 0)
-		return;
-	pDrawData->ScaleClipRects(io.DisplayFramebufferScale);
-
-	// We are using the OpenGL fixed pipeline to make the example code simpler to read!
-	// Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled, vertex/texcoord/color pointers.
-	GLint last_texture; glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
-	GLint last_viewport[4]; glGetIntegerv(GL_VIEWPORT, last_viewport);
-	glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_TRANSFORM_BIT);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDisable(GL_CULL_FACE);
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_SCISSOR_TEST);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-	glEnable(GL_TEXTURE_2D);
-	//glUseProgram(0); // You may want this if using this code in an OpenGL 3+ context
-
-	// Setup viewport, orthographic projection matrix
-	glViewport(0, 0, (GLsizei)fb_width, (GLsizei)fb_height);
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	glOrtho(0.0f, io.DisplaySize.x, io.DisplaySize.y, 0.0f, -1.0f, +1.0f);
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
-
-	// Render command lists
-#define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
-	for (int n = 0; n < pDrawData->CmdListsCount; n++)
+	if (m_pWindow != NULL)
 	{
-		const ImDrawList* cmd_list = pDrawData->CmdLists[n];
-		const unsigned char* vtx_buffer = (const unsigned char*)&cmd_list->VtxBuffer.front();
-		const ImDrawIdx* idx_buffer = &cmd_list->IdxBuffer.front();
-		glVertexPointer(2, GL_FLOAT, sizeof(ImDrawVert), (void*)(vtx_buffer + OFFSETOF(ImDrawVert, pos)));
-		glTexCoordPointer(2, GL_FLOAT, sizeof(ImDrawVert), (void*)(vtx_buffer + OFFSETOF(ImDrawVert, uv)));
-		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(ImDrawVert), (void*)(vtx_buffer + OFFSETOF(ImDrawVert, col)));
+		glfwMakeContextCurrent(m_pWindow);
 
-		for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.size(); cmd_i++)
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
+		ImGuiIO& io = ImGui::GetIO();
+		int fb_width = (int)(io.DisplaySize.x * io.DisplayFramebufferScale.x);
+		int fb_height = (int)(io.DisplaySize.y * io.DisplayFramebufferScale.y);
+		if (fb_width == 0 || fb_height == 0)
+			return;
+		pDrawData->ScaleClipRects(io.DisplayFramebufferScale);
+
+		// We are using the OpenGL fixed pipeline to make the example code simpler to read!
+		// Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled, vertex/texcoord/color pointers.
+		GLint last_texture; glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
+		GLint last_viewport[4]; glGetIntegerv(GL_VIEWPORT, last_viewport);
+		glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_TRANSFORM_BIT);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glDisable(GL_CULL_FACE);
+		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_SCISSOR_TEST);
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glEnableClientState(GL_COLOR_ARRAY);
+		glEnable(GL_TEXTURE_2D);
+		//glUseProgram(0); // You may want this if using this code in an OpenGL 3+ context
+
+		// Setup viewport, orthographic projection matrix
+		glViewport(0, 0, (GLsizei)fb_width, (GLsizei)fb_height);
+		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();
+		glLoadIdentity();
+		glOrtho(0.0f, io.DisplaySize.x, io.DisplaySize.y, 0.0f, -1.0f, +1.0f);
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glLoadIdentity();
+
+		// Render command lists
+	#define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
+		for (int n = 0; n < pDrawData->CmdListsCount; n++)
 		{
-			const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
-			if (pcmd->UserCallback)
-			{
-				pcmd->UserCallback(cmd_list, pcmd);
-			}
-			else
-			{
-				glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
-				glScissor((int)pcmd->ClipRect.x, (int)(fb_height - pcmd->ClipRect.w), (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
-				glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, sizeof(ImDrawIdx) == 2 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT, idx_buffer);
-			}
-			idx_buffer += pcmd->ElemCount;
-		}
-	}
-#undef OFFSETOF
+			const ImDrawList* cmd_list = pDrawData->CmdLists[n];
+			const unsigned char* vtx_buffer = (const unsigned char*)&cmd_list->VtxBuffer.front();
+			const ImDrawIdx* idx_buffer = &cmd_list->IdxBuffer.front();
+			glVertexPointer(2, GL_FLOAT, sizeof(ImDrawVert), (void*)(vtx_buffer + OFFSETOF(ImDrawVert, pos)));
+			glTexCoordPointer(2, GL_FLOAT, sizeof(ImDrawVert), (void*)(vtx_buffer + OFFSETOF(ImDrawVert, uv)));
+			glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(ImDrawVert), (void*)(vtx_buffer + OFFSETOF(ImDrawVert, col)));
 
-	// Restore modified state
-	glDisableClientState(GL_COLOR_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glBindTexture(GL_TEXTURE_2D, (GLuint)last_texture);
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glPopAttrib();
+			for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.size(); cmd_i++)
+			{
+				const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
+				if (pcmd->UserCallback)
+				{
+					pcmd->UserCallback(cmd_list, pcmd);
+				}
+				else
+				{
+					glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
+					glScissor((int)pcmd->ClipRect.x, (int)(fb_height - pcmd->ClipRect.w), (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
+					glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, sizeof(ImDrawIdx) == 2 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT, idx_buffer);
+				}
+				idx_buffer += pcmd->ElemCount;
+			}
+		}
+	#undef OFFSETOF
+
+		// Restore modified state
+		glDisableClientState(GL_COLOR_ARRAY);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		glDisableClientState(GL_VERTEX_ARRAY);
+		glBindTexture(GL_TEXTURE_2D, (GLuint)last_texture);
+		glMatrixMode(GL_MODELVIEW);
+		glPopMatrix();
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
+		glPopAttrib();
+
+		glfwSwapBuffers(m_pWindow);
+	}
 }

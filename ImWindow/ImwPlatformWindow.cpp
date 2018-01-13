@@ -6,34 +6,31 @@
 namespace ImWindow
 {
 //SFF_BEGIN
-	ImwPlatformWindow::ImwPlatformWindow(EPlatformWindowType eType, bool bCreateState)
+	ImwPlatformWindow::ImwPlatformWindow(EPlatformWindowType eType, bool bCreateContext)
 	{
 		m_eType = eType;
 		m_pContainer = new ImwContainer(this);
-		m_pState = NULL;
-		m_pPreviousState = NULL;
+		m_pContext = NULL;
+		m_pPreviousContext = NULL;
 		m_bNeedRender = false;
 		m_bShowContent = true;
 
-		if (bCreateState)
+		if ( bCreateContext )
 		{
-			void* pTemp = ImGui::GetInternalState();
+			ImGuiContext* pGlobalContext = ImGui::GetCurrentContext();
+			IM_ASSERT(pGlobalContext != NULL);
 
-			ImGuiIO& oCurrentIO = ImGui::GetIO();
-			m_pState = ImwMalloc(ImGui::GetInternalStateSize());
-			ImGui::SetInternalState(m_pState, true);
-			ImGuiIO& oNewIO = ImGui::GetIO();
+			m_pContext = ImGui::CreateContext( pGlobalContext->IO.MemAllocFn, pGlobalContext->IO.MemFreeFn );
 
-			memcpy(&((ImGuiState*)m_pState)->IO.KeyMap, &((ImGuiState*)pTemp)->IO.KeyMap, sizeof(int) * ImGuiKey_COUNT);
-			oNewIO.RenderDrawListsFn = oCurrentIO.RenderDrawListsFn;
-			oNewIO.GetClipboardTextFn = oCurrentIO.GetClipboardTextFn;
-			oNewIO.SetClipboardTextFn = oCurrentIO.SetClipboardTextFn;
-			oNewIO.MemAllocFn = oCurrentIO.MemAllocFn;
-			oNewIO.MemFreeFn = oCurrentIO.MemFreeFn;
-			oNewIO.ImeSetInputScreenPosFn = oCurrentIO.ImeSetInputScreenPosFn;
-			ImGui::GetIO().IniFilename = NULL;
+			ImGuiIO& oGlobalIO = pGlobalContext->IO;
+			ImGuiIO& oNewIO = m_pContext->IO;
 
-			ImGui::SetInternalState(pTemp);
+			memcpy(&(oNewIO.KeyMap), &(oGlobalIO.KeyMap ), sizeof( pGlobalContext->IO.KeyMap ));
+			oNewIO.RenderDrawListsFn = NULL;
+			oNewIO.GetClipboardTextFn = oGlobalIO.GetClipboardTextFn;
+			oNewIO.SetClipboardTextFn = oGlobalIO.SetClipboardTextFn;
+			oNewIO.ImeSetInputScreenPosFn = oGlobalIO.ImeSetInputScreenPosFn;
+			oNewIO.IniFilename = NULL;
 		}
 	}
 
@@ -41,14 +38,15 @@ namespace ImWindow
 	{
 		ImwSafeDelete(m_pContainer);
 
-		SetState();
-		if (GetType() != E_PLATFORM_WINDOW_TYPE_MAIN)
+		if (m_pContext != NULL)
 		{
-			ImGui::GetIO().Fonts = NULL;
+			m_pContext->IO.Fonts = NULL;
+			SetContext(false);
+			ImGui::Shutdown();
+			RestoreContext(false);
+			ImGui::DestroyContext(m_pContext);
+			m_pContext = NULL;
 		}
-		ImGui::Shutdown();
-		RestoreState();
-		ImwSafeFree(m_pState);
 	}
 
 	bool ImwPlatformWindow::Init(ImwPlatformWindow* /*pParent*/)
@@ -116,6 +114,41 @@ namespace ImWindow
 		m_bShowContent = bShow;
 	}
 
+	void ImwPlatformWindow::PreUpdate()
+	{
+	}
+
+	void ImwPlatformWindow::PreRender()
+	{
+	}
+
+	void ImwPlatformWindow::OnOverlay()
+	{
+	}
+
+	void ImwPlatformWindow::RenderDrawLists(ImDrawData* /*pDrawData */)
+	{
+	}
+
+	void ImwPlatformWindow::Render()
+	{
+		if( m_bNeedRender )
+		{
+			m_bNeedRender = false;
+			SetContext(false);
+			ImGui::GetIO().DisplaySize = GetSize();
+			PreRender();
+			ImGui::Render();
+			RenderDrawLists(ImGui::GetDrawData());
+			RestoreContext(false);
+		}
+	}
+
+	void ImwPlatformWindow::PaintContainer()
+	{
+		m_pContainer->Paint();
+	}
+
 	void ImwPlatformWindow::OnClose()
 	{
 		ImwWindowManager::GetInstance()->OnClosePlatformWindow(this);
@@ -147,73 +180,68 @@ namespace ImWindow
 		return m_pContainer->Load(oJson["Container"], bJustCheck);
 	}
 
-	static bool s_bStatePush = false;
+	static bool s_bContextPushed = false;
 
-	bool ImwPlatformWindow::IsStateSet()
+	bool ImwPlatformWindow::IsContextSet()
 	{
-		return s_bStatePush;
+		return s_bContextPushed;
 	}
 
-	bool ImwPlatformWindow::HasState() const
+	bool ImwPlatformWindow::HasContext() const
 	{
-		return m_pState != NULL;
+		return m_pContext != NULL;
 	}
 
-	void ImwPlatformWindow::SetState()
+	void ImwPlatformWindow::SetContext(bool bCopyStyle)
 	{
-		IM_ASSERT(s_bStatePush == false);
-		s_bStatePush = true;
-		if (m_pState != NULL)
+		IM_ASSERT(s_bContextPushed == false);
+		s_bContextPushed = true;
+		if (m_pContext != NULL)
 		{
-			m_pPreviousState = ImGui::GetInternalState();
-			ImGui::SetInternalState(m_pState);
-			memcpy(&((ImGuiState*)m_pState)->Style, &((ImGuiState*)m_pPreviousState)->Style, sizeof(ImGuiStyle));
+			IM_ASSERT( m_pPreviousContext == NULL );
+			m_pPreviousContext = ImGui::GetCurrentContext();
+			ImGui::SetCurrentContext(m_pContext);
+			if (bCopyStyle)
+			{
+				//Copy style from Global context
+				memcpy(&(m_pContext->Style), &(m_pPreviousContext->Style), sizeof(ImGuiStyle));
+			}
 		}
 	}
 
-	void ImwPlatformWindow::RestoreState()
+	void ImwPlatformWindow::RestoreContext(bool bCopyStyle)
 	{
-		IM_ASSERT(s_bStatePush == true);
-		s_bStatePush = false;
-		if (m_pState != NULL)
+		IM_ASSERT(s_bContextPushed == true);
+		s_bContextPushed = false;
+		if (m_pContext != NULL)
 		{
-			memcpy(&((ImGuiState*)m_pPreviousState)->Style, &((ImGuiState*)m_pState)->Style, sizeof(ImGuiStyle));
-			ImGui::SetInternalState(m_pPreviousState);
+			IM_ASSERT(m_pPreviousContext != NULL);
+			if (bCopyStyle)
+			{
+				//Copy style to Global context
+				memcpy(&(m_pPreviousContext->Style), &(m_pContext->Style), sizeof(ImGuiStyle));
+			}
+			ImGui::SetCurrentContext(m_pPreviousContext);
+			m_pPreviousContext = NULL;
 		}
 	}
 
 	void ImwPlatformWindow::OnLoseFocus()
 	{
-		if (NULL != m_pState)
+		if (NULL != m_pContext)
 		{
-			ImGuiState& g = *((ImGuiState*)m_pState);
-			g.SetNextWindowPosCond = g.SetNextWindowSizeCond = g.SetNextWindowContentSizeCond = g.SetNextWindowCollapsedCond = g.SetNextWindowFocus = 0;
-			g.ActiveId = 0;
+			m_pContext->SetNextWindowPosCond = m_pContext->SetNextWindowSizeCond = m_pContext->SetNextWindowContentSizeCond = m_pContext->SetNextWindowCollapsedCond = m_pContext->SetNextWindowFocus = 0;
+			m_pContext->ActiveId = 0;
 
 			for (int i = 0; i < 512; ++i)
-				g.IO.KeysDown[i] = false;
+				m_pContext->IO.KeysDown[i] = false;
 
 			for (int i = 0; i < 5; ++i)
-				g.IO.MouseDown[i] = false;
+				m_pContext->IO.MouseDown[i] = false;
 
-			g.IO.KeyAlt = false;
-			g.IO.KeyCtrl = false;
-			g.IO.KeyShift = false;
-		}
-	}
-
-	void ImwPlatformWindow::PreUpdate()
-	{
-	}
-
-	void ImwPlatformWindow::Render()
-	{
-		if (m_bNeedRender)
-		{
-			m_bNeedRender = false;
-			SetState();
-			ImGui::Render();
-			RestoreState();
+			m_pContext->IO.KeyAlt = false;
+			m_pContext->IO.KeyCtrl = false;
+			m_pContext->IO.KeyShift = false;
 		}
 	}
 
@@ -240,11 +268,6 @@ namespace ImWindow
 	bool ImwPlatformWindow::FocusWindow(ImwWindow* pWindow)
 	{
 		return m_pContainer->FocusWindow(pWindow);
-	}
-
-	void ImwPlatformWindow::PaintContainer()
-	{
-		m_pContainer->Paint();
 	}
 //SFF_END
 }

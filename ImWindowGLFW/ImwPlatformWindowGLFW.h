@@ -32,7 +32,7 @@ namespace ImWindow
 
 	protected:
 		virtual void						PreUpdate();
-		virtual void						Render();
+		virtual void						RenderDrawLists(ImDrawData* pDrawData);
 
 		static void							OnClose(GLFWwindow* pWindow);
 		static void							OnFocus(GLFWwindow* pWindow, int iFocus);
@@ -42,8 +42,6 @@ namespace ImWindow
 		static void							OnMouseWheel(GLFWwindow* pWindow, double fOffsetX, double fOffsetY);
 		static void							OnKey(GLFWwindow* pWindow, int iKey, int iScanCode, int iAction, int iMods);
 		static void							OnChar(GLFWwindow* pWindow, unsigned int iCodepoint);
-
-		void								RenderDrawList(ImDrawData* pDrawData);
 
 		GLFWwindow*							m_pWindow;
 		GLFWcursor*							m_pCursorArrow;

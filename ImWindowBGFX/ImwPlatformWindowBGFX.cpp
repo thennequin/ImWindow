@@ -35,7 +35,10 @@ ImwPlatformWindowBGFX::~ImwPlatformWindowBGFX()
 		bgfx::destroyTexture(m_hTexture);
 		bgfx::destroyUniform(m_hUniformTexture);
 	}
-	
+
+	bgfx::destroyDynamicIndexBuffer(m_hIndexBuffer);
+	bgfx::destroyDynamicVertexBuffer(m_hVertexBuffer);
+
 	bgfx::destroyFrameBuffer(m_hFrameBufferHandle);
 	bgfx::frame();
 	bgfx::frame();
@@ -85,7 +88,7 @@ bool ImwPlatformWindowBGFX::Init(ImwPlatformWindow* pMain)
 
 	bgfx::setViewFrameBuffer(255, m_hFrameBufferHandle);
 
-	SetState();
+	SetContext(false);
 	ImGuiIO& io = ImGui::GetIO();
 	
 	if (pMainBGFX != NULL)
@@ -128,6 +131,11 @@ bool ImwPlatformWindowBGFX::Init(ImwPlatformWindow* pMain)
 			.add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8, true)
 			.end();
 	}
+	uint16_t iFlag = 0;
+	if (sizeof(ImDrawIdx) == 4)
+		iFlag |= BGFX_BUFFER_INDEX32;
+	m_hVertexBuffer = bgfx::createDynamicVertexBuffer((uint32_t)1, m_oVertexDecl, BGFX_BUFFER_ALLOW_RESIZE);
+	m_hIndexBuffer = bgfx::createDynamicIndexBuffer((uint32_t)1, BGFX_BUFFER_ALLOW_RESIZE| iFlag);
 
 	io.KeyMap[ImGuiKey_Tab] = EasyWindow::KEY_TAB;                       // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array that we will update during the application lifetime.
 	io.KeyMap[ImGuiKey_LeftArrow] = EasyWindow::KEY_LEFT;
@@ -149,10 +157,9 @@ bool ImwPlatformWindowBGFX::Init(ImwPlatformWindow* pMain)
 	io.KeyMap[ImGuiKey_Y] = EasyWindow::KEY_Y;
 	io.KeyMap[ImGuiKey_Z] = EasyWindow::KEY_Z;
 
-	io.RenderDrawListsFn = NULL;
 	io.ImeWindowHandle = m_pWindow->GetHandle();
 
-	RestoreState();
+	RestoreContext(false);
 
 	//m_hCursorArrow = LoadCursor( NULL, IDC_ARROW );
 	//m_hCursorResizeNS = LoadCursor( NULL, IDC_SIZENS );
@@ -222,7 +229,7 @@ void ImwPlatformWindowBGFX::SetTitle(const ImwChar* pTitle)
 void ImwPlatformWindowBGFX::PreUpdate()
 {
 	m_pWindow->Update();
-	ImGuiIO& oIO = ((ImGuiState*)m_pState)->IO;
+	ImGuiIO& oIO = m_pContext->IO;
 	oIO.KeyCtrl = m_pWindow->IsKeyCtrlDown();
 	oIO.KeyShift = m_pWindow->IsKeyShiftDown();
 	oIO.KeyAlt = m_pWindow->IsKeyAltDown();
@@ -234,7 +241,7 @@ void ImwPlatformWindowBGFX::PreUpdate()
 	}
 	else if (oIO.MousePos.x != -1.f && oIO.MousePos.y != -1.f)
 	{
-		switch (((ImGuiState*)m_pState)->MouseCursor)
+		switch (m_pContext->MouseCursor)
 		{
 		case ImGuiMouseCursor_Arrow:
 			m_pWindow->SetCursor(EasyWindow::E_CURSOR_ARROW);
@@ -259,27 +266,6 @@ void ImwPlatformWindowBGFX::PreUpdate()
 			break;
 		}
 	}
-}
-
-void ImwPlatformWindowBGFX::Render()
-{
-	if (!m_bNeedRender)
-		return;
-
-	bgfx::reset(uint16_t(m_pWindow->GetClientWidth()), uint16_t(m_pWindow->GetClientHeight()));
-	bgfx::setViewFrameBuffer(255, m_hFrameBufferHandle);
-	bgfx::setViewRect(255, 0, 0, uint16_t(m_pWindow->GetClientWidth()), uint16_t(m_pWindow->GetClientHeight()));
-
-	SetState();
-	ImVec2 oSize = ImVec2(float(m_pWindow->GetClientWidth()), float(m_pWindow->GetClientHeight()));
-	ImGui::GetIO().DisplaySize = oSize;
-
-	ImGui::Render();
-	RenderDrawList(ImGui::GetDrawData());
-
-	bgfx::frame();
-
-	RestoreState();
 }
 
 bool ImwPlatformWindowBGFX::OnClose()
@@ -310,73 +296,38 @@ void ImwPlatformWindowBGFX::OnSize(int iWidth, int iHeight)
 
 void ImwPlatformWindowBGFX::OnMouseButton(int iButton, bool bDown)
 {
-	((ImGuiState*)m_pState)->IO.MouseDown[iButton] = bDown;
+	m_pContext->IO.MouseDown[iButton] = bDown;
 }
 
 void ImwPlatformWindowBGFX::OnMouseMove(int iX, int iY)
 {
-	((ImGuiState*)m_pState)->IO.MousePos = ImVec2((float)iX, (float)iY);
+	m_pContext->IO.MousePos = ImVec2((float)iX, (float)iY);
 }
 
 void ImwPlatformWindowBGFX::OnMouseWheel( int iStep )
 {
-	( ( ImGuiState* )m_pState )->IO.MouseWheel += iStep;
+	m_pContext->IO.MouseWheel += iStep;
 }
 
 void ImwPlatformWindowBGFX::OnKey(EasyWindow::EKey eKey, bool bDown)
 {
-	((ImGuiState*)m_pState)->IO.KeysDown[eKey] = bDown;
+	m_pContext->IO.KeysDown[eKey] = bDown;
 }
 
 void ImwPlatformWindowBGFX::OnChar(int iChar)
 {
-	((ImGuiState*)m_pState)->IO.AddInputCharacter((ImwChar)iChar);
-}
-
-void ImwPlatformWindowBGFX::OnSetCursor()
-{
-	if (m_pState == NULL)
-		return;
-
-	ImGuiIO& oIO = ((ImGuiState*)m_pState)->IO;
-	if (oIO.MouseDrawCursor)
-	{
-		m_pWindow->SetCursor(EasyWindow::E_CURSOR_NONE);
-	}
-	else if (oIO.MousePos.x != -1.f && oIO.MousePos.y != -1.f)
-	{
-		switch (((ImGuiState*)m_pState)->MouseCursor)
-		{
-		case ImGuiMouseCursor_Arrow:
-			m_pWindow->SetCursor(EasyWindow::E_CURSOR_ARROW);
-			break;
-		case ImGuiMouseCursor_TextInput:         // When hovering over InputText, etc.
-			m_pWindow->SetCursor(EasyWindow::E_CURSOR_TEXT_INPUT);
-			break;
-		case ImGuiMouseCursor_Move:              // Unused
-			m_pWindow->SetCursor(EasyWindow::E_CURSOR_HAND);
-			break;
-		case ImGuiMouseCursor_ResizeNS:          // Unused
-			m_pWindow->SetCursor(EasyWindow::E_CURSOR_RESIZE_NS);
-			break;
-		case ImGuiMouseCursor_ResizeEW:          // When hovering over a column
-			m_pWindow->SetCursor(EasyWindow::E_CURSOR_RESIZE_EW);
-			break;
-		case ImGuiMouseCursor_ResizeNESW:        // Unused
-			m_pWindow->SetCursor(EasyWindow::E_CURSOR_RESIZE_NESW);
-			break;
-		case ImGuiMouseCursor_ResizeNWSE:        // When hovering over the bottom-right corner of a window
-			m_pWindow->SetCursor(EasyWindow::E_CURSOR_RESIZE_NWSE);
-			break;
-		}
-	}
+	m_pContext->IO.AddInputCharacter((ImwChar)iChar);
 }
 
 #define IMGUI_FLAGS_NONE        UINT8_C(0x00)
 #define IMGUI_FLAGS_ALPHA_BLEND UINT8_C(0x01)
 
-void ImwPlatformWindowBGFX::RenderDrawList(ImDrawData* pDrawData)
+void ImwPlatformWindowBGFX::RenderDrawLists(ImDrawData* pDrawData)
 {
+	bgfx::reset(uint16_t(m_pWindow->GetClientWidth()), uint16_t(m_pWindow->GetClientHeight()));
+	bgfx::setViewFrameBuffer(255, m_hFrameBufferHandle);
+	bgfx::setViewRect(255, 0, 0, uint16_t(m_pWindow->GetClientWidth()), uint16_t(m_pWindow->GetClientHeight()));
+
 	const ImGuiIO& io = ImGui::GetIO();
 	const float width = io.DisplaySize.x;
 	const float height = io.DisplaySize.y;
@@ -387,32 +338,34 @@ void ImwPlatformWindowBGFX::RenderDrawList(ImDrawData* pDrawData)
 		bgfx::setViewTransform(255, NULL, ortho);
 	}
 
-	// Render command lists
-	for (int32_t ii = 0, num = pDrawData->CmdListsCount; ii < num; ++ii)
-	{
-		bgfx::TransientVertexBuffer tvb;
-		bgfx::TransientIndexBuffer tib;
-
-		const ImDrawList* drawList = pDrawData->CmdLists[ii];
-		uint32_t numVertices = (uint32_t)drawList->VtxBuffer.size();
-		uint32_t numIndices = (uint32_t)drawList->IdxBuffer.size();
-
-		if (!checkAvailTransientBuffers(numVertices, m_oVertexDecl, numIndices))
+	{ // Copy all vertices/indices to monolithic arrays
+		const bgfx::Memory* pVertexBuffer = bgfx::alloc(pDrawData->TotalVtxCount * sizeof(ImDrawVert));
+		const bgfx::Memory* pIndexBuffer = bgfx::alloc(pDrawData->TotalIdxCount * sizeof(ImDrawIdx));
+		uint32_t iVertexOffset = 0;
+		uint32_t iIndexOffset = 0;
+		for (int32_t ii = 0, num = pDrawData->CmdListsCount; ii < num; ++ii)
 		{
-			// not enough space in transient buffer just quit drawing the rest...
-			break;
+			const ImDrawList* drawList = pDrawData->CmdLists[ ii ];
+			uint32_t numVertices = (uint32_t)drawList->VtxBuffer.size();
+			uint32_t numIndices = (uint32_t)drawList->IdxBuffer.size();
+			bx::memCopy(((ImDrawVert*)pVertexBuffer->data) + iVertexOffset, drawList->VtxBuffer.begin(), numVertices * sizeof(ImDrawVert));
+			bx::memCopy(((ImDrawIdx*)pIndexBuffer->data) + iIndexOffset, drawList->IdxBuffer.begin(), numIndices * sizeof(ImDrawIdx));
+
+			iVertexOffset += numVertices;
+			iIndexOffset += numIndices;
 		}
 
-		bgfx::allocTransientVertexBuffer(&tvb, numVertices, m_oVertexDecl);
-		bgfx::allocTransientIndexBuffer(&tib, numIndices);
+		bgfx::updateDynamicVertexBuffer(m_hVertexBuffer, 0, pVertexBuffer);
+		bgfx::updateDynamicIndexBuffer(m_hIndexBuffer, 0, pIndexBuffer);
+	}
 
-		ImDrawVert* verts = (ImDrawVert*)tvb.data;
-		bx::memCopy(verts, drawList->VtxBuffer.begin(), numVertices * sizeof(ImDrawVert));
-
-		ImDrawIdx* indices = (ImDrawIdx*)tib.data;
-		bx::memCopy(indices, drawList->IdxBuffer.begin(), numIndices * sizeof(ImDrawIdx));
-
-		uint32_t offset = 0;
+	// Render command lists
+	uint32_t iVertexOffset = 0;
+	uint32_t iIndexOffset = 0;
+	for (int32_t ii = 0, num = pDrawData->CmdListsCount; ii < num; ++ii)
+	{
+		const ImDrawList* drawList = pDrawData->CmdLists[ii];
+		uint32_t numVertices = (uint32_t)drawList->VtxBuffer.size();
 		for (const ImDrawCmd* cmd = drawList->CmdBuffer.begin(), *cmdEnd = drawList->CmdBuffer.end(); cmd != cmdEnd; ++cmd)
 		{
 			if (cmd->UserCallback)
@@ -453,12 +406,16 @@ void ImwPlatformWindowBGFX::RenderDrawList(ImDrawData* pDrawData)
 
 				bgfx::setState(state);
 				bgfx::setTexture(0, m_hUniformTexture, th);
-				bgfx::setVertexBuffer(0, &tvb, 0, numVertices);
-				bgfx::setIndexBuffer(&tib, offset, cmd->ElemCount);
+
+				bgfx::setVertexBuffer(0, m_hVertexBuffer, iVertexOffset, numVertices);
+				bgfx::setIndexBuffer(m_hIndexBuffer, iIndexOffset, cmd->ElemCount);
 				bgfx::submit(255, program);
 			}
 
-			offset += cmd->ElemCount;
+			iIndexOffset += cmd->ElemCount;
 		}
+		iVertexOffset += numVertices;
 	}
+
+	bgfx::frame();
 }
