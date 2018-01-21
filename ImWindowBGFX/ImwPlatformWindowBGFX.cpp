@@ -327,6 +327,7 @@ void ImwPlatformWindowBGFX::RenderDrawLists(ImDrawData* pDrawData)
 	bgfx::reset(uint16_t(m_pWindow->GetClientWidth()), uint16_t(m_pWindow->GetClientHeight()));
 	bgfx::setViewFrameBuffer(255, m_hFrameBufferHandle);
 	bgfx::setViewRect(255, 0, 0, uint16_t(m_pWindow->GetClientWidth()), uint16_t(m_pWindow->GetClientHeight()));
+	bgfx::setViewMode(255, bgfx::ViewMode::Sequential);
 
 	const ImGuiIO& io = ImGui::GetIO();
 	const float width = io.DisplaySize.x;
