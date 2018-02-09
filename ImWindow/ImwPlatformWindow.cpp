@@ -180,7 +180,7 @@ namespace ImWindow
 
 	bool ImwPlatformWindow::Load(const JsonValue& oJson, bool bJustCheck)
 	{
-		if (!oJson["Width"].IsNumeric() || !oJson["Height"].IsNumeric() || !oJson["Left"].IsNumeric() || !oJson["Top"].IsNumeric() || !oJson["Maximized"].IsBoolean())
+		if (!oJson["Width"].IsNumeric() || !oJson["Height"].IsNumeric() || !oJson["Left"].IsNumeric() || !oJson["Top"].IsNumeric() || (!oJson["Mode"].IsNumeric() && !oJson["Maximized"].IsBoolean()))
 			return false;
 
 		if (!bJustCheck)
