@@ -147,7 +147,7 @@ namespace ImWindow
 				long iMode = (long)oJson["Mode"];
 				if (iMode < 0)
 				{
-					SetWindowMinimized()
+					SetWindowMinimized();
 				}
 				else
 				{
