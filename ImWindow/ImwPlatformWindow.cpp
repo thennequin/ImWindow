@@ -127,7 +127,7 @@ namespace ImWindow
 		oJson["Height"] = (long)GetSize().y;
 		oJson["Left"] = (long)GetPosition().x;
 		oJson["Top"] = (long)GetPosition().y;
-		oJson["Maximized"] = IsWindowMaximized();
+		oJson["Mode"] = (long)(IsWindowMaximized() ? 1 : (IsWindowMinimized() ? -1 : 0));
 
 		return m_pContainer->Save(oJson["Container"]);
 	}
@@ -141,7 +141,23 @@ namespace ImWindow
 		{
 			SetSize((long)oJson["Width"], (long)oJson["Height"]);
 			SetPosition((long)oJson["Left"], (long)oJson["Top"]);
-			SetWindowMaximized(oJson["Maximized"]);
+
+			if (oJson["Mode"].IsNumeric())
+			{
+				long iMode = (long)oJson["Mode"];
+				if (iMode < 0)
+				{
+					SetWindowMinimized()
+				}
+				else
+				{
+					SetWindowMaximized(iMode > 0);
+				}
+			}
+			else if (oJson["Maximized"].IsBoolean())
+			{
+				SetWindowMaximized(oJson["Maximized"]);
+			}
 		}
 
 		return m_pContainer->Load(oJson["Container"], bJustCheck);
