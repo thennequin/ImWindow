@@ -30,6 +30,8 @@ namespace ImWindow
 		EPlatformWindowType					GetType() const;
 		virtual ImVec2						GetPosition() const;
 		virtual ImVec2						GetSize() const;
+		virtual ImVec2						GetNormalPosition() const;
+		virtual ImVec2						GetNormalSize() const;
 		virtual bool						IsWindowMaximized() const;
 		virtual bool						IsWindowMinimized() const;
 
