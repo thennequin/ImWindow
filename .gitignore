@@ -1,3 +1,9 @@
+# Externals and scripts
+Externals/glfw-3.2.1.bin.WIN32/
+Externals/glfw-3.2.1.bin.WIN64/
+scripts/glfw-3.2.1.bin.WIN32.zip
+scripts/glfw-3.2.1.bin.WIN64.zip
+
 # Compiled Object files
 *.slo
 *.lo

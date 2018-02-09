@@ -33,7 +33,7 @@ namespace ImWindow
 
 	protected:
 		virtual void						PreUpdate();
-		virtual void						Render();
+		virtual void						RenderDrawLists(ImDrawData* pDrawData);
 
 		bool								OnClose();
 		void								OnFocus(bool bHasFocus);
@@ -43,9 +43,7 @@ namespace ImWindow
 		void								OnMouseWheel( int iStep );
 		void								OnKey(EasyWindow::EKey eKey, bool bDown);
 		void								OnChar(int iChar);
-		void								OnSetCursor();
 
-		void								RenderDrawList(ImDrawData* pDrawData);
 
 		bgfx::RendererType::Enum			m_eRenderer;
 
@@ -56,6 +54,9 @@ namespace ImWindow
 		bgfx::VertexDecl					m_oVertexDecl;
 		bgfx::ProgramHandle					m_hProgram;
 		bgfx::UniformHandle					m_hUniformTexture;
+
+		bgfx::DynamicVertexBufferHandle		m_hVertexBuffer;
+		bgfx::DynamicIndexBufferHandle		m_hIndexBuffer;
 	};
 }
 

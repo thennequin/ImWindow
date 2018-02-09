@@ -379,7 +379,7 @@ namespace ImWindow
 		ImGuiWindowFlags eFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_ChildWindow;
 
 		const ImVec2 oContentAvailable = ImGui::GetContentRegionAvail();
-		ImVec2 oSize = ImRound(oSizeArg);
+		ImVec2 oSize = ImFloor(oSizeArg);
 		if (oSize.x <= 0.0f)
 		{
 			if (oSize.x == 0.0f)
@@ -939,7 +939,7 @@ namespace ImWindow
 
 		ImVec2 oTextRectMin(oRectMin.x + 5, oRectMin.y);
 		ImVec2 oTextRectMax(oRectMax.x - 5, oRectMax.y);
-		ImGui::RenderTextClipped(oTextRectMin, oTextRectMax, pText, NULL, &oTextSize, ImGuiAlign_Center | ImGuiAlign_VCenter);
+		ImGui::RenderTextClipped(oTextRectMin, oTextRectMax, pText, NULL, &oTextSize, ImVec2(0.5f, 0.5f));
 	}
 
 	float ImwContainer::GetTabWidth(const ImwChar* pText, float fMaxSize, ImVec2* pOutTextSize)

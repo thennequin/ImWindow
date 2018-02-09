@@ -46,7 +46,7 @@ namespace ImWindow
 
 	protected:
 		virtual void						PreUpdate();
-		virtual void						Render();
+		virtual void						RenderDrawLists(ImDrawData* pDrawData);
 
 		bool								OnClose();
 		void								OnFocus(bool bHasFocus);
@@ -56,8 +56,6 @@ namespace ImWindow
 		void								OnMouseWheel( int iStep );
 		void								OnKey(EasyWindow::EKey eKey, bool bDown);
 		void								OnChar(int iChar);
-
-		void								RenderDrawList(ImDrawData* pDrawData);
 
 		EasyWindow*							m_pWindow;
 
