@@ -366,7 +366,16 @@ namespace ImWindow
 		}
 	}
 
-
+	ImwWindow* ImwContainer::GetActiveWindow() const
+	{
+		if (!IsSplit() && !m_lWindows.empty())
+		{
+			ImwWindowList::const_iterator itActiveWindow = m_lWindows.begin();
+			std::advance(itActiveWindow, m_iActiveWindow);
+			return *itActiveWindow;
+		}
+		return NULL;
+	}
 
 	ImwPlatformWindow* ImwContainer::GetPlatformWindowParent() const
 	{
