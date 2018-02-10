@@ -70,6 +70,16 @@ namespace ImWindow
 		return ImGui::GetIO().DisplaySize;
 	}
 
+	ImVec2 ImwPlatformWindow::GetNormalPosition() const
+	{
+		return GetPosition();
+	}
+
+	ImVec2 ImwPlatformWindow::GetNormalSize() const
+	{
+		return GetSize();
+	}
+
 	bool ImwPlatformWindow::IsWindowMaximized() const
 	{
 		return false;
@@ -156,25 +166,44 @@ namespace ImWindow
 
 	bool ImwPlatformWindow::Save(JsonValue& oJson)
 	{
-		oJson["Width"] = (long)GetSize().x;
-		oJson["Height"] = (long)GetSize().y;
-		oJson["Left"] = (long)GetPosition().x;
-		oJson["Top"] = (long)GetPosition().y;
-		oJson["Maximized"] = IsWindowMaximized();
+		ImVec2 oSize = GetNormalSize();
+		ImVec2 oPos = GetNormalPosition();
+
+		oJson["Width"] = (long)oSize.x;
+		oJson["Height"] = (long)oSize.y;
+		oJson["Left"] = (long)oPos.x;
+		oJson["Top"] = (long)oPos.y;
+		oJson["Mode"] = (long)(IsWindowMaximized() ? 1 : (IsWindowMinimized() ? -1 : 0));
 
 		return m_pContainer->Save(oJson["Container"]);
 	}
 
 	bool ImwPlatformWindow::Load(const JsonValue& oJson, bool bJustCheck)
 	{
-		if (!oJson["Width"].IsNumeric() || !oJson["Height"].IsNumeric() || !oJson["Left"].IsNumeric() || !oJson["Top"].IsNumeric() || !oJson["Maximized"].IsBoolean())
+		if (!oJson["Width"].IsNumeric() || !oJson["Height"].IsNumeric() || !oJson["Left"].IsNumeric() || !oJson["Top"].IsNumeric() || (!oJson["Mode"].IsNumeric() && !oJson["Maximized"].IsBoolean()))
 			return false;
 
 		if (!bJustCheck)
 		{
 			SetSize((long)oJson["Width"], (long)oJson["Height"]);
 			SetPosition((long)oJson["Left"], (long)oJson["Top"]);
-			SetWindowMaximized(oJson["Maximized"]);
+
+			if (oJson["Mode"].IsNumeric())
+			{
+				long iMode = (long)oJson["Mode"];
+				if (iMode < 0)
+				{
+					SetWindowMinimized();
+				}
+				else
+				{
+					SetWindowMaximized(iMode > 0);
+				}
+			}
+			else if (oJson["Maximized"].IsBoolean())
+			{
+				SetWindowMaximized(oJson["Maximized"]);
+			}
 		}
 
 		return m_pContainer->Load(oJson["Container"], bJustCheck);

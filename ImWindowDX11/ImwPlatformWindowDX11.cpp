@@ -329,7 +329,7 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 	oSwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	oSwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	oSwapChainDesc.OutputWindow = (HWND)m_pWindow->GetHandle();
-	oSwapChainDesc.SampleDesc.Count = 4;
+	oSwapChainDesc.SampleDesc.Count = 1;
 	oSwapChainDesc.Windowed = true;
 
 	iResult = m_pDXGIFactory->CreateSwapChain(m_pDX11Device, &oSwapChainDesc, &m_pDXGISwapChain);
