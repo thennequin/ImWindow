@@ -36,6 +36,7 @@ namespace ImWindow
 	public:
 		virtual void			OnGui() = 0;
 		virtual void			OnContextMenu();
+		virtual void			OnDropFiles(int iCount, char** pFiles, const ImVec2& oPos);
 		
 		bool					IsFillingSpace() const;
 		void					SetFillingSpace(bool bFilling);

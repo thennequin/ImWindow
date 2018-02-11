@@ -44,6 +44,10 @@ namespace ImWindow
 	{
 	}
 
+	void ImwWindow::OnDropFiles(int /*iCount*/, char** /*pFiles*/, const ImVec2& /*oPos*/)
+	{
+	}
+
 	bool ImwWindow::IsFillingSpace() const
 	{
 		return m_bFillingSpace;
