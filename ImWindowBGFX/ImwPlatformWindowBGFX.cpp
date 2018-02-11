@@ -60,15 +60,16 @@ bool ImwPlatformWindowBGFX::Init(ImwPlatformWindow* pMain)
 	if (m_eType == E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW)
 		eStyle = EasyWindow::E_STYLE_POPUP;
 
-	m_pWindow = EasyWindow::Create("ImwPlatformWindowBGFX", 800, 600, false, pMain != NULL ? pMainBGFX->m_pWindow : NULL, eStyle, EasyWindow::E_FLAG_OWN_DC);
+	m_pWindow = EasyWindow::Create("ImwPlatformWindowBGFX", 800, 600, false, pMain != NULL ? pMainBGFX->m_pWindow : NULL, eStyle, EasyWindow::E_FLAG_OWN_DC | EasyWindow::E_FLAG_ACCEPT_FILES_DROP);
 	m_pWindow->OnClose.Set(this, &ImwPlatformWindowBGFX::OnClose);
 	m_pWindow->OnFocus.Set(this, &ImwPlatformWindowBGFX::OnFocus);
 	m_pWindow->OnSize.Set(this, &ImwPlatformWindowBGFX::OnSize);
 	m_pWindow->OnMouseButton.Set(this, &ImwPlatformWindowBGFX::OnMouseButton);
 	m_pWindow->OnMouseMove.Set(this, &ImwPlatformWindowBGFX::OnMouseMove);
-	m_pWindow->OnMouseWheel.Set(this, &ImwPlatformWindowBGFX::OnMouseWheel);	
+	m_pWindow->OnMouseWheel.Set(this, &ImwPlatformWindowBGFX::OnMouseWheel);
 	m_pWindow->OnKey.Set(this, &ImwPlatformWindowBGFX::OnKey);
 	m_pWindow->OnChar.Set(this, &ImwPlatformWindowBGFX::OnChar);
+	m_pWindow->OnDropFiles.Set(this, &ImwPlatformWindowBGFX::OnDropFiles);
 
 	if (m_eType == E_PLATFORM_WINDOW_TYPE_MAIN)
 	{
@@ -317,6 +318,12 @@ void ImwPlatformWindowBGFX::OnKey(EasyWindow::EKey eKey, bool bDown)
 void ImwPlatformWindowBGFX::OnChar(int iChar)
 {
 	m_pContext->IO.AddInputCharacter((ImwChar)iChar);
+}
+
+void ImwPlatformWindowBGFX::OnDropFiles(const EasyWindow::DropFiles& oFiles)
+{
+	ImVec2 oPos((float)oFiles.oPosition.x, (float)oFiles.oPosition.y);
+	ImwPlatformWindow::OnDropFiles(oFiles.iCount, oFiles.pFiles, oPos);
 }
 
 #define IMGUI_FLAGS_NONE        UINT8_C(0x00)

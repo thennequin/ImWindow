@@ -45,6 +45,7 @@ namespace ImWindow
 		void								OnMouseWheel( int iStep );
 		void								OnKey(EasyWindow::EKey eKey, bool bDown);
 		void								OnChar(int iChar);
+		void								OnDropFiles(const EasyWindow::DropFiles& oFiles);
 
 		EasyWindow*							m_pWindow;
 		HDC									m_hDC;

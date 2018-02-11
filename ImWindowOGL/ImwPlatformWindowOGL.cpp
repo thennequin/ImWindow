@@ -56,7 +56,7 @@ bool ImwPlatformWindowOGL::Init(ImwPlatformWindow* pMain)
 	if (m_eType == E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW)
 		eStyle = EasyWindow::E_STYLE_POPUP;
 
-	m_pWindow = EasyWindow::Create("ImwPlatformWindowOGL", 800, 600, false, pMain != NULL ? pMainOGL->m_pWindow : NULL, eStyle);
+	m_pWindow = EasyWindow::Create("ImwPlatformWindowOGL", 800, 600, false, pMain != NULL ? pMainOGL->m_pWindow : NULL, eStyle, EasyWindow::E_FLAG_ACCEPT_FILES_DROP);
 	m_pWindow->OnClose.Set(this, &ImwPlatformWindowOGL::OnClose);
 	m_pWindow->OnFocus.Set(this, &ImwPlatformWindowOGL::OnFocus);
 	m_pWindow->OnSize.Set(this, &ImwPlatformWindowOGL::OnSize);
@@ -65,6 +65,7 @@ bool ImwPlatformWindowOGL::Init(ImwPlatformWindow* pMain)
 	m_pWindow->OnMouseWheel.Set(this, &ImwPlatformWindowOGL::OnMouseWheel);
 	m_pWindow->OnKey.Set(this, &ImwPlatformWindowOGL::OnKey);
 	m_pWindow->OnChar.Set(this, &ImwPlatformWindowOGL::OnChar);
+	m_pWindow->OnDropFiles.Set(this, &ImwPlatformWindowOGL::OnDropFiles);
 
 	static PIXELFORMATDESCRIPTOR oPFD =			// pfd Tells Windows How We Want Things To Be
 	{
@@ -331,6 +332,12 @@ void ImwPlatformWindowOGL::OnKey(EasyWindow::EKey eKey, bool bDown)
 void ImwPlatformWindowOGL::OnChar(int iChar)
 {
 	m_pContext->IO.AddInputCharacter((ImwChar)iChar);
+}
+
+void ImwPlatformWindowOGL::OnDropFiles(const EasyWindow::DropFiles& oFiles)
+{
+	ImVec2 oPos((float)oFiles.oPosition.x, (float)oFiles.oPosition.y);
+	ImwPlatformWindow::OnDropFiles(oFiles.iCount, oFiles.pFiles, oPos);
 }
 
 void ImwPlatformWindowOGL::RenderDrawLists(ImDrawData* pDrawData)
