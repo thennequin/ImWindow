@@ -64,6 +64,7 @@ namespace ImWindow
 
 		void								Render();
 		void								PaintContainer();
+		void								RefreshTitle();
 		void								OnClose();
 
 		bool								Save(JsonValue& oJson);

@@ -298,5 +298,18 @@ namespace ImWindow
 	{
 		return m_pContainer->FocusWindow(pWindow);
 	}
+
+	void ImwPlatformWindow::RefreshTitle()
+	{
+		ImwWindow* pActiveWindow = m_pContainer->GetActiveWindow();
+		if (pActiveWindow != NULL)
+		{
+			SetTitle(pActiveWindow->GetTitle());
+		}
+		else
+		{
+			SetTitle("");
+		}
+	}
 //SFF_END
 }

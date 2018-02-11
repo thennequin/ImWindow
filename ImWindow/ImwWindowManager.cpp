@@ -1189,11 +1189,19 @@ void ImwWindowManager::AddStatusBar(ImwStatusBar* pStatusBar)
 	void ImwWindowManager::InternalDock(ImwWindow* pWindow, EDockOrientation eOrientation, float fRatio, ImwPlatformWindow* pToPlatformWindow)
 	{
 		pToPlatformWindow->m_pContainer->Dock(pWindow, eOrientation, fRatio);
+		if (pToPlatformWindow->GetType() == E_PLATFORM_WINDOW_TYPE_SECONDARY)
+		{
+			pToPlatformWindow->RefreshTitle();
+		}
 	}
 
 	void ImwWindowManager::InternalDockTo(ImwWindow* pWindow, EDockOrientation eOrientation, float fRatio, ImwContainer* pToContainer, int iPosition)
 	{
 		pToContainer->Dock(pWindow, eOrientation, fRatio, iPosition);
+		if (pToContainer->GetPlatformWindowParent()->GetType() == E_PLATFORM_WINDOW_TYPE_SECONDARY)
+		{
+			pToContainer->GetPlatformWindowParent()->RefreshTitle();
+		}
 	}
 
 	void ImwWindowManager::InternalDockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation, float fRatio)
@@ -1210,6 +1218,7 @@ void ImwWindowManager::AddStatusBar(ImwStatusBar* pStatusBar)
 			if (NULL != pContainer)
 			{
 				pContainer->Dock(pWindow, eOrientation, fRatio);
+				(*it)->RefreshTitle();
 				break;
 			}
 		}
@@ -1236,6 +1245,7 @@ void ImwWindowManager::AddStatusBar(ImwStatusBar* pStatusBar)
 				oPosition.x -= 10;
 			}
 			pPlatformWindow->Dock(pWindow);
+			pPlatformWindow->RefreshTitle();
 			pPlatformWindow->SetSize((int)oSize.x, (int)oSize.y);
 			pPlatformWindow->SetPosition((int)oPosition.x, (int)oPosition.y);
 			pPlatformWindow->Show(true);
@@ -1253,6 +1263,7 @@ void ImwWindowManager::AddStatusBar(ImwStatusBar* pStatusBar)
 		{
 			if ( (*it)->UnDock(pWindow) )
 			{
+				(*it)->RefreshTitle();
 				//Destroy empty platform window if not main window
 				if ( (*it)->GetType() != E_PLATFORM_WINDOW_TYPE_MAIN && (*it)->GetContainer()->IsEmpty() )
 				{
