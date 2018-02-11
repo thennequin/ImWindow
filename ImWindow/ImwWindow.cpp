@@ -12,11 +12,13 @@ namespace ImWindow
 #endif //IMW_CUSTOM_IMPLEMENT_IMWWINDOW
 
 	ImwWindow::ImwWindow()
+		: m_pTitle(NULL)
+		, m_bClosable(true)
+		, m_bAlone(false)
+		, m_bFillingSpace(false)
+		, m_oLastPosition(0.f, 0.f)
+		, m_oLastSize(0.f, 0.f)
 	{
-		m_pTitle = NULL;
-		m_bClosable  = true;
-		m_bAlone = false;
-		m_bFillingSpace = false;
 		m_iId = s_iNextId++;
 	
 		//Write Id to string
