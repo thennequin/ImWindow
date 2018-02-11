@@ -279,7 +279,7 @@ namespace ImWindow
 
 	ImwPlatformWindow* ImwWindowManager::GetWindowParent(ImwWindow* pWindow)
 	{
-		ImwContainer* pContainer = m_pMainPlatformWindow->HasWindow(pWindow);
+		const ImwContainer* pContainer = m_pMainPlatformWindow->HasWindow(pWindow);
 		if (NULL != pContainer)
 		{
 			return m_pMainPlatformWindow;
@@ -949,12 +949,12 @@ namespace ImWindow
 			ImVec2 oHightlightSize;
 			float fSizeRatio;
 
-			m_pDragBestContainer = GetBestDocking(m_pMainPlatformWindow, oCursorPos, eBestDockOrientation, oHightlightPos, oHightlightSize, fSizeRatio, m_bDragOnTab, m_iDragBestContainerPosition, !CanCreateMultipleWindow());
+			m_pDragBestContainer = (ImwContainer*)GetBestDocking(m_pMainPlatformWindow, oCursorPos, eBestDockOrientation, oHightlightPos, oHightlightSize, fSizeRatio, m_bDragOnTab, m_iDragBestContainerPosition, !CanCreateMultipleWindow());
 			if (NULL == m_pDragBestContainer)
 			{
 				for (ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end() && NULL == m_pDragBestContainer; ++it)
 				{
-					m_pDragBestContainer = GetBestDocking(*it, oCursorPos, eBestDockOrientation, oHightlightPos, oHightlightSize, fSizeRatio, m_bDragOnTab, m_iDragBestContainerPosition, false);
+					m_pDragBestContainer = (ImwContainer*)GetBestDocking(*it, oCursorPos, eBestDockOrientation, oHightlightPos, oHightlightSize, fSizeRatio, m_bDragOnTab, m_iDragBestContainerPosition, false);
 				}
 			}
 			if (m_pDragBestContainer)
@@ -1023,7 +1023,7 @@ namespace ImWindow
 	}
 
 
-	ImwContainer* ImwWindowManager::GetBestDocking(ImwPlatformWindow* pPlatformWindow, const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, float& fOutRatio, bool& bOutOnTabArea, int& iOutPosition, bool bLargeCheck)
+	const ImwContainer* ImwWindowManager::GetBestDocking(ImwPlatformWindow* pPlatformWindow, const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, float& fOutRatio, bool& bOutOnTabArea, int& iOutPosition, bool bLargeCheck)
 	{
 		ImVec2 oPos = pPlatformWindow->GetPosition();
 		ImVec2 oSize = pPlatformWindow->GetSize();
@@ -1034,7 +1034,7 @@ namespace ImWindow
 
 			// Set context because GetBestDocking call CalTextSize who need the Font
 			pPlatformWindow->SetContext(false);
-			ImwContainer* pBestContainer = pPlatformWindow->GetContainer()->GetBestDocking(oRectPos, oOutOrientation, oOutAreaPos, oOutAreaSize, bOutOnTabArea, iOutPosition, bLargeCheck);
+			const ImwContainer* pBestContainer = pPlatformWindow->GetContainer()->GetBestDocking(oRectPos, oOutOrientation, oOutAreaPos, oOutAreaSize, bOutOnTabArea, iOutPosition, bLargeCheck);
 			pPlatformWindow->RestoreContext(false);
 			if (NULL != pBestContainer)
 			{
@@ -1206,7 +1206,7 @@ void ImwWindowManager::AddStatusBar(ImwStatusBar* pStatusBar)
 
 	void ImwWindowManager::InternalDockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation, float fRatio)
 	{
-		ImwContainer* pContainer = m_pMainPlatformWindow->HasWindow(pWithWindow);
+		ImwContainer* pContainer = (ImwContainer*)m_pMainPlatformWindow->HasWindow(pWithWindow);
 		if (NULL != pContainer)
 		{
 			pContainer->Dock(pWindow, eOrientation, fRatio);
@@ -1214,7 +1214,7 @@ void ImwWindowManager::AddStatusBar(ImwStatusBar* pStatusBar)
 
 		for ( ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
 		{
-			pContainer = (*it)->HasWindow(pWithWindow);
+			pContainer = (ImwContainer*)(*it)->HasWindow(pWithWindow);
 			if (NULL != pContainer)
 			{
 				pContainer->Dock(pWindow, eOrientation, fRatio);

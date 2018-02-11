@@ -324,7 +324,7 @@ namespace ImWindow
 		return m_lWindows.size() > 0;
 	}
 
-	ImwContainer* ImwContainer::HasWindow( const ImwWindow* pWindow)
+	const ImwContainer* ImwContainer::HasWindow(ImwWindow* pWindow) const
 	{
 		if (std::find(m_lWindows.begin(), m_lWindows.end(), pWindow) != m_lWindows.end())
 		{
@@ -334,7 +334,7 @@ namespace ImWindow
 		{
 			if (NULL != m_pSplits[0])
 			{
-				ImwContainer* pContainer = m_pSplits[0]->HasWindow(pWindow);
+				const ImwContainer* pContainer = m_pSplits[0]->HasWindow(pWindow);
 				if (NULL != pContainer)
 				{
 					return pContainer;
@@ -342,7 +342,7 @@ namespace ImWindow
 			}
 			if (NULL != m_pSplits[1])
 			{
-				ImwContainer* pContainer = m_pSplits[1]->HasWindow(pWindow);
+				const ImwContainer* pContainer = m_pSplits[1]->HasWindow(pWindow);
 				if (NULL != pContainer)
 				{
 					return pContainer;
@@ -951,7 +951,7 @@ namespace ImWindow
 		ImGui::RenderTextClipped(oTextRectMin, oTextRectMax, pText, NULL, &oTextSize, ImVec2(0.5f, 0.5f));
 	}
 
-	float ImwContainer::GetTabWidth(const ImwChar* pText, float fMaxSize, ImVec2* pOutTextSize)
+	float ImwContainer::GetTabWidth(const ImwChar* pText, float fMaxSize, ImVec2* pOutTextSize) const
 	{
 		const ImVec2 oTextSize = ImGui::CalcTextSize(pText);
 
@@ -981,7 +981,7 @@ namespace ImWindow
 		return m_oLastSize.x - 50.f;
 	}
 
-	ImwContainer* ImwContainer::GetBestDocking(const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, bool& bOutOnTabArea, int& iOutPosition, bool bLargeCheck)
+	const ImwContainer* ImwContainer::GetBestDocking(const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, bool& bOutOnTabArea, int& iOutPosition, bool bLargeCheck) const
 	{
 		if (m_pParent == NULL || 
 			(oCursorPos.x >= m_oLastPosition.x && oCursorPos.x <= (m_oLastPosition.x + m_oLastSize.x) &&
@@ -989,7 +989,7 @@ namespace ImWindow
 		{
 			if (IsSplit())
 			{
-				ImwContainer* pBestContainer = NULL;
+				const ImwContainer* pBestContainer = NULL;
 				pBestContainer = m_pSplits[0]->GetBestDocking(oCursorPos, oOutOrientation, oOutAreaPos, oOutAreaSize, bOutOnTabArea, iOutPosition, bLargeCheck);
 				if (NULL != pBestContainer)
 				{

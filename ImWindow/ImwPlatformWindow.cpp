@@ -289,7 +289,7 @@ namespace ImWindow
 		return m_pContainer;
 	}
 
-	ImwContainer* ImwPlatformWindow::HasWindow(ImwWindow* pWindow)
+	const ImwContainer* ImwPlatformWindow::HasWindow(ImwWindow* pWindow)
 	{
 		return m_pContainer->HasWindow(pWindow);
 	}

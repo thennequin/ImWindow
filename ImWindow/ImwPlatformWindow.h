@@ -48,7 +48,7 @@ namespace ImWindow
 		bool								UnDock(ImwWindow* pWindow);
 
 		ImwContainer*						GetContainer();
-		ImwContainer*						HasWindow(ImwWindow* pWindow);
+		const ImwContainer*					HasWindow(ImwWindow* pWindow);
 		bool								FocusWindow(ImwWindow* pWindow);
 
 		bool								HasContext() const;
