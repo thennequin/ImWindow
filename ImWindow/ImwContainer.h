@@ -23,6 +23,7 @@ namespace ImWindow
 		bool							IsEmpty() const;
 		bool							IsSplit() const;
 		bool							HasWindowTabbed() const;
+		ImwWindow*						GetWindowAtPos(const ImVec2& oPos) const;
 		const ImwContainer*				HasWindow(ImwWindow* pWindow) const;
 		bool							FocusWindow(ImwWindow* pWindow);
 		ImwWindow*						GetActiveWindow() const;

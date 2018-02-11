@@ -164,6 +164,16 @@ namespace ImWindow
 		ImwWindowManager::GetInstance()->OnClosePlatformWindow(this);
 	}
 
+	void ImwPlatformWindow::OnDropFiles(int iCount, char** pFiles, const ImVec2& oPos)
+	{
+		ImwWindow* pWindow = GetWindowAtPos(oPos);
+		IM_ASSERT(pWindow != NULL);
+		if (pWindow != NULL)
+		{
+			pWindow->OnDropFiles(iCount, pFiles, oPos);
+		}
+	}
+
 	bool ImwPlatformWindow::Save(JsonValue& oJson)
 	{
 		ImVec2 oSize = GetNormalSize();
@@ -287,6 +297,11 @@ namespace ImWindow
 	ImwContainer* ImwPlatformWindow::GetContainer()
 	{
 		return m_pContainer;
+	}
+
+	ImwWindow* ImwPlatformWindow::GetWindowAtPos(const ImVec2& oPos) const
+	{
+		return m_pContainer->GetWindowAtPos(oPos);
 	}
 
 	const ImwContainer* ImwPlatformWindow::HasWindow(ImwWindow* pWindow)

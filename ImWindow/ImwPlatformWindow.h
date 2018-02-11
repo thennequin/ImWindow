@@ -48,6 +48,7 @@ namespace ImWindow
 		bool								UnDock(ImwWindow* pWindow);
 
 		ImwContainer*						GetContainer();
+		ImwWindow*							GetWindowAtPos(const ImVec2& oPos) const;
 		const ImwContainer*					HasWindow(ImwWindow* pWindow);
 		bool								FocusWindow(ImwWindow* pWindow);
 
@@ -66,6 +67,7 @@ namespace ImWindow
 		void								PaintContainer();
 		void								RefreshTitle();
 		void								OnClose();
+		void								OnDropFiles(int iCount, char** pFiles, const ImVec2& oPos);
 
 		bool								Save(JsonValue& oJson);
 		bool								Load(const JsonValue& oJson, bool bJustCheck);

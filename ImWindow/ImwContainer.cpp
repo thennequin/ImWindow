@@ -324,6 +324,27 @@ namespace ImWindow
 		return m_lWindows.size() > 0;
 	}
 
+	ImwWindow* ImwContainer::GetWindowAtPos(const ImVec2& oPos) const
+	{
+		if (oPos.x >= m_oLastPosition.x && oPos.x <= (m_oLastPosition.x + m_oLastSize.x)
+			&& oPos.y >= m_oLastPosition.y && oPos.y <= (m_oLastPosition.y + m_oLastSize.y))
+		{
+			if (IsSplit())
+			{
+				ImwWindow* pWindow = m_pSplits[0]->GetWindowAtPos(oPos);
+				if (pWindow == NULL)
+					pWindow = m_pSplits[1]->GetWindowAtPos(oPos);
+				return pWindow;
+			}
+			else
+			{
+				return GetActiveWindow();
+			}
+		}
+			
+		return NULL;
+	}
+
 	const ImwContainer* ImwContainer::HasWindow(ImwWindow* pWindow) const
 	{
 		if (std::find(m_lWindows.begin(), m_lWindows.end(), pWindow) != m_lWindows.end())
