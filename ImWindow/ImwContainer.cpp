@@ -460,9 +460,9 @@ namespace ImWindow
 			if (m_bVerticalSplit)
 			{
 				float iFirstHeight = oSize.y * m_fSplitRatio - iSeparatorHalfSize - pWindow->WindowPadding.x;
-			
+
+				BeginChildAlpha( "Top", ImVec2( 0, iFirstHeight ), 0.f, ImGuiWindowFlags_NoScrollbar );
 				m_pSplits[0]->Paint(/*iX, iY, iWidth, iFirstHeight*/);
-				BeginChildAlpha("Top", ImVec2(0, iFirstHeight), 0.f, ImGuiWindowFlags_NoScrollbar);
 				ImGui::EndChild();
 
 				ImRect oSeparatorRect( 0, iFirstHeight, oSize.x, iFirstHeight + iSeparatorSize);
@@ -490,15 +490,16 @@ namespace ImWindow
 					m_bIsDrag = false;
 				}
 
+				BeginChildAlpha( "Bottom", ImVec2( 0, 0 ), 0.f, ImGuiWindowFlags_NoScrollbar );
 				m_pSplits[1]->Paint(/*iX, iY + iFirstHeight, iWidth, iSecondHeight*/);
-				BeginChildAlpha("Bottom", ImVec2(0, 0), 0.f, ImGuiWindowFlags_NoScrollbar);
 				ImGui::EndChild();
 			}
 			else
 			{
 				float iFirstWidth = oSize.x * m_fSplitRatio - iSeparatorHalfSize - pWindow->WindowPadding.y;
+
+				BeginChildAlpha( "Left", ImVec2( iFirstWidth, 0 ), 0.f, ImGuiWindowFlags_NoScrollbar );
 				m_pSplits[0]->Paint();
-				BeginChildAlpha("Left", ImVec2(iFirstWidth, 0), 0.f, ImGuiWindowFlags_NoScrollbar);
 				ImGui::EndChild();
 
 				ImGui::SameLine();
@@ -530,8 +531,8 @@ namespace ImWindow
 
 				ImGui::SameLine();
 
+				BeginChildAlpha( "Right", ImVec2( 0, 0 ), 0.f, ImGuiWindowFlags_NoScrollbar ); 
 				m_pSplits[1]->Paint();
-				BeginChildAlpha("Right", ImVec2(0, 0), 0.f, ImGuiWindowFlags_NoScrollbar);
 				ImGui::EndChild();
 			}
 		}
