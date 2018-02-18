@@ -316,15 +316,59 @@ namespace ImWindow
 
 	void ImwPlatformWindow::RefreshTitle()
 	{
+		const ImwChar* pMainTitle = ImwWindowManager::GetInstance()->GetMainTitle();
+		
 		ImwWindow* pActiveWindow = m_pContainer->GetActiveWindow();
+		const ImwChar* pActiveWindowTitle = NULL;
+		
 		if (pActiveWindow != NULL)
 		{
-			SetTitle(pActiveWindow->GetTitle());
+			pActiveWindowTitle = pActiveWindow->GetTitle();
 		}
-		else
+
+		const size_t c_iMaxTitleLen = 512;
+		ImwChar pTitle[c_iMaxTitleLen + 1];
+		size_t iCurrentIndex = 0;
+
+		if (pMainTitle != NULL)
 		{
-			SetTitle("");
+			size_t iLen = strlen(pMainTitle);
+			if (iLen > (c_iMaxTitleLen - iCurrentIndex))
+				iLen = c_iMaxTitleLen - iCurrentIndex;
+			if (iLen > 0)
+			{
+				memcpy(pTitle + iCurrentIndex, pMainTitle, iLen);
+				iCurrentIndex += iLen;
+			}
 		}
+
+		if (pActiveWindowTitle != NULL)
+		{
+			if (iCurrentIndex != 0)
+			{
+				const char* const c_pSeparator = " - ";
+				size_t iLen = strlen(c_pSeparator);
+				if (iLen > (c_iMaxTitleLen - iCurrentIndex))
+					iLen = c_iMaxTitleLen - iCurrentIndex;
+				if (iLen > 0)
+				{
+					memcpy(pTitle + iCurrentIndex, c_pSeparator, iLen);
+					iCurrentIndex += iLen;
+				}
+			}
+
+			size_t iLen = strlen(pActiveWindowTitle);
+			if (iLen > (c_iMaxTitleLen - iCurrentIndex))
+				iLen = c_iMaxTitleLen - iCurrentIndex;
+			if (iLen > 0)
+			{
+				memcpy(pTitle + iCurrentIndex, pActiveWindowTitle, iLen);
+				iCurrentIndex += iLen;
+			}
+		}
+
+		pTitle[iCurrentIndex] = 0;
+		SetTitle(pTitle);
 	}
 //SFF_END
 }

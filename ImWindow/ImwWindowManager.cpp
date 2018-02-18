@@ -56,6 +56,7 @@ namespace ImWindow
 	ImwWindowManager::ImwWindowManager()
 	{
 		s_pInstance = this;
+		m_pMainTitle = NULL;
 		m_pMainPlatformWindow = NULL;
 		m_pDragPlatformWindow = NULL;
 		m_pCurrentPlatformWindow = NULL;
@@ -72,6 +73,7 @@ namespace ImWindow
 	{
 		Destroy();
 		s_pInstance = 0;
+		ImwSafeFree(m_pMainTitle);
 	}
 
 	bool ImwWindowManager::Init()
@@ -186,7 +188,25 @@ namespace ImWindow
 
 	void ImwWindowManager::SetMainTitle(const ImwChar* pTitle)
 	{
-		ImwIsSafe(m_pMainPlatformWindow)->SetTitle(pTitle);
+		ImwSafeFree(m_pMainTitle);
+		if (NULL != pTitle)
+		{
+			size_t iLen = strlen(pTitle) + 1;
+			m_pMainTitle = (ImwChar*)ImwMalloc(sizeof(ImwChar) * iLen);
+			strcpy(m_pMainTitle, pTitle);
+		}
+
+		ImwIsSafe(m_pMainPlatformWindow)->SetTitle(m_pMainTitle);
+
+		for (ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
+		{
+			ImwIsSafe((*it))->RefreshTitle();
+		}
+	}
+
+	const ImwChar* ImwWindowManager::GetMainTitle() const
+	{
+		return m_pMainTitle;
 	}
 
 	void ImwWindowManager::UnDock(ImwWindow* pWindow)

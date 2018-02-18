@@ -114,6 +114,7 @@ namespace ImWindow
 		Config&								GetConfig();
 
 		void								SetMainTitle(const ImwChar* pTitle);
+		const ImwChar*						GetMainTitle() const;
 
 		void								Dock(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, float fRatio = 0.5f, ImwPlatformWindow* pToPlatformWindow = NULL);
 		void								DockTo(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, float fRatio = 0.5f, ImwContainer* pContainer = NULL, int iPosition = -1);
@@ -202,6 +203,7 @@ namespace ImWindow
 		const ImwContainer*					GetBestDocking(ImwPlatformWindow* pPlatformWindow, const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, float& fOutRatio, bool& bOutOnTabArea, int& iOutPosition, bool bLargeCheck);
 		
 		Config								m_oConfig;
+		ImwChar*							m_pMainTitle;
 		ImwPlatformWindow*					m_pMainPlatformWindow;
 		ImwPlatformWindowList				m_lPlatformWindows;
 		ImwPlatformWindow*					m_pDragPlatformWindow;
