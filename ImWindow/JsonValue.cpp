@@ -255,13 +255,13 @@ namespace ImWindow
 		else if (m_eType == E_TYPE_INTEGER)
 		{
 			ImwChar sBuffer[256];
-			sprintf(sBuffer, "%d", m_iInteger);
+			sprintf(sBuffer, "%ld", m_iInteger);
 			sOutJson += sBuffer;
 		}
 		else if (m_eType == E_TYPE_FLOAT)
 		{
 			ImwChar sBuffer[256];
-			sprintf(sBuffer, "%.17Lg", m_fFloat);
+			sprintf(sBuffer, "%.17g", m_fFloat);
 			sOutJson += sBuffer;
 		}
 		else
