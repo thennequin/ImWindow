@@ -416,6 +416,8 @@ namespace ImWindow
 				pNewPlatformWindow->Show(true);
 				if (!pNewPlatformWindow->Load(oJsonPlatformWindow, false))
 					return false; //Something wrong
+				
+				pNewPlatformWindow->RefreshTitle();
 			}
 
 			m_lOrphanWindows.clear();
