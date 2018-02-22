@@ -47,8 +47,8 @@ install:
   - git submodule update --init --recursive
 
   - ps: pushd scripts
-  - ps: powershell Invoke-WebRequest -Uri "https://github.com/glfw/glfw/releases/download/3.2.1/glfw-3.2.1.bin.WIN32.zip" -OutFile 'glfw-3.2.1.bin.WIN32.zip'
-  - ps: powershell Invoke-WebRequest -Uri "https://github.com/glfw/glfw/releases/download/3.2.1/glfw-3.2.1.bin.WIN64.zip" -OutFile 'glfw-3.2.1.bin.WIN64.zip'
+  - ps: powershell [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri "https://github.com/glfw/glfw/releases/download/3.2.1/glfw-3.2.1.bin.WIN32.zip" -OutFile 'glfw-3.2.1.bin.WIN32.zip'
+  - ps: powershell [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri "https://github.com/glfw/glfw/releases/download/3.2.1/glfw-3.2.1.bin.WIN64.zip" -OutFile 'glfw-3.2.1.bin.WIN64.zip'
   - ps: Expand-Archive 'glfw-3.2.1.bin.WIN32.zip' -DestinationPath '..\Externals\'
   - ps: Expand-Archive 'glfw-3.2.1.bin.WIN64.zip' -DestinationPath '..\Externals\'
   - ps: popd
