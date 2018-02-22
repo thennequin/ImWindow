@@ -403,39 +403,6 @@ namespace ImWindow
 		return m_pParentWindow;
 	}
 
-	bool ImwContainer::BeginChildAlpha(const char* pStrId, const ImVec2& oSizeArg, float fAlpha, ImGuiWindowFlags eExtraFlags)
-	{
-		ImGuiWindow* pWindow = ImGui::GetCurrentWindow();
-		ImGuiWindowFlags eFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_ChildWindow;
-
-		const ImVec2 oContentAvailable = ImGui::GetContentRegionAvail();
-		ImVec2 oSize = ImFloor(oSizeArg);
-		if (oSize.x <= 0.0f)
-		{
-			if (oSize.x == 0.0f)
-				eFlags |= ImGuiWindowFlags_ChildWindowAutoFitX;
-			oSize.x = ImMax(oContentAvailable.x, 4.0f) - fabsf(oSize.x); // Arbitrary minimum zero-ish child size of 4.0f (0.0f causing too much issues)
-		}
-		if (oSize.y <= 0.0f)
-		{
-			if (oSize.y == 0.0f)
-				eFlags |= ImGuiWindowFlags_ChildWindowAutoFitY;
-			oSize.y = ImMax(oContentAvailable.y, 4.0f) - fabsf(oSize.y);
-		}
-		
-		eFlags |= eExtraFlags;
-
-		char pTitle[256];
-		ImFormatString(pTitle, IM_ARRAYSIZE(pTitle), "%s.%s", pWindow->Name, pStrId);
-
-		bool ret = ImGui::Begin(pTitle, NULL, oSize, fAlpha, eFlags);
-
-		if (!(pWindow->Flags & ImGuiWindowFlags_ShowBorders))
-			ImGui::GetCurrentWindow()->Flags &= ~ImGuiWindowFlags_ShowBorders;
-
-		return ret;
-	}
-
 	void ImwContainer::Paint(/* int iX, int iY, int iWidth, int iHeight */)
 	{
 		ImwWindowManager* pWindowManager = ImwWindowManager::GetInstance();
@@ -461,7 +428,11 @@ namespace ImWindow
 			{
 				float iFirstHeight = oSize.y * m_fSplitRatio - iSeparatorHalfSize - pWindow->WindowPadding.x;
 
-				BeginChildAlpha( "Top", ImVec2( 0, iFirstHeight ), 0.f, ImGuiWindowFlags_NoScrollbar );
+				ImVec4 oBackupColor = oStyle.Colors[ImGuiCol_ChildWindowBg];
+
+				oStyle.Colors[ImGuiCol_ChildWindowBg].w = 0.f;
+				ImGui::BeginChild("Top", ImVec2(0, iFirstHeight), false, ImGuiWindowFlags_NoScrollbar);
+				oStyle.Colors[ImGuiCol_ChildWindowBg] = oBackupColor;
 				m_pSplits[0]->Paint(/*iX, iY, iWidth, iFirstHeight*/);
 				ImGui::EndChild();
 
@@ -490,7 +461,9 @@ namespace ImWindow
 					m_bIsDrag = false;
 				}
 
-				BeginChildAlpha( "Bottom", ImVec2( 0, 0 ), 0.f, ImGuiWindowFlags_NoScrollbar );
+				oStyle.Colors[ImGuiCol_ChildWindowBg].w = 0.f;
+				ImGui::BeginChild("Bottom", ImVec2(0, 0), false, ImGuiWindowFlags_NoScrollbar);
+				oStyle.Colors[ImGuiCol_ChildWindowBg] = oBackupColor;
 				m_pSplits[1]->Paint(/*iX, iY + iFirstHeight, iWidth, iSecondHeight*/);
 				ImGui::EndChild();
 			}
@@ -498,7 +471,11 @@ namespace ImWindow
 			{
 				float iFirstWidth = oSize.x * m_fSplitRatio - iSeparatorHalfSize - pWindow->WindowPadding.y;
 
-				BeginChildAlpha( "Left", ImVec2( iFirstWidth, 0 ), 0.f, ImGuiWindowFlags_NoScrollbar );
+				ImVec4 oBackupColor = oStyle.Colors[ImGuiCol_ChildWindowBg];
+
+				oStyle.Colors[ImGuiCol_ChildWindowBg].w = 0.f;
+				ImGui::BeginChild("Left", ImVec2(iFirstWidth, 0), false, ImGuiWindowFlags_NoScrollbar);
+				oStyle.Colors[ImGuiCol_ChildWindowBg] = oBackupColor;
 				m_pSplits[0]->Paint();
 				ImGui::EndChild();
 
@@ -531,7 +508,9 @@ namespace ImWindow
 
 				ImGui::SameLine();
 
-				BeginChildAlpha( "Right", ImVec2( 0, 0 ), 0.f, ImGuiWindowFlags_NoScrollbar ); 
+				oStyle.Colors[ImGuiCol_ChildWindowBg].w = 0.f;
+				ImGui::BeginChild("Right", ImVec2(0, 0), false, ImGuiWindowFlags_NoScrollbar);
+				oStyle.Colors[ImGuiCol_ChildWindowBg] = oBackupColor;
 				m_pSplits[1]->Paint();
 				ImGui::EndChild();
 			}
