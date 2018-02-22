@@ -523,8 +523,8 @@ namespace ImWindow
 			ImwWindow* pActiveWindow = NULL;
 			if (!bAlone)
 			{
-				ImVec2 oItemSpacing = ImGui::GetStyle().ItemSpacing;
-				ImGui::GetStyle().ItemSpacing = ImVec2(oItemSpacing.x, 0.f);
+				ImVec2 oItemSpacing = oStyle.ItemSpacing;
+				oStyle.ItemSpacing = ImVec2(oItemSpacing.x, 0.f);
 
 				ImGui::InvisibleButton("TabListButton", ImVec2(16, 16));
 				ImGui::SameLine();
@@ -768,7 +768,7 @@ namespace ImWindow
 
 				pDrawList->ChannelsMerge();
 
-				ImGui::GetStyle().ItemSpacing = oItemSpacing;
+				oStyle.ItemSpacing = oItemSpacing;
 
 				pActiveWindow = pDraggedWindow;
 			}
@@ -855,11 +855,11 @@ namespace ImWindow
 		switch (oConfig.m_eTabColorMode)
 		{
 			case ImwWindowManager::E_TABCOLORMODE_TITLE:
-				oNormalTab = ImGui::GetStyle().Colors[ImGuiCol_TitleBg];
+				oNormalTab = oStyle.Colors[ImGuiCol_TitleBg];
 				oNormalTab.Value.w = 1.f;
-				oSelectedTab = ImGui::GetStyle().Colors[ImGuiCol_TitleBgActive];
+				oSelectedTab = oStyle.Colors[ImGuiCol_TitleBgActive];
 				oSelectedTab.Value.w = 1.f;
-				oBorderColor = ImGui::GetStyle().Colors[ImGuiCol_Border];
+				oBorderColor = oStyle.Colors[ImGuiCol_Border];
 				oBorderColor.Value.w = 1.f;
 				break;
 			case ImwWindowManager::E_TABCOLORMODE_BACKGROUND:
