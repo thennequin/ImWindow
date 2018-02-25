@@ -54,3 +54,6 @@ build/vs*/
 # SFF files
 ImWindow.cpp
 ImWindow.h
+
+Externals/glfw-*
+scripts/*.zip
