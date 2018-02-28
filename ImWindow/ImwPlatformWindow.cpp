@@ -106,7 +106,7 @@ namespace ImWindow
 	{
 	}
 
-	void  ImwPlatformWindow::SetWindowMinimized()
+	void  ImwPlatformWindow::SetWindowMinimized(bool /*bMinimized*/)
 	{
 	}
 
@@ -183,7 +183,8 @@ namespace ImWindow
 		oJson["Height"] = (long)oSize.y;
 		oJson["Left"] = (long)oPos.x;
 		oJson["Top"] = (long)oPos.y;
-		oJson["Mode"] = (long)(IsWindowMaximized() ? 1 : (IsWindowMinimized() ? -1 : 0));
+		oJson["Maximized"] = IsWindowMaximized();
+		oJson["Minimized"] = IsWindowMinimized();
 
 		return m_pContainer->Save(oJson["Container"]);
 	}
@@ -203,16 +204,22 @@ namespace ImWindow
 				long iMode = (long)oJson["Mode"];
 				if (iMode < 0)
 				{
-					SetWindowMinimized();
+					SetWindowMinimized(true);
 				}
 				else
 				{
 					SetWindowMaximized(iMode > 0);
 				}
 			}
-			else if (oJson["Maximized"].IsBoolean())
+			
+			if (oJson["Maximized"].IsBoolean())
 			{
 				SetWindowMaximized(oJson["Maximized"]);
+			}
+			
+			if( oJson[ "Minimized" ].IsBoolean() )
+			{
+				SetWindowMinimized(oJson["Minimized"]);
 			}
 		}
 

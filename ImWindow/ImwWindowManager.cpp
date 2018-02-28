@@ -643,11 +643,12 @@ namespace ImWindow
 			}
 			else if (pAction->m_eAction == E_PLATFORM_WINDOW_ACTION_MINIMIZE)
 			{
-				pAction->m_pPlatformWindow->SetWindowMinimized();
+				pAction->m_pPlatformWindow->SetWindowMinimized(true);
 			}
 			else if (pAction->m_eAction == E_PLATFORM_WINDOW_ACTION_RESTORE)
 			{
 				pAction->m_pPlatformWindow->SetWindowMaximized(false);
+				pAction->m_pPlatformWindow->SetWindowMinimized(false);
 			}
 
 			delete *m_lPlatformWindowActions.begin();
