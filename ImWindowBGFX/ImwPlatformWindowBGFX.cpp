@@ -211,15 +211,12 @@ void ImwPlatformWindowBGFX::SetPosition(int iX, int iY)
 
 void ImwPlatformWindowBGFX::SetWindowMaximized(bool bMaximized)
 {
-	if (bMaximized)
-		m_pWindow->SetMaximized();
-	else
-		m_pWindow->SetRestored();
+	m_pWindow->SetMaximized(bMaximized);
 }
 
-void ImwPlatformWindowBGFX::SetWindowMinimized()
+void ImwPlatformWindowBGFX::SetWindowMinimized(bool bMinimized)
 {
-	m_pWindow->SetMinimized();
+	m_pWindow->SetMinimized(bMinimized);
 }
 
 void ImwPlatformWindowBGFX::SetTitle(const ImwChar* pTitle)

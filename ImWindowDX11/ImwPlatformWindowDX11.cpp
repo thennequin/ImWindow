@@ -489,15 +489,12 @@ void ImwPlatformWindowDX11::SetPosition(int iX, int iY)
 
 void ImwPlatformWindowDX11::SetWindowMaximized(bool bMaximized)
 {
-	if (bMaximized)
-		m_pWindow->SetMaximized();
-	else
-		m_pWindow->SetRestored();
+	m_pWindow->SetMaximized(bMaximized);
 }
 
-void ImwPlatformWindowDX11::SetWindowMinimized()
+void ImwPlatformWindowDX11::SetWindowMinimized(bool bMinimized)
 {
-	m_pWindow->SetMinimized();
+	m_pWindow->SetMinimized(bMinimized);
 }
 
 void ImwPlatformWindowDX11::SetTitle(const ImwChar* pTitle)

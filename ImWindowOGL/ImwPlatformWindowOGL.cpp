@@ -230,15 +230,12 @@ void ImwPlatformWindowOGL::SetPosition(int iX, int iY)
 
 void ImwPlatformWindowOGL::SetWindowMaximized(bool bMaximized)
 {
-	if (bMaximized)
-		m_pWindow->SetMaximized();
-	else
-		m_pWindow->SetRestored();
+	m_pWindow->SetMaximized(bMaximized);
 }
 
-void ImwPlatformWindowOGL::SetWindowMinimized()
+void ImwPlatformWindowOGL::SetWindowMinimized(bool bMinimized)
 {
-	m_pWindow->SetMinimized();
+	m_pWindow->SetMinimized(bMinimized);
 }
 
 void ImwPlatformWindowOGL::SetTitle(const ImwChar* pTitle)
