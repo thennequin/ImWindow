@@ -436,13 +436,19 @@ namespace ImWindow
 			long iSize = ftell(pFile);
 			fseek(pFile, 0, SEEK_SET);
 
-			ImwChar* pString = new ImwChar[iSize / sizeof(ImwChar)];
-			fread(pString, 1, iSize, pFile);
-			fclose(pFile);
+			bool bReturn = false;
+			if (iSize > 0)
+			{
+				ImwChar* pString = new ImwChar[iSize / sizeof(ImwChar)];
+				fread(pString, 1, iSize, pFile);
+				
+				bReturn = LoadLayoutFromString(pString);
 
-			bool bReturn = LoadLayoutFromString(pString);
+				delete[] pString;
+			}
+			
+			fclose( pFile );
 
-			delete[] pString;
 			return bReturn;
 		}
 		return false;
