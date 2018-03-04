@@ -1,3 +1,4 @@
+#define IMGUI_DEFINE_MATH_OPERATORS
 #include "ImwWindowManager.h"
 
 #include <algorithm>
@@ -579,7 +580,7 @@ namespace ImWindow
 			//if (NULL != m_pDragPlatformWindow && m_pDragPlatformWindow->m_bNeedRender)
 				//PostPaint(m_pDragPlatformWindow);
 
-			for ( ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
+			for (ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
 			{
 				PostPaint(*it);
 			}
@@ -700,11 +701,10 @@ namespace ImWindow
 			}
 			else if (CanCreateMultipleWindow())
 			{
-				ImVec2 oSize = ImVec2(300, 300);
+				ImVec2 oSize = ImVec2(300.f, 300.f);
 				ImVec2 oPos = m_pMainPlatformWindow->GetPosition();
 				ImVec2 oMainSize = m_pMainPlatformWindow->GetSize();
-				oPos.x += (oMainSize.x - oSize.x) / 2;
-				oPos.y += (oMainSize.y - oSize.y) / 2;
+				oPos += (oMainSize - oSize) / 2.f;
 				InternalFloat(*m_lOrphanWindows.begin(), oPos, oSize);
 			}
 			else
@@ -869,9 +869,7 @@ namespace ImWindow
 			if (pWindow == oAction.m_pWindow)
 			{
 				ImVec2 oPosA = oAction.m_oRectPos;
-				ImVec2 oPosB = oAction.m_oRectSize;
-				oPosB.x += oPosA.x;
-				oPosB.y += oPosA.y;
+				ImVec2 oPosB = oAction.m_oRectPos + oAction.m_oRectSize;
 				
 				//pDrawList->AddLine(ImGui::CalcItemRectClosestPoint(ImGui::GetIO().MousePos, true, -2.0f), ImGui::GetIO().MousePos, ImColor(ImGui::GetStyle().Colors[ImGuiCol_Button]), 4.0f);
 				pDrawList->AddRectFilled(oPosA, oPosB, oAction.m_oColor);
@@ -1100,7 +1098,7 @@ namespace ImWindow
 			{
 				oOutOrientation = E_DOCK_ORIENTATION_CENTER;
 				oOutAreaPos = ImVec2(0, 0);
-				oOutAreaSize = ImVec2(oSize.x, oSize.y);
+				oOutAreaSize = oSize;
 				bOutOnTabArea = false;
 				//IM_ASSERT(false); //Best dock orientation not found
 				return NULL;
@@ -1110,7 +1108,7 @@ namespace ImWindow
 		}
 		oOutOrientation = E_DOCK_ORIENTATION_CENTER;
 		oOutAreaPos = ImVec2(0, 0);
-		oOutAreaSize = ImVec2(oSize.x, oSize.y);
+		oOutAreaSize = oSize;
 		bOutOnTabArea = false;
 		return NULL;
 	}

@@ -94,6 +94,7 @@ if _OPTIONS["with-sff"] then
 	-- Write source
 	local fileSFFSource = io.open("../ImWindow.cpp","w+")
 
+	fileSFFSource:write("#define IMGUI_DEFINE_MATH_OPERATORS"..EOL);
 	fileSFFSource:write("#include \"ImWindow.h\""..EOL..EOL)
 	fileSFFSource:write("#include <algorithm>"..EOL..EOL)
 
