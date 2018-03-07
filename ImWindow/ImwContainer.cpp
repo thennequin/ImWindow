@@ -435,6 +435,8 @@ namespace ImWindow
 				m_pSplits[0]->Paint(/*iX, iY, iWidth, iFirstHeight*/);
 				ImGui::EndChild();
 
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() - oStyle.ItemSpacing.y);
+
 				ImRect oSeparatorRect( 0, iFirstHeight, oSize.x, iFirstHeight + iSeparatorSize);
 				if (pWindowManager->GetConfig().m_bVisibleDragger)
 					ImGui::Button("##Dragger", oSeparatorRect.GetSize());
@@ -460,6 +462,8 @@ namespace ImWindow
 					m_bIsDrag = false;
 				}
 
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() - oStyle.ItemSpacing.y);
+
 				oStyle.Colors[ImGuiCol_ChildWindowBg].w = 0.f;
 				ImGui::BeginChild("Bottom", ImVec2(0, 0), false, ImGuiWindowFlags_NoScrollbar);
 				oStyle.Colors[ImGuiCol_ChildWindowBg] = oBackupColor;
@@ -478,7 +482,7 @@ namespace ImWindow
 				m_pSplits[0]->Paint();
 				ImGui::EndChild();
 
-				ImGui::SameLine();
+				ImGui::SameLine(0.f, 0.f);
 
 				ImRect oSeparatorRect( iFirstWidth, 0, iFirstWidth + iSeparatorSize, oSize.y);
 				if (pWindowManager->GetConfig().m_bVisibleDragger)
@@ -505,7 +509,7 @@ namespace ImWindow
 					m_bIsDrag = false;
 				}
 
-				ImGui::SameLine();
+				ImGui::SameLine(0.f, 0.f);
 
 				oStyle.Colors[ImGuiCol_ChildWindowBg].w = 0.f;
 				ImGui::BeginChild("Right", ImVec2(0, 0), false, ImGuiWindowFlags_NoScrollbar);
