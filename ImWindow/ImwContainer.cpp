@@ -419,14 +419,13 @@ namespace ImWindow
 		m_oLastPosition = oPos;
 		m_oLastSize = oSize;
 
-		const int iSeparatorHalfSize = 2;
-		const int iSeparatorSize = iSeparatorHalfSize * 2;
+		const int iSeparatorSize = 5;
 
 		if (IsSplit())
 		{
 			if (m_bVerticalSplit)
 			{
-				float iFirstHeight = oSize.y * m_fSplitRatio - iSeparatorHalfSize - pWindow->WindowPadding.x;
+				float iFirstHeight = oSize.y * m_fSplitRatio - iSeparatorSize - pWindow->WindowPadding.x;
 
 				ImVec4 oBackupColor = oStyle.Colors[ImGuiCol_ChildWindowBg];
 
@@ -469,7 +468,7 @@ namespace ImWindow
 			}
 			else
 			{
-				float iFirstWidth = oSize.x * m_fSplitRatio - iSeparatorHalfSize - pWindow->WindowPadding.y;
+				float iFirstWidth = oSize.x * m_fSplitRatio - iSeparatorSize - pWindow->WindowPadding.y;
 
 				ImVec4 oBackupColor = oStyle.Colors[ImGuiCol_ChildWindowBg];
 
