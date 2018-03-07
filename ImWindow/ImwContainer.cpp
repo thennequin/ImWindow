@@ -526,7 +526,7 @@ namespace ImWindow
 				ImVec2 oItemSpacing = oStyle.ItemSpacing;
 				oStyle.ItemSpacing = ImVec2(oItemSpacing.x, 0.f);
 
-				ImGui::InvisibleButton("TabListButton", ImVec2(16, 16));
+				ImGui::InvisibleButton("##TabListButton", ImVec2(14.f, c_fTabHeight));
 				ImGui::SameLine();
 
 				if (ImGui::BeginPopupContextItem("TabListMenu", 0))
@@ -542,28 +542,23 @@ namespace ImWindow
 					ImGui::EndPopup();
 				}
 
-				ImColor oLinesColor = ImColor(160, 160, 160, 255);
-				if (ImGui::IsItemHovered())
-				{
-					oLinesColor = ImColor(255, 255, 255, 255);
-				}
+				ImU32 iTabListButtonColor = ImGui::GetColorU32(ImGui::IsItemHovered() ? ImGuiCol_Text : ImGuiCol_TextDisabled);
 				ImVec2 oButtonMin = ImGui::GetItemRectMin();
 				ImVec2 oButtonMax = ImGui::GetItemRectMax();
-				ImVec2 oButtonSize = ImVec2(oButtonMax.x - oButtonMin.x, oButtonMax.y - oButtonMin.y);
-				pDrawList->AddLine(
-					ImVec2(oButtonMin.x + 1, oButtonMin.y + oButtonSize.y / 2),
-					ImVec2(oButtonMax.x - 1, oButtonMin.y + oButtonSize.y / 2),
-					oLinesColor);
+				ImVec2 oButtonCenter = (oButtonMin + oButtonMax) / 2.f;
 
-				pDrawList->AddLine(
-					ImVec2(oButtonMin.x + 1, oButtonMin.y + oButtonSize.y / 2 - 4),
-					ImVec2(oButtonMax.x - 1, oButtonMin.y + oButtonSize.y / 2 - 4),
-					oLinesColor);
+				pDrawList->AddRectFilled(
+					ImVec2(oButtonCenter.x - 5.f, oButtonCenter.y - 7.f),
+					ImVec2(oButtonCenter.x + 5.f, oButtonCenter.y - 4.f),
+					iTabListButtonColor
+				);
 
-				pDrawList->AddLine(
-					ImVec2(oButtonMin.x + 1, oButtonMin.y + oButtonSize.y / 2 + 4),
-					ImVec2(oButtonMax.x - 1, oButtonMin.y + oButtonSize.y / 2 + 4),
-					oLinesColor);
+				pDrawList->AddTriangleFilled(
+					ImVec2(oButtonCenter.x - 5.f, oButtonCenter.y - 2.f),
+					ImVec2(oButtonCenter.x + 5.f, oButtonCenter.y - 2.f),
+					ImVec2(oButtonCenter.x, oButtonCenter.y + 4.f),
+					iTabListButtonColor
+				);
 
 				pDrawList->ChannelsSplit(2);
 
