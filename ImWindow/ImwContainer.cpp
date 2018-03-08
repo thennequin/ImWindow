@@ -537,7 +537,7 @@ namespace ImWindow
 					int iIndex = 0;
 					for (ImwWindowList::const_iterator itWindow = m_lWindows.begin(); itWindow != m_lWindows.end(); ++itWindow, ++iIndex)
 					{
-						if (ImGui::Selectable((*itWindow)->GetTitle()))
+						if (ImGui::Selectable((*itWindow)->GetTitle(), m_iActiveWindow == iIndex))
 						{
 							m_iActiveWindow = iIndex;
 						}
