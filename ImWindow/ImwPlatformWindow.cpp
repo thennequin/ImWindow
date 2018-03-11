@@ -238,7 +238,9 @@ namespace ImWindow
 
 	ImGuiContext* ImwPlatformWindow::GetContext()
 	{
-		return m_pContext;
+		if (m_pContext != NULL)
+			return m_pContext;
+		return ImGui::GetCurrentContext();
 	}
 
 	void ImwPlatformWindow::SetContext(bool bCopyStyle)
