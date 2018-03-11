@@ -54,6 +54,7 @@ namespace ImWindow
 		bool								FocusWindow(ImwWindow* pWindow);
 
 		bool								HasContext() const;
+		ImGuiContext*						GetContext();
 		void								SetContext(bool bCopyStyle);
 		void								RestoreContext(bool bCopyStyle);
 		static bool							IsContextSet();

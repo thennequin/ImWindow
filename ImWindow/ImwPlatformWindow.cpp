@@ -236,6 +236,11 @@ namespace ImWindow
 		return m_pContext != NULL;
 	}
 
+	ImGuiContext* ImwPlatformWindow::GetContext()
+	{
+		return m_pContext;
+	}
+
 	void ImwPlatformWindow::SetContext(bool bCopyStyle)
 	{
 		IM_ASSERT(s_bContextPushed == false);
