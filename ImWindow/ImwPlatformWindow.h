@@ -80,6 +80,7 @@ namespace ImWindow
 		ImGuiContext*						m_pPreviousContext;
 		bool								m_bNeedRender;
 		bool								m_bShowContent;
+		ImRect								m_oContentArea;
 	};
 
 	typedef ImwList<ImwPlatformWindow*> ImwPlatformWindowList;

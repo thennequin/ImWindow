@@ -143,6 +143,8 @@ namespace ImWindow
 		virtual const ImwChar*				GetWindowClassName(ImwWindow* pWindow);
 		virtual bool						CanCreateWindowByClassName(const ImwChar* pName);
 		virtual ImwWindow*					CreateWindowByClassName(const ImwChar* pName);
+
+		virtual bool						IsUsingCustomFrame() const;
 	protected:
 		//To override for use multi window mode
 		virtual bool						CanCreateMultipleWindow();
@@ -151,6 +153,9 @@ namespace ImWindow
 		virtual ImwPlatformWindow*			CreatePlatformWindow(EPlatformWindowType eType, ImwPlatformWindow* pParent);
 		virtual ImVec2						GetCursorPos();
 		virtual bool						IsLeftClickDown();
+
+		virtual float						GetTitleBarHeight() const;
+		virtual void						PaintTitleBar(ImwPlatformWindow* pPlatformWindow);
 
 		void								AddWindow(ImwWindow* pWindow);
 		void								RemoveWindow(ImwWindow* pWindow);
@@ -179,6 +184,8 @@ namespace ImWindow
 
 		void								DrawWindowArea( ImwPlatformWindow* pWindow, const ImVec2& oPos, const ImVec2& oSize, const ImColor& oColor );
 
+		bool								BeginTransparentChild(const char* pName, const ImVec2& oSize, bool bBorder, ImGuiWindowFlags iFlags);
+
 		void								PreUpdate();
 		void								Update();
 		void								UpdatePlatformwWindowActions();
@@ -189,12 +196,10 @@ namespace ImWindow
 		void								Paint(ImwPlatformWindow* pWindow);
 		void								PostPaint(ImwPlatformWindow* pWindow);
 
-		void								PushStyle(bool bRounding = true, bool bPadding = true);
-		void								PopStyle();
-
 		void								StartDragWindow(ImwWindow* pWindow, ImVec2 oOffset);
 		void								StopDragWindow();
 		void								UpdateDragWindow();
+		float								GetStatusBarHeight() const;
 		ImwWindow*							GetDraggedWindow() const;
 		ImVec2								GetDragOffset() const;
 		ImwContainer*						GetDragBestContainer() const;

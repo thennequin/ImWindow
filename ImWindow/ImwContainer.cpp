@@ -521,7 +521,6 @@ namespace ImWindow
 		}
 		else if (HasWindowTabbed())
 		{
-			pWindowManager->PopStyle();
 
 			bool bAlone = m_lWindows.front()->IsAlone();
 			ImwWindow* pActiveWindow = NULL;
@@ -816,8 +815,6 @@ namespace ImWindow
 
 				ImGui::EndChild();
 			}
-
-			pWindowManager->PushStyle();
 		}
 		else
 		{
