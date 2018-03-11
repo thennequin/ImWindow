@@ -431,7 +431,7 @@ namespace ImWindow
 				ImVec4 oBackupColor = oStyle.Colors[ImGuiCol_ChildWindowBg];
 
 				oStyle.Colors[ImGuiCol_ChildWindowBg].w = 0.f;
-				ImGui::BeginChild("Top", ImVec2(0, iFirstHeight), false, ImGuiWindowFlags_NoScrollbar);
+				ImGui::BeginChild("Top", ImVec2(0, iFirstHeight), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 				oStyle.Colors[ImGuiCol_ChildWindowBg] = oBackupColor;
 				m_pSplits[0]->Paint(/*iX, iY, iWidth, iFirstHeight*/);
 				ImGui::EndChild();
@@ -466,7 +466,7 @@ namespace ImWindow
 				ImGui::SetCursorPosY(ImGui::GetCursorPosY() - oStyle.ItemSpacing.y);
 
 				oStyle.Colors[ImGuiCol_ChildWindowBg].w = 0.f;
-				ImGui::BeginChild("Bottom", ImVec2(0, 0), false, ImGuiWindowFlags_NoScrollbar);
+				ImGui::BeginChild("Bottom", ImVec2(0, 0), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 				oStyle.Colors[ImGuiCol_ChildWindowBg] = oBackupColor;
 				m_pSplits[1]->Paint(/*iX, iY + iFirstHeight, iWidth, iSecondHeight*/);
 				ImGui::EndChild();
@@ -478,7 +478,7 @@ namespace ImWindow
 				ImVec4 oBackupColor = oStyle.Colors[ImGuiCol_ChildWindowBg];
 
 				oStyle.Colors[ImGuiCol_ChildWindowBg].w = 0.f;
-				ImGui::BeginChild("Left", ImVec2(iFirstWidth, 0), false, ImGuiWindowFlags_NoScrollbar);
+				ImGui::BeginChild("Left", ImVec2(iFirstWidth, 0), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 				oStyle.Colors[ImGuiCol_ChildWindowBg] = oBackupColor;
 				m_pSplits[0]->Paint();
 				ImGui::EndChild();
@@ -513,7 +513,7 @@ namespace ImWindow
 				ImGui::SameLine(0.f, 0.f);
 
 				oStyle.Colors[ImGuiCol_ChildWindowBg].w = 0.f;
-				ImGui::BeginChild("Right", ImVec2(0, 0), false, ImGuiWindowFlags_NoScrollbar);
+				ImGui::BeginChild("Right", ImVec2(0, 0), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 				oStyle.Colors[ImGuiCol_ChildWindowBg] = oBackupColor;
 				m_pSplits[1]->Paint();
 				ImGui::EndChild();
