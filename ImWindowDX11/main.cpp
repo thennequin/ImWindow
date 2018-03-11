@@ -6,7 +6,7 @@ int main()
 {
 	PreInitSample();
 
-	ImwWindowManagerDX11 oMgr;
+	ImwWindowManagerDX11 oMgr(true);
 
 	oMgr.Init();
 

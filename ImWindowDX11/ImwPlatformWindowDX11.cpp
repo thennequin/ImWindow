@@ -180,9 +180,15 @@ ImwPlatformWindowDX11::~ImwPlatformWindowDX11()
 
 bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 {
+	ImwWindowManagerDX11* pWindowManagerDX11 = (ImwWindowManagerDX11*)ImWindow::ImwWindowManager::GetInstance();
+
 	ImwPlatformWindowDX11* pMainWindow = ((ImwPlatformWindowDX11*)pMain);
 
 	EasyWindow::EWindowStyle eStyle = EasyWindow::E_STYLE_NORMAL;
+	
+	if (pWindowManagerDX11->IsUsingCustomFrame())
+		eStyle = EasyWindow::E_STYLE_BORDERLESS_RESIZABLE;
+
 	if (m_eType == E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW)
 		eStyle = EasyWindow::E_STYLE_POPUP;
 
@@ -199,8 +205,6 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 
 	if (m_eType == E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW)
 		m_pWindow->SetAlpha(128);
-
-	ImwWindowManagerDX11* pWindowManagerDX11 = (ImwWindowManagerDX11*)ImWindow::ImwWindowManager::GetInstance();
 
 	m_pDXGIFactory = pWindowManagerDX11->GetDXGIFactory();
 	m_pDX11Device = pWindowManagerDX11->GetDX11Device();
@@ -544,6 +548,16 @@ void ImwPlatformWindowDX11::PreUpdate()
 			m_pWindow->SetCursor(EasyWindow::E_CURSOR_RESIZE_NWSE);
 			break;
 		}
+	}
+}
+
+void ImwPlatformWindowDX11::OnOverlay()
+{
+	if (ImwWindowManager::GetInstance()->IsUsingCustomFrame())
+	{
+		ImDrawList* pDrawList = &(ImGui::GetCurrentContext()->OverlayDrawList);
+		ImU32 iBorderColor = ImGui::GetColorU32(ImGuiCol_Border);
+		pDrawList->AddRect(ImVec2(0.f, 0.f), GetSize(), iBorderColor);
 	}
 }
 

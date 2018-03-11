@@ -46,6 +46,7 @@ namespace ImWindow
 
 	protected:
 		virtual void						PreUpdate();
+		virtual void						OnOverlay();
 		virtual void						RenderDrawLists(ImDrawData* pDrawData);
 
 		bool								OnClose();

@@ -1,3 +1,4 @@
+#define IMGUI_DEFINE_MATH_OPERATORS
 #include "ImwWindowManagerDX11.h"
 #include "ImwPlatformWindowDX11.h"
 
@@ -18,10 +19,11 @@ int ( WINAPIV * __vsnprintf )( char *, size_t, const char*, va_list ) = _vsnprin
 
 using namespace ImWindow;
 
-ImwWindowManagerDX11::ImwWindowManagerDX11()
+ImwWindowManagerDX11::ImwWindowManagerDX11(bool bCustomFrame)
 	: m_pDXGIFactory( NULL )
 	, m_pDX11Device( NULL )
 	, m_pDX11DeviceContext( NULL )
+	, m_bCustomFrame(bCustomFrame)
 {
 }
 
@@ -90,4 +92,38 @@ ImVec2 ImwWindowManagerDX11::GetCursorPos()
 bool ImwWindowManagerDX11::IsLeftClickDown()
 {
 	return GetAsyncKeyState(VK_LBUTTON) != 0;
+}
+
+bool ImwWindowManagerDX11::IsUsingCustomFrame() const
+{
+	return m_bCustomFrame;
+}
+
+const float c_fIconSize = 20.f;
+float ImwWindowManagerDX11::GetTitleBarHeight() const
+{
+	ImGuiContext* pContext = m_pMainPlatformWindow->GetContext();
+	float fContentSize = pContext->Style.FramePadding.y * 2.f + pContext->FontSize;
+	if ((c_fIconSize +1.f)> fContentSize)
+		fContentSize = c_fIconSize + 1.f;
+	return pContext->Style.WindowPadding.y + fContentSize;
+}
+
+void ImwWindowManagerDX11::PaintTitleBar(ImwPlatformWindow* pPlatformWindow)
+{
+	//Draw simple icon in title bar
+	ImGui::Dummy(ImVec2(c_fIconSize, c_fIconSize));
+	ImRect oRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax());
+	const ImVec2 oCenter = oRect.GetCenter();
+	const ImVec2 oSize = oRect.GetSize();
+	const ImVec2 c_oSpace = ImVec2(1.f, 1.f);
+
+	ImU32 iColor = ImGui::GetColorU32(ImGuiCol_Text);
+	ImDrawList* pDrawList = ImGui::GetWindowDrawList();
+	pDrawList->AddRectFilled(oRect.Min, oCenter - c_oSpace, iColor);
+	pDrawList->AddRectFilled(oCenter + c_oSpace, oRect.Max, iColor);
+	pDrawList->AddLine(oRect.GetBL(), oRect.GetTR(), iColor);
+
+	ImGui::SameLine();
+	ImwWindowManager::PaintTitleBar(pPlatformWindow);
 }
