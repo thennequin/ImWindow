@@ -892,9 +892,9 @@ namespace ImWindow
 					PaintTitleBar(pWindow);
 				}
 				ImGui::EndChild();
-			}
 
-			ImGui::SetCursorPosY(ImGui::GetCursorPosY() - oStyle.ItemSpacing.y);
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() - oStyle.ItemSpacing.y);
+			}
 
 			if (BeginTransparentChild("##ImWindowMain", ImVec2(0.f, 0.), false, c_iWindowChildFlags | ((pWindow->GetType() == E_PLATFORM_WINDOW_TYPE_MAIN) ? ImGuiWindowFlags_MenuBar : 0)))
 			{
