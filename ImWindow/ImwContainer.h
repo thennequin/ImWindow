@@ -28,6 +28,7 @@ namespace ImWindow
 		bool							FocusWindow(ImwWindow* pWindow);
 		ImwWindow*						GetActiveWindow() const;
 		ImwPlatformWindow*				GetPlatformWindowParent() const;
+		const ImwContainer*				GetBestContainer(const ImVec2& oCursorPos) const;
 		const ImwContainer*				GetBestDocking(const ImVec2 oCursorPosInContainer, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, bool& bOutOnTabArea, int& iOutPosition, bool bLargeCheck) const;
 		bool							HasUnclosableWindow() const;
 	protected:

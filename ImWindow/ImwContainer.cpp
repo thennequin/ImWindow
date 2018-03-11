@@ -982,6 +982,36 @@ namespace ImWindow
 		return m_oLastSize.x - 50.f;
 	}
 
+	const ImwContainer* ImwContainer::GetBestContainer(const ImVec2& oCursorPos) const
+	{
+		if (IsSplit())
+		{
+			const ImwContainer* pBestContainer = NULL;
+			bool bInFirstSplit = m_bVerticalSplit
+				? (oCursorPos.y <= (m_pSplits[0]->m_oLastPosition.y + m_pSplits[0]->m_oLastSize.y))
+				: (oCursorPos.x <= (m_pSplits[0]->m_oLastPosition.x + m_pSplits[0]->m_oLastSize.x));
+
+			if (bInFirstSplit)
+			{
+				pBestContainer = m_pSplits[0]->GetBestContainer(oCursorPos);
+				if (pBestContainer != NULL)
+					return pBestContainer;
+			}
+	
+			pBestContainer = m_pSplits[1]->GetBestContainer(oCursorPos);
+			if (pBestContainer != NULL)
+				return pBestContainer;
+			
+			return m_pSplits[0]->GetBestContainer(oCursorPos);
+		}
+		else
+		{
+			if (m_lWindows.front()->IsAlone() == false)
+				return this;
+		}
+		return NULL;
+	}
+
 	const ImwContainer* ImwContainer::GetBestDocking(const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, bool& bOutOnTabArea, int& iOutPosition, bool bLargeCheck) const
 	{
 		if (m_pParent == NULL || 
@@ -1000,6 +1030,20 @@ namespace ImWindow
 				if (NULL != pBestContainer)
 				{
 					return pBestContainer;
+				}
+
+				if (bLargeCheck)
+				{
+					pBestContainer = GetBestContainer(oCursorPos);
+					IM_ASSERT(pBestContainer != NULL);
+					if (pBestContainer != NULL)
+					{
+						oOutOrientation = E_DOCK_ORIENTATION_CENTER;
+						oOutAreaPos = pBestContainer->m_oLastPosition;
+						oOutAreaSize = pBestContainer->m_oLastSize;
+						bOutOnTabArea = false;
+						return pBestContainer;
+					}
 				}
 			}
 			else
