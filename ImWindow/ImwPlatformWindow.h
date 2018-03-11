@@ -28,6 +28,7 @@ namespace ImWindow
 		virtual bool						Init(ImwPlatformWindow* pParent);
 
 		EPlatformWindowType					GetType() const;
+		bool								IsMainWindow() const;
 		virtual ImVec2						GetPosition() const;
 		virtual ImVec2						GetSize() const;
 		virtual ImVec2						GetNormalPosition() const;

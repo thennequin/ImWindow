@@ -59,6 +59,11 @@ namespace ImWindow
 		return m_eType;
 	}
 
+	bool ImwPlatformWindow::IsMainWindow() const
+	{
+		return m_eType == E_PLATFORM_WINDOW_TYPE_MAIN;
+	}
+
 	const ImVec2 c_oVec2_0 = ImVec2(0,0);
 	ImVec2 ImwPlatformWindow::GetPosition() const
 	{
