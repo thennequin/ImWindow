@@ -784,14 +784,19 @@ namespace ImWindow
 			//Draw active
 			if (pActiveWindow != NULL)
 			{
-				ImVec4 oBorderColor = oStyle.Colors[ImGuiCol_Border];
-				ImVec4 oBorderShadowColor = oStyle.Colors[ImGuiCol_BorderShadow];
-				oStyle.Colors[ImGuiCol_Border] = ImVec4(0.f, 0.f, 0.f, 0.f);
-				oStyle.Colors[ImGuiCol_BorderShadow] = ImVec4(0.f, 0.f, 0.f, 0.f);
-				ImGui::BeginChild(pActiveWindow->GetId(), ImVec2(0.f, 0.f), !pActiveWindow->IsFillingSpace(), ImGuiWindowFlags_HorizontalScrollbar);
+				ImVec2 oWindowPaddingBackup;
+				if (pActiveWindow->IsFillingSpace())
+				{
+					oWindowPaddingBackup = oStyle.WindowPadding;
+					oStyle.WindowPadding = ImVec2(0.f, 0.f);
+				}
 
-				oStyle.Colors[ImGuiCol_Border] = oBorderColor;
-				oStyle.Colors[ImGuiCol_BorderShadow] = oBorderShadowColor;
+				ImGui::BeginChild(pActiveWindow->GetId(), ImVec2(0.f, 0.f), false, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysUseWindowPadding);
+				
+				if (pActiveWindow->IsFillingSpace())
+				{
+					oStyle.WindowPadding = oWindowPaddingBackup;
+				}
 
 				ImVec2 oWinPos = ImGui::GetWindowPos();
 				ImVec2 oWinSize = ImGui::GetWindowSize();
