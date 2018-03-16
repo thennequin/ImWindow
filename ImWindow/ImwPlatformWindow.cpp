@@ -1,4 +1,4 @@
-
+#define IMGUI_DEFINE_MATH_OPERATORS
 #include "ImwPlatformWindow.h"
 
 #include "ImwWindowManager.h"
@@ -177,6 +177,16 @@ namespace ImWindow
 		{
 			pWindow->OnDropFiles(iCount, pFiles, oPos);
 		}
+	}
+
+	void ImwPlatformWindow::Moving(bool bFirst)
+	{
+		ImVec2 oCursorPos = ImwWindowManager::GetInstance()->GetCursorPos();
+		if (bFirst)
+			m_oMovingOffset = oCursorPos - GetPosition();
+
+		ImVec2 oNewPos = oCursorPos - m_oMovingOffset;
+		SetPosition( (int)oNewPos.x, (int)oNewPos.y );
 	}
 
 	bool ImwPlatformWindow::Save(JsonValue& oJson)

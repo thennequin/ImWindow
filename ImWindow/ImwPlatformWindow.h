@@ -71,6 +71,8 @@ namespace ImWindow
 		void								OnClose();
 		void								OnDropFiles(int iCount, char** pFiles, const ImVec2& oPos);
 
+		void								Moving(bool bFirst);
+
 		bool								Save(JsonValue& oJson);
 		bool								Load(const JsonValue& oJson, bool bJustCheck);
 
@@ -81,6 +83,7 @@ namespace ImWindow
 		bool								m_bNeedRender;
 		bool								m_bShowContent;
 		ImRect								m_oContentArea;
+		ImVec2								m_oMovingOffset;
 	};
 
 	typedef ImwList<ImwPlatformWindow*> ImwPlatformWindowList;

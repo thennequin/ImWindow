@@ -597,7 +597,7 @@ namespace ImWindow
 			ImGuiContext* pContext = ImGui::GetCurrentContext();
 			bool bItemActiveLastFrame = pContext->ActiveIdPreviousFrame == oDraggableId;
 			bool bItemActive = pContext->ActiveId == oDraggableId;
-			//pPlatformWindow->Moving( !bItemActiveLastFrame && bItemActive );
+			pPlatformWindow->Moving( !bItemActiveLastFrame && bItemActive );
 		}
 	}
 
