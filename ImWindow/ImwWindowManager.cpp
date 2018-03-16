@@ -584,6 +584,21 @@ namespace ImWindow
 
 		ImGui::PopStyleColor();
 		ImGui::PopStyleVar();
+
+		ImGuiWindow* pCurrentImGuiWindow = ImGui::GetCurrentWindow();
+		ImRect oDraggableArea( pCurrentImGuiWindow->DC.CursorStartPos, ImGui::GetContentRegionMax() - ImVec2( 3.f * c_fButtonWidth, 0.f ) );
+
+		bool bHover, bHeld;
+		ImGuiID oDraggableId = ImGui::GetID( "##DraggableArea" );
+		ImGui::ButtonBehavior( oDraggableArea, oDraggableId, &bHover, &bHeld, 0 );
+
+		if( bHeld )
+		{
+			ImGuiContext* pContext = ImGui::GetCurrentContext();
+			bool bItemActiveLastFrame = pContext->ActiveIdPreviousFrame == oDraggableId;
+			bool bItemActive = pContext->ActiveId == oDraggableId;
+			//pPlatformWindow->Moving( !bItemActiveLastFrame && bItemActive );
+		}
 	}
 
 	void ImwWindowManager::PreUpdate()
