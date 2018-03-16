@@ -195,12 +195,16 @@ bool ImwPlatformWindowOGL::Init(ImwPlatformWindow* pMain)
 
 ImVec2 ImwPlatformWindowOGL::GetPosition() const
 {
-	return ImVec2(float(m_pWindow->GetClientPositionX()), float(m_pWindow->GetClientPositionY()));
+	int iX, iY;
+	m_pWindow->GetClientPosition(&iX, &iY);
+	return ImVec2((float)iX, (float)iY);
 }
 
 ImVec2 ImwPlatformWindowOGL::GetSize() const
 {
-	return ImVec2(float(m_pWindow->GetClientWidth()), float(m_pWindow->GetClientHeight()));
+	int iWidth, iHeight;
+	m_pWindow->GetClientSize(&iWidth, &iHeight);
+	return ImVec2((float)iWidth, (float)iHeight);
 }
 
 bool ImwPlatformWindowOGL::IsWindowMaximized() const
@@ -230,15 +234,12 @@ void ImwPlatformWindowOGL::SetPosition(int iX, int iY)
 
 void ImwPlatformWindowOGL::SetWindowMaximized(bool bMaximized)
 {
-	if (bMaximized)
-		m_pWindow->SetMaximized();
-	else
-		m_pWindow->SetRestored();
+	m_pWindow->SetMaximized(bMaximized);
 }
 
 void ImwPlatformWindowOGL::SetWindowMinimized()
 {
-	m_pWindow->SetMinimized();
+	m_pWindow->SetMinimized(true);
 }
 
 void ImwPlatformWindowOGL::SetTitle(const ImwChar* pTitle)

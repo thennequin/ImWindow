@@ -71,6 +71,9 @@ bool ImwPlatformWindowBGFX::Init(ImwPlatformWindow* pMain)
 	m_pWindow->OnChar.Set(this, &ImwPlatformWindowBGFX::OnChar);
 	m_pWindow->OnDropFiles.Set(this, &ImwPlatformWindowBGFX::OnDropFiles);
 
+	int iClientWidth, iClientHeight;
+	m_pWindow->GetClientSize(&iClientWidth, &iClientHeight);
+
 	if (m_eType == E_PLATFORM_WINDOW_TYPE_MAIN)
 	{
 		bgfx::PlatformData pd;
@@ -79,13 +82,14 @@ bool ImwPlatformWindowBGFX::Init(ImwPlatformWindow* pMain)
 		bgfx::setPlatformData(pd);
 
 		bgfx::init(m_eRenderer);
-		bgfx::reset(m_pWindow->GetClientWidth(), m_pWindow->GetClientHeight());
+		
+		bgfx::reset(iClientWidth, iClientHeight);
 	}
 
 	if (m_eType == E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW)
 		m_pWindow->SetAlpha(128);
 
-	m_hFrameBufferHandle = bgfx::createFrameBuffer(m_pWindow->GetHandle(), uint16_t(m_pWindow->GetClientWidth()), uint16_t(m_pWindow->GetClientHeight()));
+	m_hFrameBufferHandle = bgfx::createFrameBuffer(m_pWindow->GetHandle(), uint16_t(iClientWidth), uint16_t(iClientHeight));
 
 	bgfx::setViewFrameBuffer(255, m_hFrameBufferHandle);
 
@@ -176,12 +180,16 @@ bool ImwPlatformWindowBGFX::Init(ImwPlatformWindow* pMain)
 
 ImVec2 ImwPlatformWindowBGFX::GetPosition() const
 {
-	return ImVec2(float(m_pWindow->GetClientPositionX()), float(m_pWindow->GetClientPositionY()));
+	int iX, iY;
+	m_pWindow->GetClientPosition(&iX, &iY);
+	return ImVec2((float)iX, (float)iY);
 }
 
 ImVec2 ImwPlatformWindowBGFX::GetSize() const
 {
-	return ImVec2(float(m_pWindow->GetClientWidth()), float(m_pWindow->GetClientHeight()));
+	int iWidth, iHeight;
+	m_pWindow->GetClientSize(&iWidth, &iHeight);
+	return ImVec2((float)iWidth, (float)iHeight);
 }
 
 bool ImwPlatformWindowBGFX::IsWindowMaximized() const
@@ -211,15 +219,12 @@ void ImwPlatformWindowBGFX::SetPosition(int iX, int iY)
 
 void ImwPlatformWindowBGFX::SetWindowMaximized(bool bMaximized)
 {
-	if (bMaximized)
-		m_pWindow->SetMaximized();
-	else
-		m_pWindow->SetRestored();
+	m_pWindow->SetMaximized(bMaximized);
 }
 
 void ImwPlatformWindowBGFX::SetWindowMinimized()
 {
-	m_pWindow->SetMinimized();
+	m_pWindow->SetMinimized(true);
 }
 
 void ImwPlatformWindowBGFX::SetTitle(const ImwChar* pTitle)
@@ -286,7 +291,10 @@ void ImwPlatformWindowBGFX::OnSize(int iWidth, int iHeight)
 	bgfx::frame();
 	if (bgfx::isValid(m_hFrameBufferHandle))
 		bgfx::destroyFrameBuffer(m_hFrameBufferHandle);
-	m_hFrameBufferHandle = bgfx::createFrameBuffer(m_pWindow->GetHandle(), uint16_t(m_pWindow->GetClientWidth()), uint16_t(m_pWindow->GetClientHeight()));
+
+	int iClientWidth, iClientHeight;
+	m_pWindow->GetClientSize(&iClientWidth, &iClientHeight);
+	m_hFrameBufferHandle = bgfx::createFrameBuffer(m_pWindow->GetHandle(), uint16_t(iClientWidth), uint16_t(iClientHeight));
 	
 	if (m_eType == E_PLATFORM_WINDOW_TYPE_MAIN)
 	{
@@ -331,9 +339,12 @@ void ImwPlatformWindowBGFX::OnDropFiles(const EasyWindow::DropFiles& oFiles)
 
 void ImwPlatformWindowBGFX::RenderDrawLists(ImDrawData* pDrawData)
 {
-	bgfx::reset(uint16_t(m_pWindow->GetClientWidth()), uint16_t(m_pWindow->GetClientHeight()));
+	int iClientWidth, iClientHeight;
+	m_pWindow->GetClientSize( &iClientWidth, &iClientHeight );
+
+	bgfx::reset(uint16_t(iClientWidth), uint16_t(iClientHeight));
 	bgfx::setViewFrameBuffer(255, m_hFrameBufferHandle);
-	bgfx::setViewRect(255, 0, 0, uint16_t(m_pWindow->GetClientWidth()), uint16_t(m_pWindow->GetClientHeight()));
+	bgfx::setViewRect(255, 0, 0, uint16_t(iClientWidth), uint16_t(iClientHeight));
 	bgfx::setViewMode(255, bgfx::ViewMode::Sequential);
 
 	const ImGuiIO& io = ImGui::GetIO();
