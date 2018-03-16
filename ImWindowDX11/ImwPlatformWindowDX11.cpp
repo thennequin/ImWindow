@@ -458,12 +458,16 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 
 ImVec2 ImwPlatformWindowDX11::GetPosition() const
 {
-	return ImVec2(float(m_pWindow->GetClientPositionX()), float(m_pWindow->GetClientPositionY()));
+	int iX, iY;
+	m_pWindow->GetClientPosition(&iX, &iY);
+	return ImVec2((float)iX, (float)iY);
 }
 
 ImVec2 ImwPlatformWindowDX11::GetSize() const
 {
-	return ImVec2(float(m_pWindow->GetClientWidth()), float(m_pWindow->GetClientHeight()));
+	int iWidth, iHeight;
+	m_pWindow->GetClientSize(&iWidth, &iHeight);
+	return ImVec2((float)iWidth, (float)iHeight);
 }
 
 bool ImwPlatformWindowDX11::IsWindowMaximized() const
@@ -493,15 +497,12 @@ void ImwPlatformWindowDX11::SetPosition(int iX, int iY)
 
 void ImwPlatformWindowDX11::SetWindowMaximized(bool bMaximized)
 {
-	if (bMaximized)
-		m_pWindow->SetMaximized();
-	else
-		m_pWindow->SetRestored();
+	m_pWindow->SetMaximized(bMaximized);
 }
 
 void ImwPlatformWindowDX11::SetWindowMinimized()
 {
-	m_pWindow->SetMinimized();
+	m_pWindow->SetMinimized(true);
 }
 
 void ImwPlatformWindowDX11::SetTitle(const ImwChar* pTitle)
@@ -599,10 +600,13 @@ void ImwPlatformWindowDX11::OnSize(int iWidth, int iHeight)
 
 		m_pDX11DeviceContext->OMSetRenderTargets(1, &m_pDX11RenderTargetView, NULL);
 
+		int iWidth, iHeight;
+		m_pWindow->GetSize( &iWidth, &iHeight );
+
 		// Set up the viewport.
 		D3D11_VIEWPORT oViewport;
-		oViewport.Width = m_pWindow->GetClientWidth();
-		oViewport.Height = m_pWindow->GetClientHeight();
+		oViewport.Width = (float)iWidth;
+		oViewport.Height = (float)iHeight;
 		oViewport.MinDepth = 0.0f;
 		oViewport.MaxDepth = 1.0f;
 		oViewport.TopLeftX = 0;
