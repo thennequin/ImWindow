@@ -179,8 +179,7 @@ void ImwPlatformWindowEasyWindow::OnSize(int /*iWidth*/, int /*iHeight*/)
 
 void ImwPlatformWindowEasyWindow::OnFocus(bool bHasFocus)
 {
-	if (!bHasFocus)
-		OnLoseFocus();
+	ImwPlatformWindow::OnFocus(bHasFocus);
 }
 
 void ImwPlatformWindowEasyWindow::OnMouseButton(int iButton, bool bDown)

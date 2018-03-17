@@ -471,6 +471,12 @@ public:
 		{
 			Destroy();
 		}
+
+		ImwWindowManager* pManager = ImwWindowManager::GetInstance();
+		if (pManager->GetFocusedPlatformWindow() == pManager->GetCurrentPlatformWindow())
+			ImGui::Text("Platform Window is focused");
+		else
+			ImGui::TextDisabled("Platform Window is not focused");
 	}
 };
 

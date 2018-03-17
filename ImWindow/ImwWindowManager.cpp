@@ -60,6 +60,7 @@ namespace ImWindow
 		m_pMainPlatformWindow = NULL;
 		m_pDragPlatformWindow = NULL;
 		m_pCurrentPlatformWindow = NULL;
+		m_pFocusedPlatformWindow = NULL;
 		m_pDraggedWindow = NULL;
 		m_pDragBestContainer = NULL;
 		m_bDragOnTab = false;
@@ -179,6 +180,11 @@ namespace ImWindow
 	const ImwPlatformWindowList& ImwWindowManager::GetSecondariesPlatformWindows() const
 	{
 		return m_lPlatformWindows;
+	}
+
+	ImwPlatformWindow* ImwWindowManager::GetFocusedPlatformWindow() const
+	{
+		return m_pFocusedPlatformWindow;
 	}
 
 	ImwWindowManager::Config& ImwWindowManager::GetConfig()

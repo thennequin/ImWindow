@@ -58,12 +58,12 @@ namespace ImWindow
 		void								RestoreContext(bool bCopyStyle);
 		static bool							IsContextSet();
 	protected:
-		void								OnLoseFocus();
 		virtual void						PreUpdate();
 		virtual void						PreRender();
 		virtual void						OnOverlay();
 		virtual void						RenderDrawLists(ImDrawData* pDrawData);
 
+		void								OnFocus(bool bFocused);
 		void								Render();
 		void								PaintContainer();
 		void								RefreshTitle();

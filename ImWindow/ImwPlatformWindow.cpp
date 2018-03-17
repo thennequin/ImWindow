@@ -47,6 +47,9 @@ namespace ImWindow
 			ImGui::DestroyContext(m_pContext);
 			m_pContext = NULL;
 		}
+
+		if (ImwWindowManager::GetInstance() != NULL && ImwWindowManager::GetInstance()->m_pFocusedPlatformWindow == this)
+			ImwWindowManager::GetInstance()->m_pFocusedPlatformWindow = NULL;
 	}
 
 	bool ImwPlatformWindow::Init(ImwPlatformWindow* /*pParent*/)
@@ -138,6 +141,35 @@ namespace ImWindow
 
 	void ImwPlatformWindow::RenderDrawLists(ImDrawData* /*pDrawData */)
 	{
+	}
+
+	void ImwPlatformWindow::OnFocus(bool bFocused)
+	{
+		if (bFocused)
+		{
+			ImwWindowManager::GetInstance()->m_pFocusedPlatformWindow = this;
+		}
+		else
+		{
+			if (ImwWindowManager::GetInstance()->m_pFocusedPlatformWindow == this)
+				ImwWindowManager::GetInstance()->m_pFocusedPlatformWindow = NULL;
+
+			if (NULL != m_pContext)
+			{
+				m_pContext->SetNextWindowPosCond = m_pContext->SetNextWindowSizeCond = m_pContext->SetNextWindowContentSizeCond = m_pContext->SetNextWindowCollapsedCond = m_pContext->SetNextWindowFocus = 0;
+				m_pContext->ActiveId = 0;
+
+				for (int i = 0; i < 512; ++i)
+					m_pContext->IO.KeysDown[i] = false;
+
+				for (int i = 0; i < 5; ++i)
+					m_pContext->IO.MouseDown[i] = false;
+
+				m_pContext->IO.KeyAlt = false;
+				m_pContext->IO.KeyCtrl = false;
+				m_pContext->IO.KeyShift = false;
+			}
+		}
 	}
 
 	void ImwPlatformWindow::Render()
@@ -269,25 +301,6 @@ namespace ImWindow
 			}
 			ImGui::SetCurrentContext(m_pPreviousContext);
 			m_pPreviousContext = NULL;
-		}
-	}
-
-	void ImwPlatformWindow::OnLoseFocus()
-	{
-		if (NULL != m_pContext)
-		{
-			m_pContext->SetNextWindowPosCond = m_pContext->SetNextWindowSizeCond = m_pContext->SetNextWindowContentSizeCond = m_pContext->SetNextWindowCollapsedCond = m_pContext->SetNextWindowFocus = 0;
-			m_pContext->ActiveId = 0;
-
-			for (int i = 0; i < 512; ++i)
-				m_pContext->IO.KeysDown[i] = false;
-
-			for (int i = 0; i < 5; ++i)
-				m_pContext->IO.MouseDown[i] = false;
-
-			m_pContext->IO.KeyAlt = false;
-			m_pContext->IO.KeyCtrl = false;
-			m_pContext->IO.KeyShift = false;
 		}
 	}
 

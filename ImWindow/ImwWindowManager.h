@@ -111,6 +111,7 @@ namespace ImWindow
 
 		ImwPlatformWindow*					GetMainPlatformWindow() const;
 		const ImwPlatformWindowList&		GetSecondariesPlatformWindows() const;
+		ImwPlatformWindow*					GetFocusedPlatformWindow() const;
 		Config&								GetConfig();
 
 		void								SetMainTitle(const ImwChar* pTitle);
@@ -222,6 +223,7 @@ namespace ImWindow
 		ImwList<DrawWindowAreaAction>		m_lDrawWindowAreas;
 
 		ImwPlatformWindow*					m_pCurrentPlatformWindow;
+		ImwPlatformWindow*					m_pFocusedPlatformWindow;
 		ImwWindow*							m_pDraggedWindow;
 		bool								m_bDragOnTab;
 		ImwContainer*						m_pDragBestContainer;
