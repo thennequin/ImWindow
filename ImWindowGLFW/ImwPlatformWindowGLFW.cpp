@@ -263,8 +263,7 @@ void ImwPlatformWindowGLFW::OnClose(GLFWwindow* pWindow)
 void ImwPlatformWindowGLFW::OnFocus(GLFWwindow* pWindow, int iFocus)
 {
 	ImwPlatformWindowGLFW* pPlatformWindow = (ImwPlatformWindowGLFW*)glfwGetWindowUserPointer(pWindow);
-	if (iFocus == 0)
-		pPlatformWindow->OnLoseFocus();
+	pPlatformWindow->ImwPlatformWindow::OnFocus(iFocus != 0);
 }
 
 void ImwPlatformWindowGLFW::OnSize(GLFWwindow* pWindow, int iWidth, int iHeight)
