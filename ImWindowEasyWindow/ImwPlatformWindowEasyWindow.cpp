@@ -170,6 +170,13 @@ bool ImwPlatformWindowEasyWindow::OnClose()
 	return true;
 }
 
+void ImwPlatformWindowEasyWindow::OnSize(int /*iWidth*/, int /*iHeight*/)
+{
+	int iClientWidth, iClientHeight;
+	m_pWindow->GetClientSize(&iClientWidth, &iClientHeight);
+	OnClientSize(iClientWidth, iClientHeight);
+}
+
 void ImwPlatformWindowEasyWindow::OnFocus(bool bHasFocus)
 {
 	if (!bHasFocus)

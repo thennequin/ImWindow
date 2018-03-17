@@ -32,7 +32,7 @@ namespace ImWindow
 	protected:
 		virtual void						RenderDrawLists(ImDrawData* pDrawData);
 
-		virtual void						OnSize(int iWidth, int iHeight);
+		virtual void						OnClientSize(int iClientWidth, int iClientHeight);
 		
 		IDXGISwapChain*						m_pDXGISwapChain;
 		ID3D11RenderTargetView*				m_pDX11RenderTargetView;

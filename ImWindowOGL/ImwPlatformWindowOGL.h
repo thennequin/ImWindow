@@ -24,7 +24,7 @@ namespace ImWindow
 	protected:
 		virtual void						RenderDrawLists(ImDrawData* pDrawData);
 
-		void								OnSize(int iWidth, int iHeight);
+		void								OnClientSize(int iClientWidth, int iClientHeight);
 
 		HDC									m_hDC;
 		HGLRC								m_hRC;

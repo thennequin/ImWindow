@@ -23,7 +23,7 @@ namespace ImWindow
 
 		virtual void						RenderDrawLists(ImDrawData* pDrawData);
 
-		void								OnSize(int iWidth, int iHeight);
+		void								OnClientSize(int iClientWidth, int iClientHeight);
 
 		bgfx::RendererType::Enum			m_eRenderer;
 

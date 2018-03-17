@@ -411,7 +411,7 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 }
 
 
-void ImwPlatformWindowDX11::OnSize(int iWidth, int iHeight)
+void ImwPlatformWindowDX11::OnClientSize(int iClientWidth, int iClientHeight)
 {
 	if (NULL != m_pDXGISwapChain)
 	{
@@ -437,11 +437,10 @@ void ImwPlatformWindowDX11::OnSize(int iWidth, int iHeight)
 
 		m_pDX11DeviceContext->OMSetRenderTargets(1, &m_pDX11RenderTargetView, NULL);
 
-		ImVec2 oSize = GetSize();
 		// Set up the viewport.
 		D3D11_VIEWPORT oViewport;
-		oViewport.Width = oSize.x;
-		oViewport.Height = oSize.y;
+		oViewport.Width = (float)iClientWidth;
+		oViewport.Height = (float)iClientHeight;
 		oViewport.MinDepth = 0.0f;
 		oViewport.MaxDepth = 1.0f;
 		oViewport.TopLeftX = 0;

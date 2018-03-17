@@ -149,12 +149,12 @@ bool ImwPlatformWindowOGL::Init(ImwPlatformWindow* pMain)
 	return false;
 }
 
-void ImwPlatformWindowOGL::OnSize(int iWidth, int iHeight)
+void ImwPlatformWindowOGL::OnClientSize(int iClientWidth, int iClientHeight)
 {
 	if (m_hDC != NULL && m_hRC != NULL)
 	{
 		wglMakeCurrent(m_hDC, m_hRC);
-		glViewport(0, 0, iWidth, iHeight);
+		glViewport(0, 0, iClientWidth, iClientHeight);
 	}
 }
 

@@ -33,9 +33,10 @@ namespace ImWindow
 	protected:
 		virtual void						PreUpdate();
 		virtual void						RenderDrawLists(ImDrawData* pDrawData) = 0;
+		virtual void						OnClientSize(int iClientWidth, int iClientHeight) = 0;
 
-		virtual void						OnSize(int iWidth, int iHeight) = 0;
 		bool								OnClose();
+		void								OnSize(int iWidth, int iHeight);
 		void								OnFocus(bool bHasFocus);
 		void								OnMouseButton(int iButton, bool bDown);
 		void								OnMouseMove(int iX, int iY);

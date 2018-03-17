@@ -129,14 +129,11 @@ bool ImwPlatformWindowBGFX::Init(ImwPlatformWindow* pMain)
 	return false;
 }
 
-void ImwPlatformWindowBGFX::OnSize(int iWidth, int iHeight)
+void ImwPlatformWindowBGFX::OnClientSize(int iClientWidth, int iClientHeight)
 {
 	bgfx::frame();
 	if (bgfx::isValid(m_hFrameBufferHandle))
 		bgfx::destroyFrameBuffer(m_hFrameBufferHandle);
-
-	int iClientWidth, iClientHeight;
-	m_pWindow->GetClientSize(&iClientWidth, &iClientHeight);
 
 	m_hFrameBufferHandle = bgfx::createFrameBuffer(m_pWindow->GetHandle(), uint16_t(iClientWidth), uint16_t(iClientHeight));
 
@@ -146,7 +143,6 @@ void ImwPlatformWindowBGFX::OnSize(int iWidth, int iHeight)
 		bgfx::reset(iClientWidth, iClientHeight);
 	}
 }
-
 
 #define IMGUI_FLAGS_NONE        UINT8_C(0x00)
 #define IMGUI_FLAGS_ALPHA_BLEND UINT8_C(0x01)
