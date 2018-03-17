@@ -56,6 +56,9 @@ bool ImwPlatformWindowBGFX::Init(ImwPlatformWindow* pMain)
 {
 	if (ImwPlatformWindowEasyWindow::Init(pMain))
 	{
+		int iWidth, iHeight;
+		m_pWindow->GetClientSize(&iWidth, &iHeight);
+
 		if (m_eType == E_PLATFORM_WINDOW_TYPE_MAIN)
 		{
 			bgfx::PlatformData pd;
@@ -64,12 +67,12 @@ bool ImwPlatformWindowBGFX::Init(ImwPlatformWindow* pMain)
 			bgfx::setPlatformData(pd);
 
 			bgfx::init(m_eRenderer);
-			bgfx::reset(m_pWindow->GetClientWidth(), m_pWindow->GetClientHeight());
+
+			bgfx::reset(iWidth, iHeight);
 		}
 
-		m_hFrameBufferHandle = bgfx::createFrameBuffer(m_pWindow->GetHandle(), uint16_t(m_pWindow->GetClientWidth()), uint16_t(m_pWindow->GetClientHeight()));
+		m_hFrameBufferHandle = bgfx::createFrameBuffer(m_pWindow->GetHandle(), uint16_t(iWidth), uint16_t(iHeight));
 		bgfx::setViewFrameBuffer(255, m_hFrameBufferHandle);
-
 
 		ImGuiIO& io = GetContext()->IO;
 
@@ -131,12 +134,16 @@ void ImwPlatformWindowBGFX::OnSize(int iWidth, int iHeight)
 	bgfx::frame();
 	if (bgfx::isValid(m_hFrameBufferHandle))
 		bgfx::destroyFrameBuffer(m_hFrameBufferHandle);
-	m_hFrameBufferHandle = bgfx::createFrameBuffer(m_pWindow->GetHandle(), uint16_t(m_pWindow->GetClientWidth()), uint16_t(m_pWindow->GetClientHeight()));
-	
+
+	int iClientWidth, iClientHeight;
+	m_pWindow->GetClientSize(&iClientWidth, &iClientHeight);
+
+	m_hFrameBufferHandle = bgfx::createFrameBuffer(m_pWindow->GetHandle(), uint16_t(iClientWidth), uint16_t(iClientHeight));
+
 	if (m_eType == E_PLATFORM_WINDOW_TYPE_MAIN)
 	{
 		bgfx::setViewFrameBuffer(255, m_hFrameBufferHandle);
-		bgfx::reset(iWidth, iHeight);
+		bgfx::reset(iClientWidth, iClientHeight);
 	}
 }
 
@@ -146,9 +153,12 @@ void ImwPlatformWindowBGFX::OnSize(int iWidth, int iHeight)
 
 void ImwPlatformWindowBGFX::RenderDrawLists(ImDrawData* pDrawData)
 {
-	bgfx::reset(uint16_t(m_pWindow->GetClientWidth()), uint16_t(m_pWindow->GetClientHeight()));
+	int iClientWidth, iClientHeight;
+	m_pWindow->GetClientSize(&iClientWidth, &iClientHeight);
+
+	bgfx::reset(uint16_t(iClientWidth), uint16_t(iClientHeight));
 	bgfx::setViewFrameBuffer(255, m_hFrameBufferHandle);
-	bgfx::setViewRect(255, 0, 0, uint16_t(m_pWindow->GetClientWidth()), uint16_t(m_pWindow->GetClientHeight()));
+	bgfx::setViewRect(255, 0, 0, uint16_t(iClientWidth), uint16_t(iClientHeight));
 	bgfx::setViewMode(255, bgfx::ViewMode::Sequential);
 
 	const ImGuiIO& io = ImGui::GetIO();

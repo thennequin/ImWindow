@@ -70,12 +70,16 @@ bool ImwPlatformWindowEasyWindow::Init(ImwPlatformWindow* pMain)
 
 ImVec2 ImwPlatformWindowEasyWindow::GetPosition() const
 {
-	return ImVec2(float(m_pWindow->GetClientPositionX()), float(m_pWindow->GetClientPositionY()));
+	int iX, iY;
+	m_pWindow->GetClientPosition(&iX, &iY);
+	return ImVec2((float)iX, (float)iY);
 }
 
 ImVec2 ImwPlatformWindowEasyWindow::GetSize() const
 {
-	return ImVec2(float(m_pWindow->GetClientWidth()), float(m_pWindow->GetClientHeight()));
+	int iWidth, iHeight;
+	m_pWindow->GetClientSize(&iWidth, &iHeight);
+	return ImVec2((float)iWidth, (float)iHeight);
 }
 
 bool ImwPlatformWindowEasyWindow::IsWindowMaximized() const
