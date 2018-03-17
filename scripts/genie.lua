@@ -279,6 +279,8 @@ if _OPTIONS["with-dx11"] then
 		files
 		{
 							"../sample.h",
+							"../ImWindowEasyWindow/**.cpp",
+							"../ImWindowEasyWindow/**.h",
 							"../ImWindowDX11/**.cpp",
 							"../ImWindowDX11/**.h",
 							"../Externals/EasyWindow/EasyWindow*.cpp",
@@ -287,6 +289,7 @@ if _OPTIONS["with-dx11"] then
 		
 		includedirs {
 							"../ImWindow",
+							"../ImWindowEasyWindow",
 							"../Externals/imgui",
 							"../Externals/EasyWindow",
 							"../Externals/DirectX/include"
@@ -318,6 +321,8 @@ if _OPTIONS["with-opengl"] then
 		files
 		{
 							"../sample.h",
+							"../ImWindowEasyWindow/**.cpp",
+							"../ImWindowEasyWindow/**.h",
 							"../ImWindowOGL/**.cpp",
 							"../ImWindowOGL/**.h",
 							"../Externals/EasyWindow/EasyWindow*.cpp",
@@ -326,6 +331,7 @@ if _OPTIONS["with-opengl"] then
 		
 		includedirs {
 							"../ImWindow",
+							"../ImWindowEasyWindow",
 							"../Externals/imgui",
 							"../Externals/EasyWindow"
 		}
@@ -416,6 +422,8 @@ if _OPTIONS["with-bgfx"] then
 			}
 			files {
 								"../sample.h",
+								"../ImWindowEasyWindow/**.cpp",
+								"../ImWindowEasyWindow/**.h",
 								"../ImWindowBGFX/**.cpp",
 								"../ImWindowBGFX/**.h",
 								"../Externals/EasyWindow/EasyWindow*.cpp",
@@ -424,6 +432,7 @@ if _OPTIONS["with-bgfx"] then
 			
 			includedirs {
 								"../ImWindow",
+								"../ImWindowEasyWindow",
 								"../Externals/imgui",
 								"../Externals/EasyWindow",
 

@@ -4,23 +4,24 @@
 
 #include "ImwConfig.h"
 
-#include "ImwWindowManager.h"
+#include "ImwWindowManagerEasyWindow.h"
 
 #include "bgfx/bgfx.h"
 
 namespace ImWindow
 {
-	class ImwWindowManagerBGFX : public ImwWindowManager
+	class ImwWindowManagerBGFX : public ImwWindowManagerEasyWindow
 	{
 	public:
 		ImwWindowManagerBGFX(bgfx::RendererType::Enum eRenderer);
 		virtual							~ImwWindowManagerBGFX();
+
+		virtual bool					InternalInit();
+		virtual void					InternalDestroy();
+
 	protected:
 		virtual bool					CanCreateMultipleWindow() { return true; }
 		virtual ImwPlatformWindow*		CreatePlatformWindow(EPlatformWindowType eType, ImwPlatformWindow* pParent);
-
-		virtual ImVec2					GetCursorPos();
-		virtual bool					IsLeftClickDown();
 
 		bgfx::RendererType::Enum		m_eRenderer;
 	};

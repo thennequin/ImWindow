@@ -79,15 +79,3 @@ ImwPlatformWindow* ImwWindowManagerDX11::CreatePlatformWindow(EPlatformWindowTyp
 		return NULL;
 	}
 }
-
-ImVec2 ImwWindowManagerDX11::GetCursorPos()
-{
-	POINT oPoint;
-	::GetCursorPos(&oPoint);
-	return ImVec2((float)oPoint.x, (float)oPoint.y);
-}
-
-bool ImwWindowManagerDX11::IsLeftClickDown()
-{
-	return GetAsyncKeyState(VK_LBUTTON) != 0;
-}

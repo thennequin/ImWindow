@@ -14,6 +14,16 @@ ImwWindowManagerOGL::~ImwWindowManagerOGL()
 	Destroy();
 }
 
+bool ImwWindowManagerOGL::InternalInit()
+{
+	return true;
+}
+
+void ImwWindowManagerOGL::InternalDestroy()
+{
+
+}
+
 ImwPlatformWindow* ImwWindowManagerOGL::CreatePlatformWindow(EPlatformWindowType eType, ImwPlatformWindow* pParent)
 {
 	IM_ASSERT(m_pCurrentPlatformWindow == NULL);
@@ -27,16 +37,4 @@ ImwPlatformWindow* ImwWindowManagerOGL::CreatePlatformWindow(EPlatformWindowType
 		delete pWindow;
 		return NULL;
 	}
-}
-
-ImVec2 ImwWindowManagerOGL::GetCursorPos()
-{
-	POINT oPoint;
-	::GetCursorPos(&oPoint);
-	return ImVec2((float)oPoint.x, (float)oPoint.y);
-}
-
-bool ImwWindowManagerOGL::IsLeftClickDown()
-{
-	return GetAsyncKeyState(VK_LBUTTON) != 0;
 }

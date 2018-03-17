@@ -4,21 +4,21 @@
 
 #include "ImwConfig.h"
 
-#include "ImwWindowManager.h"
+#include "ImwWindowManagerEasyWindow.h"
 
 namespace ImWindow
 {
-	class ImwWindowManagerOGL : public ImwWindowManager
+	class ImwWindowManagerOGL : public ImwWindowManagerEasyWindow
 	{
 	public:
 		ImwWindowManagerOGL();
 		virtual							~ImwWindowManagerOGL();
+
+		virtual bool					InternalInit();
+		virtual void					InternalDestroy();
 	protected:
 		virtual bool					CanCreateMultipleWindow() { return true; }
 		virtual ImwPlatformWindow*		CreatePlatformWindow(EPlatformWindowType eType, ImwPlatformWindow* pParent);
-
-		virtual ImVec2					GetCursorPos();
-		virtual bool					IsLeftClickDown();
 	};
 }
 

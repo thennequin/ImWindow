@@ -12,7 +12,16 @@ ImwWindowManagerBGFX::ImwWindowManagerBGFX(bgfx::RendererType::Enum eRenderer)
 
 ImwWindowManagerBGFX::~ImwWindowManagerBGFX()
 {
-	Destroy();
+	
+}
+
+bool ImwWindowManagerBGFX::InternalInit()
+{
+	return true;
+}
+
+void ImwWindowManagerBGFX::InternalDestroy()
+{
 	bgfx::shutdown();
 }
 
@@ -31,14 +40,3 @@ ImwPlatformWindow* ImwWindowManagerBGFX::CreatePlatformWindow(EPlatformWindowTyp
 	}
 }
 
-ImVec2 ImwWindowManagerBGFX::GetCursorPos()
-{
-	POINT oPoint;
-	::GetCursorPos(&oPoint);
-	return ImVec2(oPoint.x, oPoint.y);
-}
-
-bool ImwWindowManagerBGFX::IsLeftClickDown()
-{
-	return GetAsyncKeyState(VK_LBUTTON);
-}
