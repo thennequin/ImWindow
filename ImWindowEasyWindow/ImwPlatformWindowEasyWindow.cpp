@@ -25,7 +25,7 @@ bool ImwPlatformWindowEasyWindow::Init(ImwPlatformWindow* pMain)
 	if (m_eType == E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW)
 		eStyle = EasyWindow::E_STYLE_POPUP;
 
-	m_pWindow = EasyWindow::Create("ImwPlatformWindowEasyWindow", 800, 600, false, pMain != NULL ? pMainWindow->m_pWindow : NULL, eStyle, EasyWindow::E_FLAG_ACCEPT_FILES_DROP);
+	m_pWindow = EasyWindow::Create("ImwPlatformWindowEasyWindow", 800, 600, false, pMain != NULL ? pMainWindow->m_pWindow : NULL, eStyle, EasyWindow::E_FLAG_CATCH_ALT_KEY | EasyWindow::E_FLAG_ACCEPT_FILES_DROP);
 	m_pWindow->OnSize.Set(this, &ImwPlatformWindowEasyWindow::OnSize);
 	m_pWindow->OnClose.Set(this, &ImwPlatformWindowEasyWindow::OnClose);
 	m_pWindow->OnFocus.Set(this, &ImwPlatformWindowEasyWindow::OnFocus);
