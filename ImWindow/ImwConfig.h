@@ -27,6 +27,8 @@
 #define ImwChar char
 #endif // ImwChar
 
+#define ImwVerify(bCondition) { if ((bCondition) == false) { IM_ASSERT(false); } }
+
 #define ImwSafeDelete(pObj) { if (NULL != pObj) { delete pObj; pObj = NULL; } }
 #define ImwSafeRelease(pObj) { if (NULL != pObj) { pObj->Release(); pObj = NULL; } }
 #define ImwIsSafe(pObj) if (NULL != pObj) pObj
