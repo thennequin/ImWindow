@@ -184,7 +184,7 @@ public:
 			static ImGuiTextFilter filter;
 			filter.Draw("Filter colors", 200);
 
-			ImGui::BeginChild("#colors", ImVec2(0, 300), true);
+			ImGui::PushID("#colors");
 			ImGui::PushItemWidth(-160);
 			ImGui::ColorEditMode(edit_mode);
 			for (int i = 0; i < ImGuiCol_COUNT; i++)
@@ -202,7 +202,7 @@ public:
 				ImGui::PopID();
 			}
 			ImGui::PopItemWidth();
-			ImGui::EndChild();
+			ImGui::PopID();
 
 			ImGui::TreePop();
 		}
