@@ -41,6 +41,12 @@ public:
 		ImGui::RadioButton("2. Background", (int*)&oConfig.m_eTabColorMode, ImwWindowManager::E_TABCOLORMODE_BACKGROUND);
 		ImGui::RadioButton("3. Custom", (int*)&oConfig.m_eTabColorMode, ImwWindowManager::E_TABCOLORMODE_CUSTOM);
 
+		ImGui::Indent();
+		ImGui::ColorEdit4("Active##Tab", (float*)&oConfig.m_oTabColorActive.Value.x, true);
+		ImGui::ColorEdit4("Normal##Tab", (float*)&oConfig.m_oTabColorNormal.Value.x, true);
+		ImGui::ColorEdit4("Border##Tab", (float*)&oConfig.m_oTabColorBorder.Value.x, true);
+		ImGui::Unindent();
+
 		ImGui::PushItemWidth(100.f);
 		ImGui::DragFloat("Drag margin ratio", &oConfig.m_fDragMarginRatio, 0.01f, 0.f, 1.f);
 		ImGui::DragFloat("Drag margin size ratio", &oConfig.m_fDragMarginSizeRatio, 0.01f, 0.f, 1.f);
