@@ -50,6 +50,45 @@ public:
 		ImGui::Checkbox("Show tab shadows", &oConfig.m_bShowTabShadows);
 		//ImGui::Color("Drag margin ratio", &oConfig.m_oHightlightAreaColor);
 
+		if (ImGui::SmallButton("Default"))
+		{
+			oConfig.m_bShowTabShadows = false;
+			oConfig.m_fTabOverlap = 15.f;
+			oConfig.m_fTabSlopWidth = 30.f;
+			oConfig.m_fTabSlopP1Ratio = 0.6f;
+			oConfig.m_fTabSlopP2Ratio = 0.4f;
+			oConfig.m_fTabSlopHRatio = 0.f;
+			oConfig.m_fTabShadowDropSize = 15.f;
+			oConfig.m_fTabShadowSlopRatio = 0.6f;
+			oConfig.m_fTabShadowAlpha = 0.75f;
+		}
+		ImGui::SameLine();
+		if (ImGui::SmallButton("Chrome"))
+		{
+			oConfig.m_bShowTabShadows = true;
+			oConfig.m_fTabOverlap = 10.f;
+			oConfig.m_fTabSlopWidth = 15.f;
+			oConfig.m_fTabSlopP1Ratio = 1.f;
+			oConfig.m_fTabSlopP2Ratio = 1.f;
+			oConfig.m_fTabSlopHRatio = 0.f;
+			oConfig.m_fTabShadowDropSize = 7.5f;
+			oConfig.m_fTabShadowSlopRatio = 1.f;
+			oConfig.m_fTabShadowAlpha = 1.f;
+		}
+		ImGui::SameLine();
+		if (ImGui::SmallButton("Square"))
+		{
+			oConfig.m_bShowTabShadows = false;
+			oConfig.m_fTabOverlap = 3.f;
+			oConfig.m_fTabSlopWidth = 0.f;
+			oConfig.m_fTabSlopP1Ratio = 0.f;
+			oConfig.m_fTabSlopP2Ratio = 0.f;
+			oConfig.m_fTabSlopHRatio = 0.f;
+			oConfig.m_fTabShadowDropSize = 7.5f;
+			oConfig.m_fTabShadowSlopRatio = 1.f;
+			oConfig.m_fTabShadowAlpha = 1.f;
+		}
+
 		ImGui::PushItemWidth(100.f);
 		ImGui::DragFloat("Tab overlap", &oConfig.m_fTabOverlap);
 		ImGui::DragFloat("Tab Slop Width", &oConfig.m_fTabSlopWidth);
