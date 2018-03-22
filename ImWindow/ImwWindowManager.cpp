@@ -732,19 +732,26 @@ namespace ImWindow
 	{
 		if (NULL != m_pMainPlatformWindow && m_pMainPlatformWindow->m_bNeedRender)
 		{
+			m_pCurrentPlatformWindow = m_pMainPlatformWindow;
 			m_pMainPlatformWindow->Render();
 		}
 
 		if (NULL != m_pDragPlatformWindow && m_pDragPlatformWindow->m_bNeedRender)
 		{
+			m_pCurrentPlatformWindow = m_pDragPlatformWindow;
 			m_pDragPlatformWindow->Render();
 		}
 
 		for (ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
 		{
 			if ((*it)->m_bNeedRender)
+			{
+				m_pCurrentPlatformWindow = *it;
 				(*it)->Render();
+			}
 		}
+
+		m_pCurrentPlatformWindow = NULL;
 	}
 
 	void ImwWindowManager::Paint(ImwPlatformWindow* pWindow)
