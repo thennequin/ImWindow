@@ -192,7 +192,7 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 	if (m_eType == E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW)
 		eStyle = EasyWindow::E_STYLE_POPUP;
 
-	m_pWindow = EasyWindow::Create("ImwPlatformWindowDX11", 800, 600, false, pMain != NULL ? pMainWindow->m_pWindow : NULL, eStyle, EasyWindow::E_FLAG_ACCEPT_FILES_DROP);
+	m_pWindow = EasyWindow::Create("ImwPlatformWindowDX11", 800, 600, false, pMain != NULL ? pMainWindow->m_pWindow : NULL, eStyle, EasyWindow::E_FLAG_ACCEPT_FILES_DROP | EasyWindow::E_FLAG_ALWAYS_CAPTURE_MOUSE_ON_CLICK);
 	m_pWindow->OnClose.Set(this, &ImwPlatformWindowDX11::OnClose);
 	m_pWindow->OnFocus.Set(this, &ImwPlatformWindowDX11::OnFocus);
 	m_pWindow->OnSize.Set(this, &ImwPlatformWindowDX11::OnSize);
