@@ -586,18 +586,53 @@ namespace ImWindow
 		ImGui::PopStyleVar();
 
 		ImGuiWindow* pCurrentImGuiWindow = ImGui::GetCurrentWindow();
-		ImRect oDraggableArea( pCurrentImGuiWindow->DC.CursorStartPos, ImGui::GetContentRegionMax() - ImVec2( 3.f * c_fButtonWidth, 0.f ) );
+		ImRect oDraggableArea(pCurrentImGuiWindow->DC.CursorStartPos, ImGui::GetContentRegionMax() - ImVec2(3.f * c_fButtonWidth, 0.f));
 
 		bool bHover, bHeld;
 		ImGuiID oDraggableId = ImGui::GetID( "##DraggableArea" );
-		ImGui::ButtonBehavior( oDraggableArea, oDraggableId, &bHover, &bHeld, 0 );
+		ImGui::ButtonBehavior(oDraggableArea, oDraggableId, &bHover, &bHeld, 0);
 
-		if( bHeld )
+		ImGuiID iDoubleClickedID = ImGui::GetID("IsDoubleClicked");
+		ImGuiID iFirstClickedID = ImGui::GetID("FirstClicked");
+		bool bDoubleClicked = ImGui::GetStateStorage()->GetBool(iDoubleClickedID, false);
+		bool bFirstClicked = ImGui::GetStateStorage()->GetBool(iFirstClickedID, false);
+
+		if (ImGui::IsMouseHoveringRect( oDraggableArea.Min, oDraggableArea.Max ) && ImGui::GetIO().MouseDoubleClicked[ 0 ] && ImGui::IsMouseDragging(0) == false)
 		{
-			ImGuiContext* pContext = ImGui::GetCurrentContext();
-			bool bItemActiveLastFrame = pContext->ActiveIdPreviousFrame == oDraggableId;
-			bool bItemActive = pContext->ActiveId == oDraggableId;
-			pPlatformWindow->Moving( !bItemActiveLastFrame && bItemActive );
+			pPlatformWindow->SetWindowMaximized(!pPlatformWindow->IsWindowMaximized());
+			ImGui::GetStateStorage()->SetBool(iDoubleClickedID, true);
+			bDoubleClicked = true;
+		}
+		else if (bHeld)
+		{
+			if (bDoubleClicked == false)
+			{
+				ImGuiContext* pContext = ImGui::GetCurrentContext();
+				bool bItemActiveLastFrame = pContext->ActiveIdPreviousFrame == oDraggableId;
+				bool bItemActive = pContext->ActiveId == oDraggableId;
+
+				
+				pPlatformWindow->Moving(bFirstClicked == false);
+
+				if (bFirstClicked == false)
+				{
+					ImGui::GetStateStorage()->SetBool(iFirstClickedID, true);
+					bFirstClicked = true;
+				}
+			}
+		}
+		else
+		{
+			if (bFirstClicked)
+			{
+				ImGui::GetStateStorage()->SetBool(iFirstClickedID, false);
+				bFirstClicked = false;
+			}
+			if (bDoubleClicked)
+			{
+				ImGui::GetStateStorage()->SetBool(iDoubleClickedID, false);
+				bDoubleClicked = false;
+			}
 		}
 	}
 

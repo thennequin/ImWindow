@@ -183,10 +183,20 @@ namespace ImWindow
 	{
 		ImVec2 oCursorPos = ImwWindowManager::GetInstance()->GetCursorPos();
 		if (bFirst)
+		{
+			if (IsWindowMaximized())
+			{
+				ImVec2 oPos = GetPosition();
+				SetWindowMaximized(false);
+				SetPosition((int)oPos.x, (int)oPos.y);
+			}
 			m_oMovingOffset = oCursorPos - GetPosition();
-
-		ImVec2 oNewPos = oCursorPos - m_oMovingOffset;
-		SetPosition( (int)oNewPos.x, (int)oNewPos.y );
+		}
+		else
+		{
+			ImVec2 oNewPos = oCursorPos - m_oMovingOffset;
+			SetPosition((int)oNewPos.x, (int)oNewPos.y);
+		}
 	}
 
 	bool ImwPlatformWindow::Save(JsonValue& oJson)
