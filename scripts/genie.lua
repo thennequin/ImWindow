@@ -20,6 +20,11 @@ newoption {
 }
 
 newoption {
+	trigger = "with-sokol",
+	description = "Enable Sokol backend sample",
+}
+
+newoption {
 	trigger = "with-bgfx",
 	description = "Enable BGFX backend sample (need bgfx/bimg/bx repositories next to ImWindow repositorie)",
 }
@@ -396,6 +401,51 @@ if _OPTIONS["with-glfw"] then
 		links {
 							"glfw3",
 							"OpenGL32"
+		}
+
+		configuration		"Debug"
+			flags			"Symbols"
+			
+		configuration		"Release"
+			flags			"Optimize"
+
+		SetupSuffix()
+end
+
+if _OPTIONS["with-sokol"] then
+	startproject "ImWindowSokol"
+	project "ImWindowSokol"
+		uuid				"383edfd4-2172-46db-a1b9-d05927d98249"
+		kind				"WindowedApp"
+		targetdir			(PROJECT_RUNTIME_DIR)
+		
+		links				{ "ImWindow" }
+		files
+		{
+							"../sample.h",
+							"../ImWindowEasyWindow/**.cpp",
+							"../ImWindowEasyWindow/**.h",
+							"../ImWindowSokol/**.cpp",
+							"../ImWindowSokol/**.h",
+							"../ImWindowSokol/flextGL/**.c",
+							"../ImWindowSokol/flextGL/**.h",
+							"../Externals/EasyWindow/EasyWindow*.cpp",
+							"../Externals/EasyWindow/EasyWindow*.h",
+							"../Externals/sokol/sokol_gfx.h"
+		}	
+		
+		includedirs {
+							"../ImWindow",
+							"../ImWindowEasyWindow",
+							"../ImWindowSokol",
+							"../Externals/imgui",
+							"../Externals/EasyWindow",
+							"../Externals/sokol"
+		}
+
+		links {
+							"OpenGL32",
+							"glu32"
 		}
 
 		configuration		"Debug"

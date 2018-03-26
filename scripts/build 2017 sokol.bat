@@ -1,0 +1,1 @@
+build --with-sokol vs2017
