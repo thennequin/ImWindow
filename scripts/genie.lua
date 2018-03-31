@@ -427,11 +427,11 @@ if _OPTIONS["with-sokol"] then
 							"../ImWindowEasyWindow/**.h",
 							"../ImWindowSokol/**.cpp",
 							"../ImWindowSokol/**.h",
-							"../ImWindowSokol/flextGL/**.c",
-							"../ImWindowSokol/flextGL/**.h",
 							"../Externals/EasyWindow/EasyWindow*.cpp",
 							"../Externals/EasyWindow/EasyWindow*.h",
-							"../Externals/sokol/sokol_gfx.h"
+							"../Externals/sokol/sokol_gfx.h",
+							"../Externals/flextGL/**.c",
+							"../Externals/flextGL/**.h"
 		}	
 		
 		includedirs {
@@ -440,7 +440,8 @@ if _OPTIONS["with-sokol"] then
 							"../ImWindowSokol",
 							"../Externals/imgui",
 							"../Externals/EasyWindow",
-							"../Externals/sokol"
+							"../Externals/sokol",
+							"../Externals/flextGL"
 		}
 
 		links {
