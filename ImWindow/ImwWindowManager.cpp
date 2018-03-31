@@ -163,10 +163,22 @@ namespace ImWindow
 			ImwSafeDelete(m_pDragPlatformWindow);
 			while (m_lPlatformWindows.begin() != m_lPlatformWindows.end())
 			{
+				(*m_lPlatformWindows.begin())->PreDestroy();
 				delete *m_lPlatformWindows.begin();
 				m_lPlatformWindows.erase(m_lPlatformWindows.begin());
 			}
-			ImwSafeDelete(m_pMainPlatformWindow);
+			
+			if (m_pDragPlatformWindow != NULL)
+			{
+				m_pDragPlatformWindow->PreDestroy();
+				ImwSafeDelete(m_pDragPlatformWindow);
+			}
+
+			if (m_pMainPlatformWindow != NULL)
+			{
+				m_pMainPlatformWindow->PreDestroy();
+				ImwSafeDelete(m_pMainPlatformWindow);
+			}
 		}
 
 		InternalDestroy();
@@ -411,6 +423,7 @@ namespace ImWindow
 			{
 				ImwPlatformWindow* pPlatformWindow = *m_lPlatformWindows.begin();
 				m_lPlatformWindows.remove(pPlatformWindow);
+				pPlatformWindow->PreDestroy();
 				delete pPlatformWindow;
 			}
 
@@ -566,6 +579,7 @@ namespace ImWindow
 			ImwPlatformWindow* pPlatformWindow = *m_lToDestroyPlatformWindows.begin();
 			m_lToDestroyPlatformWindows.remove(pPlatformWindow);
 			m_lPlatformWindows.remove(pPlatformWindow);
+			pPlatformWindow->PreDestroy();
 			delete pPlatformWindow;
 		}
 
@@ -620,6 +634,7 @@ namespace ImWindow
 					{
 						if (*it == pAction->m_pPlatformWindow)
 						{
+							(*it)->PreDestroy();
 							delete *it;
 							m_lPlatformWindows.erase(it);
 							bFound = true;

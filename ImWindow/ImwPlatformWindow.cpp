@@ -36,20 +36,7 @@ namespace ImWindow
 
 	ImwPlatformWindow::~ImwPlatformWindow()
 	{
-		ImwSafeDelete(m_pContainer);
-
-		if (m_pContext != NULL)
-		{
-			m_pContext->IO.Fonts = NULL;
-			SetContext(false);
-			ImGui::Shutdown();
-			RestoreContext(false);
-			ImGui::DestroyContext(m_pContext);
-			m_pContext = NULL;
-		}
-
-		if (ImwWindowManager::GetInstance() != NULL && ImwWindowManager::GetInstance()->m_pFocusedPlatformWindow == this)
-			ImwWindowManager::GetInstance()->m_pFocusedPlatformWindow = NULL;
+		PreDestroy();
 	}
 
 	bool ImwPlatformWindow::Init(ImwPlatformWindow* /*pParent*/)
@@ -141,6 +128,24 @@ namespace ImWindow
 
 	void ImwPlatformWindow::RenderDrawLists(ImDrawData* /*pDrawData */)
 	{
+	}
+
+	void ImwPlatformWindow::PreDestroy()
+	{
+		ImwSafeDelete(m_pContainer);
+
+		if (m_pContext != NULL)
+		{
+			m_pContext->IO.Fonts = NULL;
+			SetContext(false);
+			ImGui::Shutdown();
+			RestoreContext(false);
+			ImGui::DestroyContext(m_pContext);
+			m_pContext = NULL;
+		}
+
+		if (ImwWindowManager::GetInstance() != NULL && ImwWindowManager::GetInstance()->m_pFocusedPlatformWindow == this)
+			ImwWindowManager::GetInstance()->m_pFocusedPlatformWindow = NULL;
 	}
 
 	void ImwPlatformWindow::OnFocus(bool bFocused)

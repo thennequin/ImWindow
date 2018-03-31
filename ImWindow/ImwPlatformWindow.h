@@ -63,6 +63,7 @@ namespace ImWindow
 		virtual void						OnOverlay();
 		virtual void						RenderDrawLists(ImDrawData* pDrawData);
 
+		void								PreDestroy();
 		void								OnFocus(bool bFocused);
 		void								Render();
 		void								PaintContainer();
