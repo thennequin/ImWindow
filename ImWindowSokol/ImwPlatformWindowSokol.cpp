@@ -8,7 +8,7 @@
 //#define SOKOL_D3D11 //Todo
 
 #ifdef SOKOL_GLCORE33
-#include "flextGL/flextGL.h"
+#include "flextGL.h"
 #endif
 
 #include "ImwPlatformWindowSokol.h"
