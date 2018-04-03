@@ -4,9 +4,7 @@
 
 #include "ImwConfig.h"
 #include "ImwPlatformWindowEasyWindow.h"
-#include "EasyWindow.h"
 
-#include "windows.h"
 #include "sokol_gfx.h"
 
 namespace ImWindow
@@ -20,6 +18,7 @@ namespace ImWindow
 
 		virtual bool						Init(ImwPlatformWindow* pMain);
 
+		char*								GetApiData();
 	protected:
 		virtual void						RenderDrawLists(ImDrawData* pDrawData);
 

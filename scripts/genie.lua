@@ -413,8 +413,8 @@ if _OPTIONS["with-glfw"] then
 end
 
 if _OPTIONS["with-sokol"] then
-	startproject "ImWindowSokol"
-	project "ImWindowSokol"
+	startproject "ImWindowSokolOGL"
+	project "ImWindowSokolOGL"
 		uuid				"383edfd4-2172-46db-a1b9-d05927d98249"
 		kind				"WindowedApp"
 		targetdir			(PROJECT_RUNTIME_DIR)
@@ -444,10 +444,66 @@ if _OPTIONS["with-sokol"] then
 							"../Externals/flextGL"
 		}
 
+		defines {
+							"SOKOL_GLCORE33"
+		}
+		
 		links {
 							"OpenGL32",
 							"glu32"
 		}
+
+		configuration		"x32"
+			libdirs			"../Externals/DirectX/lib/x86"
+			
+		configuration		"x64"
+			libdirs			"../Externals/DirectX/lib/x64"
+
+		configuration		"Debug"
+			flags			"Symbols"
+			
+		configuration		"Release"
+			flags			"Optimize"
+
+		SetupSuffix()
+
+	project "ImWindowSokolDX11"
+		uuid				"f3e9429c-a762-4eac-9902-ace5a4274810"
+		kind				"WindowedApp"
+		targetdir			(PROJECT_RUNTIME_DIR)
+		
+		links				{ "ImWindow" }
+		files
+		{
+							"../sample.h",
+							"../ImWindowEasyWindow/**.cpp",
+							"../ImWindowEasyWindow/**.h",
+							"../ImWindowSokol/**.cpp",
+							"../ImWindowSokol/**.h",
+							"../Externals/EasyWindow/EasyWindow*.cpp",
+							"../Externals/EasyWindow/EasyWindow*.h",
+							"../Externals/sokol/sokol_gfx.h",
+		}	
+		
+		includedirs {
+							"../ImWindow",
+							"../ImWindowEasyWindow",
+							"../ImWindowSokol",
+							"../Externals/imgui",
+							"../Externals/EasyWindow",
+							"../Externals/sokol",
+							"../Externals/DirectX/include"
+		}
+
+		defines {
+							"SOKOL_D3D11"
+		}
+
+		configuration		"x32"
+			libdirs			"../Externals/DirectX/lib/x86"
+			
+		configuration		"x64"
+			libdirs			"../Externals/DirectX/lib/x64"
 
 		configuration		"Debug"
 			flags			"Symbols"

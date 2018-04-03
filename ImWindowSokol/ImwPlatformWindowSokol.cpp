@@ -4,14 +4,27 @@
 #endif
 
 #define SOKOL_IMPL
-#define SOKOL_GLCORE33
-//#define SOKOL_D3D11 //Todo
+//Select implementation
+//#define SOKOL_GLCORE33
+//#define SOKOL_D3D11
 
 #ifdef SOKOL_GLCORE33
-#include "flextGL.h"
-#endif
+	#include <windows.h>
+	#include "flextGL.h"
+#endif //SOKOL_GLCORE33
+
+#ifdef SOKOL_D3D11
+	#define SOKOL_D3D11_SHADER_COMPILER
+#endif //SOKOL_D3D11
 
 #include "ImwPlatformWindowSokol.h"
+#include "ImwWindowManager.h"
+
+#ifdef SOKOL_D3D11
+	#pragma comment (lib, "dxerr.lib")
+	#include <DxErr.h>
+//	#include <dxgi.h>
+#endif //SOKOL_D3D11
 
 using namespace ImWindow;
 
@@ -132,6 +145,11 @@ bool ImwPlatformWindowSokol::Init(ImwPlatformWindow* pMain)
 		return true;
 	}
 	return false;
+}
+
+char* ImwPlatformWindowSokol::GetApiData()
+{
+	return m_oApiData;
 }
 
 void ImwPlatformWindowSokol::OnClientSize(int iClientWidth, int iClientHeight)
@@ -407,7 +425,327 @@ bool ImwPlatformWindowSokol::PreRenderDrawListsSokol()
 void ImwPlatformWindowSokol::PostRenderDrawListsSokol()
 {
 	SpecificDataOpenGL& oApiData = *(SpecificDataOpenGL*)m_oApiData;
-	SwapBuffers(oApiData.m_hDC);
+	SwapBuffers( oApiData.m_hDC );
 }
 
 #endif //SOKOL_GLCORE33
+
+
+
+/////////////////////////////////////////
+// DirectX 11 backend
+/////////////////////////////////////////
+
+#ifdef SOKOL_D3D11
+
+struct SpecificDataD3D11
+{
+	//Shared
+	IDXGIFactory*						m_pDXGIFactory;
+	ID3D11Device*						m_pDX11Device;
+	ID3D11DeviceContext*				m_pDX11DeviceContext;
+
+	//Unique
+	DXGI_SWAP_CHAIN_DESC				m_oSwapChainDesc;
+
+	IDXGISwapChain*						m_pDXGISwapChain;
+	ID3D11RenderTargetView*				m_pDX11RenderTargetView;
+
+	ID3D11Texture2D*					m_pDX11DepthStencilBuffer;
+	ID3D11DepthStencilView*				m_pDX11DepthStencilView;
+};
+
+const void* GetD3D11RenderTargetViewCb()
+{
+	ImwPlatformWindowSokol* pCurrentPlatform = (ImwPlatformWindowSokol*)ImwWindowManager::GetInstance()->GetCurrentPlatformWindow();
+	IM_ASSERT(pCurrentPlatform != NULL);
+	if (pCurrentPlatform != NULL)
+	{
+		return ( (SpecificDataD3D11*)pCurrentPlatform->GetApiData() )->m_pDX11RenderTargetView;
+	}
+	return NULL;
+}
+
+const void* GetD3D11DepthStencilViewCb()
+{
+	ImwPlatformWindowSokol* pCurrentPlatform = (ImwPlatformWindowSokol*)ImwWindowManager::GetInstance()->GetCurrentPlatformWindow();
+	IM_ASSERT( pCurrentPlatform != NULL );
+	if( pCurrentPlatform != NULL )
+	{
+		return ( (SpecificDataD3D11*)pCurrentPlatform->GetApiData() )->m_pDX11DepthStencilView;
+	}
+	return NULL;
+}
+
+bool ImwPlatformWindowSokol::SetupSokol( ImwPlatformWindow* pMain, sg_pipeline_desc* pPipelineDesc, sg_shader_desc* pShaderDesc )
+{
+	SpecificDataD3D11& oApiData = *(SpecificDataD3D11*)m_oApiData;
+	
+	if( pMain == NULL )
+	{
+		int iResult = CreateDXGIFactory( IID_IDXGIFactory, (void**)&oApiData.m_pDXGIFactory );
+		if( FAILED( iResult ) )
+		{
+			MessageBox( NULL, DXGetErrorDescription( iResult ), TEXT( "Can't create FXGI factory" ), MB_ICONERROR | MB_OK );
+			return false;
+		}
+
+		iResult = D3D11CreateDevice( NULL,
+			D3D_DRIVER_TYPE_HARDWARE,
+			NULL,
+			NULL,
+			NULL,
+			NULL,
+			D3D11_SDK_VERSION,
+			&oApiData.m_pDX11Device,
+			NULL,
+			&oApiData.m_pDX11DeviceContext );
+
+		if( FAILED( iResult ) )
+		{
+			MessageBox( NULL, DXGetErrorDescription( iResult ), TEXT( "Can't create DX11 device and device context" ), MB_ICONERROR | MB_OK );
+			return false;
+		}
+
+		sg_desc oSokolDesc = {};
+		oSokolDesc.d3d11_device = oApiData.m_pDX11Device;
+		oSokolDesc.d3d11_device_context = oApiData.m_pDX11DeviceContext;
+		oSokolDesc.d3d11_render_target_view_cb = GetD3D11RenderTargetViewCb;
+		oSokolDesc.d3d11_depth_stencil_view_cb = GetD3D11DepthStencilViewCb;
+		sg_setup( &oSokolDesc );
+		if( sg_isvalid() == false )
+		{
+			printf( "Error: Can't setup Sokol." );
+			return false;
+		}
+	}
+	else
+	{
+		oApiData.m_pDXGIFactory = ( (SpecificDataD3D11*)( (ImwPlatformWindowSokol*)pMain )->m_oApiData )->m_pDXGIFactory;
+		oApiData.m_pDX11Device = ( (SpecificDataD3D11*)( (ImwPlatformWindowSokol*)pMain )->m_oApiData )->m_pDX11Device;
+		oApiData.m_pDX11DeviceContext = ( (SpecificDataD3D11*)( (ImwPlatformWindowSokol*)pMain )->m_oApiData )->m_pDX11DeviceContext;
+	} 
+
+	// Create swap chain
+
+	
+	ZeroMemory( &oApiData.m_oSwapChainDesc, sizeof( DXGI_SWAP_CHAIN_DESC ) );
+	oApiData.m_oSwapChainDesc.BufferCount = 1;
+	oApiData.m_oSwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	oApiData.m_oSwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	oApiData.m_oSwapChainDesc.OutputWindow = (HWND)m_pWindow->GetHandle();
+	oApiData.m_oSwapChainDesc.SampleDesc.Count = 1;
+	oApiData.m_oSwapChainDesc.Windowed = true;
+
+	HRESULT iResult;
+	
+	iResult = IDXGIFactory_CreateSwapChain( oApiData.m_pDXGIFactory, (IUnknown*)oApiData.m_pDX11Device, &oApiData.m_oSwapChainDesc, &oApiData.m_pDXGISwapChain );
+	if( FAILED( iResult ) )
+	{
+		MessageBox( NULL, DXGetErrorDescription( iResult ), TEXT( "Error: Can't create swap chain" ), MB_ICONERROR | MB_OK );
+		return false;
+	}
+
+	iResult = IDXGIFactory_MakeWindowAssociation( oApiData.m_pDXGIFactory, (HWND)m_pWindow->GetHandle(), DXGI_MWA_NO_ALT_ENTER );
+	if( FAILED( iResult ) )
+	{
+		MessageBox( NULL, DXGetErrorDescription( iResult ), TEXT( "Error : DXGI MakeWindowAssociation failed!" ), MB_ICONERROR | MB_OK );
+		//return false;
+	}
+
+	//Create our BackBuffer
+	ID3D11Texture2D* pBackBuffer;
+	iResult = IDXGISwapChain_GetBuffer( oApiData.m_pDXGISwapChain, 0, IID_ID3D11Texture2D, (void**)&pBackBuffer );
+	if( FAILED( iResult ) )
+	{
+		MessageBox( NULL, DXGetErrorDescription( iResult ), TEXT( "Error : Can't get Buffer of swapchain" ), MB_ICONERROR | MB_OK );
+		return false;
+	}
+
+	//Create our Render Target
+	iResult = ID3D11Device_CreateRenderTargetView( oApiData.m_pDX11Device, (ID3D11Resource*)pBackBuffer, NULL, &oApiData.m_pDX11RenderTargetView );
+	ID3D11Texture2D_Release(pBackBuffer);
+	if( FAILED( iResult ) )
+	{
+		MessageBox( NULL, DXGetErrorDescription( iResult ), TEXT( "Error : Can't create RenderTargetView" ), MB_ICONERROR | MB_OK );
+		return false;
+	}
+
+	int iClientWidth, iClientHeight;
+	m_pWindow->GetClientSize( &iClientWidth, &iClientHeight );
+
+	D3D11_TEXTURE2D_DESC oDepthStencilDesc;
+	ZeroMemory( &oDepthStencilDesc, sizeof( D3D11_TEXTURE2D_DESC ) );
+	oDepthStencilDesc.Width = iClientWidth;
+	oDepthStencilDesc.Height = iClientHeight;
+	oDepthStencilDesc.MipLevels = 1;
+	oDepthStencilDesc.ArraySize = 1;
+	oDepthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	oDepthStencilDesc.SampleDesc = oApiData.m_oSwapChainDesc.SampleDesc;
+	oDepthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
+	oDepthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	iResult = ID3D11Device_CreateTexture2D( oApiData.m_pDX11Device, &oDepthStencilDesc, NULL, &oApiData.m_pDX11DepthStencilBuffer );
+	if( FAILED( iResult ) )
+	{
+		MessageBox( NULL, DXGetErrorDescription( iResult ), TEXT( "Error : Can't create DepthStencil texture" ), MB_ICONERROR | MB_OK );
+		return false;
+	}
+
+	
+	D3D11_DEPTH_STENCIL_VIEW_DESC oDepthStencilViewDesc;
+	ZeroMemory( &oDepthStencilViewDesc, sizeof( D3D11_DEPTH_STENCIL_VIEW_DESC ) );
+	oDepthStencilViewDesc.Format = oDepthStencilDesc.Format;
+	oDepthStencilViewDesc.ViewDimension = oApiData.m_oSwapChainDesc.SampleDesc.Count > 1 ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D;
+
+	iResult = ID3D11Device_CreateDepthStencilView( oApiData.m_pDX11Device, (ID3D11Resource*)oApiData.m_pDX11DepthStencilBuffer, &oDepthStencilViewDesc, &oApiData.m_pDX11DepthStencilView );
+	if( FAILED( iResult ) )
+	{
+		MessageBox( NULL, DXGetErrorDescription( iResult ), TEXT( "Error : Can't create DepthStencil view" ), MB_ICONERROR | MB_OK );
+		return false;
+	}
+
+	//Set our Render Target
+	//ID3D11DeviceContext_OMSetRenderTargets( oApiData.m_pDX11DeviceContext, 1, &oApiData.m_pDX11RenderTargetView, NULL );
+
+#define STRINGIFY2(a) #a
+#define STRINGIFY(a) STRINGIFY2(a)
+	//Fill Shader desc
+	pShaderDesc->vs.uniform_blocks[ 0 ].size = sizeof( ImVec2 );
+	pShaderDesc->vs.source =
+		//"#line " STRINGIFY(__LINE__) " \"" __FILE__ "\"\n"
+		"cbuffer params {\n"
+		"  float2 disp_size;\n"
+		"};\n"
+		"struct vs_in {\n"
+		"  float2 pos: POSITION;\n"
+		"  float2 uv: TEXCOORD0;\n"
+		"  float4 color: COLOR0;\n"
+		"};\n"
+		"struct vs_out {\n"
+		"  float2 uv: TEXCOORD0;\n"
+		"  float4 color: COLOR0;\n"
+		"  float4 pos: SV_Position;\n"
+		"};\n"
+		"vs_out main(vs_in inp) {\n"
+		"  vs_out outp;\n"
+		"  outp.pos = float4(((inp.pos/disp_size)-0.5)*float2(2.0,-2.0), 0.5, 1.0);\n"
+		"  outp.uv = inp.uv;\n"
+		"  outp.color = inp.color;\n"
+		"  return outp;\n"
+		"}\n";
+
+	pShaderDesc->fs.images[ 0 ].type = SG_IMAGETYPE_2D;
+	pShaderDesc->fs.source =
+		//"#line " STRINGIFY( __LINE__ ) " \"" __FILE__ "\"\n"
+		"Texture2D<float4> tex: register(t0);\n"
+		"sampler smp: register(s0);\n"
+		"float4 main(float2 uv: TEXCOORD0, float4 color: COLOR0): SV_Target0 {\n"
+		"  return tex.Sample(smp, uv) * color;\n"
+		"}\n";
+
+	// Fill pipieline desc for vertex layout of previous shader
+	pPipelineDesc->layout.attrs[ 0 ].sem_name = "POSITION";
+	pPipelineDesc->layout.attrs[ 0 ].offset = offsetof( ImDrawVert, pos );
+	pPipelineDesc->layout.attrs[ 0 ].format = SG_VERTEXFORMAT_FLOAT2;
+	pPipelineDesc->layout.attrs[ 1 ].sem_name = "TEXCOORD";
+	pPipelineDesc->layout.attrs[ 1 ].offset = offsetof( ImDrawVert, uv );
+	pPipelineDesc->layout.attrs[ 1 ].format = SG_VERTEXFORMAT_FLOAT2;
+	pPipelineDesc->layout.attrs[ 2 ].sem_name = "COLOR";
+	pPipelineDesc->layout.attrs[ 2 ].offset = offsetof( ImDrawVert, col );
+	pPipelineDesc->layout.attrs[ 2 ].format = SG_VERTEXFORMAT_UBYTE4N;
+
+	return true;
+}
+
+void ImwPlatformWindowSokol::ShutdownSokol( bool bMain )
+{
+	SpecificDataD3D11& oApiData = *(SpecificDataD3D11*)m_oApiData;
+	if( bMain )
+	{
+		sg_shutdown();
+		//wglDeleteContext( oApiData.m_hGLRC );
+	}
+
+	//ReleaseDC( (HWND)m_pWindow->GetHandle(), oApiData.m_hDC );
+}
+
+void ImwPlatformWindowSokol::OnSizeSokol( int iClientWidth, int iClientHeight )
+{
+	SpecificDataD3D11& oApiData = *(SpecificDataD3D11*)m_oApiData;
+
+	ID3D11RenderTargetView_Release( oApiData.m_pDX11RenderTargetView );
+	ID3D11RenderTargetView_Release( oApiData.m_pDX11DepthStencilView );
+	ID3D11Texture2D_Release( oApiData.m_pDX11DepthStencilBuffer );
+
+	HRESULT iResult;
+	iResult = IDXGISwapChain_ResizeBuffers( oApiData.m_pDXGISwapChain, 0, 0, 0, DXGI_FORMAT_UNKNOWN, 0 );
+	if( FAILED( iResult ) )
+	{
+		MessageBox( NULL, DXGetErrorDescription( iResult ), TEXT( "Error : Can't resize swap chain" ), MB_ICONERROR | MB_OK );
+		return;
+	}
+
+	// Get buffer and create a render-target-view.
+	ID3D11Texture2D* pBuffer;
+	IDXGISwapChain_GetBuffer(oApiData.m_pDXGISwapChain, 0, IID_ID3D11Texture2D, (void**)&pBuffer );
+	if( FAILED( iResult ) )
+	{
+		MessageBox( NULL, DXGetErrorDescription( iResult ), TEXT( "Error : Can't get swap chain buffer" ), MB_ICONERROR | MB_OK );
+		return;
+	}
+
+	iResult = ID3D11Device_CreateRenderTargetView( oApiData.m_pDX11Device, ( ID3D11Resource*)pBuffer, NULL, &oApiData.m_pDX11RenderTargetView );
+	if( FAILED( iResult ) )
+	{
+		MessageBox( NULL, DXGetErrorDescription( iResult ), TEXT( "Error : Can't create RenderTarget view" ), MB_ICONERROR | MB_OK );
+		return;
+	}
+
+	ID3D11Texture2D_Release( pBuffer );
+
+	D3D11_TEXTURE2D_DESC oDepthStencilDesc;
+	ZeroMemory( &oDepthStencilDesc, sizeof( D3D11_TEXTURE2D_DESC ) );
+	oDepthStencilDesc.Width = iClientWidth;
+	oDepthStencilDesc.Height = iClientHeight;
+	oDepthStencilDesc.MipLevels = 1;
+	oDepthStencilDesc.ArraySize = 1;
+	oDepthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	oDepthStencilDesc.SampleDesc = oApiData.m_oSwapChainDesc.SampleDesc;
+	oDepthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
+	oDepthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	iResult = ID3D11Device_CreateTexture2D( oApiData.m_pDX11Device, &oDepthStencilDesc, NULL, &oApiData.m_pDX11DepthStencilBuffer );
+	if( FAILED( iResult ) )
+	{
+		MessageBox( NULL, DXGetErrorDescription( iResult ), TEXT( "Error : Can't create DepthStencil texture" ), MB_ICONERROR | MB_OK );
+		return;
+	}
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC oDepthStencilViewDesc;
+	ZeroMemory( &oDepthStencilViewDesc, sizeof( D3D11_DEPTH_STENCIL_VIEW_DESC ) );
+	oDepthStencilViewDesc.Format = oDepthStencilDesc.Format;
+	oDepthStencilViewDesc.ViewDimension = oApiData.m_oSwapChainDesc.SampleDesc.Count > 1 ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D;
+
+	iResult = ID3D11Device_CreateDepthStencilView( oApiData.m_pDX11Device, (ID3D11Resource*)oApiData.m_pDX11DepthStencilBuffer, &oDepthStencilViewDesc, &oApiData.m_pDX11DepthStencilView );
+	if( FAILED( iResult ) )
+	{
+		MessageBox( NULL, DXGetErrorDescription( iResult ), TEXT( "Error : Can't create DepthStencil view" ), MB_ICONERROR | MB_OK );
+		return;
+	}
+}
+
+bool ImwPlatformWindowSokol::PreRenderDrawListsSokol()
+{
+	SpecificDataD3D11& oApiData = *(SpecificDataD3D11*)m_oApiData;
+	
+
+	return true;
+}
+
+void ImwPlatformWindowSokol::PostRenderDrawListsSokol()
+{
+	SpecificDataD3D11& oApiData = *(SpecificDataD3D11*)m_oApiData;
+
+	IDXGISwapChain_Present( oApiData.m_pDXGISwapChain, 0, 0 );
+}
+
+#endif //SOKOL_D3D11
