@@ -59,9 +59,11 @@ namespace ImWindow
 						if (NULL != m_pData)
 						{
 							memcpy(pTemp, m_pData, (m_iCapacity > iCapacity ? m_iCapacity : iCapacity) * sizeof(T));
-							ImwFree(m_pData);
+							if (!m_bUseHeap)
+								ImwFree(m_pData);
 						}
 						m_pData = pTemp;
+						m_bUseHeap = false;
 					}
 					
 					m_iCapacity = iCapacity;
