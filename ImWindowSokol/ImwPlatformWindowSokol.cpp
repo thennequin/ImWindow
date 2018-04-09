@@ -20,12 +20,6 @@
 #include "ImwPlatformWindowSokol.h"
 #include "ImwWindowManager.h"
 
-#ifdef SOKOL_D3D11
-	#pragma comment (lib, "dxerr.lib")
-	#include <DxErr.h>
-//	#include <dxgi.h>
-#endif //SOKOL_D3D11
-
 using namespace ImWindow;
 
 const int ImwPlatformWindowSokol::c_iMaxVertices = (1 << 16); //Should be enough
@@ -486,7 +480,9 @@ bool ImwPlatformWindowSokol::SetupSokol( ImwPlatformWindow* pMain, sg_pipeline_d
 		int iResult = CreateDXGIFactory( IID_IDXGIFactory, (void**)&oApiData.m_pDXGIFactory );
 		if( FAILED( iResult ) )
 		{
-			MessageBox( NULL, DXGetErrorDescription( iResult ), TEXT( "Can't create FXGI factory" ), MB_ICONERROR | MB_OK );
+			CHAR pMsg[ 1024 ] = { 0 };
+			FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM, NULL, iResult, MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), pMsg, 512, NULL );
+			MessageBox( NULL, pMsg, TEXT( "Can't create FXGI factory" ), MB_ICONERROR | MB_OK );
 			return false;
 		}
 
@@ -503,7 +499,9 @@ bool ImwPlatformWindowSokol::SetupSokol( ImwPlatformWindow* pMain, sg_pipeline_d
 
 		if( FAILED( iResult ) )
 		{
-			MessageBox( NULL, DXGetErrorDescription( iResult ), TEXT( "Can't create DX11 device and device context" ), MB_ICONERROR | MB_OK );
+			CHAR pMsg[ 1024 ] = { 0 };
+			FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM, NULL, iResult, MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), pMsg, 512, NULL );
+			MessageBox( NULL, pMsg, TEXT( "Can't create DX11 device and device context" ), MB_ICONERROR | MB_OK );
 			return false;
 		}
 
@@ -542,14 +540,18 @@ bool ImwPlatformWindowSokol::SetupSokol( ImwPlatformWindow* pMain, sg_pipeline_d
 	iResult = IDXGIFactory_CreateSwapChain( oApiData.m_pDXGIFactory, (IUnknown*)oApiData.m_pDX11Device, &oApiData.m_oSwapChainDesc, &oApiData.m_pDXGISwapChain );
 	if( FAILED( iResult ) )
 	{
-		MessageBox( NULL, DXGetErrorDescription( iResult ), TEXT( "Error: Can't create swap chain" ), MB_ICONERROR | MB_OK );
+		CHAR pMsg[ 1024 ] = { 0 };
+		FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM, NULL, iResult, MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), pMsg, 512, NULL );
+		MessageBox( NULL, pMsg, TEXT( "Error: Can't create swap chain" ), MB_ICONERROR | MB_OK );
 		return false;
 	}
 
 	iResult = IDXGIFactory_MakeWindowAssociation( oApiData.m_pDXGIFactory, (HWND)m_pWindow->GetHandle(), DXGI_MWA_NO_ALT_ENTER );
 	if( FAILED( iResult ) )
 	{
-		MessageBox( NULL, DXGetErrorDescription( iResult ), TEXT( "Error : DXGI MakeWindowAssociation failed!" ), MB_ICONERROR | MB_OK );
+		CHAR pMsg[ 1024 ] = { 0 };
+		FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM, NULL, iResult, MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), pMsg, 512, NULL );
+		MessageBox( NULL, pMsg, TEXT( "Error : DXGI MakeWindowAssociation failed!" ), MB_ICONERROR | MB_OK );
 		//return false;
 	}
 
@@ -558,7 +560,9 @@ bool ImwPlatformWindowSokol::SetupSokol( ImwPlatformWindow* pMain, sg_pipeline_d
 	iResult = IDXGISwapChain_GetBuffer( oApiData.m_pDXGISwapChain, 0, IID_ID3D11Texture2D, (void**)&pBackBuffer );
 	if( FAILED( iResult ) )
 	{
-		MessageBox( NULL, DXGetErrorDescription( iResult ), TEXT( "Error : Can't get Buffer of swapchain" ), MB_ICONERROR | MB_OK );
+		CHAR pMsg[ 1024 ] = { 0 };
+		FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM, NULL, iResult, MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), pMsg, 512, NULL );
+		MessageBox( NULL, pMsg, TEXT( "Error : Can't get Buffer of swapchain" ), MB_ICONERROR | MB_OK );
 		return false;
 	}
 
@@ -567,7 +571,9 @@ bool ImwPlatformWindowSokol::SetupSokol( ImwPlatformWindow* pMain, sg_pipeline_d
 	ID3D11Texture2D_Release(pBackBuffer);
 	if( FAILED( iResult ) )
 	{
-		MessageBox( NULL, DXGetErrorDescription( iResult ), TEXT( "Error : Can't create RenderTargetView" ), MB_ICONERROR | MB_OK );
+		CHAR pMsg[ 1024 ] = { 0 };
+		FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM, NULL, iResult, MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), pMsg, 512, NULL );
+		MessageBox( NULL, pMsg, TEXT( "Error : Can't create RenderTargetView" ), MB_ICONERROR | MB_OK );
 		return false;
 	}
 
@@ -587,7 +593,9 @@ bool ImwPlatformWindowSokol::SetupSokol( ImwPlatformWindow* pMain, sg_pipeline_d
 	iResult = ID3D11Device_CreateTexture2D( oApiData.m_pDX11Device, &oDepthStencilDesc, NULL, &oApiData.m_pDX11DepthStencilBuffer );
 	if( FAILED( iResult ) )
 	{
-		MessageBox( NULL, DXGetErrorDescription( iResult ), TEXT( "Error : Can't create DepthStencil texture" ), MB_ICONERROR | MB_OK );
+		CHAR pMsg[ 1024 ] = { 0 };
+		FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM, NULL, iResult, MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), pMsg, 512, NULL );
+		MessageBox( NULL, pMsg, TEXT( "Error : Can't create DepthStencil texture" ), MB_ICONERROR | MB_OK );
 		return false;
 	}
 
@@ -600,7 +608,9 @@ bool ImwPlatformWindowSokol::SetupSokol( ImwPlatformWindow* pMain, sg_pipeline_d
 	iResult = ID3D11Device_CreateDepthStencilView( oApiData.m_pDX11Device, (ID3D11Resource*)oApiData.m_pDX11DepthStencilBuffer, &oDepthStencilViewDesc, &oApiData.m_pDX11DepthStencilView );
 	if( FAILED( iResult ) )
 	{
-		MessageBox( NULL, DXGetErrorDescription( iResult ), TEXT( "Error : Can't create DepthStencil view" ), MB_ICONERROR | MB_OK );
+		CHAR pMsg[ 1024 ] = { 0 };
+		FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM, NULL, iResult, MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), pMsg, 512, NULL );
+		MessageBox( NULL, pMsg, TEXT( "Error : Can't create DepthStencil view" ), MB_ICONERROR | MB_OK );
 		return false;
 	}
 
@@ -681,7 +691,9 @@ void ImwPlatformWindowSokol::OnSizeSokol( int iClientWidth, int iClientHeight )
 	iResult = IDXGISwapChain_ResizeBuffers( oApiData.m_pDXGISwapChain, 0, 0, 0, DXGI_FORMAT_UNKNOWN, 0 );
 	if( FAILED( iResult ) )
 	{
-		MessageBox( NULL, DXGetErrorDescription( iResult ), TEXT( "Error : Can't resize swap chain" ), MB_ICONERROR | MB_OK );
+		CHAR pMsg[ 1024 ] = { 0 };
+		FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM, NULL, iResult, MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), pMsg, 512, NULL );
+		MessageBox( NULL, pMsg, TEXT( "Error : Can't resize swap chain" ), MB_ICONERROR | MB_OK );
 		return;
 	}
 
@@ -690,14 +702,18 @@ void ImwPlatformWindowSokol::OnSizeSokol( int iClientWidth, int iClientHeight )
 	IDXGISwapChain_GetBuffer(oApiData.m_pDXGISwapChain, 0, IID_ID3D11Texture2D, (void**)&pBuffer );
 	if( FAILED( iResult ) )
 	{
-		MessageBox( NULL, DXGetErrorDescription( iResult ), TEXT( "Error : Can't get swap chain buffer" ), MB_ICONERROR | MB_OK );
+		CHAR pMsg[ 1024 ] = { 0 };
+		FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM, NULL, iResult, MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), pMsg, 512, NULL );
+		MessageBox( NULL, pMsg, TEXT( "Error : Can't get swap chain buffer" ), MB_ICONERROR | MB_OK );
 		return;
 	}
 
 	iResult = ID3D11Device_CreateRenderTargetView( oApiData.m_pDX11Device, ( ID3D11Resource*)pBuffer, NULL, &oApiData.m_pDX11RenderTargetView );
 	if( FAILED( iResult ) )
 	{
-		MessageBox( NULL, DXGetErrorDescription( iResult ), TEXT( "Error : Can't create RenderTarget view" ), MB_ICONERROR | MB_OK );
+		CHAR pMsg[ 1024 ] = { 0 };
+		FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM, NULL, iResult, MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), pMsg, 512, NULL );
+		MessageBox( NULL, pMsg, TEXT( "Error : Can't create RenderTarget view" ), MB_ICONERROR | MB_OK );
 		return;
 	}
 
@@ -716,7 +732,9 @@ void ImwPlatformWindowSokol::OnSizeSokol( int iClientWidth, int iClientHeight )
 	iResult = ID3D11Device_CreateTexture2D( oApiData.m_pDX11Device, &oDepthStencilDesc, NULL, &oApiData.m_pDX11DepthStencilBuffer );
 	if( FAILED( iResult ) )
 	{
-		MessageBox( NULL, DXGetErrorDescription( iResult ), TEXT( "Error : Can't create DepthStencil texture" ), MB_ICONERROR | MB_OK );
+		CHAR pMsg[ 1024 ] = { 0 };
+		FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM, NULL, iResult, MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), pMsg, 512, NULL );
+		MessageBox( NULL, pMsg, TEXT( "Error : Can't create DepthStencil texture" ), MB_ICONERROR | MB_OK );
 		return;
 	}
 
@@ -728,7 +746,9 @@ void ImwPlatformWindowSokol::OnSizeSokol( int iClientWidth, int iClientHeight )
 	iResult = ID3D11Device_CreateDepthStencilView( oApiData.m_pDX11Device, (ID3D11Resource*)oApiData.m_pDX11DepthStencilBuffer, &oDepthStencilViewDesc, &oApiData.m_pDX11DepthStencilView );
 	if( FAILED( iResult ) )
 	{
-		MessageBox( NULL, DXGetErrorDescription( iResult ), TEXT( "Error : Can't create DepthStencil view" ), MB_ICONERROR | MB_OK );
+		CHAR pMsg[ 1024 ] = { 0 };
+		FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM, NULL, iResult, MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), pMsg, 512, NULL );
+		MessageBox( NULL, pMsg, TEXT( "Error : Can't create DepthStencil view" ), MB_ICONERROR | MB_OK );
 		return;
 	}
 }
