@@ -31,6 +31,9 @@ namespace ImWindow
 		virtual bool						PreRenderDrawListsSokol();
 		virtual void						PostRenderDrawListsSokol();
 
+		void								ResizeVertexBuffer( int iNewCapacity );
+		void								ResizeIndexBuffer( int iNewCapacity );
+
 		sg_image							m_hFontTexture;
 		sg_shader							m_hShader;
 		sg_pipeline							m_hPipeline;
@@ -40,7 +43,9 @@ namespace ImWindow
 		sg_draw_state						m_oDrawState;
 
 		ImDrawVert*							m_pVertexBuffer;
-		uint32_t*							m_pIndexBuffer;
+		void*								m_pIndexBuffer;
+		int									m_iVerticesCapacity;
+		int									m_iIndicesCapacity;
 
 		static const int					c_iMaxVertices;
 		static const int					c_iMaxIndices;
