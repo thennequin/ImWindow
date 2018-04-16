@@ -40,3 +40,8 @@ ImwPlatformWindow* ImwWindowManagerBGFX::CreatePlatformWindow(EPlatformWindowTyp
 	}
 }
 
+void ImwWindowManagerBGFX::PostRender()
+{
+	bgfx::frame();
+}
+

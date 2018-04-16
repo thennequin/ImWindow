@@ -249,6 +249,4 @@ void ImwPlatformWindowBGFX::RenderDrawLists(ImDrawData* pDrawData)
 		}
 		iVertexOffset += numVertices;
 	}
-
-	bgfx::frame();
 }

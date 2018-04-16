@@ -22,6 +22,7 @@ namespace ImWindow
 	protected:
 		virtual bool					CanCreateMultipleWindow() { return true; }
 		virtual ImwPlatformWindow*		CreatePlatformWindow(EPlatformWindowType eType, ImwPlatformWindow* pParent);
+		virtual void					PostRender();
 
 		bgfx::RendererType::Enum		m_eRenderer;
 	};
