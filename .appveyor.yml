@@ -3,6 +3,9 @@ version: 0.3.{build}
 environment:
   matrix:
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    TOOLSET: vs2012
+    BACKEND: --with-sff --with-opengl --with-glfw --with-dx11
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     TOOLSET: vs2015
     BACKEND: --with-sff --with-opengl --with-glfw --with-dx11 --with-sokol
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
