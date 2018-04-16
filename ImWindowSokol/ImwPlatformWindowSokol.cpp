@@ -22,8 +22,8 @@
 
 using namespace ImWindow;
 
-const int ImwPlatformWindowSokol::c_iMaxVertices = (1 << 16); //Should be enough
-const int ImwPlatformWindowSokol::c_iMaxIndices = c_iMaxVertices * 3;
+const int ImwPlatformWindowSokol::c_iDefaultVertexCount = (1 << 16); //Should be enough 
+const int ImwPlatformWindowSokol::c_iDefaultIndexCount = c_iDefaultVertexCount * 3;
 
 ImwPlatformWindowSokol::ImwPlatformWindowSokol(EPlatformWindowType eType, bool bCreateState)
 	: ImwPlatformWindowEasyWindow(eType, bCreateState)
@@ -35,8 +35,10 @@ ImwPlatformWindowSokol::ImwPlatformWindowSokol(EPlatformWindowType eType, bool b
 	, m_oPassAction()
 	, m_oDrawState()
 {
-	m_pVertexBuffer = (ImDrawVert*)ImwMalloc(sizeof(ImDrawVert) * c_iMaxVertices);
-	m_pIndexBuffer = (uint32_t*)ImwMalloc(sizeof(uint32_t) * c_iMaxIndices);
+	m_pVertexBuffer		= NULL;
+	m_pIndexBuffer		= NULL;
+	m_iVerticesCapacity	= 0;
+	m_iIndicesCapacity	= 0;
 
 	memset(m_oApiData, 0, sizeof(m_oApiData));
 }
@@ -102,27 +104,15 @@ bool ImwPlatformWindowSokol::Init(ImwPlatformWindow* pMain)
 			io.Fonts->TexID = (void *)m_hFontTexture.id;
 		}
 
-		//Create vertex buffer
-		sg_buffer_desc oVertexBufferDesc = {0};
-		oVertexBufferDesc.usage = SG_USAGE_STREAM;
-		oVertexBufferDesc.size = sizeof(ImDrawVert) * c_iMaxVertices;
-		m_hVertexBuffer = sg_make_buffer(&oVertexBufferDesc);
-		m_oDrawState.vertex_buffers[0] = m_hVertexBuffer;
-
-		//Create index buffer
-		sg_buffer_desc oIndexBufferDesc = {0};
-		oIndexBufferDesc.type = SG_BUFFERTYPE_INDEXBUFFER;
-		oIndexBufferDesc.usage = SG_USAGE_STREAM;
-		oIndexBufferDesc.size = sizeof(uint32_t) * c_iMaxIndices;
-		m_hIndexBuffer = sg_make_buffer(&oIndexBufferDesc);
-		m_oDrawState.index_buffer = m_hIndexBuffer;
+		ResizeVertexBuffer(c_iDefaultVertexCount);
+		ResizeIndexBuffer(c_iDefaultIndexCount);
 
 		m_hShader = sg_make_shader(&oShaderDesc);
 
 		oPipelineDesc.layout.buffers[0].stride = sizeof(ImDrawVert);
 		
 		oPipelineDesc.shader = m_hShader;
-		oPipelineDesc.index_type = SG_INDEXTYPE_UINT32;
+		oPipelineDesc.index_type = (sizeof(ImDrawIdx) == 2) ? SG_INDEXTYPE_UINT16 : SG_INDEXTYPE_UINT32;
 		oPipelineDesc.blend.enabled = true;
 		oPipelineDesc.blend.src_factor_rgb = SG_BLENDFACTOR_SRC_ALPHA;
 		oPipelineDesc.blend.dst_factor_rgb = SG_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
@@ -160,6 +150,18 @@ void ImwPlatformWindowSokol::RenderDrawLists(ImDrawData* pDrawData)
 	sg_begin_default_pass(&m_oPassAction, (int)vDisplaySize.x, (int)vDisplaySize.y);
 	if (pDrawData->CmdListsCount > 0)
 	{
+		{ // Resize buffers if they are not big enough
+			int iNeededVertices = 0;
+			int iNeededIndices = 0;
+			for (int iNumCmdlists = 0; iNumCmdlists < pDrawData->CmdListsCount; iNumCmdlists++)
+			{
+				const ImDrawList* cl = pDrawData->CmdLists[iNumCmdlists];
+				iNeededVertices += cl->VtxBuffer.size();
+				iNeededIndices	+= cl->IdxBuffer.size();
+			}
+			ResizeVertexBuffer(iNeededVertices);
+			ResizeIndexBuffer(iNeededIndices);
+		}
 		// copy vertices and indices
 		int iNumVertices = 0;
 		int iNumIndices = 0;
@@ -170,32 +172,23 @@ void ImwPlatformWindowSokol::RenderDrawLists(ImDrawData* pDrawData)
 			const int iCmdNumVertices = cl->VtxBuffer.size();
 			const int iCmdNumIndices = cl->IdxBuffer.size();
 
-			// overflow check
-			if ((iNumVertices + iCmdNumVertices) > c_iMaxVertices)
-			{
-				break;
-			}
-			if ((iNumIndices + iCmdNumIndices) > c_iMaxIndices)
-			{
-				break;
-			}
-
 			// copy vertices
 			memcpy(&m_pVertexBuffer[iNumVertices], &cl->VtxBuffer.front(), iCmdNumVertices * sizeof(ImDrawVert));
 
 			// copy indices, need to 'rebase' indices to start of global vertex buffer
 			const ImDrawIdx* pSrcIndex = &cl->IdxBuffer.front();
 			const uint32_t iBaseVertexIndex = iNumVertices;
+			ImDrawIdx* pDstIndex = (ImDrawIdx*)m_pIndexBuffer;
 			for (int i = 0; i < iCmdNumIndices; i++)
 			{
-				m_pIndexBuffer[iNumIndices++] = pSrcIndex[i] + iBaseVertexIndex;
+				pDstIndex[iNumIndices++] = pSrcIndex[i] + iBaseVertexIndex;
 			}
 			iNumVertices += iCmdNumVertices;
 		}
 
 		// update vertex and index buffers
 		const int iVertexDataSize = iNumVertices * sizeof(ImDrawVert);
-		const int iIndexDataSize = iNumIndices * sizeof(uint32_t);
+		const int iIndexDataSize = iNumIndices * sizeof(ImDrawIdx);
 		sg_update_buffer(m_oDrawState.vertex_buffers[0], m_pVertexBuffer, iVertexDataSize);
 		sg_update_buffer(m_oDrawState.index_buffer, m_pIndexBuffer, iIndexDataSize);
 
@@ -231,6 +224,48 @@ void ImwPlatformWindowSokol::RenderDrawLists(ImDrawData* pDrawData)
 	sg_commit();
 
 	PostRenderDrawListsSokol();
+}
+
+void ImwPlatformWindowSokol::ResizeVertexBuffer(int iNewCapacity)
+{
+	if (iNewCapacity > m_iVerticesCapacity)
+	{
+		if (m_iVerticesCapacity > 0)
+		{
+			ImwFree(m_pVertexBuffer);
+			sg_destroy_buffer(m_hVertexBuffer);
+		}
+
+		m_iVerticesCapacity = iNewCapacity;
+		m_pVertexBuffer = (ImDrawVert*)ImwMalloc(sizeof(ImDrawVert) * m_iVerticesCapacity);
+		sg_buffer_desc oVertexBufferDesc = { 0 };
+		oVertexBufferDesc.type = SG_BUFFERTYPE_VERTEXBUFFER;
+		oVertexBufferDesc.usage = SG_USAGE_STREAM;
+		oVertexBufferDesc.size = sizeof(ImDrawVert) * m_iVerticesCapacity;
+		m_hVertexBuffer = sg_make_buffer(&oVertexBufferDesc);
+		m_oDrawState.vertex_buffers[ 0 ] = m_hVertexBuffer;
+	}
+}
+
+void ImwPlatformWindowSokol::ResizeIndexBuffer(int iNewCapacity)
+{
+	if (iNewCapacity > m_iIndicesCapacity)
+	{
+		if (m_iIndicesCapacity > 0)
+		{
+			ImwFree(m_pIndexBuffer);
+			sg_destroy_buffer(m_hIndexBuffer);
+		}
+		m_iIndicesCapacity = iNewCapacity;
+
+		m_pIndexBuffer = ImwMalloc(sizeof(ImDrawIdx) * m_iIndicesCapacity);
+		sg_buffer_desc oIndexBufferDesc = { 0 };
+		oIndexBufferDesc.type = SG_BUFFERTYPE_INDEXBUFFER;
+		oIndexBufferDesc.usage = SG_USAGE_STREAM;
+		oIndexBufferDesc.size = sizeof(ImDrawIdx) * m_iIndicesCapacity;
+		m_hIndexBuffer = sg_make_buffer(&oIndexBufferDesc);
+		m_oDrawState.index_buffer = m_hIndexBuffer;
+	}
 }
 
 /////////////////////////////////////////
