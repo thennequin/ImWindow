@@ -22,8 +22,8 @@
 
 using namespace ImWindow;
 
-const int ImwPlatformWindowSokol::c_iMaxVertices = (1 << 16); //Should be enough
-const int ImwPlatformWindowSokol::c_iMaxIndices = c_iMaxVertices * 3;
+const int ImwPlatformWindowSokol::c_iDefaultVertexCount = (1 << 16); //Should be enough 
+const int ImwPlatformWindowSokol::c_iDefaultIndexCount = c_iDefaultVertexCount * 3;
 
 ImwPlatformWindowSokol::ImwPlatformWindowSokol(EPlatformWindowType eType, bool bCreateState)
 	: ImwPlatformWindowEasyWindow(eType, bCreateState)
@@ -104,8 +104,8 @@ bool ImwPlatformWindowSokol::Init(ImwPlatformWindow* pMain)
 			io.Fonts->TexID = (void *)m_hFontTexture.id;
 		}
 
-		ResizeVertexBuffer(c_iMaxVertices);
-		ResizeIndexBuffer(c_iMaxIndices);
+		ResizeVertexBuffer(c_iDefaultVertexCount);
+		ResizeIndexBuffer(c_iDefaultIndexCount);
 
 		m_hShader = sg_make_shader(&oShaderDesc);
 

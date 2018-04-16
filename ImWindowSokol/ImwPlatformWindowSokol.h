@@ -47,8 +47,8 @@ namespace ImWindow
 		int									m_iVerticesCapacity;
 		int									m_iIndicesCapacity;
 
-		static const int					c_iMaxVertices;
-		static const int					c_iMaxIndices;
+		static const int					c_iDefaultVertexCount;
+		static const int					c_iDefaultIndexCount;
 
 		char								m_oApiData[512];
 	};
