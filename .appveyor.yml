@@ -4,19 +4,19 @@ environment:
   matrix:
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     TOOLSET: vs2012
-    BACKEND: --with-sff --with-opengl --with-glfw --with-dx11 --width_sokol
+    BACKEND: --with-sff --with-opengl --with-glfw --with-dx11 --with-sokol
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     TOOLSET: vs2012
     BACKEND: --with-bgfx
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     TOOLSET: vs2015
-    BACKEND: --with-sff --with-opengl --with-glfw --with-dx11 --width_sokol
+    BACKEND: --with-sff --with-opengl --with-glfw --with-dx11 --with-sokol
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     TOOLSET: vs2015
     BACKEND: --with-bgfx
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     TOOLSET: vs2017
-    BACKEND: --with-sff --with-opengl --with-glfw --with-dx11 --width_sokol
+    BACKEND: --with-sff --with-opengl --with-glfw --with-dx11 --with-sokol
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     TOOLSET: vs2017
     BACKEND: --with-bgfx
