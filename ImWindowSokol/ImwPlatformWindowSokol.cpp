@@ -239,6 +239,7 @@ void ImwPlatformWindowSokol::ResizeVertexBuffer(int iNewCapacity)
 		m_iVerticesCapacity = iNewCapacity;
 		m_pVertexBuffer = (ImDrawVert*)ImwMalloc(sizeof(ImDrawVert) * m_iVerticesCapacity);
 		sg_buffer_desc oVertexBufferDesc = { 0 };
+		oVertexBufferDesc.type = SG_BUFFERTYPE_VERTEXBUFFER;
 		oVertexBufferDesc.usage = SG_USAGE_STREAM;
 		oVertexBufferDesc.size = sizeof(ImDrawVert) * m_iVerticesCapacity;
 		m_hVertexBuffer = sg_make_buffer(&oVertexBufferDesc);
