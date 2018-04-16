@@ -27,6 +27,7 @@ namespace ImWindow
 
 		bgfx::RendererType::Enum			m_eRenderer;
 
+		bgfx::ViewId						m_iViewId;
 		bgfx::FrameBufferHandle				m_hFrameBufferHandle;
 
 		bgfx::TextureHandle					m_hTexture;
@@ -36,6 +37,8 @@ namespace ImWindow
 
 		bgfx::DynamicVertexBufferHandle		m_hVertexBuffer;
 		bgfx::DynamicIndexBufferHandle		m_hIndexBuffer;
+
+		static bgfx::ViewId					s_iCurrentViewId;
 	};
 }
 

@@ -5,7 +5,7 @@
 #include <bgfx/bgfx.h>
 #include <bgfx/platform.h>
 #include <bx/bx.h>
-#include <bx/fpumath.h>
+#include <bx/math.h>
 #include <bgfx/embedded_shader.h>
 
 #include "imgui/vs_ocornut_imgui.bin.h"
@@ -21,25 +21,28 @@ static const bgfx::EmbeddedShader s_embeddedShaders[] =
 
 using namespace ImWindow;
 
+bgfx::ViewId ImwPlatformWindowBGFX::s_iCurrentViewId = 0;
+
 ImwPlatformWindowBGFX::ImwPlatformWindowBGFX(EPlatformWindowType eType, bool bCreateState, bgfx::RendererType::Enum eRenderer)
 	: ImwPlatformWindowEasyWindow(eType, bCreateState)
 {
 	m_eRenderer = eRenderer;
+	m_iViewId = ++s_iCurrentViewId;
 }
 
 ImwPlatformWindowBGFX::~ImwPlatformWindowBGFX()
 {
 	if (m_eType == E_PLATFORM_WINDOW_TYPE_MAIN)
 	{
-		bgfx::destroyProgram(m_hProgram);
-		bgfx::destroyTexture(m_hTexture);
-		bgfx::destroyUniform(m_hUniformTexture);
+		bgfx::destroy(m_hProgram);
+		bgfx::destroy(m_hTexture);
+		bgfx::destroy(m_hUniformTexture);
 	}
 
-	bgfx::destroyDynamicIndexBuffer(m_hIndexBuffer);
-	bgfx::destroyDynamicVertexBuffer(m_hVertexBuffer);
+	bgfx::destroy(m_hIndexBuffer);
+	bgfx::destroy(m_hVertexBuffer);
 
-	bgfx::destroyFrameBuffer(m_hFrameBufferHandle);
+	bgfx::destroy(m_hFrameBufferHandle);
 	bgfx::frame();
 	bgfx::frame();
 	ImwSafeDelete(m_pWindow);
@@ -71,8 +74,10 @@ bool ImwPlatformWindowBGFX::Init(ImwPlatformWindow* pMain)
 			bgfx::reset(iWidth, iHeight);
 		}
 
+		bgfx::setViewName(m_iViewId, "ImWindow");
+
 		m_hFrameBufferHandle = bgfx::createFrameBuffer(m_pWindow->GetHandle(), uint16_t(iWidth), uint16_t(iHeight));
-		bgfx::setViewFrameBuffer(255, m_hFrameBufferHandle);
+		bgfx::setViewFrameBuffer(m_iViewId, m_hFrameBufferHandle);
 
 		ImGuiIO& io = GetContext()->IO;
 
@@ -133,13 +138,13 @@ void ImwPlatformWindowBGFX::OnClientSize(int iClientWidth, int iClientHeight)
 {
 	bgfx::frame();
 	if (bgfx::isValid(m_hFrameBufferHandle))
-		bgfx::destroyFrameBuffer(m_hFrameBufferHandle);
+		bgfx::destroy(m_hFrameBufferHandle);
 
 	m_hFrameBufferHandle = bgfx::createFrameBuffer(m_pWindow->GetHandle(), uint16_t(iClientWidth), uint16_t(iClientHeight));
 
 	if (m_eType == E_PLATFORM_WINDOW_TYPE_MAIN)
 	{
-		bgfx::setViewFrameBuffer(255, m_hFrameBufferHandle);
+		bgfx::setViewFrameBuffer(m_iViewId, m_hFrameBufferHandle);
 		bgfx::reset(iClientWidth, iClientHeight);
 	}
 }
@@ -152,10 +157,9 @@ void ImwPlatformWindowBGFX::RenderDrawLists(ImDrawData* pDrawData)
 	int iClientWidth, iClientHeight;
 	m_pWindow->GetClientSize(&iClientWidth, &iClientHeight);
 
-	bgfx::reset(uint16_t(iClientWidth), uint16_t(iClientHeight));
-	bgfx::setViewFrameBuffer(255, m_hFrameBufferHandle);
-	bgfx::setViewRect(255, 0, 0, uint16_t(iClientWidth), uint16_t(iClientHeight));
-	bgfx::setViewMode(255, bgfx::ViewMode::Sequential);
+	bgfx::setViewFrameBuffer(m_iViewId, m_hFrameBufferHandle);
+	bgfx::setViewRect(m_iViewId, 0, 0, uint16_t(iClientWidth), uint16_t(iClientHeight));
+	bgfx::setViewMode(m_iViewId, bgfx::ViewMode::Sequential);
 
 	const ImGuiIO& io = ImGui::GetIO();
 	const float width = io.DisplaySize.x;
@@ -164,7 +168,7 @@ void ImwPlatformWindowBGFX::RenderDrawLists(ImDrawData* pDrawData)
 	{
 		float ortho[16];
 		bx::mtxOrtho(ortho, 0.0f, width, height, 0.0f, -1.0f, 1.0f, 0.f, false);
-		bgfx::setViewTransform(255, NULL, ortho);
+		bgfx::setViewTransform(m_iViewId, NULL, ortho);
 	}
 
 	{ // Copy all vertices/indices to monolithic arrays
@@ -204,8 +208,8 @@ void ImwPlatformWindowBGFX::RenderDrawLists(ImDrawData* pDrawData)
 			else if (0 != cmd->ElemCount)
 			{
 				uint64_t state = 0
-					| BGFX_STATE_RGB_WRITE
-					| BGFX_STATE_ALPHA_WRITE
+					| BGFX_STATE_WRITE_RGB
+					| BGFX_STATE_WRITE_A
 					| BGFX_STATE_MSAA
 					;
 
@@ -226,11 +230,11 @@ void ImwPlatformWindowBGFX::RenderDrawLists(ImDrawData* pDrawData)
 					state |= BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_SRC_ALPHA, BGFX_STATE_BLEND_INV_SRC_ALPHA);
 				}
 
-				const uint16_t xx = uint16_t(bx::fmax(cmd->ClipRect.x, 0.0f));
-				const uint16_t yy = uint16_t(bx::fmax(cmd->ClipRect.y, 0.0f));
+				const uint16_t xx = uint16_t(bx::max(cmd->ClipRect.x, 0.0f));
+				const uint16_t yy = uint16_t(bx::max(cmd->ClipRect.y, 0.0f));
 				bgfx::setScissor(xx, yy
-					, uint16_t(bx::fmin(cmd->ClipRect.z, 65535.0f) - xx)
-					, uint16_t(bx::fmin(cmd->ClipRect.w, 65535.0f) - yy)
+					, uint16_t(bx::min(cmd->ClipRect.z, 65535.0f) - xx)
+					, uint16_t(bx::min(cmd->ClipRect.w, 65535.0f) - yy)
 				);
 
 				bgfx::setState(state);
@@ -238,7 +242,7 @@ void ImwPlatformWindowBGFX::RenderDrawLists(ImDrawData* pDrawData)
 
 				bgfx::setVertexBuffer(0, m_hVertexBuffer, iVertexOffset, numVertices);
 				bgfx::setIndexBuffer(m_hIndexBuffer, iIndexOffset, cmd->ElemCount);
-				bgfx::submit(255, program);
+				bgfx::submit(m_iViewId, program);
 			}
 
 			iIndexOffset += cmd->ElemCount;
