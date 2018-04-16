@@ -521,6 +521,16 @@ namespace ImWindow
 		return ImGui::GetIO().MouseDown[0];
 	}
 
+	void ImwWindowManager::PreRender()
+	{
+
+	}
+
+	void ImwWindowManager::PostRender()
+	{
+
+	}
+
 	void ImwWindowManager::PreUpdate()
 	{
 		ImwIsSafe(m_pMainPlatformWindow)->PreUpdate();
@@ -745,6 +755,8 @@ namespace ImWindow
 
 	void ImwWindowManager::Render()
 	{
+		PreRender();
+
 		if (NULL != m_pMainPlatformWindow && m_pMainPlatformWindow->m_bNeedRender)
 		{
 			m_pCurrentPlatformWindow = m_pMainPlatformWindow;
@@ -767,6 +779,8 @@ namespace ImWindow
 		}
 
 		m_pCurrentPlatformWindow = NULL;
+		
+		PostRender();
 	}
 
 	void ImwWindowManager::Paint(ImwPlatformWindow* pWindow)
