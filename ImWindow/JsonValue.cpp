@@ -811,6 +811,15 @@ namespace ImWindow
 	bool JsonValue::ReadObjectValue(const ImwChar*& pString, JsonValue& oValue, CharBuffer& oTempBuffer)
 	{
 		oValue.InitType(JsonValue::E_TYPE_OBJECT);
+
+		SkipSpaces(pString);
+
+		if (*pString == '}')
+		{
+			++pString;
+			return true;
+		}
+
 		while (*pString != 0)
 		{
 			SkipSpaces(pString);
@@ -866,6 +875,15 @@ namespace ImWindow
 	bool JsonValue::ReadArrayValue(const ImwChar*& pString, JsonValue& oValue, CharBuffer& oTempBuffer)
 	{
 		oValue.InitType(JsonValue::E_TYPE_ARRAY);
+
+		SkipSpaces(pString);
+
+		if (*pString == ']')
+		{
+			++pString;
+			return true;
+		}
+
 		while (*pString != 0)
 		{
 			SkipSpaces(pString);
