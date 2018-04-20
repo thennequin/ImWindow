@@ -55,6 +55,10 @@ install:
 
 build:
   project: .projects/$(TOOLSET)/ImWindow.sln
+  
+after_build:
+  - 7z a ImWindow.zip "%APPVEYOR_BUILD_FOLDER%\ImWindow.h" "%APPVEYOR_BUILD_FOLDER%\ImWindow.cpp" "%APPVEYOR_BUILD_FOLDER%\ImWindow\ImwConfig.h"
 
 artifacts:
   - path: Output\*.exe
+  - path: ImWindow.zip
