@@ -2,16 +2,16 @@
 #ifndef __IM_PLATFORM_WINDOW_SOKOL_H__
 #define __IM_PLATFORM_WINDOW_SOKOL_H__
 
+#include "sokol_gfx.h"
+
 #include "ImwConfig.h"
 #include "ImwPlatformWindowEasyWindow.h"
-
-#include "sokol_gfx.h"
 
 namespace ImWindow
 {
 	class ImwPlatformWindowSokol : ImwPlatformWindowEasyWindow
 	{
-		friend class ImwWindowManagerOGL;
+		friend class ImwWindowManagerSokol;
 	public:
 											ImwPlatformWindowSokol(EPlatformWindowType eType, bool bCreateState);
 		virtual								~ImwPlatformWindowSokol();
@@ -25,7 +25,7 @@ namespace ImWindow
 		virtual void						OnClientSize(int iClientWidth, int iClientHeight);
 
 		//API specific functions
-		virtual bool						SetupSokol(ImwPlatformWindow* pMain, sg_pipeline_desc* pPipelineDesc, sg_shader_desc* pShaderDesc);
+		virtual bool						SetupSokol(ImwPlatformWindow* pMain, sg_desc* pSokolDesc, sg_pipeline_desc* pPipelineDesc, sg_shader_desc* pShaderDesc);
 		virtual void						ShutdownSokol(bool bMain);
 		virtual void						OnSizeSokol(int iClientWidth, int iClientHeight);
 		virtual bool						PreRenderDrawListsSokol();

@@ -5,8 +5,10 @@
 
 using namespace ImWindow;
 
-ImwWindowManagerSokol::ImwWindowManagerSokol()
+ImwWindowManagerSokol::ImwWindowManagerSokol(sg_desc* pSokolDesc)
 {
+	IM_ASSERT(pSokolDesc != NULL);
+	m_oSokolDesc = *pSokolDesc;
 }
 
 ImwWindowManagerSokol::~ImwWindowManagerSokol()

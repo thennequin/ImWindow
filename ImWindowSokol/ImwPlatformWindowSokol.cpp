@@ -18,7 +18,7 @@
 #endif //SOKOL_D3D11
 
 #include "ImwPlatformWindowSokol.h"
-#include "ImwWindowManager.h"
+#include "ImwWindowManagerSokol.h"
 
 using namespace ImWindow;
 
@@ -68,9 +68,10 @@ bool ImwPlatformWindowSokol::Init(ImwPlatformWindow* pMain)
 {
 	if (ImwPlatformWindowEasyWindow::Init(pMain))
 	{
+		sg_desc& oSokolDesc = ((ImwWindowManagerSokol*)ImwWindowManager::GetInstance())->m_oSokolDesc;
 		sg_pipeline_desc oPipelineDesc = { 0 };
 		sg_shader_desc oShaderDesc = { 0 };
-		if (SetupSokol(pMain, &oPipelineDesc, &oShaderDesc) == false)
+		if (SetupSokol(pMain, &oSokolDesc, &oPipelineDesc, &oShaderDesc) == false)
 		{
 			return false;
 		}
@@ -283,7 +284,7 @@ struct SpecificDataOpenGL
 	HGLRC								m_hGLRC;
 };
 
-bool ImwPlatformWindowSokol::SetupSokol(ImwPlatformWindow* pMain, sg_pipeline_desc* pPipelineDesc, sg_shader_desc* pShaderDesc)
+bool ImwPlatformWindowSokol::SetupSokol(ImwPlatformWindow* pMain, sg_desc* pSokolDesc, sg_pipeline_desc* pPipelineDesc, sg_shader_desc* pShaderDesc)
 {
 
 	SpecificDataOpenGL& oApiData = *(SpecificDataOpenGL*)m_oApiData;
@@ -374,8 +375,7 @@ bool ImwPlatformWindowSokol::SetupSokol(ImwPlatformWindow* pMain, sg_pipeline_de
 	{
 		flextInit();
 
-		sg_desc oSokolDesc = {};
-		sg_setup(&oSokolDesc);
+		sg_setup(pSokolDesc);
 		if (sg_isvalid() == false)
 		{
 			printf("Error: Can't setup Sokol.");
@@ -506,7 +506,7 @@ const void* GetD3D11DepthStencilViewCb()
 	return NULL;
 }
 
-bool ImwPlatformWindowSokol::SetupSokol( ImwPlatformWindow* pMain, sg_pipeline_desc* pPipelineDesc, sg_shader_desc* pShaderDesc )
+bool ImwPlatformWindowSokol::SetupSokol( ImwPlatformWindow* pMain, sg_desc* pSokolDesc, sg_pipeline_desc* pPipelineDesc, sg_shader_desc* pShaderDesc )
 {
 	SpecificDataD3D11& oApiData = *(SpecificDataD3D11*)m_oApiData;
 	
@@ -540,12 +540,12 @@ bool ImwPlatformWindowSokol::SetupSokol( ImwPlatformWindow* pMain, sg_pipeline_d
 			return false;
 		}
 
-		sg_desc oSokolDesc = {};
+		sg_desc oSokolDesc = *pSokolDesc;
 		oSokolDesc.d3d11_device = oApiData.m_pDX11Device;
 		oSokolDesc.d3d11_device_context = oApiData.m_pDX11DeviceContext;
 		oSokolDesc.d3d11_render_target_view_cb = GetD3D11RenderTargetViewCb;
 		oSokolDesc.d3d11_depth_stencil_view_cb = GetD3D11DepthStencilViewCb;
-		sg_setup( &oSokolDesc );
+		sg_setup(&oSokolDesc);
 		if( sg_isvalid() == false )
 		{
 			printf( "Error: Can't setup Sokol." );

@@ -6,12 +6,15 @@
 
 #include "ImwWindowManagerEasyWindow.h"
 
+#include "sokol_gfx.h"
+
 namespace ImWindow
 {
 	class ImwWindowManagerSokol : public ImwWindowManagerEasyWindow
 	{
+		friend class ImwPlatformWindowSokol;
 	public:
-		ImwWindowManagerSokol();
+		ImwWindowManagerSokol(sg_desc* pSokolDesc);
 		virtual							~ImwWindowManagerSokol();
 
 		virtual bool					InternalInit();
@@ -19,6 +22,8 @@ namespace ImWindow
 	protected:
 		virtual bool					CanCreateMultipleWindow() { return true; }
 		virtual ImwPlatformWindow*		CreatePlatformWindow(EPlatformWindowType eType, ImwPlatformWindow* pParent);
+
+		sg_desc							m_oSokolDesc;
 	};
 }
 

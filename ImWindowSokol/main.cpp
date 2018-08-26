@@ -7,7 +7,8 @@ int main()
 {
 	PreInitSample();
 
-	ImwWindowManagerSokol oMgr;
+	sg_desc oSokolDesc = { 0 };
+	ImwWindowManagerSokol oMgr(&oSokolDesc);
 
 	oMgr.Init();
 
