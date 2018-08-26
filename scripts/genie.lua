@@ -229,8 +229,9 @@ if _OPTIONS["with-sff"] then
 			}
 			
 			includedirs {
-							"../Externals/imgui",
-							"../ImWindow/"
+							"..", -- For ImwConfig.h
+							"../ImWindow",
+							"../Externals/imgui"
 			}
 
 			SetupSuffix()
@@ -259,8 +260,9 @@ end
 		}
 		
 		includedirs {
-							"../Externals/imgui",
-							"../ImWindow/"
+							"..", -- For ImwConfig.h
+							"../ImWindow/",
+							"../Externals/imgui"
 		}
 		
 		flags				"ExtraWarnings"
@@ -293,6 +295,7 @@ if _OPTIONS["with-dx11"] then
 		}	
 		
 		includedirs {
+							"..", -- For ImwConfig.h
 							"../ImWindow",
 							"../ImWindowEasyWindow",
 							"../Externals/imgui",
@@ -335,6 +338,7 @@ if _OPTIONS["with-opengl"] then
 		}	
 		
 		includedirs {
+							"..", -- For ImwConfig.h
 							"../ImWindow",
 							"../ImWindowEasyWindow",
 							"../Externals/imgui",
@@ -371,6 +375,7 @@ if _OPTIONS["with-glfw"] then
 		}	
 		
 		includedirs {
+							"..", -- For ImwConfig.h
 							"../ImWindow",
 							"../Externals/imgui"
 		}
@@ -435,6 +440,7 @@ if _OPTIONS["with-sokol"] then
 		}	
 		
 		includedirs {
+							"..", -- For ImwConfig.h
 							"../ImWindow",
 							"../ImWindowEasyWindow",
 							"../ImWindowSokol",
@@ -486,6 +492,7 @@ if _OPTIONS["with-sokol"] then
 		}	
 		
 		includedirs {
+							"..", -- For ImwConfig.h
 							"../ImWindow",
 							"../ImWindowEasyWindow",
 							"../ImWindowSokol",
@@ -538,6 +545,7 @@ if _OPTIONS["with-bgfx"] then
 			}
 			
 			includedirs {
+								"..", -- For ImwConfig.h
 								"../ImWindow",
 								"../ImWindowEasyWindow",
 								"../Externals/imgui",
