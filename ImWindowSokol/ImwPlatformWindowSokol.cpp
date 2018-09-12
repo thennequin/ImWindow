@@ -25,6 +25,12 @@ using namespace ImWindow;
 const int ImwPlatformWindowSokol::c_iDefaultVertexCount = (1 << 16); //Should be enough 
 const int ImwPlatformWindowSokol::c_iDefaultIndexCount = c_iDefaultVertexCount * 3;
 
+ImwPlatformWindowSokol::UniformBlock::UniformBlock()
+{
+	m_pData = NULL;
+	m_iSize = 0;
+}
+
 ImwPlatformWindowSokol::ImwPlatformWindowSokol(EPlatformWindowType eType, bool bCreateState)
 	: ImwPlatformWindowEasyWindow(eType, bCreateState)
 	, m_hFontTexture()
@@ -137,6 +143,89 @@ char* ImwPlatformWindowSokol::GetApiData()
 	return m_oApiData;
 }
 
+void ImwPlatformWindowSokol::SetPipeline(sg_pipeline hPipeline)
+{
+	ImwPlatformWindowSokol* pCurrentPlatformWindow = (ImwPlatformWindowSokol*)ImwWindowManager::GetInstance()->GetCurrentPlatformWindow();
+	IM_ASSERT(pCurrentPlatformWindow != NULL);
+
+	ImGui::GetWindowDrawList()->AddCallback(CallbackSetPipeline, (void*)hPipeline.id);
+}
+
+void ImwPlatformWindowSokol::RestorePipeline()
+{
+	sg_pipeline hPipeline = { 0 };
+	SetPipeline(hPipeline);
+}
+
+void ImwPlatformWindowSokol::SetUniformBlock(sg_shader_stage eStage, int iIndex, void* pData, int iSize)
+{
+	IM_ASSERT((eStage == SG_SHADERSTAGE_FS && iIndex >= 0 && iIndex < SG_MAX_SHADERSTAGE_UBS)
+		|| (eStage == SG_SHADERSTAGE_VS && iIndex > 0 && iIndex < SG_MAX_SHADERSTAGE_UBS));
+
+	uint32_t iStageIndexSize = 
+		(eStage & 0x1) | 
+		(iIndex & 0x3) << 1 |
+		(iSize & 0xFFFF) << 3;
+
+	ImGui::GetWindowDrawList()->AddCallback(CallbackSetUniformBlockShaderStageIndexSize, (void*)iStageIndexSize);
+	ImGui::GetWindowDrawList()->AddCallback(CallbackSetUniformBlockData, (void*)pData);
+}
+
+void ImwPlatformWindowSokol::ReleaseUniformBlock(sg_shader_stage eStage, int iIndex)
+{
+	SetUniformBlock(eStage, iIndex, NULL, 0);
+}
+
+void ImwPlatformWindowSokol::CallbackSetPipeline(const ImDrawList* pParentList, const ImDrawCmd* pCmd)
+{
+	ImwPlatformWindowSokol* pCurrentPlatformWindow = (ImwPlatformWindowSokol*)ImwWindowManager::GetInstance()->GetCurrentPlatformWindow();
+	IM_ASSERT(pCurrentPlatformWindow != NULL);
+
+	if (pCurrentPlatformWindow != NULL)
+	{
+		uint32_t iPipelineId = (uint32_t)pCmd->UserCallbackData;
+		if (iPipelineId == 0)
+		{
+			pCurrentPlatformWindow->m_oDrawState.pipeline = pCurrentPlatformWindow->m_hPipeline;
+		}
+		else
+		{
+			pCurrentPlatformWindow->m_oDrawState.pipeline.id = iPipelineId;
+		}
+	}
+}
+
+void ImwPlatformWindowSokol::CallbackSetUniformBlockShaderStageIndexSize(const ImDrawList* pParentList, const ImDrawCmd* pCmd)
+{
+	ImwPlatformWindowSokol* pCurrentPlatformWindow = (ImwPlatformWindowSokol*)ImwWindowManager::GetInstance()->GetCurrentPlatformWindow();
+	IM_ASSERT(pCurrentPlatformWindow != NULL);
+
+	if (pCurrentPlatformWindow != NULL)
+	{
+		uint32_t iStageIndexSize = (uint32_t)pCmd->UserCallbackData;
+		int eStage = (iStageIndexSize & 0x1);
+		int iIndex = (iStageIndexSize >> 1) & 0x3;
+		int iSize = (iStageIndexSize >> 3) & 0xFFFF;
+
+		pCurrentPlatformWindow->m_eUniformBlockCurrentShaderStage = (sg_shader_stage)eStage;
+		pCurrentPlatformWindow->m_iUniformBlockCurrentIndex = iIndex;
+		pCurrentPlatformWindow->m_oUniformBlock[eStage][iIndex].m_iSize = iSize;
+	}
+}
+
+void ImwPlatformWindowSokol::CallbackSetUniformBlockData(const ImDrawList* pParentList, const ImDrawCmd* pCmd)
+{
+	ImwPlatformWindowSokol* pCurrentPlatformWindow = (ImwPlatformWindowSokol*)ImwWindowManager::GetInstance()->GetCurrentPlatformWindow();
+	IM_ASSERT(pCurrentPlatformWindow != NULL);
+
+	if (pCurrentPlatformWindow != NULL)
+	{
+		int iShaderStage = pCurrentPlatformWindow->m_eUniformBlockCurrentShaderStage;
+		int iBlockIndex = pCurrentPlatformWindow->m_iUniformBlockCurrentIndex;
+		pCurrentPlatformWindow->m_oUniformBlock[iShaderStage][iBlockIndex].m_pData = pCmd->UserCallbackData;
+	}
+}
+
 void ImwPlatformWindowSokol::OnClientSize(int iClientWidth, int iClientHeight)
 {
 	OnSizeSokol(iClientWidth, iClientHeight);
@@ -209,6 +298,22 @@ void ImwPlatformWindowSokol::RenderDrawLists(ImDrawData* pDrawData)
 					m_oDrawState.fs_images[0].id = (uint32_t)oCmd.TextureId;
 					sg_apply_draw_state(&m_oDrawState);
 					sg_apply_uniform_block(SG_SHADERSTAGE_VS, 0, &vDisplaySize, sizeof(vDisplaySize));
+
+					//Start at 1 because 0 is reversed by DisplaySize
+					for (int iVertexIndex = 1; iVertexIndex < SG_MAX_SHADERSTAGE_UBS; ++iVertexIndex)
+					{
+						const UniformBlock& oUniformBlock = m_oUniformBlock[0][iVertexIndex];
+						if (oUniformBlock.m_pData != NULL)
+							sg_apply_uniform_block(SG_SHADERSTAGE_VS, iVertexIndex, oUniformBlock.m_pData, oUniformBlock.m_iSize);
+					}
+
+					for (int iFragmentIndex = 0; iFragmentIndex < SG_MAX_SHADERSTAGE_UBS; ++iFragmentIndex)
+					{
+						const UniformBlock& oUniformBlock = m_oUniformBlock[1][iFragmentIndex];
+						if (oUniformBlock.m_pData != NULL)
+							sg_apply_uniform_block(SG_SHADERSTAGE_FS, iFragmentIndex, oUniformBlock.m_pData, oUniformBlock.m_iSize);
+					}
+					
 					const int sx = (int)oCmd.ClipRect.x;
 					const int sy = (int)oCmd.ClipRect.y;
 					const int sw = (int)(oCmd.ClipRect.z - oCmd.ClipRect.x);

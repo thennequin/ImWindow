@@ -19,6 +19,12 @@ namespace ImWindow
 		virtual bool						Init(ImwPlatformWindow* pMain);
 
 		char*								GetApiData();
+
+		static void							SetPipeline(sg_pipeline hPipeline);
+		static void							RestorePipeline();
+		// First uniform block for vertex shader is reserved for display size parameter
+		static void							SetUniformBlock(sg_shader_stage eStage, int iIndex, void* pData, int iSize);
+		static void							ReleaseUniformBlock(sg_shader_stage eStage, int iIndex);
 	protected:
 		virtual void						RenderDrawLists(ImDrawData* pDrawData);
 
@@ -33,6 +39,10 @@ namespace ImWindow
 
 		void								ResizeVertexBuffer( int iNewCapacity );
 		void								ResizeIndexBuffer( int iNewCapacity );
+
+		static void							CallbackSetPipeline(const ImDrawList* pParentList, const ImDrawCmd* pCmd);
+		static void							CallbackSetUniformBlockShaderStageIndexSize(const ImDrawList* pParentList, const ImDrawCmd* pCmd);
+		static void							CallbackSetUniformBlockData(const ImDrawList* pParentList, const ImDrawCmd* pCmd);
 
 		sg_image							m_hFontTexture;
 		sg_shader							m_hShader;
@@ -51,6 +61,17 @@ namespace ImWindow
 		static const int					c_iDefaultIndexCount;
 
 		char								m_oApiData[512];
+
+		struct UniformBlock
+		{
+			UniformBlock();
+			void*							m_pData;
+			int								m_iSize;
+		};
+
+		UniformBlock						m_oUniformBlock[2][SG_MAX_SHADERSTAGE_UBS];
+		sg_shader_stage						m_eUniformBlockCurrentShaderStage;
+		int									m_iUniformBlockCurrentIndex;
 	};
 }
 
