@@ -13,11 +13,6 @@
 #define ImwList std::list
 #endif // ImwList
 
-#ifndef ImwMap
-#include <map>
-#define ImwMap std::map
-#endif // ImwMap
-
 #ifndef ImwString
 #include <string>
 #define ImwString std::string
