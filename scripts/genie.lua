@@ -268,6 +268,10 @@ end
 		
 		flags				"ExtraWarnings"
 
+		defines {
+							"_CRT_SECURE_NO_WARNINGS"
+		}
+
 		configuration		"Debug"
 			flags			"Symbols"
 			
