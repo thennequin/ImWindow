@@ -245,6 +245,7 @@ end
 		files {
 							"../ImWindow/**.cpp",
 							"../ImWindow/**.h",
+							"../ImwConfig.h",
 							"../Externals/imgui/imconfig.h",
 							"../Externals/imgui/imgui.h",
 							"../Externals/imgui/imgui_internal.h",
