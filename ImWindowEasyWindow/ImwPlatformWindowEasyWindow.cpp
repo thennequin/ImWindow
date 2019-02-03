@@ -1,8 +1,6 @@
 
 #include "ImwPlatformWindowEasyWindow.h"
 
-//#include "ImwPlatformWindowEasyWindow.h"
-
 using namespace ImWindow;
 
 ImwPlatformWindowEasyWindow::ImwPlatformWindowEasyWindow(EPlatformWindowType eType, bool bCreateState)

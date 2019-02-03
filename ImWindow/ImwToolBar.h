@@ -24,7 +24,7 @@ namespace ImWindow
 		int							m_iHorizontalPriority;
 		bool						m_bAutoDeleted;
 	};
-	typedef ImwList<ImwToolBar*> ImwToolBarList;
+	typedef ImVector<ImwToolBar*> ImwToolBarVector;
 //SFF_END
 }
 

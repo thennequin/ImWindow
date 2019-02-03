@@ -189,7 +189,7 @@ namespace ImWindow
 		return m_pMainPlatformWindow;
 	}
 
-	const ImwPlatformWindowList& ImwWindowManager::GetSecondariesPlatformWindows() const
+	const ImwPlatformWindowVector& ImwWindowManager::GetSecondariesPlatformWindows() const
 	{
 		return m_lPlatformWindows;
 	}
@@ -216,7 +216,7 @@ namespace ImWindow
 
 		ImwIsSafe(m_pMainPlatformWindow)->SetTitle(m_pMainTitle);
 
-		for (ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
+		for (ImVector<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
 		{
 			ImwIsSafe((*it))->RefreshTitle();
 		}
@@ -297,7 +297,7 @@ namespace ImWindow
 	{
 		if (!m_pMainPlatformWindow->FocusWindow(pWindow))
 		{
-			for (ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
+			for (ImVector<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
 			{
 				if ((*it)->FocusWindow(pWindow))
 					break;
@@ -305,7 +305,7 @@ namespace ImWindow
 		}
 	}
 
-	const ImwWindowList& ImwWindowManager::GetWindowList() const
+	const ImwWindowVector& ImwWindowManager::GetWindowList() const
 	{
 		return m_lWindows;
 	}
@@ -323,7 +323,7 @@ namespace ImWindow
 			return m_pMainPlatformWindow;
 		}
 
-		for ( ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
+		for ( ImVector<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
 		{
 			pContainer = (*it)->HasWindow(pWindow);
 			if (NULL != pContainer)
@@ -362,7 +362,7 @@ namespace ImWindow
 		{
 			JsonValue& oJsonPlatformWindows = oJson["PlatformWindows"];
 			int iCurrent = 0;
-			for (ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
+			for (ImVector<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
 			{
 				if ( !(*it)->Save(oJsonPlatformWindows[iCurrent++]) )
 					return false;
@@ -419,13 +419,13 @@ namespace ImWindow
 			if (!m_pMainPlatformWindow->Load(oJsonMainPlatformWindow, false))
 				return false; //Something wrong
 
-			while (m_lPlatformWindows.begin() != m_lPlatformWindows.end())
+			for (ImwPlatformWindowVector::iterator it = m_lPlatformWindows.begin(), itEnd = m_lPlatformWindows.end(); it != itEnd; ++it)
 			{
-				ImwPlatformWindow* pPlatformWindow = *m_lPlatformWindows.begin();
-				m_lPlatformWindows.remove(pPlatformWindow);
+				ImwPlatformWindow* pPlatformWindow = *it;
 				pPlatformWindow->PreDestroy();
 				delete pPlatformWindow;
 			}
+			m_lPlatformWindows.clear();
 
 			for (int iCurrent = 0; iCurrent < iPlatformWindowCount; ++iCurrent)
 			{
@@ -535,7 +535,7 @@ namespace ImWindow
 	{
 		ImwIsSafe(m_pMainPlatformWindow)->PreUpdate();
 
-		for (ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
+		for (ImVector<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
 		{
 			(*it)->PreUpdate();
 		}
@@ -547,51 +547,54 @@ namespace ImWindow
 		UpdateDockActions();
 		UpdateOrphans();
 
-		while (m_lToDestroyWindows.begin() != m_lToDestroyWindows.end())
+		for (ImwWindowVector::iterator it = m_lToDestroyWindows.begin(), itEnd = m_lToDestroyWindows.end(); it != itEnd; ++it)
 		{
-			ImwWindow* pWindow = *m_lToDestroyWindows.begin();
+			ImwWindow* pWindow = *it;
 
-			m_lToDestroyWindows.remove(pWindow);
-			m_lOrphanWindows.remove(pWindow);
-			m_lWindows.remove(pWindow);
+			ImwWindowVector::iterator itFind = std::find(m_lOrphanWindows.begin(), m_lOrphanWindows.end(), pWindow);
+			if (itFind != m_lOrphanWindows.end())
+				m_lOrphanWindows.erase(itFind);
+			
+			itFind = std::find(m_lWindows.begin(), m_lWindows.end(), pWindow);
+			if (itFind != m_lWindows.end())
+				m_lWindows.erase(itFind);
 
 			InternalUnDock(pWindow);
 
 			delete pWindow;
 		}
+		m_lToDestroyWindows.clear();
 
-		while (m_lToDestroyStatusBars.begin() != m_lToDestroyStatusBars.end())
+		for (ImwStatusBarVector::iterator it = m_lToDestroyStatusBars.begin(), itEnd = m_lToDestroyStatusBars.end(); it != itEnd; ++it)
 		{
-			ImwStatusBar* pStatusBar = *m_lToDestroyStatusBars.begin();
-
-			m_lToDestroyStatusBars.remove(pStatusBar);
-			delete pStatusBar;
+			delete *it;
 		}
+		m_lToDestroyStatusBars.clear();
 
-		while (m_lToDestroyMenus.begin() != m_lToDestroyMenus.end())
+		for (ImwMenuVector::iterator it = m_lToDestroyMenus.begin(), itEnd = m_lToDestroyMenus.end(); it != itEnd; ++it)
 		{
-			ImwMenu* pMenu = *m_lToDestroyMenus.begin();
-
-			m_lToDestroyMenus.remove(pMenu);
-			delete pMenu;
+			delete *it;
 		}
+		m_lToDestroyMenus.clear();
 
-		while (m_lToDestroyToolBars.begin() != m_lToDestroyToolBars.end())
+		for (ImwToolBarVector::iterator it = m_lToDestroyToolBars.begin(), itEnd = m_lToDestroyToolBars.end(); it != itEnd; ++it)
 		{
-			ImwToolBar* pToolBar = *m_lToDestroyToolBars.begin();
-
-			m_lToDestroyToolBars.remove(pToolBar);
-			delete pToolBar;
+			delete *it;
 		}
+		m_lToDestroyToolBars.clear();
 
-		while (m_lToDestroyPlatformWindows.begin() != m_lToDestroyPlatformWindows.end())
+		for (ImwPlatformWindowVector::iterator it = m_lToDestroyPlatformWindows.begin(), itEnd = m_lToDestroyPlatformWindows.end(); it != itEnd; ++it)
 		{
-			ImwPlatformWindow* pPlatformWindow = *m_lToDestroyPlatformWindows.begin();
-			m_lToDestroyPlatformWindows.remove(pPlatformWindow);
-			m_lPlatformWindows.remove(pPlatformWindow);
+			ImwPlatformWindow* pPlatformWindow = *it;
+			
+			ImwPlatformWindowVector::iterator itFind = std::find(m_lPlatformWindows.begin(), m_lPlatformWindows.end(), pPlatformWindow);
+			if (itFind != m_lPlatformWindows.end())
+				m_lPlatformWindows.erase(itFind);
+
 			pPlatformWindow->PreDestroy();
 			delete pPlatformWindow;
 		}
+		m_lToDestroyPlatformWindows.clear();
 
 		if (NULL != m_pMainPlatformWindow)
 		{
@@ -604,7 +607,7 @@ namespace ImWindow
 			{
 				Paint(m_pDragPlatformWindow);
 
-				for (ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
+				for (ImVector<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
 				{
 					Paint(*it);
 				}
@@ -615,10 +618,12 @@ namespace ImWindow
 			//if (NULL != m_pDragPlatformWindow && m_pDragPlatformWindow->m_bNeedRender)
 				//PostPaint(m_pDragPlatformWindow);
 
-			for ( ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
+			for ( ImVector<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
 			{
 				PostPaint(*it);
 			}
+
+			m_lDrawWindowAreas.clear();
 
 			m_pCurrentPlatformWindow = NULL;
 		}
@@ -640,7 +645,7 @@ namespace ImWindow
 				}
 				else
 				{
-					for (ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
+					for (ImVector<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
 					{
 						if (*it == pAction->m_pPlatformWindow)
 						{
@@ -695,9 +700,9 @@ namespace ImWindow
 
 	void ImwWindowManager::UpdateDockActions()
 	{
-		while (m_lDockActions.begin() != m_lDockActions.end())
+		for (ImVector<DockAction*>::iterator it = m_lDockActions.begin(), itEnd = m_lDockActions.end(); it != itEnd; ++it)
 		{
-			DockAction* pAction = *m_lDockActions.begin();
+			DockAction* pAction = *it;
 
 			InternalUnDock(pAction->m_pWindow);
 
@@ -721,20 +726,22 @@ namespace ImWindow
 				}
 			}
 
-			m_lOrphanWindows.remove(pAction->m_pWindow);
+			ImwWindowVector::iterator itFind = std::find(m_lOrphanWindows.begin(), m_lOrphanWindows.end(), pAction->m_pWindow);
+			if (itFind != m_lOrphanWindows.end())
+				m_lOrphanWindows.erase(itFind);
 
 			delete pAction;
-			m_lDockActions.erase(m_lDockActions.begin());
 		}
+		m_lDockActions.clear();
 	}
 
 	void ImwWindowManager::UpdateOrphans()
 	{
-		while (m_lOrphanWindows.begin() != m_lOrphanWindows.end())
+		for (ImwWindowVector::iterator it = m_lOrphanWindows.begin(), itEnd = m_lOrphanWindows.end(); it != itEnd; ++it)
 		{
 			if (m_pMainPlatformWindow->m_pContainer->IsEmpty())
 			{
-				InternalDock(*m_lOrphanWindows.begin(), E_DOCK_ORIENTATION_CENTER, 0.5f, m_pMainPlatformWindow);
+				InternalDock(*it, E_DOCK_ORIENTATION_CENTER, 0.5f, m_pMainPlatformWindow);
 			}
 			else if (CanCreateMultipleWindow())
 			{
@@ -743,14 +750,14 @@ namespace ImWindow
 				ImVec2 oMainSize = m_pMainPlatformWindow->GetSize();
 				oPos.x += (oMainSize.x - oSize.x) / 2;
 				oPos.y += (oMainSize.y - oSize.y) / 2;
-				InternalFloat(*m_lOrphanWindows.begin(), oPos, oSize);
+				InternalFloat(*it, oPos, oSize);
 			}
 			else
 			{
-				m_pMainPlatformWindow->m_pContainer->DockToBest(*m_lOrphanWindows.begin());
+				m_pMainPlatformWindow->m_pContainer->DockToBest(*it);
 			}
-			m_lOrphanWindows.erase(m_lOrphanWindows.begin());
 		}
+		m_lOrphanWindows.clear();
 	}
 
 	void ImwWindowManager::Render()
@@ -769,7 +776,7 @@ namespace ImWindow
 			m_pDragPlatformWindow->Render();
 		}
 
-		for (ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
+		for (ImVector<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
 		{
 			if ((*it)->m_bNeedRender)
 			{
@@ -810,7 +817,7 @@ namespace ImWindow
 			if (pWindow->IsShowContent() || oIO.MousePos.y <= 50.f  || oIO.MetricsActiveWindows > 2) // Autohide menu bar
 			{
 				ImGui::BeginMainMenuBar();
-				for ( ImwMenuList::iterator it = m_lMenus.begin(), itEnd = m_lMenus.end(); it != itEnd; ++it )
+				for (ImwMenuVector::iterator it = m_lMenus.begin(), itEnd = m_lMenus.end(); it != itEnd; ++it)
 				{
 					(*it)->OnMenu();
 				}
@@ -858,7 +865,7 @@ namespace ImWindow
 				if (!m_lToolBars.empty())
 				{
 					PopStyle();
-					for (ImwToolBarList::iterator it = m_lToolBars.begin(), itEnd = m_lToolBars.end(); it != itEnd; ++it)
+					for (ImwToolBarVector::iterator it = m_lToolBars.begin(), itEnd = m_lToolBars.end(); it != itEnd; ++it)
 					{
 						(*it)->OnToolBar();
 					}
@@ -883,7 +890,7 @@ namespace ImWindow
 				ImGui::Begin("##StatusBar", NULL, ImVec2(0,0), 1.f, iFlags);
 
 				ImGui::Columns((int)m_lStatusBars.size());
-				for (ImwStatusBarList::iterator it = m_lStatusBars.begin(); it != m_lStatusBars.end(); ++it )
+				for (ImwStatusBarVector::iterator it = m_lStatusBars.begin(); it != m_lStatusBars.end(); ++it )
 				{
 					(*it)->OnStatusBar();
 					ImGui::NextColumn();
@@ -911,7 +918,7 @@ namespace ImWindow
 		pWindow->SetContext(true);
 
 		ImDrawList* pDrawList = &(ImGui::GetCurrentContext()->OverlayDrawList);
-		for (ImwList<DrawWindowAreaAction>::iterator it = m_lDrawWindowAreas.begin(); it != m_lDrawWindowAreas.end(); )
+		for (ImVector<DrawWindowAreaAction>::iterator it = m_lDrawWindowAreas.begin(); it != m_lDrawWindowAreas.end(); ++it)
 		{
 			DrawWindowAreaAction& oAction = *it;
 			//if (pWindow->HasWindow(oAction.m_pWindow))
@@ -924,14 +931,6 @@ namespace ImWindow
 				
 				//pDrawList->AddLine(ImGui::CalcItemRectClosestPoint(ImGui::GetIO().MousePos, true, -2.0f), ImGui::GetIO().MousePos, ImColor(ImGui::GetStyle().Colors[ImGuiCol_Button]), 4.0f);
 				pDrawList->AddRectFilled(oPosA, oPosB, oAction.m_oColor);
-				
-				ImwList<DrawWindowAreaAction>::iterator toRemove = it;
-				++it;
-				m_lDrawWindowAreas.erase(toRemove);
-			}
-			else
-			{
-				++it;
 			}
 		}
 		pWindow->OnOverlay();
@@ -1023,7 +1022,7 @@ namespace ImWindow
 			m_pDragBestContainer = (ImwContainer*)GetBestDocking(m_pMainPlatformWindow, oCursorPos, eBestDockOrientation, oHightlightPos, oHightlightSize, fSizeRatio, m_bDragOnTab, m_iDragBestContainerPosition, !CanCreateMultipleWindow());
 			if (NULL == m_pDragBestContainer)
 			{
-				for (ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end() && NULL == m_pDragBestContainer; ++it)
+				for (ImVector<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end() && NULL == m_pDragBestContainer; ++it)
 				{
 					m_pDragBestContainer = (ImwContainer*)GetBestDocking(*it, oCursorPos, eBestDockOrientation, oHightlightPos, oHightlightSize, fSizeRatio, m_bDragOnTab, m_iDragBestContainerPosition, false);
 				}
@@ -1173,8 +1172,13 @@ namespace ImWindow
 
 	void ImwWindowManager::RemoveWindow(ImwWindow* pWindow)
 	{
-		m_lWindows.remove(pWindow);
-		m_lOrphanWindows.remove(pWindow);
+		ImwWindowVector::iterator itFind = std::find(m_lWindows.begin(), m_lWindows.end(), pWindow);
+		if (itFind != m_lWindows.end())
+			m_lWindows.erase(itFind);
+
+		itFind = std::find(m_lOrphanWindows.begin(), m_lOrphanWindows.end(), pWindow);
+		if (itFind != m_lOrphanWindows.end())
+			m_lOrphanWindows.erase(itFind);
 	}
 
 	void ImwWindowManager::DestroyWindow(ImwWindow* pWindow)
@@ -1187,7 +1191,7 @@ namespace ImWindow
 
 void ImwWindowManager::AddStatusBar(ImwStatusBar* pStatusBar)
 	{
-		ImwStatusBarList::iterator it = m_lStatusBars.begin(), itEnd = m_lStatusBars.end();
+		ImwStatusBarVector::iterator it = m_lStatusBars.begin(), itEnd = m_lStatusBars.end();
 		for (; it != itEnd; ++it)
 		{
 			if (pStatusBar->GetHorizontalPriority() <= (*it)->GetHorizontalPriority())
@@ -1198,7 +1202,9 @@ void ImwWindowManager::AddStatusBar(ImwStatusBar* pStatusBar)
 
 	void ImwWindowManager::RemoveStatusBar(ImwStatusBar* pStatusBar)
 	{
-		m_lStatusBars.remove(pStatusBar);
+		ImwStatusBarVector::iterator itFind = std::find(m_lStatusBars.begin(), m_lStatusBars.end(), pStatusBar);
+		if (itFind != m_lStatusBars.end())
+			m_lStatusBars.erase(itFind);
 	}
 
 	void ImwWindowManager::DestroyStatusBar(ImwStatusBar* pStatusBar)
@@ -1211,7 +1217,7 @@ void ImwWindowManager::AddStatusBar(ImwStatusBar* pStatusBar)
 
 	void ImwWindowManager::AddMenu(ImwMenu* pMenu)
 	{
-		ImwMenuList::iterator it = m_lMenus.begin(), itEnd = m_lMenus.end();
+		ImwMenuVector::iterator it = m_lMenus.begin(), itEnd = m_lMenus.end();
 		for (; it != itEnd; ++it)
 		{
 			if (pMenu->GetHorizontalPriority() <= (*it)->GetHorizontalPriority())
@@ -1222,7 +1228,9 @@ void ImwWindowManager::AddStatusBar(ImwStatusBar* pStatusBar)
 
 	void ImwWindowManager::RemoveMenu(ImwMenu* pMenu)
 	{
-		m_lMenus.remove(pMenu);
+		ImwMenuVector::iterator itFind = std::find(m_lMenus.begin(), m_lMenus.end(), pMenu);
+		if (itFind != m_lMenus.end())
+			m_lMenus.erase(itFind);
 	}
 
 	void ImwWindowManager::DestroyMenu(ImwMenu* pMenu)
@@ -1235,7 +1243,7 @@ void ImwWindowManager::AddStatusBar(ImwStatusBar* pStatusBar)
 
 	void ImwWindowManager::AddToolBar(ImwToolBar* pToolBar)
 	{
-		ImwToolBarList::iterator it = m_lToolBars.begin(), itEnd = m_lToolBars.end();
+		ImwToolBarVector::iterator it = m_lToolBars.begin(), itEnd = m_lToolBars.end();
 		for (; it != itEnd; ++it)
 		{
 			if (pToolBar->GetHorizontalPriority() <= (*it)->GetHorizontalPriority())
@@ -1246,7 +1254,9 @@ void ImwWindowManager::AddStatusBar(ImwStatusBar* pStatusBar)
 
 	void ImwWindowManager::RemoveToolBar(ImwToolBar* pToolBar)
 	{
-		m_lToolBars.remove(pToolBar);
+		ImwToolBarVector::iterator itFind = std::find(m_lToolBars.begin(), m_lToolBars.end(), pToolBar);
+		if (itFind != m_lToolBars.end())
+			m_lToolBars.erase(itFind);
 	}
 
 	void ImwWindowManager::DestroyToolBar(ImwToolBar* pToolBar)
@@ -1283,7 +1293,7 @@ void ImwWindowManager::AddStatusBar(ImwStatusBar* pStatusBar)
 			pContainer->Dock(pWindow, eOrientation, fRatio);
 		}
 
-		for ( ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
+		for ( ImVector<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
 		{
 			pContainer = (ImwContainer*)(*it)->HasWindow(pWithWindow);
 			if (NULL != pContainer)
@@ -1330,7 +1340,7 @@ void ImwWindowManager::AddStatusBar(ImwStatusBar* pStatusBar)
 			return;
 		}
 
-		for ( ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
+		for ( ImVector<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it )
 		{
 			if ( (*it)->UnDock(pWindow) )
 			{
@@ -1356,7 +1366,7 @@ void ImwWindowManager::AddStatusBar(ImwStatusBar* pStatusBar)
 		{
 			if (pWindow->GetType() == E_PLATFORM_WINDOW_TYPE_MAIN)
 			{
-				for (ImwList<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
+				for (ImVector<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
 				{
 					if ((*it)->m_pContainer->HasUnclosableWindow())
 						return;

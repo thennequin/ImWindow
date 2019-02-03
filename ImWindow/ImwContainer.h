@@ -50,7 +50,7 @@ namespace ImWindow
 
 		ImwContainer*					m_pParent;
 		ImwPlatformWindow*				m_pParentWindow;
-		ImwWindowList					m_lWindows;
+		ImwWindowVector					m_lWindows;
 		ImwContainer*					m_pSplits[2];
 
 		float							m_fSplitRatio;

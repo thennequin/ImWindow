@@ -77,7 +77,7 @@ namespace ImWindow
 		static int				s_iNextId;
 	};
 
-	typedef ImwList<ImwWindow*> ImwWindowList;
+	typedef ImVector<ImwWindow*> ImwWindowVector;
 //SFF_END
 }
 

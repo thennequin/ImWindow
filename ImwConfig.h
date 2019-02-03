@@ -8,10 +8,6 @@
 #define NULL 0
 #endif // NULL
 
-#ifndef ImwList
-#include <list>
-#define ImwList std::list
-#endif // ImwList
 
 #ifndef ImwString
 #include <string>

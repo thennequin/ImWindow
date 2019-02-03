@@ -110,7 +110,7 @@ namespace ImWindow
 		void								Destroy();
 
 		ImwPlatformWindow*					GetMainPlatformWindow() const;
-		const ImwPlatformWindowList&		GetSecondariesPlatformWindows() const;
+		const ImwPlatformWindowVector&		GetSecondariesPlatformWindows() const;
 		ImwPlatformWindow*					GetFocusedPlatformWindow() const;
 		Config&								GetConfig();
 
@@ -124,7 +124,7 @@ namespace ImWindow
 
 		void								FocusWindow(ImwWindow* pWindow);
 
-		const ImwWindowList&				GetWindowList() const;
+		const ImwWindowVector&				GetWindowList() const;
 		ImwPlatformWindow*					GetCurrentPlatformWindow();
 		ImwPlatformWindow*					GetWindowParent(ImwWindow* pWindow);
 
@@ -208,21 +208,21 @@ namespace ImWindow
 		Config								m_oConfig;
 		ImwChar*							m_pMainTitle;
 		ImwPlatformWindow*					m_pMainPlatformWindow;
-		ImwPlatformWindowList				m_lPlatformWindows;
+		ImwPlatformWindowVector				m_lPlatformWindows;
 		ImwPlatformWindow*					m_pDragPlatformWindow;
-		ImwWindowList						m_lWindows;
-		ImwWindowList						m_lOrphanWindows;
-		ImwWindowList						m_lToDestroyWindows;
-		ImwStatusBarList					m_lStatusBars;
-		ImwStatusBarList					m_lToDestroyStatusBars;
-		ImwToolBarList						m_lToolBars;
-		ImwToolBarList						m_lToDestroyToolBars;
-		ImwMenuList							m_lMenus;
-		ImwMenuList							m_lToDestroyMenus;
-		ImwPlatformWindowList				m_lToDestroyPlatformWindows;
-		ImwList<PlatformWindowAction*>		m_lPlatformWindowActions;
-		ImwList<DockAction*>				m_lDockActions;
-		ImwList<DrawWindowAreaAction>		m_lDrawWindowAreas;
+		ImwWindowVector						m_lWindows;
+		ImwWindowVector						m_lOrphanWindows;
+		ImwWindowVector						m_lToDestroyWindows;
+		ImwStatusBarVector					m_lStatusBars;
+		ImwStatusBarVector					m_lToDestroyStatusBars;
+		ImwToolBarVector					m_lToolBars;
+		ImwToolBarVector					m_lToDestroyToolBars;
+		ImwMenuVector						m_lMenus;
+		ImwMenuVector						m_lToDestroyMenus;
+		ImwPlatformWindowVector				m_lToDestroyPlatformWindows;
+		ImVector<PlatformWindowAction*>		m_lPlatformWindowActions;
+		ImVector<DockAction*>				m_lDockActions;
+		ImVector<DrawWindowAreaAction>		m_lDrawWindowAreas;
 
 		ImwPlatformWindow*					m_pCurrentPlatformWindow;
 		ImwPlatformWindow*					m_pFocusedPlatformWindow;

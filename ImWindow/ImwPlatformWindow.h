@@ -82,7 +82,7 @@ namespace ImWindow
 		bool								m_bShowContent;
 	};
 
-	typedef ImwList<ImwPlatformWindow*> ImwPlatformWindowList;
+	typedef ImVector<ImwPlatformWindow*> ImwPlatformWindowVector;
 //SFF_END
 }
 
