@@ -203,7 +203,7 @@ void ImwPlatformWindowGLFW::SetWindowMinimized()
 	glfwIconifyWindow(m_pWindow);
 }
 
-void ImwPlatformWindowGLFW::SetTitle(const ImwChar* pTitle)
+void ImwPlatformWindowGLFW::SetTitle(const char* pTitle)
 {
 	glfwSetWindowTitle(m_pWindow, pTitle);
 }
@@ -308,7 +308,7 @@ void ImwPlatformWindowGLFW::OnKey(GLFWwindow* pWindow, int iKey, int iScanCode, 
 void ImwPlatformWindowGLFW::OnChar(GLFWwindow* pWindow, unsigned int iChar)
 {
 	ImwPlatformWindowGLFW* pPlatformWindow = (ImwPlatformWindowGLFW*)glfwGetWindowUserPointer(pWindow);
-	pPlatformWindow->m_pContext->IO.AddInputCharacter((ImwChar)iChar);
+	pPlatformWindow->m_pContext->IO.AddInputCharacter((char)iChar);
 }
 
 void ImwPlatformWindowGLFW::RenderDrawLists(ImDrawData* pDrawData)

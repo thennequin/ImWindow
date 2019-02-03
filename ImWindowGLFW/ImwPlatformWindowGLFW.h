@@ -28,7 +28,7 @@ namespace ImWindow
 		virtual void						SetPosition(int iX, int iY);
 		virtual void						SetWindowMaximized(bool bMaximized);
 		virtual void						SetWindowMinimized();
-		virtual void						SetTitle(const ImwChar* pTtile);
+		virtual void						SetTitle(const char* pTtile);
 
 	protected:
 		virtual void						PreUpdate();
