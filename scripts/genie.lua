@@ -234,6 +234,10 @@ if _OPTIONS["with-sff"] then
 							"../Externals/imgui"
 			}
 
+			defines {
+							"_CRT_SECURE_NO_WARNINGS"
+			}
+
 			SetupSuffix()
 end
 
