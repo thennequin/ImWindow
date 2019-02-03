@@ -853,7 +853,7 @@ namespace ImWindow
 		return ImGui::InvisibleButton(pWindow->GetIdStr(), oTabSize);
 	}
 
-	void ImwContainer::DrawTab(const ImwChar* pText, bool bFocused, ImVec2 oPos, float fStartLinePos, float fEndLinePos, float fMaxSize, ImVec2* pSizeOut)
+	void ImwContainer::DrawTab(const char* pText, bool bFocused, ImVec2 oPos, float fStartLinePos, float fEndLinePos, float fMaxSize, ImVec2* pSizeOut)
 	{
 		const ImwWindowManager::Config& oConfig = ImwWindowManager::GetInstance()->GetConfig();
 		ImDrawList* pDrawList = ImGui::GetWindowDrawList();
@@ -971,7 +971,7 @@ namespace ImWindow
 		ImGui::RenderTextClipped(oTextRectMin, oTextRectMax, pText, NULL, &oTextSize, ImVec2(0.5f, 0.5f));
 	}
 
-	float ImwContainer::GetTabWidth(const ImwChar* pText, float fMaxSize, ImVec2* pOutTextSize) const
+	float ImwContainer::GetTabWidth(const char* pText, float fMaxSize, ImVec2* pOutTextSize) const
 	{
 		const ImVec2 oTextSize = ImGui::CalcTextSize(pText);
 
@@ -1260,7 +1260,7 @@ namespace ImWindow
 			for (ImwWindowVector::const_iterator itWindow = m_lWindows.begin(); itWindow != m_lWindows.end(); ++itWindow)
 			{
 				JsonValue& oJsonWindow = oJsonWindows[iCurrentWindow++];
-				const ImwChar* pClassName = pWindowManager->GetWindowClassName(*itWindow);
+				const char* pClassName = pWindowManager->GetWindowClassName(*itWindow);
 				if (pClassName == NULL)
 					return false;
 				oJsonWindow["Class"] = pClassName;

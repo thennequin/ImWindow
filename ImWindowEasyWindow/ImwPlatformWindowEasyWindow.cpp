@@ -115,7 +115,7 @@ void ImwPlatformWindowEasyWindow::SetWindowMinimized(bool bMinimized)
 	m_pWindow->SetMinimized(bMinimized);
 }
 
-void ImwPlatformWindowEasyWindow::SetTitle(const ImwChar* pTitle)
+void ImwPlatformWindowEasyWindow::SetTitle(const char* pTitle)
 {
 	m_pWindow->SetTitle(pTitle);
 }
@@ -202,7 +202,7 @@ void ImwPlatformWindowEasyWindow::OnKey(EasyWindow::EKey eKey, bool bDown)
 
 void ImwPlatformWindowEasyWindow::OnChar(int iChar)
 {
-	GetContext()->IO.AddInputCharacter((ImwChar)iChar);
+	GetContext()->IO.AddInputCharacter((char)iChar);
 }
 
 void ImwPlatformWindowEasyWindow::OnDropFiles(const EasyWindow::DropFiles& oFiles)

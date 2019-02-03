@@ -84,7 +84,7 @@ namespace ImWindow
 
 			T* Take()
 			{
-				ImwChar* pTemp;
+				char* pTemp;
 				if (m_bUseHeap)
 				{
 					pTemp = (T*)ImwMalloc(m_iSize * sizeof(T));
@@ -113,16 +113,16 @@ namespace ImWindow
 			bool	m_bUseHeap;
 		};
 
-		typedef Buffer<ImwChar> CharBuffer;
+		typedef Buffer<char> CharBuffer;
 
 		struct JsonMember
 		{
 		public:
-			JsonMember(const ImwChar* pName = NULL, JsonValue* pValue = NULL);
+			JsonMember(const char* pName = NULL, JsonValue* pValue = NULL);
 			JsonMember(const JsonMember& oSource);
 			~JsonMember();
-			void		SetName(const ImwChar* pName);
-			ImwChar*	m_pName;
+			void		SetName(const char* pName);
+			char*	m_pName;
 			JsonValue*	m_pValue;
 		};
 
@@ -163,18 +163,18 @@ namespace ImWindow
 							JsonValue(const JsonValue& oSource);
 							JsonValue(bool bValue);
 							JsonValue(const ImwString& sValue);
-							JsonValue(const ImwChar* pValue);
+							JsonValue(const char* pValue);
 							JsonValue(long iValue);
 							JsonValue(double fValue);
 							~JsonValue();
 
 		void				InitType(EType eType);
 
-		int					ReadString(const ImwChar* pJson);
-		int					ReadFile(const ImwChar* pFilename);
+		int					ReadString(const char* pJson);
+		int					ReadFile(const char* pFilename);
 
 		void				WriteString(ImwString& sOutJson, bool bCompact = false);
-		bool				WriteFile(const ImwChar* pFilename, bool bCompact = false);
+		bool				WriteFile(const char* pFilename, bool bCompact = false);
 
 		bool				IsNull() const { return m_eType == E_TYPE_INVALID; }
 		bool				IsObject() const { return m_eType == E_TYPE_OBJECT; }
@@ -187,17 +187,17 @@ namespace ImWindow
 
 		int					GetMemberCount() const;
 
-		const ImwChar*		GetName() const { return m_pName; }
+		const char*			GetName() const { return m_pName; }
 
-		const JsonValue&	operator [](const ImwChar* pName) const;
-		JsonValue&			operator [](const ImwChar* pName);
+		const JsonValue&	operator [](const char* pName) const;
+		JsonValue&			operator [](const char* pName);
 
 		const JsonValue&	operator [](int iIndex) const;
 		JsonValue&			operator [](int iIndex);
 		
 		JsonValue&			operator =(const JsonValue& oValue);
 		JsonValue&			operator =(const ImwString& sValue);
-		JsonValue&			operator =(const ImwChar* pValue);
+		JsonValue&			operator =(const char* pValue);
 		JsonValue&			operator =(bool bValue);
 		JsonValue&			operator =(long iValue);
 		JsonValue&			operator =(double fValue);
@@ -211,14 +211,14 @@ namespace ImWindow
 	protected:
 		static JsonValue	CreateConst();
 		void				Reset();
-		void				SetString(const ImwChar* pString);
+		void				SetString(const char* pString);
 		
 		void				Write(ImwString& sOutJson, int iIndent, bool bCompact);
 		static void			WriteStringEscaped(ImwString& sOutJson, const ImwString& sInput);
 
 		bool				m_bConst;
 		EType				m_eType;
-		ImwChar*			m_pName;
+		char*			m_pName;
 		JsonValue*			m_pNext;
 
 		struct JsonChilds
@@ -229,25 +229,25 @@ namespace ImWindow
 		union
 		{
 			JsonChilds		m_oChilds;
-			ImwChar*		m_pString;
+			char*		m_pString;
 			bool			m_bBoolean;
 			long			m_iInteger;
 			double			m_fFloat;
 		};
 
-		const bool Parse(const ImwChar*& pString, CharBuffer& oTempBuffer);
+		const bool Parse(const char*& pString, CharBuffer& oTempBuffer);
 
-		static inline bool	IsSpace(ImwChar cChar);
-		static inline bool	IsDigit(ImwChar cChar);
-		static inline bool	IsXDigit(ImwChar cChar);
-		static inline int	CharToInt(ImwChar cChar);
-		static inline void	SkipSpaces(const ImwChar*& pString);
-		static inline bool	ReadSpecialChar(const ImwChar*& pString, CharBuffer& oTempBuffer);
-		static inline bool	ReadStringValue(const ImwChar*& pString, CharBuffer& oTempBuffer);
-		static inline bool	ReadStringValue(const ImwChar*& pString, JsonValue& oValue, CharBuffer& oTempBuffer);
-		static inline bool	ReadNumericValue(const ImwChar*& pString, JsonValue& oValue);
-		static inline bool	ReadObjectValue(const ImwChar*& pString, JsonValue& oValue, CharBuffer& oTempBuffer);
-		static inline bool	ReadArrayValue(const ImwChar*& pString, JsonValue& oValue, CharBuffer& oTempBuffer);
+		static inline bool	IsSpace(char cChar);
+		static inline bool	IsDigit(char cChar);
+		static inline bool	IsXDigit(char cChar);
+		static inline int	CharToInt(char cChar);
+		static inline void	SkipSpaces(const char*& pString);
+		static inline bool	ReadSpecialChar(const char*& pString, CharBuffer& oTempBuffer);
+		static inline bool	ReadStringValue(const char*& pString, CharBuffer& oTempBuffer);
+		static inline bool	ReadStringValue(const char*& pString, JsonValue& oValue, CharBuffer& oTempBuffer);
+		static inline bool	ReadNumericValue(const char*& pString, JsonValue& oValue);
+		static inline bool	ReadObjectValue(const char*& pString, JsonValue& oValue, CharBuffer& oTempBuffer);
+		static inline bool	ReadArrayValue(const char*& pString, JsonValue& oValue, CharBuffer& oTempBuffer);
 	};
 //SFF_END
 }

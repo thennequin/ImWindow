@@ -5,7 +5,7 @@ namespace ImWindow
 {
 //SFF_BEGIN
 
-	JsonValue::JsonMember::JsonMember(const ImwChar* pName, JsonValue* pValue)
+	JsonValue::JsonMember::JsonMember(const char* pName, JsonValue* pValue)
 	{
 		m_pName = NULL;
 		SetName(pName);
@@ -25,13 +25,13 @@ namespace ImWindow
 		delete m_pValue;
 	}
 
-	void JsonValue::JsonMember::SetName(const ImwChar* pName)
+	void JsonValue::JsonMember::SetName(const char* pName)
 	{
 		ImwSafeFree(m_pName);
 		if (pName != NULL)
 		{
-			size_t iSize = (strlen(pName) + 1) * sizeof(ImwChar);
-			m_pName = (ImwChar*)ImwMalloc(iSize);
+			size_t iSize = (strlen(pName) + 1) * sizeof(char);
+			m_pName = (char*)ImwMalloc(iSize);
 			memcpy(m_pName, pName, iSize);
 		}
 	}
@@ -66,7 +66,7 @@ namespace ImWindow
 		*this = sValue;
 	}
 
-	JsonValue::JsonValue(const ImwChar* pValue)
+	JsonValue::JsonValue(const char* pValue)
 	{
 		JsonValue();
 		*this = pValue;
@@ -147,13 +147,13 @@ namespace ImWindow
 		m_eType = E_TYPE_INVALID;
 	}
 
-	void JsonValue::SetString(const ImwChar* pString)
+	void JsonValue::SetString(const char* pString)
 	{
 		ImwSafeFree(m_pString);
 		if (NULL != pString)
 		{
-			size_t iLen  = sizeof(ImwChar) * (1 + strlen(pString));
-			m_pString = (ImwChar*)ImwMalloc(iLen);
+			size_t iLen  = sizeof(char) * (1 + strlen(pString));
+			m_pString = (char*)ImwMalloc(iLen);
 			memcpy(m_pString, pString, iLen);
 		}
 	}
@@ -254,13 +254,13 @@ namespace ImWindow
 		}
 		else if (m_eType == E_TYPE_INTEGER)
 		{
-			ImwChar sBuffer[256];
+			char sBuffer[256];
 			sprintf(sBuffer, "%ld", m_iInteger);
 			sOutJson += sBuffer;
 		}
 		else if (m_eType == E_TYPE_FLOAT)
 		{
-			ImwChar sBuffer[256];
+			char sBuffer[256];
 			sprintf(sBuffer, "%.17g", m_fFloat);
 			sOutJson += sBuffer;
 		}
@@ -272,10 +272,10 @@ namespace ImWindow
 
 	void JsonValue::WriteStringEscaped(ImwString& sOutJson, const ImwString& sInput)
 	{
-		const ImwChar* pString = sInput.c_str();
+		const char* pString = sInput.c_str();
 		while (*pString != '\0')
 		{
-			ImwChar cChar = *pString;
+			char cChar = *pString;
 			if (cChar == '\n')
 				sOutJson += "\\n";
 			else if (cChar == '\r')
@@ -290,7 +290,7 @@ namespace ImWindow
 				sOutJson += "\\\"";
 			else if (cChar == '\\')
 				sOutJson += "\\\\";
-			else if ((unsigned ImwChar)cChar < 0x80)
+			else if ((unsigned char)cChar < 0x80)
 				sOutJson += cChar;
 			else
 			{
@@ -299,22 +299,22 @@ namespace ImWindow
 
 				if ((iChar & 0xF0) == 0xF0) // 4 bytes
 				{
-					iChar = ((((unsigned ImwChar)*(pString)) & 0x07) << 18) + ((((unsigned ImwChar)*(pString + 1)) & 0x3F) << 12) + ((((unsigned ImwChar)*(pString + 2)) & 0x3F) << 6) + ((((unsigned ImwChar)*(pString + 3)) & 0x3F));
+					iChar = ((((unsigned char)*(pString)) & 0x07) << 18) + ((((unsigned char)*(pString + 1)) & 0x3F) << 12) + ((((unsigned char)*(pString + 2)) & 0x3F) << 6) + ((((unsigned char)*(pString + 3)) & 0x3F));
 					pString += 3;
 				}
 				else if ((iChar & 0xF0) == 0xE0) // 3 bytes
 				{
-					iChar = ((((unsigned ImwChar)*(pString)) & 0x0F) << 12) + ((((unsigned ImwChar)*(pString + 1)) & 0x3F) << 6) + ((((unsigned ImwChar)*(pString + 2)) & 0x3F));
+					iChar = ((((unsigned char)*(pString)) & 0x0F) << 12) + ((((unsigned char)*(pString + 1)) & 0x3F) << 6) + ((((unsigned char)*(pString + 2)) & 0x3F));
 					pString += 2;
 				}
 				else if ((iChar & 0xF0) == 0xC0) // 2 byte
 				{
-					iChar = ((((unsigned ImwChar)*(pString)) & 0x1F) << 6) + ((((unsigned ImwChar)*(pString + 1)) & 0x3F));
+					iChar = ((((unsigned char)*(pString)) & 0x1F) << 6) + ((((unsigned char)*(pString + 1)) & 0x3F));
 					pString += 1;
 				}
 				
 
-				ImwChar sHexa[5];
+				char sHexa[5];
 				const char* const  pHexa = "0123456789ABCDEF";
 				sHexa[0] = pHexa[(iChar >> 12) & 0x0f];
 				sHexa[1] = pHexa[(iChar >> 8) & 0x0f];
@@ -334,14 +334,14 @@ namespace ImWindow
 		Write(sOutJson, 0, bCompact);
 	}
 
-	bool JsonValue::WriteFile(const ImwChar* pFilename, bool bCompact)
+	bool JsonValue::WriteFile(const char* pFilename, bool bCompact)
 	{
 		FILE* pFile = fopen(pFilename, "w");
 		if (NULL != pFile)
 		{
 			ImwString sJson;
 			WriteString(sJson, bCompact);
-			bool bRet = fwrite(sJson.c_str(), sizeof(ImwChar), sJson.length(), pFile) == (sizeof(ImwChar) * sJson.length());
+			bool bRet = fwrite(sJson.c_str(), sizeof(char), sJson.length(), pFile) == (sizeof(char) * sJson.length());
 			fclose(pFile);
 			return bRet;
 		}
@@ -364,7 +364,7 @@ namespace ImWindow
 		return iCount;
 	}
 
-	const JsonValue& JsonValue::operator[](const ImwChar* pName) const
+	const JsonValue& JsonValue::operator[](const char* pName) const
 	{
 		if (m_eType == E_TYPE_OBJECT)
 		{
@@ -381,7 +381,7 @@ namespace ImWindow
 		return JsonValue::INVALID;
 	}
 
-	JsonValue& JsonValue::operator[](const ImwChar* pName)
+	JsonValue& JsonValue::operator[](const char* pName)
 	{
 		if (m_eType == E_TYPE_INVALID)
 			InitType(E_TYPE_OBJECT);
@@ -519,7 +519,7 @@ namespace ImWindow
 		return *this;
 	}
 
-	JsonValue& JsonValue::operator =(const ImwChar* pValue)
+	JsonValue& JsonValue::operator =(const char* pValue)
 	{
 		if (!m_bConst)
 		{
@@ -625,21 +625,21 @@ namespace ImWindow
 
 	//Reading
 
-	bool JsonValue::IsSpace(ImwChar cChar) {
+	bool JsonValue::IsSpace(char cChar) {
 		return cChar == ' ' || (cChar >= '\t' && cChar <= '\r');
 	}
 
-	bool JsonValue::IsDigit(ImwChar cChar)
+	bool JsonValue::IsDigit(char cChar)
 	{
 		return (cChar >= '0' && cChar <= '9');
 	}
 
-	bool JsonValue::IsXDigit(ImwChar cChar)
+	bool JsonValue::IsXDigit(char cChar)
 	{
 		return (cChar >= '0' && cChar <= '9') || ((cChar & ~' ') >= 'A' && (cChar & ~' ') <= 'F') || ((cChar & ~' ') >= 'a' && (cChar & ~' ') <= 'f');
 	}
 
-	int	JsonValue::CharToInt(ImwChar cChar)
+	int	JsonValue::CharToInt(char cChar)
 	{
 		if (cChar <= '9')
 			return cChar - '0';
@@ -647,12 +647,12 @@ namespace ImWindow
 			return (cChar & ~' ') - 'A' + 10;
 	}
 
-	void JsonValue::SkipSpaces(const ImwChar*& pString)
+	void JsonValue::SkipSpaces(const char*& pString)
 	{
 		while (IsSpace(*pString)) ++pString;
 	}
 
-	bool JsonValue::ReadSpecialChar(const ImwChar*& pString, CharBuffer& oTempBuffer)
+	bool JsonValue::ReadSpecialChar(const char*& pString, CharBuffer& oTempBuffer)
 	{
 		if (*pString == 'n') oTempBuffer += '\n';
 		else if (*pString == 'r') oTempBuffer += '\r';
@@ -673,25 +673,25 @@ namespace ImWindow
 			}
 			if (iChar < 0x0080)
 			{
-				oTempBuffer += (ImwChar)iChar;
+				oTempBuffer += (char)iChar;
 			}
 			else if (iChar >= 0x80 && iChar < 0x800)
 			{
-				oTempBuffer += (ImwChar)(0xC0 | (iChar >> 6));
-				oTempBuffer += (ImwChar)(0x80 | (iChar & 0x3F));
+				oTempBuffer += (char)(0xC0 | (iChar >> 6));
+				oTempBuffer += (char)(0x80 | (iChar & 0x3F));
 			}
 			else if (iChar >= 0x800 && iChar < 0x7FFF)
 			{
-				oTempBuffer += (ImwChar)(0xE0 | (iChar >> 12));
-				oTempBuffer += (ImwChar)(0x80 | ((iChar >> 6) & 0x3F));
-				oTempBuffer += (ImwChar)(0x80 | (iChar & 0x3F));
+				oTempBuffer += (char)(0xE0 | (iChar >> 12));
+				oTempBuffer += (char)(0x80 | ((iChar >> 6) & 0x3F));
+				oTempBuffer += (char)(0x80 | (iChar & 0x3F));
 			}
 			else if (iChar >= 0x8000 && iChar < 0x7FFFF)
 			{
-				oTempBuffer += (ImwChar)(0xF0 | (iChar >> 18));
-				oTempBuffer += (ImwChar)(0xE0 | ((iChar >> 12) & 0x3F));
-				oTempBuffer += (ImwChar)(0x80 | ((iChar >> 6) & 0x3F));
-				oTempBuffer += (ImwChar)(0x80 | (iChar & 0x3F));
+				oTempBuffer += (char)(0xF0 | (iChar >> 18));
+				oTempBuffer += (char)(0xE0 | ((iChar >> 12) & 0x3F));
+				oTempBuffer += (char)(0x80 | ((iChar >> 6) & 0x3F));
+				oTempBuffer += (char)(0x80 | (iChar & 0x3F));
 			}
 			else
 			{
@@ -705,7 +705,7 @@ namespace ImWindow
 		return true;
 	}
 
-	bool JsonValue::ReadStringValue(const ImwChar*& pString, CharBuffer& oTempBuffer)
+	bool JsonValue::ReadStringValue(const char*& pString, CharBuffer& oTempBuffer)
 	{
 		oTempBuffer.Clear();
 		while (*pString != 0)
@@ -736,7 +736,7 @@ namespace ImWindow
 		return false;
 	}
 
-	bool JsonValue::ReadStringValue(const ImwChar*& pString, JsonValue& oValue, CharBuffer& oTempBuffer)
+	bool JsonValue::ReadStringValue(const char*& pString, JsonValue& oValue, CharBuffer& oTempBuffer)
 	{
 		if (ReadStringValue(pString, oTempBuffer))
 		{
@@ -748,7 +748,7 @@ namespace ImWindow
 		return false;
 	}
 
-	bool JsonValue::ReadNumericValue(const ImwChar*& pString, JsonValue& oValue)
+	bool JsonValue::ReadNumericValue(const char*& pString, JsonValue& oValue)
 	{
 		bool bNeg = false;
 		long lValue = 0;
@@ -808,7 +808,7 @@ namespace ImWindow
 		return true;
 	}
 
-	bool JsonValue::ReadObjectValue(const ImwChar*& pString, JsonValue& oValue, CharBuffer& oTempBuffer)
+	bool JsonValue::ReadObjectValue(const char*& pString, JsonValue& oValue, CharBuffer& oTempBuffer)
 	{
 		oValue.InitType(JsonValue::E_TYPE_OBJECT);
 
@@ -872,7 +872,7 @@ namespace ImWindow
 		return false;
 	}
 
-	bool JsonValue::ReadArrayValue(const ImwChar*& pString, JsonValue& oValue, CharBuffer& oTempBuffer)
+	bool JsonValue::ReadArrayValue(const char*& pString, JsonValue& oValue, CharBuffer& oTempBuffer)
 	{
 		oValue.InitType(JsonValue::E_TYPE_ARRAY);
 
@@ -922,13 +922,13 @@ namespace ImWindow
 		return false;
 	}
 
-	int JsonValue::ReadString(const ImwChar* pJson)
+	int JsonValue::ReadString(const char* pJson)
 	{
 		if (pJson != NULL)
 		{
 			CharBuffer oTempBuffer;
 			Reset();
-			const ImwChar* pEnd = pJson;
+			const char* pEnd = pJson;
 			if (!Parse(pEnd, oTempBuffer))
 			{
 				int iLine = 1;
@@ -950,7 +950,7 @@ namespace ImWindow
 		return -1;
 	}
 
-	const bool JsonValue::Parse(const ImwChar*& pString, CharBuffer& oTempBuffer)
+	const bool JsonValue::Parse(const char*& pString, CharBuffer& oTempBuffer)
 	{
 		bool bOk = pString != NULL && *pString != 0;
 		while (*pString != 0 && bOk)
@@ -1013,7 +1013,7 @@ namespace ImWindow
 		return bOk;
 	}
 
-	int JsonValue::ReadFile(const ImwChar* pFilename)
+	int JsonValue::ReadFile(const char* pFilename)
 	{
 		FILE* pFile = fopen(pFilename, "r");
 		if (NULL != pFile)
@@ -1024,7 +1024,7 @@ namespace ImWindow
 			long iSize = ftell(pFile);
 			fseek(pFile, 0, SEEK_SET);
 
-			ImwChar* pString = new ImwChar[iSize / sizeof(ImwChar)];
+			char* pString = new char[iSize / sizeof(char)];
 			fread(pString, 1, iSize, pFile);
 			fclose(pFile);
 

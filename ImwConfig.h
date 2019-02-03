@@ -14,10 +14,6 @@
 #define ImwString std::string
 #endif // ImwString
 
-#ifndef ImwChar
-#define ImwChar char
-#endif // ImwChar
-
 #define ImwVerify(bCondition) { if ((bCondition) == false) { IM_ASSERT(false); } }
 
 #define ImwSafeDelete(pObj) { if (NULL != pObj) { delete pObj; pObj = NULL; } }

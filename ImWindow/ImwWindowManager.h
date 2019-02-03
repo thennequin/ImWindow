@@ -114,8 +114,8 @@ namespace ImWindow
 		ImwPlatformWindow*					GetFocusedPlatformWindow() const;
 		Config&								GetConfig();
 
-		void								SetMainTitle(const ImwChar* pTitle);
-		const ImwChar*						GetMainTitle() const;
+		void								SetMainTitle(const char* pTitle);
+		const char*							GetMainTitle() const;
 
 		void								Dock(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, float fRatio = 0.5f, ImwPlatformWindow* pToPlatformWindow = NULL);
 		void								DockTo(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, float fRatio = 0.5f, ImwContainer* pContainer = NULL, int iPosition = -1);
@@ -136,14 +136,14 @@ namespace ImWindow
 		bool								HasWantCaptureMouse() const { return m_bHasWantCaptureMouse; }
 
 		bool								SaveLayoutToString(ImwString& sLayout, bool bCompact = false);
-		bool								SaveLayoutToFile(const ImwChar* pFilePath, bool bCompact = false);
+		bool								SaveLayoutToFile(const char* pFilePath, bool bCompact = false);
 
-		bool								LoadLayoutFromString(const ImwChar* pLayout);
-		bool								LoadLayoutFromFile(const ImwChar* pFilePath);
+		bool								LoadLayoutFromString(const char* pLayout);
+		bool								LoadLayoutFromFile(const char* pFilePath);
 
-		virtual const ImwChar*				GetWindowClassName(ImwWindow* pWindow);
-		virtual bool						CanCreateWindowByClassName(const ImwChar* pName);
-		virtual ImwWindow*					CreateWindowByClassName(const ImwChar* pName);
+		virtual const char*					GetWindowClassName(ImwWindow* pWindow);
+		virtual bool						CanCreateWindowByClassName(const char* pName);
+		virtual ImwWindow*					CreateWindowByClassName(const char* pName);
 	protected:
 		//To override for use multi window mode
 		virtual bool						CanCreateMultipleWindow();
@@ -206,7 +206,7 @@ namespace ImWindow
 		const ImwContainer*					GetBestDocking(ImwPlatformWindow* pPlatformWindow, const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, float& fOutRatio, bool& bOutOnTabArea, int& iOutPosition, bool bLargeCheck);
 		
 		Config								m_oConfig;
-		ImwChar*							m_pMainTitle;
+		char*								m_pMainTitle;
 		ImwPlatformWindow*					m_pMainPlatformWindow;
 		ImwPlatformWindowVector				m_lPlatformWindows;
 		ImwPlatformWindow*					m_pDragPlatformWindow;

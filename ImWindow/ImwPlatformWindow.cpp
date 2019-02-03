@@ -341,10 +341,10 @@ namespace ImWindow
 
 	void ImwPlatformWindow::RefreshTitle()
 	{
-		const ImwChar* pMainTitle = ImwWindowManager::GetInstance()->GetMainTitle();
+		const char* pMainTitle = ImwWindowManager::GetInstance()->GetMainTitle();
 		
 		ImwWindow* pActiveWindow = m_pContainer->GetActiveWindow();
-		const ImwChar* pActiveWindowTitle = NULL;
+		const char* pActiveWindowTitle = NULL;
 		
 		if (pActiveWindow != NULL)
 		{
@@ -352,7 +352,7 @@ namespace ImWindow
 		}
 
 		const size_t c_iMaxTitleLen = 512;
-		ImwChar pTitle[c_iMaxTitleLen + 1];
+		char pTitle[c_iMaxTitleLen + 1];
 		size_t iCurrentIndex = 0;
 
 		if (pMainTitle != NULL)

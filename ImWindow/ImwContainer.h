@@ -41,8 +41,8 @@ namespace ImWindow
 		void							Paint();
 
 		bool							Tab(const ImwWindow* pWindow, bool bFocused, float fStartLinePos, float fEndLinePos, float fMaxSize = -1.f);
-		void							DrawTab(const ImwChar* pText, bool bFocused, ImVec2 oPos, float fStartLinePos, float fEndLinePos, float fMaxSize = -1.f, ImVec2* pSizeOut = NULL);
-		float							GetTabWidth(const ImwChar* pText, float fMaxSize, ImVec2* pOutTextSize = NULL) const;
+		void							DrawTab(const char* pText, bool bFocused, ImVec2 oPos, float fStartLinePos, float fEndLinePos, float fMaxSize = -1.f, ImVec2* pSizeOut = NULL);
+		float							GetTabWidth(const char* pText, float fMaxSize, ImVec2* pOutTextSize = NULL) const;
 		float							GetTabAreaWidth() const;
 
 		bool							Save(JsonValue& oJson);

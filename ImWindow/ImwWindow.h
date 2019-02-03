@@ -45,12 +45,12 @@ namespace ImWindow
 		virtual void			SetParameters(const JsonValue& oParameters);
 
 		ImU32					GetId() const;
-		const ImwChar*			GetIdStr() const;
+		const char*				GetIdStr() const;
 
 		void					Destroy();
 
-		void					SetTitle(const ImwChar* pTitle);
-		const ImwChar*			GetTitle() const;
+		void					SetTitle(const char* pTitle);
+		const char*				GetTitle() const;
 
 		void					SetClosable( bool bClosable );
 		bool					IsClosable() const;
@@ -65,9 +65,9 @@ namespace ImWindow
 		IMW_CUSTOM_DECLARE_IMWWINDOW
 #endif //IMW_CUSTOM_DECLARE_IMWWINDOW
 	protected:
-		ImwChar*				m_pTitle;
+		char*					m_pTitle;
 		ImU32					m_iId;
-		ImwChar					m_pId[11];
+		char					m_pId[11];
 		bool					m_bClosable;
 		bool					m_bAlone;
 		bool					m_bFillingSpace;
