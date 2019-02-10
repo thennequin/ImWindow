@@ -58,11 +58,11 @@ namespace ImWindow
 		m_bFillingSpace = bFilling;
 	}
 
-	void ImwWindow::GetParameters(JsonValue& /*oOutParameters*/)
+	void ImwWindow::GetParameters(JsonStthm::JsonValue& /*oOutParameters*/)
 	{
 	}
 
-	void ImwWindow::SetParameters(const JsonValue& /*oParameters*/)
+	void ImwWindow::SetParameters(const JsonStthm::JsonValue& /*oParameters*/)
 	{
 	}
 

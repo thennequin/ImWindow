@@ -211,7 +211,7 @@ namespace ImWindow
 		}
 	}
 
-	bool ImwPlatformWindow::Save(JsonValue& oJson)
+	bool ImwPlatformWindow::Save(JsonStthm::JsonValue& oJson)
 	{
 		ImVec2 oSize = GetNormalSize();
 		ImVec2 oPos = GetNormalPosition();
@@ -226,7 +226,7 @@ namespace ImWindow
 		return m_pContainer->Save(oJson["Container"]);
 	}
 
-	bool ImwPlatformWindow::Load(const JsonValue& oJson, bool bJustCheck)
+	bool ImwPlatformWindow::Load(const JsonStthm::JsonValue& oJson, bool bJustCheck)
 	{
 		if (!oJson["Width"].IsNumeric() || !oJson["Height"].IsNumeric() || !oJson["Left"].IsNumeric() || !oJson["Top"].IsNumeric() || (!oJson["Mode"].IsNumeric() && !oJson["Maximized"].IsBoolean()))
 			return false;

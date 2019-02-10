@@ -4,7 +4,7 @@
 
 #include "ImwConfig.h"
 #include "ImwWindow.h"
-#include "JsonValue.h"
+#include "JsonStthm.h"
 
 namespace ImWindow
 {
@@ -45,8 +45,8 @@ namespace ImWindow
 		float							GetTabWidth(const char* pText, float fMaxSize, ImVec2* pOutTextSize = NULL) const;
 		float							GetTabAreaWidth() const;
 
-		bool							Save(JsonValue& oJson);
-		bool							Load(const JsonValue& oJson, bool bJustCheck);
+		bool							Save(JsonStthm::JsonValue& oJson);
+		bool							Load(const JsonStthm::JsonValue& oJson, bool bJustCheck);
 
 		ImwContainer*					m_pParent;
 		ImwPlatformWindow*				m_pParentWindow;
