@@ -3,8 +3,7 @@
 #define __IM_PLATFORM_WINDOW_DX11_H__
 
 #include "ImwConfig.h"
-#include "ImwPlatformWindow.h"
-#include "EasyWindow.h"
+#include "ImwPlatformWindowEasyWindow.h"
 
 class IDXGIFactory;
 class IDXGISwapChain;
@@ -23,44 +22,18 @@ class ID3D11BlendState;
 
 namespace ImWindow
 {
-	class ImwPlatformWindowDX11 : ImwPlatformWindow
+	class ImwPlatformWindowDX11 : public ImwPlatformWindowEasyWindow
 	{
-		friend class ImwWindowManagerOGL;
 	public:
 											ImwPlatformWindowDX11(EPlatformWindowType eType, bool bCreateState);
 		virtual								~ImwPlatformWindowDX11();
 
 		virtual bool						Init(ImwPlatformWindow* pMain);
-
-		virtual ImVec2						GetPosition() const;
-		virtual ImVec2						GetSize() const;
-		virtual bool						IsWindowMaximized() const;
-		virtual bool						IsWindowMinimized() const;
-
-		virtual void						Show(bool bShow);
-		virtual void						SetSize(int iWidth, int iHeight);
-		virtual void						SetPosition(int iX, int iY);
-		virtual void						SetWindowMaximized(bool bMaximized);
-		virtual void						SetWindowMinimized();
-		virtual void						SetTitle(const ImwChar* pTtile);
-
 	protected:
-		virtual void						PreUpdate();
-		virtual void						OnOverlay();
 		virtual void						RenderDrawLists(ImDrawData* pDrawData);
 
-		bool								OnClose();
-		void								OnFocus(bool bHasFocus);
-		void								OnSize(int iWidth, int iHeight);
-		void								OnMouseButton(int iButton, bool bDown);
-		void								OnMouseMove(int iX, int iY);
-		void								OnMouseWheel( int iStep );
-		void								OnKey(EasyWindow::EKey eKey, bool bDown);
-		void								OnChar(int iChar);
-		void								OnDropFiles(const EasyWindow::DropFiles& oFiles);
-
-		EasyWindow*							m_pWindow;
-
+		virtual void						OnClientSize(int iClientWidth, int iClientHeight);
+		
 		IDXGISwapChain*						m_pDXGISwapChain;
 		ID3D11RenderTargetView*				m_pDX11RenderTargetView;
 

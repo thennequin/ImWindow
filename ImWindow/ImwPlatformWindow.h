@@ -40,7 +40,7 @@ namespace ImWindow
 		virtual void						SetSize(int iWidth, int iHeight);
 		virtual void						SetPosition(int iX, int iY);
 		virtual void						SetWindowMaximized(bool bMaximized);
-		virtual void						SetWindowMinimized();
+		virtual void						SetWindowMinimized(bool bMinimized);
 		virtual void						SetTitle(const char* pTtile);
 		bool								IsShowContent() const;
 		void								SetShowContent(bool bShow);
@@ -59,12 +59,13 @@ namespace ImWindow
 		void								RestoreContext(bool bCopyStyle);
 		static bool							IsContextSet();
 	protected:
-		void								OnLoseFocus();
 		virtual void						PreUpdate();
 		virtual void						PreRender();
 		virtual void						OnOverlay();
 		virtual void						RenderDrawLists(ImDrawData* pDrawData);
 
+		void								PreDestroy();
+		void								OnFocus(bool bFocused);
 		void								Render();
 		void								PaintContainer();
 		void								RefreshTitle();
@@ -86,7 +87,7 @@ namespace ImWindow
 		ImVec2								m_oMovingOffset;
 	};
 
-	typedef ImwList<ImwPlatformWindow*> ImwPlatformWindowList;
+	typedef ImVector<ImwPlatformWindow*> ImwPlatformWindowVector;
 //SFF_END
 }
 

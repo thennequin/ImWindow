@@ -4,7 +4,7 @@
 
 #include "ImwConfig.h"
 
-#include "ImwWindowManager.h"
+#include "ImwWindowManagerEasyWindow.h"
 
 class IDXGIFactory;
 class IDXGISwapChain;
@@ -13,7 +13,7 @@ class ID3D11DeviceContext;
 
 namespace ImWindow
 {
-	class ImwWindowManagerDX11 : public ImwWindowManager
+	class ImwWindowManagerDX11 : public ImwWindowManagerEasyWindow
 	{
 	public:
 		ImwWindowManagerDX11(bool bCustomFrame);
@@ -29,9 +29,6 @@ namespace ImWindow
 		virtual void					InternalDestroy();
 		virtual bool					CanCreateMultipleWindow() { return true; }
 		virtual ImwPlatformWindow*		CreatePlatformWindow(EPlatformWindowType eType, ImwPlatformWindow* pParent);
-
-		virtual ImVec2					GetCursorPos();
-		virtual bool					IsLeftClickDown();
 
 		virtual float					GetTitleBarHeight() const;
 		virtual void					PaintTitleBar(ImwPlatformWindow* pPlatformWindow);

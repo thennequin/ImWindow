@@ -8,24 +8,13 @@
 #define NULL 0
 #endif // NULL
 
-#ifndef ImwList
-#include <list>
-#define ImwList std::list
-#endif // ImwList
-
-#ifndef ImwMap
-#include <map>
-#define ImwMap std::map
-#endif // ImwMap
 
 #ifndef ImwString
 #include <string>
 #define ImwString std::string
 #endif // ImwString
 
-#ifndef ImwChar
-#define ImwChar char
-#endif // ImwChar
+#define ImwVerify(bCondition) { if ((bCondition) == false) { IM_ASSERT(false); } }
 
 #define ImwSafeDelete(pObj) { if (NULL != pObj) { delete pObj; pObj = NULL; } }
 #define ImwSafeRelease(pObj) { if (NULL != pObj) { pObj->Release(); pObj = NULL; } }

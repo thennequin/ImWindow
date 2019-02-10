@@ -6,20 +6,17 @@ environment:
     TOOLSET: vs2012
     BACKEND: --with-sff --with-opengl --with-glfw --with-dx11
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-    TOOLSET: vs2012
-    BACKEND: --with-bgfx
+    TOOLSET: vs2015
+    BACKEND: --with-sff --with-opengl --with-glfw --with-dx11 --with-sokol
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     TOOLSET: vs2015
-    BACKEND: --with-sff --with-opengl --with-glfw --with-dx11
-  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-    TOOLSET: vs2015
-    BACKEND: --with-bgfx
+    BACKEND: --with-sff --with-bgfx
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     TOOLSET: vs2017
-    BACKEND: --with-sff --with-opengl --with-glfw --with-dx11
+    BACKEND: --with-sff --with-opengl --with-glfw --with-dx11 --with-sokol
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     TOOLSET: vs2017
-    BACKEND: --with-bgfx
+    BACKEND: --with-sff --with-bgfx
 
 configuration:
   - Debug
@@ -28,19 +25,19 @@ configuration:
 install:
   - git clone https://github.com/bkaradzic/bx ..\bx
   - ps: pushd ..\bx
-  - git fetch origin 335cec71219919218a7c14f748750ef40df38232
-  - git reset --hard FETCH_HEAD
-  - ps: popd
-  
-  - git clone https://github.com/bkaradzic/bgfx ..\bgfx
-  - ps: pushd ..\bgfx
-  - git fetch origin d89a4e034610becb8aae7df422a53e986dd8c7f7
+  - git fetch origin 2ca39fce297bce94efb62e1c06eb2814f02b69d9
   - git reset --hard FETCH_HEAD
   - ps: popd
   
   - git clone https://github.com/bkaradzic/bimg ..\bimg
   - ps: pushd ..\bimg
-  - git fetch origin 8f89c161d99baa973dcb4cdd46dd135a3febb016
+  - git fetch origin 6afba8a0eb9333bf5777ab9ad0fea572e3557c74
+  - git reset --hard FETCH_HEAD
+  - ps: popd
+
+  - git clone https://github.com/bkaradzic/bgfx ..\bgfx
+  - ps: pushd ..\bgfx
+  - git fetch origin 0f3f81aa05525ab350379ce8e34eb37c80b7aefe
   - git reset --hard FETCH_HEAD
   - ps: popd
   
@@ -58,6 +55,10 @@ install:
 
 build:
   project: .projects/$(TOOLSET)/ImWindow.sln
+  
+after_build:
+  - 7z a ImWindow.zip "%APPVEYOR_BUILD_FOLDER%\ImWindow.h" "%APPVEYOR_BUILD_FOLDER%\ImWindow.cpp" "%APPVEYOR_BUILD_FOLDER%\ImwConfig.h"
 
 artifacts:
   - path: Output\*.exe
+  - path: ImWindow.zip

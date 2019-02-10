@@ -36,17 +36,7 @@ namespace ImWindow
 
 	ImwPlatformWindow::~ImwPlatformWindow()
 	{
-		ImwSafeDelete(m_pContainer);
-
-		if (m_pContext != NULL)
-		{
-			m_pContext->IO.Fonts = NULL;
-			SetContext(false);
-			ImGui::Shutdown();
-			RestoreContext(false);
-			ImGui::DestroyContext(m_pContext);
-			m_pContext = NULL;
-		}
+		PreDestroy();
 	}
 
 	bool ImwPlatformWindow::Init(ImwPlatformWindow* /*pParent*/)
@@ -111,7 +101,7 @@ namespace ImWindow
 	{
 	}
 
-	void  ImwPlatformWindow::SetWindowMinimized()
+	void  ImwPlatformWindow::SetWindowMinimized(bool /*bMinimized*/)
 	{
 	}
 
@@ -143,6 +133,53 @@ namespace ImWindow
 
 	void ImwPlatformWindow::RenderDrawLists(ImDrawData* /*pDrawData */)
 	{
+	}
+
+	void ImwPlatformWindow::PreDestroy()
+	{
+		ImwSafeDelete(m_pContainer);
+
+		if (m_pContext != NULL)
+		{
+			m_pContext->IO.Fonts = NULL;
+			SetContext(false);
+			ImGui::Shutdown();
+			RestoreContext(false);
+			ImGui::DestroyContext(m_pContext);
+			m_pContext = NULL;
+		}
+
+		if (ImwWindowManager::GetInstance() != NULL && ImwWindowManager::GetInstance()->m_pFocusedPlatformWindow == this)
+			ImwWindowManager::GetInstance()->m_pFocusedPlatformWindow = NULL;
+	}
+
+	void ImwPlatformWindow::OnFocus(bool bFocused)
+	{
+		if (bFocused)
+		{
+			ImwWindowManager::GetInstance()->m_pFocusedPlatformWindow = this;
+		}
+		else
+		{
+			if (ImwWindowManager::GetInstance()->m_pFocusedPlatformWindow == this)
+				ImwWindowManager::GetInstance()->m_pFocusedPlatformWindow = NULL;
+
+			if (NULL != m_pContext)
+			{
+				m_pContext->SetNextWindowPosCond = m_pContext->SetNextWindowSizeCond = m_pContext->SetNextWindowContentSizeCond = m_pContext->SetNextWindowCollapsedCond = m_pContext->SetNextWindowFocus = 0;
+				m_pContext->ActiveId = 0;
+
+				for (int i = 0; i < 512; ++i)
+					m_pContext->IO.KeysDown[i] = false;
+
+				for (int i = 0; i < 5; ++i)
+					m_pContext->IO.MouseDown[i] = false;
+
+				m_pContext->IO.KeyAlt = false;
+				m_pContext->IO.KeyCtrl = false;
+				m_pContext->IO.KeyShift = false;
+			}
+		}
 	}
 
 	void ImwPlatformWindow::Render()
@@ -208,7 +245,8 @@ namespace ImWindow
 		oJson["Height"] = (long)oSize.y;
 		oJson["Left"] = (long)oPos.x;
 		oJson["Top"] = (long)oPos.y;
-		oJson["Mode"] = (long)(IsWindowMaximized() ? 1 : (IsWindowMinimized() ? -1 : 0));
+		oJson["Maximized"] = IsWindowMaximized();
+		oJson["Minimized"] = IsWindowMinimized();
 
 		return m_pContainer->Save(oJson["Container"]);
 	}
@@ -228,16 +266,22 @@ namespace ImWindow
 				long iMode = (long)oJson["Mode"];
 				if (iMode < 0)
 				{
-					SetWindowMinimized();
+					SetWindowMinimized(true);
 				}
 				else
 				{
 					SetWindowMaximized(iMode > 0);
 				}
 			}
-			else if (oJson["Maximized"].IsBoolean())
+			
+			if (oJson["Maximized"].IsBoolean())
 			{
 				SetWindowMaximized(oJson["Maximized"]);
+			}
+			
+			if( oJson[ "Minimized" ].IsBoolean() )
+			{
+				SetWindowMinimized(oJson["Minimized"]);
 			}
 		}
 
@@ -297,25 +341,6 @@ namespace ImWindow
 		}
 	}
 
-	void ImwPlatformWindow::OnLoseFocus()
-	{
-		if (NULL != m_pContext)
-		{
-			m_pContext->SetNextWindowPosCond = m_pContext->SetNextWindowSizeCond = m_pContext->SetNextWindowContentSizeCond = m_pContext->SetNextWindowCollapsedCond = m_pContext->SetNextWindowFocus = 0;
-			m_pContext->ActiveId = 0;
-
-			for (int i = 0; i < 512; ++i)
-				m_pContext->IO.KeysDown[i] = false;
-
-			for (int i = 0; i < 5; ++i)
-				m_pContext->IO.MouseDown[i] = false;
-
-			m_pContext->IO.KeyAlt = false;
-			m_pContext->IO.KeyCtrl = false;
-			m_pContext->IO.KeyShift = false;
-		}
-	}
-
 	void ImwPlatformWindow::Dock(ImwWindow* pWindow)
 	{
 		m_pContainer->Dock(pWindow);
@@ -348,10 +373,10 @@ namespace ImWindow
 
 	void ImwPlatformWindow::RefreshTitle()
 	{
-		const ImwChar* pMainTitle = ImwWindowManager::GetInstance()->GetMainTitle();
+		const char* pMainTitle = ImwWindowManager::GetInstance()->GetMainTitle();
 		
 		ImwWindow* pActiveWindow = m_pContainer->GetActiveWindow();
-		const ImwChar* pActiveWindowTitle = NULL;
+		const char* pActiveWindowTitle = NULL;
 		
 		if (pActiveWindow != NULL)
 		{
@@ -359,7 +384,7 @@ namespace ImWindow
 		}
 
 		const size_t c_iMaxTitleLen = 512;
-		ImwChar pTitle[c_iMaxTitleLen + 1];
+		char pTitle[c_iMaxTitleLen + 1];
 		size_t iCurrentIndex = 0;
 
 		if (pMainTitle != NULL)

@@ -71,7 +71,7 @@ namespace ImWindow
 		return m_iId;
 	}
 
-	const ImwChar* ImwWindow::GetIdStr() const
+	const char* ImwWindow::GetIdStr() const
 	{
 		return m_pId;
 	}
@@ -81,18 +81,18 @@ namespace ImWindow
 		ImwWindowManager::GetInstance()->DestroyWindow(this);
 	}
 
-	void ImwWindow::SetTitle(const ImwChar* pTitle)
+	void ImwWindow::SetTitle(const char* pTitle)
 	{
 		ImwSafeFree(m_pTitle);
 		if (NULL != pTitle)
 		{
 			size_t iLen = strlen(pTitle) + 1;
-			m_pTitle = (ImwChar*)ImwMalloc(sizeof(ImwChar) * iLen);
+			m_pTitle = (char*)ImwMalloc(sizeof(char) * iLen);
 			strcpy(m_pTitle, pTitle);
 		}
 	}
 
-	const ImwChar* ImwWindow::GetTitle() const
+	const char* ImwWindow::GetTitle() const
 	{
 		return m_pTitle;
 	}

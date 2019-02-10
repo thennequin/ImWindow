@@ -4,8 +4,7 @@
 using namespace ImWindow;
 
 ImwPlatformWindowOGL::ImwPlatformWindowOGL(EPlatformWindowType eType, bool bCreateState)
-	: ImwPlatformWindow(eType, bCreateState)
-	, m_pWindow( NULL )
+	: ImwPlatformWindowEasyWindow(eType, bCreateState)
 	, m_hDC( NULL )
 	, m_hRC( NULL )
 	, m_iTextureID( 0 )
@@ -43,302 +42,120 @@ ImwPlatformWindowOGL::~ImwPlatformWindowOGL()
 			MessageBox(NULL, "Release Device Context Failed.", "SHUTDOWN ERROR", MB_OK | MB_ICONINFORMATION);
 		}
 	}
-	
-	//Release opengl
-	ImwSafeDelete(m_pWindow);
 }
 
 bool ImwPlatformWindowOGL::Init(ImwPlatformWindow* pMain)
 {
-	ImwPlatformWindowOGL* pMainOGL = ((ImwPlatformWindowOGL*)pMain);
-
-	EasyWindow::EWindowStyle eStyle = EasyWindow::E_STYLE_NORMAL;
-	if (m_eType == E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW)
-		eStyle = EasyWindow::E_STYLE_POPUP;
-
-	m_pWindow = EasyWindow::Create("ImwPlatformWindowOGL", 800, 600, false, pMain != NULL ? pMainOGL->m_pWindow : NULL, eStyle, EasyWindow::E_FLAG_ACCEPT_FILES_DROP);
-	m_pWindow->OnClose.Set(this, &ImwPlatformWindowOGL::OnClose);
-	m_pWindow->OnFocus.Set(this, &ImwPlatformWindowOGL::OnFocus);
-	m_pWindow->OnSize.Set(this, &ImwPlatformWindowOGL::OnSize);
-	m_pWindow->OnMouseButton.Set(this, &ImwPlatformWindowOGL::OnMouseButton);
-	m_pWindow->OnMouseMove.Set(this, &ImwPlatformWindowOGL::OnMouseMove);
-	m_pWindow->OnMouseWheel.Set(this, &ImwPlatformWindowOGL::OnMouseWheel);
-	m_pWindow->OnKey.Set(this, &ImwPlatformWindowOGL::OnKey);
-	m_pWindow->OnChar.Set(this, &ImwPlatformWindowOGL::OnChar);
-	m_pWindow->OnDropFiles.Set(this, &ImwPlatformWindowOGL::OnDropFiles);
-
-	static PIXELFORMATDESCRIPTOR oPFD =			// pfd Tells Windows How We Want Things To Be
+	if (ImwPlatformWindowEasyWindow::Init(pMain))
 	{
-		sizeof(PIXELFORMATDESCRIPTOR),			// Size Of This Pixel Format Descriptor
-		1,										// Version Number
-		PFD_DRAW_TO_WINDOW |					// Format Must Support Window
-		PFD_SUPPORT_OPENGL |					// Format Must Support OpenGL
-		PFD_DOUBLEBUFFER,						// Must Support Double Buffering
-		PFD_TYPE_RGBA,							// Request An RGBA Format
-		32,										// Select Our Color Depth
-		0, 0, 0, 0, 0, 0,						// Color Bits Ignored
-		0,										// No Alpha Buffer
-		0,										// Shift Bit Ignored
-		0,										// No Accumulation Buffer
-		0, 0, 0, 0,								// Accumulation Bits Ignored
-		16,										// 16Bit Z-Buffer (Depth Buffer)
-		0,										// No Stencil Buffer
-		0,										// No Auxiliary Buffer
-		PFD_MAIN_PLANE,							// Main Drawing Layer
-		0,										// Reserved
-		0, 0, 0									// Layer Masks Ignored
-	};
 
-	m_hDC = GetDC((HWND)m_pWindow->GetHandle());
-	if(m_hDC == NULL)
-	{
-		MessageBox(NULL, "Can't Create A GL Device Context.", "ERROR", MB_OK | MB_ICONEXCLAMATION);
-		return false;
-	}
-
-	// Did Windows Find A Matching Pixel Format?
-	GLuint iPixelFormat = ChoosePixelFormat(m_hDC, &oPFD);
-	if (iPixelFormat == NULL )
-	{
-		MessageBox(NULL, "Can't Find A Suitable PixelFormat.", "ERROR", MB_OK | MB_ICONEXCLAMATION);
-		return false;
-	}
-
-	if (!SetPixelFormat(m_hDC, iPixelFormat, &oPFD))               // Are We Able To Set The Pixel Format?
-	{
-		MessageBox(NULL, "Can't Set The PixelFormat.", "ERROR", MB_OK | MB_ICONEXCLAMATION);
-		return FALSE;
-	}
-	
-	if (pMain != NULL)
-	{
-		m_hRC = ((ImwPlatformWindowOGL*)pMain)->m_hRC;
-	}
-	else
-	{
-		m_hRC = wglCreateContext(m_hDC);
-	}
-	
-	if (m_hRC == NULL)
-	{
-		MessageBox(NULL, "Can't Create A GL Rendering Context.", "ERROR", MB_OK | MB_ICONEXCLAMATION);
-		return false;
-	}
-
-	if (!wglMakeCurrent(m_hDC, m_hRC))
-	{
-		MessageBox(NULL, "Can't Activate The GL Rendering Context.", "ERROR", MB_OK | MB_ICONEXCLAMATION);
-		return false;
-	}
-
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	if (m_eType == E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW)
-		m_pWindow->SetAlpha(128);
-
-	SetContext(false);
-	ImGuiIO& io = ImGui::GetIO();
-	
-	if (pMainOGL != NULL)
-	{
-		//Copy texture reference
-		m_iTextureID = pMainOGL->m_iTextureID;
-	}
-	else
-	{
-		unsigned char* pPixels;
-		int iWidth;
-		int iHeight;
-		io.Fonts->AddFontDefault();
-		io.Fonts->GetTexDataAsAlpha8(&pPixels, &iWidth, &iHeight);
-
-		// Upload texture to graphics system
-		glEnable(GL_TEXTURE_2D);
-		m_iTextureID = 0;
-		glGenTextures(1, &m_iTextureID);
-		glBindTexture(GL_TEXTURE_2D, m_iTextureID);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, (GLint)iWidth, (GLint)iHeight, 0, GL_ALPHA, GL_UNSIGNED_BYTE, (GLvoid*)pPixels);
-
-		// Store our identifier
-		io.Fonts->TexID = (void *)(intptr_t)m_iTextureID;
-	}
-
-	io.KeyMap[ImGuiKey_Tab] = EasyWindow::KEY_TAB;                       // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array that we will update during the application lifetime.
-	io.KeyMap[ImGuiKey_LeftArrow] = EasyWindow::KEY_LEFT;
-	io.KeyMap[ImGuiKey_RightArrow] = EasyWindow::KEY_RIGHT;
-	io.KeyMap[ImGuiKey_UpArrow] = EasyWindow::KEY_UP;
-	io.KeyMap[ImGuiKey_DownArrow] = EasyWindow::KEY_DOWN;
-	io.KeyMap[ImGuiKey_PageUp] = EasyWindow::KEY_PAGEUP;
-	io.KeyMap[ImGuiKey_PageDown] = EasyWindow::KEY_PAGEDOWN;
-	io.KeyMap[ImGuiKey_Home] = EasyWindow::KEY_HOME;
-	io.KeyMap[ImGuiKey_End] = EasyWindow::KEY_END;
-	io.KeyMap[ImGuiKey_Delete] = EasyWindow::KEY_DELETE;
-	io.KeyMap[ImGuiKey_Backspace] = EasyWindow::KEY_BACKSPACE;
-	io.KeyMap[ImGuiKey_Enter] = EasyWindow::KEY_RETURN;
-	io.KeyMap[ImGuiKey_Escape] = EasyWindow::KEY_ESC;
-	io.KeyMap[ImGuiKey_A] = EasyWindow::KEY_A;
-	io.KeyMap[ImGuiKey_C] = EasyWindow::KEY_C;
-	io.KeyMap[ImGuiKey_V] = EasyWindow::KEY_V;
-	io.KeyMap[ImGuiKey_X] = EasyWindow::KEY_X;
-	io.KeyMap[ImGuiKey_Y] = EasyWindow::KEY_Y;
-	io.KeyMap[ImGuiKey_Z] = EasyWindow::KEY_Z;
-
-	io.ImeWindowHandle = m_pWindow->GetHandle();
-
-	RestoreContext(false);
-
-	return true;
-}
-
-ImVec2 ImwPlatformWindowOGL::GetPosition() const
-{
-	int iX, iY;
-	m_pWindow->GetClientPosition(&iX, &iY);
-	return ImVec2((float)iX, (float)iY);
-}
-
-ImVec2 ImwPlatformWindowOGL::GetSize() const
-{
-	int iWidth, iHeight;
-	m_pWindow->GetClientSize(&iWidth, &iHeight);
-	return ImVec2((float)iWidth, (float)iHeight);
-}
-
-bool ImwPlatformWindowOGL::IsWindowMaximized() const
-{
-	return m_pWindow->IsMaximized();
-}
-
-bool ImwPlatformWindowOGL::IsWindowMinimized() const
-{
-	return m_pWindow->IsMinimized();
-}
-
-void ImwPlatformWindowOGL::Show(bool bShow)
-{
-	m_pWindow->Show(bShow);
-}
-
-void ImwPlatformWindowOGL::SetSize(int iWidth, int iHeight)
-{
-	m_pWindow->SetSize(iWidth, iHeight, true);
-}
-
-void ImwPlatformWindowOGL::SetPosition(int iX, int iY)
-{
-	m_pWindow->SetPosition(iX, iY, true);
-}
-
-void ImwPlatformWindowOGL::SetWindowMaximized(bool bMaximized)
-{
-	m_pWindow->SetMaximized(bMaximized);
-}
-
-void ImwPlatformWindowOGL::SetWindowMinimized()
-{
-	m_pWindow->SetMinimized(true);
-}
-
-void ImwPlatformWindowOGL::SetTitle(const ImwChar* pTitle)
-{
-	m_pWindow->SetTitle(pTitle);
-}
-
-void ImwPlatformWindowOGL::PreUpdate()
-{
-	m_pWindow->Update();
-	ImGuiIO& oIO = m_pContext->IO;
-	oIO.KeyCtrl = m_pWindow->IsKeyCtrlDown();
-	oIO.KeyShift = m_pWindow->IsKeyShiftDown();
-	oIO.KeyAlt = m_pWindow->IsKeyAltDown();
-	oIO.KeySuper = false;
-
-	if (oIO.MouseDrawCursor)
-	{
-		m_pWindow->SetCursor(EasyWindow::E_CURSOR_NONE);
-	}
-	else if (oIO.MousePos.x != -1.f && oIO.MousePos.y != -1.f)
-	{
-		switch (m_pContext->MouseCursor)
+		static PIXELFORMATDESCRIPTOR oPFD =			// pfd Tells Windows How We Want Things To Be
 		{
-		case ImGuiMouseCursor_Arrow:
-			m_pWindow->SetCursor(EasyWindow::E_CURSOR_ARROW);
-			break;
-		case ImGuiMouseCursor_TextInput:         // When hovering over InputText, etc.
-			m_pWindow->SetCursor(EasyWindow::E_CURSOR_TEXT_INPUT);
-			break;
-		case ImGuiMouseCursor_Move:              // Unused
-			m_pWindow->SetCursor(EasyWindow::E_CURSOR_HAND);
-			break;
-		case ImGuiMouseCursor_ResizeNS:          // Unused
-			m_pWindow->SetCursor(EasyWindow::E_CURSOR_RESIZE_NS);
-			break;
-		case ImGuiMouseCursor_ResizeEW:          // When hovering over a column
-			m_pWindow->SetCursor(EasyWindow::E_CURSOR_RESIZE_EW);
-			break;
-		case ImGuiMouseCursor_ResizeNESW:        // Unused
-			m_pWindow->SetCursor(EasyWindow::E_CURSOR_RESIZE_NESW);
-			break;
-		case ImGuiMouseCursor_ResizeNWSE:        // When hovering over the bottom-right corner of a window
-			m_pWindow->SetCursor(EasyWindow::E_CURSOR_RESIZE_NWSE);
-			break;
+			sizeof(PIXELFORMATDESCRIPTOR),			// Size Of This Pixel Format Descriptor
+			1,										// Version Number
+			PFD_DRAW_TO_WINDOW |					// Format Must Support Window
+			PFD_SUPPORT_OPENGL |					// Format Must Support OpenGL
+			PFD_DOUBLEBUFFER,						// Must Support Double Buffering
+			PFD_TYPE_RGBA,							// Request An RGBA Format
+			32,										// Select Our Color Depth
+			0, 0, 0, 0, 0, 0,						// Color Bits Ignored
+			0,										// No Alpha Buffer
+			0,										// Shift Bit Ignored
+			0,										// No Accumulation Buffer
+			0, 0, 0, 0,								// Accumulation Bits Ignored
+			16,										// 16Bit Z-Buffer (Depth Buffer)
+			0,										// No Stencil Buffer
+			0,										// No Auxiliary Buffer
+			PFD_MAIN_PLANE,							// Main Drawing Layer
+			0,										// Reserved
+			0, 0, 0									// Layer Masks Ignored
+		};
+
+		m_hDC = GetDC((HWND)m_pWindow->GetHandle());
+		if (m_hDC == NULL)
+		{
+			MessageBox(NULL, "Can't Create A GL Device Context.", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+			return false;
 		}
+
+		// Did Windows Find A Matching Pixel Format?
+		GLuint iPixelFormat = ChoosePixelFormat(m_hDC, &oPFD);
+		if (iPixelFormat == NULL)
+		{
+			MessageBox(NULL, "Can't Find A Suitable PixelFormat.", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+			return false;
+		}
+
+		if (!SetPixelFormat(m_hDC, iPixelFormat, &oPFD))               // Are We Able To Set The Pixel Format?
+		{
+			MessageBox(NULL, "Can't Set The PixelFormat.", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+			return FALSE;
+		}
+
+		if (pMain != NULL)
+		{
+			m_hRC = ((ImwPlatformWindowOGL*)pMain)->m_hRC;
+		}
+		else
+		{
+			m_hRC = wglCreateContext(m_hDC);
+		}
+
+		if (m_hRC == NULL)
+		{
+			MessageBox(NULL, "Can't Create A GL Rendering Context.", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+			return false;
+		}
+
+		if (!wglMakeCurrent(m_hDC, m_hRC))
+		{
+			MessageBox(NULL, "Can't Activate The GL Rendering Context.", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+			return false;
+		}
+
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		ImGuiIO& io = GetContext()->IO;;
+
+		if (pMain != NULL)
+		{
+			//Copy texture reference
+			m_iTextureID = ((ImwPlatformWindowOGL*)pMain)->m_iTextureID;
+		}
+		else
+		{
+			unsigned char* pPixels;
+			int iWidth;
+			int iHeight;
+			io.Fonts->AddFontDefault();
+			io.Fonts->GetTexDataAsAlpha8(&pPixels, &iWidth, &iHeight);
+
+			// Upload texture to graphics system
+			glEnable(GL_TEXTURE_2D);
+			m_iTextureID = 0;
+			glGenTextures(1, &m_iTextureID);
+			glBindTexture(GL_TEXTURE_2D, m_iTextureID);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, (GLint)iWidth, (GLint)iHeight, 0, GL_ALPHA, GL_UNSIGNED_BYTE, (GLvoid*)pPixels);
+
+			// Store our identifier
+			io.Fonts->TexID = (void *)(intptr_t)m_iTextureID;
+		}
+
+		return true;
 	}
+	return false;
 }
 
-bool ImwPlatformWindowOGL::OnClose()
-{
-	ImwPlatformWindow::OnClose();
-	return true;
-}
-
-void ImwPlatformWindowOGL::OnFocus(bool bHasFocus)
-{
-	if (!bHasFocus)
-		OnLoseFocus();
-}
-
-void ImwPlatformWindowOGL::OnSize(int iWidth, int iHeight)
+void ImwPlatformWindowOGL::OnClientSize(int iClientWidth, int iClientHeight)
 {
 	if (m_hDC != NULL && m_hRC != NULL)
 	{
 		wglMakeCurrent(m_hDC, m_hRC);
-		glViewport(0, 0, iWidth, iHeight);
+		glViewport(0, 0, iClientWidth, iClientHeight);
 	}
-}
-
-void ImwPlatformWindowOGL::OnMouseButton(int iButton, bool bDown)
-{
-	m_pContext->IO.MouseDown[iButton] = bDown;
-}
-
-void ImwPlatformWindowOGL::OnMouseMove(int iX, int iY)
-{
-	m_pContext->IO.MousePos = ImVec2((float)iX, (float)iY);
-}
-
-void ImwPlatformWindowOGL::OnMouseWheel( int iStep )
-{
-	m_pContext->IO.MouseWheel += iStep;
-}
-
-void ImwPlatformWindowOGL::OnKey(EasyWindow::EKey eKey, bool bDown)
-{
-	m_pContext->IO.KeysDown[eKey] = bDown;
-}
-
-void ImwPlatformWindowOGL::OnChar(int iChar)
-{
-	m_pContext->IO.AddInputCharacter((ImwChar)iChar);
-}
-
-void ImwPlatformWindowOGL::OnDropFiles(const EasyWindow::DropFiles& oFiles)
-{
-	ImVec2 oPos((float)oFiles.oPosition.x, (float)oFiles.oPosition.y);
-	ImwPlatformWindow::OnDropFiles(oFiles.iCount, oFiles.pFiles, oPos);
 }
 
 void ImwPlatformWindowOGL::RenderDrawLists(ImDrawData* pDrawData)

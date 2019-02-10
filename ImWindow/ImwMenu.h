@@ -22,7 +22,7 @@ namespace ImWindow
 		int							m_iHorizontalPriority;
 		bool						m_bAutoDeleted;
 	};
-	typedef ImwList<ImwMenu*> ImwMenuList;
+	typedef ImVector<ImwMenu*> ImwMenuVector;
 //SFF_END
 }
 

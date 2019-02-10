@@ -1,25 +1,30 @@
 
-#ifndef __IM_WINDOW_MANAGER_OGL_H__
-#define __IM_WINDOW_MANAGER_OGL_H__
+#ifndef __IM_WINDOW_MANAGER_SOKOL_H__
+#define __IM_WINDOW_MANAGER_SOKOL_H__
 
 #include "ImwConfig.h"
 
 #include "ImwWindowManagerEasyWindow.h"
 
+#include "sokol_gfx.h"
+
 namespace ImWindow
 {
-	class ImwWindowManagerOGL : public ImwWindowManagerEasyWindow
+	class ImwWindowManagerSokol : public ImwWindowManagerEasyWindow
 	{
+		friend class ImwPlatformWindowSokol;
 	public:
-		ImwWindowManagerOGL();
-		virtual							~ImwWindowManagerOGL();
+		ImwWindowManagerSokol(sg_desc* pSokolDesc);
+		virtual							~ImwWindowManagerSokol();
 
 		virtual bool					InternalInit();
 		virtual void					InternalDestroy();
 	protected:
 		virtual bool					CanCreateMultipleWindow() { return true; }
 		virtual ImwPlatformWindow*		CreatePlatformWindow(EPlatformWindowType eType, ImwPlatformWindow* pParent);
+
+		sg_desc							m_oSokolDesc;
 	};
 }
 
-#endif //__IM_WINDOW_MANAGER_OGL_H__
+#endif //__IM_WINDOW_MANAGER_SOKOL_H__

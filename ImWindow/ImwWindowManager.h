@@ -110,11 +110,12 @@ namespace ImWindow
 		void								Destroy();
 
 		ImwPlatformWindow*					GetMainPlatformWindow() const;
-		const ImwPlatformWindowList&		GetSecondariesPlatformWindows() const;
+		const ImwPlatformWindowVector&		GetSecondariesPlatformWindows() const;
+		ImwPlatformWindow*					GetFocusedPlatformWindow() const;
 		Config&								GetConfig();
 
-		void								SetMainTitle(const ImwChar* pTitle);
-		const ImwChar*						GetMainTitle() const;
+		void								SetMainTitle(const char* pTitle);
+		const char*							GetMainTitle() const;
 
 		void								Dock(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, float fRatio = 0.5f, ImwPlatformWindow* pToPlatformWindow = NULL);
 		void								DockTo(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, float fRatio = 0.5f, ImwContainer* pContainer = NULL, int iPosition = -1);
@@ -123,7 +124,7 @@ namespace ImWindow
 
 		void								FocusWindow(ImwWindow* pWindow);
 
-		const ImwWindowList&				GetWindowList() const;
+		const ImwWindowVector&				GetWindowList() const;
 		ImwPlatformWindow*					GetCurrentPlatformWindow();
 		ImwPlatformWindow*					GetWindowParent(ImwWindow* pWindow);
 
@@ -135,14 +136,14 @@ namespace ImWindow
 		bool								HasWantCaptureMouse() const { return m_bHasWantCaptureMouse; }
 
 		bool								SaveLayoutToString(ImwString& sLayout, bool bCompact = false);
-		bool								SaveLayoutToFile(const ImwChar* pFilePath, bool bCompact = false);
+		bool								SaveLayoutToFile(const char* pFilePath, bool bCompact = false);
 
-		bool								LoadLayoutFromString(const ImwChar* pLayout);
-		bool								LoadLayoutFromFile(const ImwChar* pFilePath);
+		bool								LoadLayoutFromString(const char* pLayout);
+		bool								LoadLayoutFromFile(const char* pFilePath);
 
-		virtual const ImwChar*				GetWindowClassName(ImwWindow* pWindow);
-		virtual bool						CanCreateWindowByClassName(const ImwChar* pName);
-		virtual ImwWindow*					CreateWindowByClassName(const ImwChar* pName);
+		virtual const char*					GetWindowClassName(ImwWindow* pWindow);
+		virtual bool						CanCreateWindowByClassName(const char* pName);
+		virtual ImwWindow*					CreateWindowByClassName(const char* pName);
 
 		virtual bool						IsUsingCustomFrame() const;
 	protected:
@@ -153,6 +154,8 @@ namespace ImWindow
 		virtual ImwPlatformWindow*			CreatePlatformWindow(EPlatformWindowType eType, ImwPlatformWindow* pParent);
 		virtual ImVec2						GetCursorPos();
 		virtual bool						IsLeftClickDown();
+		virtual void						PreRender();
+		virtual void						PostRender();
 
 		virtual float						GetTitleBarHeight() const;
 		virtual void						PaintTitleBar(ImwPlatformWindow* pPlatformWindow);
@@ -208,25 +211,26 @@ namespace ImWindow
 		const ImwContainer*					GetBestDocking(ImwPlatformWindow* pPlatformWindow, const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, float& fOutRatio, bool& bOutOnTabArea, int& iOutPosition, bool bLargeCheck);
 		
 		Config								m_oConfig;
-		ImwChar*							m_pMainTitle;
+		char*								m_pMainTitle;
 		ImwPlatformWindow*					m_pMainPlatformWindow;
-		ImwPlatformWindowList				m_lPlatformWindows;
+		ImwPlatformWindowVector				m_lPlatformWindows;
 		ImwPlatformWindow*					m_pDragPlatformWindow;
-		ImwWindowList						m_lWindows;
-		ImwWindowList						m_lOrphanWindows;
-		ImwWindowList						m_lToDestroyWindows;
-		ImwStatusBarList					m_lStatusBars;
-		ImwStatusBarList					m_lToDestroyStatusBars;
-		ImwToolBarList						m_lToolBars;
-		ImwToolBarList						m_lToDestroyToolBars;
-		ImwMenuList							m_lMenus;
-		ImwMenuList							m_lToDestroyMenus;
-		ImwPlatformWindowList				m_lToDestroyPlatformWindows;
-		ImwList<PlatformWindowAction*>		m_lPlatformWindowActions;
-		ImwList<DockAction*>				m_lDockActions;
-		ImwList<DrawWindowAreaAction>		m_lDrawWindowAreas;
+		ImwWindowVector						m_lWindows;
+		ImwWindowVector						m_lOrphanWindows;
+		ImwWindowVector						m_lToDestroyWindows;
+		ImwStatusBarVector					m_lStatusBars;
+		ImwStatusBarVector					m_lToDestroyStatusBars;
+		ImwToolBarVector					m_lToolBars;
+		ImwToolBarVector					m_lToDestroyToolBars;
+		ImwMenuVector						m_lMenus;
+		ImwMenuVector						m_lToDestroyMenus;
+		ImwPlatformWindowVector				m_lToDestroyPlatformWindows;
+		ImVector<PlatformWindowAction*>		m_lPlatformWindowActions;
+		ImVector<DockAction*>				m_lDockActions;
+		ImVector<DrawWindowAreaAction>		m_lDrawWindowAreas;
 
 		ImwPlatformWindow*					m_pCurrentPlatformWindow;
+		ImwPlatformWindow*					m_pFocusedPlatformWindow;
 		ImwWindow*							m_pDraggedWindow;
 		bool								m_bDragOnTab;
 		ImwContainer*						m_pDragBestContainer;

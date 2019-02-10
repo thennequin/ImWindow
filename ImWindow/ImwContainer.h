@@ -28,6 +28,7 @@ namespace ImWindow
 		bool							FocusWindow(ImwWindow* pWindow);
 		ImwWindow*						GetActiveWindow() const;
 		ImwPlatformWindow*				GetPlatformWindowParent() const;
+		const ImwContainer*				GetBestContainer(const ImVec2& oCursorPos) const;
 		const ImwContainer*				GetBestDocking(const ImVec2 oCursorPosInContainer, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, bool& bOutOnTabArea, int& iOutPosition, bool bLargeCheck) const;
 		bool							HasUnclosableWindow() const;
 	protected:
@@ -40,8 +41,8 @@ namespace ImWindow
 		void							Paint();
 
 		bool							Tab(const ImwWindow* pWindow, bool bFocused, float fStartLinePos, float fEndLinePos, float fMaxSize = -1.f);
-		void							DrawTab(const ImwChar* pText, bool bFocused, ImVec2 oPos, float fStartLinePos, float fEndLinePos, float fMaxSize = -1.f, ImVec2* pSizeOut = NULL);
-		float							GetTabWidth(const ImwChar* pText, float fMaxSize, ImVec2* pOutTextSize = NULL) const;
+		void							DrawTab(const char* pText, bool bFocused, ImVec2 oPos, float fStartLinePos, float fEndLinePos, float fMaxSize = -1.f, ImVec2* pSizeOut = NULL);
+		float							GetTabWidth(const char* pText, float fMaxSize, ImVec2* pOutTextSize = NULL) const;
 		float							GetTabAreaWidth() const;
 
 		bool							Save(JsonValue& oJson);
@@ -49,7 +50,7 @@ namespace ImWindow
 
 		ImwContainer*					m_pParent;
 		ImwPlatformWindow*				m_pParentWindow;
-		ImwWindowList					m_lWindows;
+		ImwWindowVector					m_lWindows;
 		ImwContainer*					m_pSplits[2];
 
 		float							m_fSplitRatio;

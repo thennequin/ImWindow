@@ -4,3 +4,6 @@
 [submodule "Externals/EasyWindow"]
 	path = Externals/EasyWindow
 	url = https://github.com/thennequin/EasyWindow.git
+[submodule "Externals/sokol"]
+	path = Externals/sokol
+	url = https://github.com/floooh/sokol.git

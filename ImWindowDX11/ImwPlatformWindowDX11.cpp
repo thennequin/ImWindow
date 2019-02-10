@@ -128,8 +128,7 @@ static const char* c_pPixelShader = SHADER_SOURCE(
 using namespace ImWindow;
 
 ImwPlatformWindowDX11::ImwPlatformWindowDX11(EPlatformWindowType eType, bool bCreateState)
-	: ImwPlatformWindow(eType, bCreateState)
-	, m_pWindow( NULL )
+	: ImwPlatformWindowEasyWindow(eType, bCreateState)
 	, m_pDXGISwapChain(NULL)
 	, m_pDX11RenderTargetView(NULL)
 	// Shared
@@ -174,407 +173,245 @@ ImwPlatformWindowDX11::~ImwPlatformWindowDX11()
 	
 	ImwSafeRelease(m_pDX11VertexBuffer);
 	ImwSafeRelease(m_pDX11IndexBuffer);
-
-	ImwSafeDelete(m_pWindow);
 }
 
 bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 {
-	ImwWindowManagerDX11* pWindowManagerDX11 = (ImwWindowManagerDX11*)ImWindow::ImwWindowManager::GetInstance();
-
-	ImwPlatformWindowDX11* pMainWindow = ((ImwPlatformWindowDX11*)pMain);
-
-	EasyWindow::EWindowStyle eStyle = EasyWindow::E_STYLE_NORMAL;
-	
-	if (pWindowManagerDX11->IsUsingCustomFrame())
-		eStyle = EasyWindow::E_STYLE_BORDERLESS_RESIZABLE;
-
-	if (m_eType == E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW)
-		eStyle = EasyWindow::E_STYLE_POPUP;
-
-	m_pWindow = EasyWindow::Create("ImwPlatformWindowDX11", 800, 600, false, pMain != NULL ? pMainWindow->m_pWindow : NULL, eStyle, EasyWindow::E_FLAG_ACCEPT_FILES_DROP | EasyWindow::E_FLAG_ALWAYS_CAPTURE_MOUSE_ON_CLICK);
-	m_pWindow->OnClose.Set(this, &ImwPlatformWindowDX11::OnClose);
-	m_pWindow->OnFocus.Set(this, &ImwPlatformWindowDX11::OnFocus);
-	m_pWindow->OnSize.Set(this, &ImwPlatformWindowDX11::OnSize);
-	m_pWindow->OnMouseButton.Set(this, &ImwPlatformWindowDX11::OnMouseButton);
-	m_pWindow->OnMouseMove.Set(this, &ImwPlatformWindowDX11::OnMouseMove);
-	m_pWindow->OnMouseWheel.Set(this, &ImwPlatformWindowDX11::OnMouseWheel);
-	m_pWindow->OnKey.Set(this, &ImwPlatformWindowDX11::OnKey);
-	m_pWindow->OnChar.Set(this, &ImwPlatformWindowDX11::OnChar);
-	m_pWindow->OnDropFiles.Set(this, &ImwPlatformWindowDX11::OnDropFiles);
-
-	if (m_eType == E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW)
-		m_pWindow->SetAlpha(128);
-
-	m_pDXGIFactory = pWindowManagerDX11->GetDXGIFactory();
-	m_pDX11Device = pWindowManagerDX11->GetDX11Device();
-	m_pDX11DeviceContext = pWindowManagerDX11->GetDX11DeviceContext();
-
-	////
-	HRESULT iResult;
-
-	if (NULL == pMainWindow)
+	if (ImwPlatformWindowEasyWindow::Init(pMain))
 	{
-		// Create the vertex shader
+		ImwWindowManagerDX11* pWindowManagerDX11 = (ImwWindowManagerDX11*)ImWindow::ImwWindowManager::GetInstance();
+
+		m_pDXGIFactory = pWindowManagerDX11->GetDXGIFactory();
+		m_pDX11Device = pWindowManagerDX11->GetDX11Device();
+		m_pDX11DeviceContext = pWindowManagerDX11->GetDX11DeviceContext();
+
+		////
+		HRESULT iResult;
+
+		if (NULL == pMain)
 		{
-			ID3D10Blob* pVertexShaderBlob = NULL;
-			iResult = D3DCompile(c_pVertexShader, strlen(c_pVertexShader), NULL, NULL, NULL, "main", "vs_4_0", 0, 0, &pVertexShaderBlob, NULL);
-			
-			if (pVertexShaderBlob == NULL) // NB: Pass ID3D10Blob* pErrorBlob to D3DCompile() to get error showing in (const char*)pErrorBlob->GetBufferPointer(). Make sure to Release() the blob!
+			// Create the vertex shader
 			{
-				MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error : Can't compile vertex shader"), MB_ICONERROR | MB_OK);
-				return false;
-			}
+				ID3D10Blob* pVertexShaderBlob = NULL;
+				iResult = D3DCompile(c_pVertexShader, strlen(c_pVertexShader), NULL, NULL, NULL, "main", "vs_4_0", 0, 0, &pVertexShaderBlob, NULL);
 
-			iResult = m_pDX11Device->CreateVertexShader((DWORD*)pVertexShaderBlob->GetBufferPointer(), pVertexShaderBlob->GetBufferSize(), NULL, &m_pDX11VertexShader);
-			if (FAILED(iResult))
-			{
-				MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error : Can't create vertex shader"), MB_ICONERROR | MB_OK);
-				return false;
-			}
+				if (pVertexShaderBlob == NULL) // NB: Pass ID3D10Blob* pErrorBlob to D3DCompile() to get error showing in (const char*)pErrorBlob->GetBufferPointer(). Make sure to Release() the blob!
+				{
+					MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error : Can't compile vertex shader"), MB_ICONERROR | MB_OK);
+					return false;
+				}
 
-			// Create the input layout
-			D3D11_INPUT_ELEMENT_DESC local_layout[] = {
-				{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (size_t)(&((ImDrawVert*)0)->pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-				{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (size_t)(&((ImDrawVert*)0)->uv),  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-				{ "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, (size_t)(&((ImDrawVert*)0)->col), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			};
-
-			iResult = m_pDX11Device->CreateInputLayout(local_layout, 3, pVertexShaderBlob->GetBufferPointer(), pVertexShaderBlob->GetBufferSize(), &m_pDX11InputLayout);
-			if (FAILED(iResult))
-			{
-				MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error : Can't create input layout for vertex shader"), MB_ICONERROR | MB_OK);
-				return false;
-			}
-
-			// Create the constant buffer
-			{
-				D3D11_BUFFER_DESC desc;
-				desc.ByteWidth = sizeof(VERTEX_CONSTANT_BUFFER);
-				desc.Usage = D3D11_USAGE_DYNAMIC;
-				desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-				desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-				desc.MiscFlags = 0;
-				iResult = m_pDX11Device->CreateBuffer(&desc, NULL, &m_pDX11VertexConstantBuffer);
+				iResult = m_pDX11Device->CreateVertexShader((DWORD*)pVertexShaderBlob->GetBufferPointer(), pVertexShaderBlob->GetBufferSize(), NULL, &m_pDX11VertexShader);
 				if (FAILED(iResult))
 				{
-					MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error : Can't create constant buffer"), MB_ICONERROR | MB_OK);
+					MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error : Can't create vertex shader"), MB_ICONERROR | MB_OK);
+					return false;
+				}
+
+				// Create the input layout
+				D3D11_INPUT_ELEMENT_DESC local_layout[] = {
+					{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (size_t)(&((ImDrawVert*)0)->pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+					{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (size_t)(&((ImDrawVert*)0)->uv),  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+					{ "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, (size_t)(&((ImDrawVert*)0)->col), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+				};
+
+				iResult = m_pDX11Device->CreateInputLayout(local_layout, 3, pVertexShaderBlob->GetBufferPointer(), pVertexShaderBlob->GetBufferSize(), &m_pDX11InputLayout);
+				if (FAILED(iResult))
+				{
+					MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error : Can't create input layout for vertex shader"), MB_ICONERROR | MB_OK);
+					return false;
+				}
+
+				// Create the constant buffer
+				{
+					D3D11_BUFFER_DESC desc;
+					desc.ByteWidth = sizeof(VERTEX_CONSTANT_BUFFER);
+					desc.Usage = D3D11_USAGE_DYNAMIC;
+					desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+					desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+					desc.MiscFlags = 0;
+					iResult = m_pDX11Device->CreateBuffer(&desc, NULL, &m_pDX11VertexConstantBuffer);
+					if (FAILED(iResult))
+					{
+						MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error : Can't create constant buffer"), MB_ICONERROR | MB_OK);
+						return false;
+					}
+				}
+
+				ImwSafeRelease(pVertexShaderBlob);
+			}
+
+			// Create the pixel shader
+			{
+				ID3D10Blob* pPixelShaderBlob = NULL;
+				iResult = D3DCompile(c_pPixelShader, strlen(c_pPixelShader), NULL, NULL, NULL, "main", "ps_4_0", 0, 0, &pPixelShaderBlob, NULL);
+				if (pPixelShaderBlob == NULL)  // NB: Pass ID3D10Blob* pErrorBlob to D3DCompile() to get error showing in (const char*)pErrorBlob->GetBufferPointer(). Make sure to Release() the blob!
+				{
+					MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error : Can't compile pixel shader"), MB_ICONERROR | MB_OK);
+					return false;
+				}
+
+				iResult = m_pDX11Device->CreatePixelShader((DWORD*)pPixelShaderBlob->GetBufferPointer(), pPixelShaderBlob->GetBufferSize(), NULL, &m_pDX11PixelShader);
+				if (FAILED(iResult))
+				{
+					MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error : Can't create pixel shader"), MB_ICONERROR | MB_OK);
 					return false;
 				}
 			}
 
-			ImwSafeRelease(pVertexShaderBlob);
-		}
-
-		// Create the pixel shader
-		{
-			ID3D10Blob* pPixelShaderBlob = NULL;
-			iResult = D3DCompile(c_pPixelShader, strlen(c_pPixelShader), NULL, NULL, NULL, "main", "ps_4_0", 0, 0, &pPixelShaderBlob, NULL);
-			if (pPixelShaderBlob == NULL)  // NB: Pass ID3D10Blob* pErrorBlob to D3DCompile() to get error showing in (const char*)pErrorBlob->GetBufferPointer(). Make sure to Release() the blob!
+			// Create the blending setup
 			{
-				MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error : Can't compile pixel shader"), MB_ICONERROR | MB_OK);
-				return false;
+				D3D11_BLEND_DESC oBlendDesc;
+				ZeroMemory(&oBlendDesc, sizeof(oBlendDesc));
+				oBlendDesc.AlphaToCoverageEnable = false;
+				oBlendDesc.RenderTarget[0].BlendEnable = true;
+				oBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+				oBlendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+				oBlendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+				oBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+				oBlendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+				oBlendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+				oBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+				m_pDX11Device->CreateBlendState(&oBlendDesc, &m_pDX11BlendState);
 			}
 
-			iResult = m_pDX11Device->CreatePixelShader((DWORD*)pPixelShaderBlob->GetBufferPointer(), pPixelShaderBlob->GetBufferSize(), NULL, &m_pDX11PixelShader);
-			if (FAILED(iResult))
+			// Create the rasterizer state
 			{
-				MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error : Can't create pixel shader"), MB_ICONERROR | MB_OK);
-				return false;
+				D3D11_RASTERIZER_DESC oRasterizerDesc;
+				ZeroMemory(&oRasterizerDesc, sizeof(oRasterizerDesc));
+				oRasterizerDesc.FillMode = D3D11_FILL_SOLID;
+				oRasterizerDesc.CullMode = D3D11_CULL_NONE;
+				oRasterizerDesc.ScissorEnable = true;
+				oRasterizerDesc.DepthClipEnable = true;
+				m_pDX11Device->CreateRasterizerState(&oRasterizerDesc, &m_pDX11RasterizerState);
 			}
 		}
-
-		// Create the blending setup
+		else
 		{
-			D3D11_BLEND_DESC oBlendDesc;
-			ZeroMemory(&oBlendDesc, sizeof(oBlendDesc));
-			oBlendDesc.AlphaToCoverageEnable = false;
-			oBlendDesc.RenderTarget[0].BlendEnable = true;
-			oBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-			oBlendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-			oBlendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-			oBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
-			oBlendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-			oBlendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-			oBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-			m_pDX11Device->CreateBlendState(&oBlendDesc, &m_pDX11BlendState);
+			ImwPlatformWindowDX11* pMainWindowDX11 = (ImwPlatformWindowDX11*)pMain;
+			m_pDXGIFactory = pMainWindowDX11->m_pDXGIFactory;
+			m_pDX11Device = pMainWindowDX11->m_pDX11Device;
+			m_pDX11DeviceContext = pMainWindowDX11->m_pDX11DeviceContext;
+			m_pDX11FontTexture = pMainWindowDX11->m_pDX11FontTexture;
+			m_pDX11FontSampler = pMainWindowDX11->m_pDX11FontSampler;
+
+			m_pDX11VertexShader = pMainWindowDX11->m_pDX11VertexShader;
+			m_pDX11PixelShader = pMainWindowDX11->m_pDX11PixelShader;
+			m_pDX11InputLayout = pMainWindowDX11->m_pDX11InputLayout;
+			m_pDX11VertexConstantBuffer = pMainWindowDX11->m_pDX11VertexConstantBuffer;
+
+			m_pDX11BlendState = pMainWindowDX11->m_pDX11BlendState;
+			m_pDX11RasterizerState = pMainWindowDX11->m_pDX11RasterizerState;
 		}
 
-		// Create the rasterizer state
+		DXGI_SWAP_CHAIN_DESC oSwapChainDesc;
+		ZeroMemory(&oSwapChainDesc, sizeof(DXGI_SWAP_CHAIN_DESC));
+		oSwapChainDesc.BufferCount = 1;
+		oSwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		oSwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		oSwapChainDesc.OutputWindow = (HWND)m_pWindow->GetHandle();
+		oSwapChainDesc.SampleDesc.Count = 1;
+		oSwapChainDesc.Windowed = true;
+
+		iResult = m_pDXGIFactory->CreateSwapChain(m_pDX11Device, &oSwapChainDesc, &m_pDXGISwapChain);
+
+		if (FAILED(iResult))
 		{
-			D3D11_RASTERIZER_DESC oRasterizerDesc;
-			ZeroMemory(&oRasterizerDesc, sizeof(oRasterizerDesc));
-			oRasterizerDesc.FillMode = D3D11_FILL_SOLID;
-			oRasterizerDesc.CullMode = D3D11_CULL_NONE;
-			oRasterizerDesc.ScissorEnable = true;
-			oRasterizerDesc.DepthClipEnable = true;
-			m_pDX11Device->CreateRasterizerState(&oRasterizerDesc, &m_pDX11RasterizerState);
+			MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error: Can't create swap chain"), MB_ICONERROR | MB_OK);
+			return false;
 		}
-	}
-	else
-	{
-		m_pDXGIFactory = pMainWindow->m_pDXGIFactory;
-		m_pDX11Device = pMainWindow->m_pDX11Device;
-		m_pDX11DeviceContext = pMainWindow->m_pDX11DeviceContext;
-		m_pDX11FontTexture = pMainWindow->m_pDX11FontTexture;
-		m_pDX11FontSampler = pMainWindow->m_pDX11FontSampler;
 
-		m_pDX11VertexShader = pMainWindow->m_pDX11VertexShader;
-		m_pDX11PixelShader = pMainWindow->m_pDX11PixelShader;
-		m_pDX11InputLayout = pMainWindow->m_pDX11InputLayout;
-		m_pDX11VertexConstantBuffer = pMainWindow->m_pDX11VertexConstantBuffer;
+		iResult = m_pDXGIFactory->MakeWindowAssociation((HWND)m_pWindow->GetHandle(), DXGI_MWA_NO_ALT_ENTER);
 
-		m_pDX11BlendState = pMainWindow->m_pDX11BlendState;
-		m_pDX11RasterizerState = pMainWindow->m_pDX11RasterizerState;
-	}
-
-	DXGI_SWAP_CHAIN_DESC oSwapChainDesc;
-	ZeroMemory(&oSwapChainDesc, sizeof(DXGI_SWAP_CHAIN_DESC));
-	oSwapChainDesc.BufferCount = 1;
-	oSwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	oSwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	oSwapChainDesc.OutputWindow = (HWND)m_pWindow->GetHandle();
-	oSwapChainDesc.SampleDesc.Count = 1;
-	oSwapChainDesc.Windowed = true;
-
-	iResult = m_pDXGIFactory->CreateSwapChain(m_pDX11Device, &oSwapChainDesc, &m_pDXGISwapChain);
-
-	if (FAILED(iResult))
-	{
-		MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error: Can't create swap chain"), MB_ICONERROR | MB_OK);
-		return false;
-	}
-
-	iResult = m_pDXGIFactory->MakeWindowAssociation((HWND)m_pWindow->GetHandle(), DXGI_MWA_NO_ALT_ENTER);
-
-	if (FAILED(iResult))
-	{
-		MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error : DXGI MakeWindowAssociation failed!"), MB_ICONERROR | MB_OK);
-		//return false;
-	}
-
-	//Create our BackBuffer
-	ID3D11Texture2D* pBackBuffer;
-	iResult = m_pDXGISwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBuffer);
-	if (FAILED(iResult))
-	{
-		MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error : Can't get Buffer of swapchain"), MB_ICONERROR | MB_OK);
-		return false;
-	}
-
-	//Create our Render Target
-	iResult = m_pDX11Device->CreateRenderTargetView(pBackBuffer, NULL, &m_pDX11RenderTargetView);
-	pBackBuffer->Release();
-	if (FAILED(iResult))
-	{
-		MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error : Can't create RenderTargetView"), MB_ICONERROR | MB_OK);
-		return false;
-	}
-
-	//Set our Render Target
-	m_pDX11DeviceContext->OMSetRenderTargets(1, &m_pDX11RenderTargetView, NULL);
-
-	SetContext(false);
-	ImGuiIO& io = ImGui::GetIO();
-
-	if (NULL == pMainWindow)
-	{
-		unsigned char* pPixels;
-		int iWidth;
-		int iHeight;
-		io.Fonts->AddFontDefault();
-		io.Fonts->GetTexDataAsRGBA32(&pPixels, &iWidth, &iHeight);
-
-		D3D11_TEXTURE2D_DESC oTextureDesc;
-		ZeroMemory(&oTextureDesc, sizeof(oTextureDesc));
-		oTextureDesc.Width = iWidth;
-		oTextureDesc.Height = iHeight;
-		oTextureDesc.MipLevels = 1;
-		oTextureDesc.ArraySize = 1;
-		oTextureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		oTextureDesc.SampleDesc.Count = 1;
-		oTextureDesc.Usage = D3D11_USAGE_DEFAULT;
-		oTextureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-		oTextureDesc.CPUAccessFlags = 0;
-
-		D3D11_SUBRESOURCE_DATA oSubResource;
-		oSubResource.pSysMem = pPixels;
-		oSubResource.SysMemPitch = oTextureDesc.Width * 4;
-		oSubResource.SysMemSlicePitch = 0;
-		m_pDX11Device->CreateTexture2D(&oTextureDesc, &oSubResource, &m_pDX11FontTexture);
-
-		// Create texture view
-		D3D11_SHADER_RESOURCE_VIEW_DESC oShaderResViewDesc;
-		ZeroMemory(&oShaderResViewDesc, sizeof(oShaderResViewDesc));
-		oShaderResViewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		oShaderResViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-		oShaderResViewDesc.Texture2D.MipLevels = oTextureDesc.MipLevels;
-		oShaderResViewDesc.Texture2D.MostDetailedMip = 0;
-		m_pDX11Device->CreateShaderResourceView(m_pDX11FontTexture, &oShaderResViewDesc, &m_pDX11FontTextureView);
-
-
-		// Create texture sampler
-		D3D11_SAMPLER_DESC oSamplerDesc;
-		ZeroMemory(&oSamplerDesc, sizeof(oSamplerDesc));
-		oSamplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-		oSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-		oSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-		oSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-		oSamplerDesc.MipLODBias = 0.f;
-		oSamplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-		oSamplerDesc.MinLOD = 0.f;
-		oSamplerDesc.MaxLOD = 0.f;
-		m_pDX11Device->CreateSamplerState(&oSamplerDesc, &m_pDX11FontSampler);
-		// Store our identifier
-		io.Fonts->TexID = (void *)(intptr_t)m_pDX11FontTextureView;
-	}
-
-	io.KeyMap[ImGuiKey_Tab] = EasyWindow::KEY_TAB;                       // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array that we will update during the application lifetime.
-	io.KeyMap[ImGuiKey_LeftArrow] = EasyWindow::KEY_LEFT;
-	io.KeyMap[ImGuiKey_RightArrow] = EasyWindow::KEY_RIGHT;
-	io.KeyMap[ImGuiKey_UpArrow] = EasyWindow::KEY_UP;
-	io.KeyMap[ImGuiKey_DownArrow] = EasyWindow::KEY_DOWN;
-	io.KeyMap[ImGuiKey_PageUp] = EasyWindow::KEY_PAGEUP;
-	io.KeyMap[ImGuiKey_PageDown] = EasyWindow::KEY_PAGEDOWN;
-	io.KeyMap[ImGuiKey_Home] = EasyWindow::KEY_HOME;
-	io.KeyMap[ImGuiKey_End] = EasyWindow::KEY_END;
-	io.KeyMap[ImGuiKey_Delete] = EasyWindow::KEY_DELETE;
-	io.KeyMap[ImGuiKey_Backspace] = EasyWindow::KEY_BACKSPACE;
-	io.KeyMap[ImGuiKey_Enter] = EasyWindow::KEY_RETURN;
-	io.KeyMap[ImGuiKey_Escape] = EasyWindow::KEY_ESC;
-	io.KeyMap[ImGuiKey_A] = EasyWindow::KEY_A;
-	io.KeyMap[ImGuiKey_C] = EasyWindow::KEY_C;
-	io.KeyMap[ImGuiKey_V] = EasyWindow::KEY_V;
-	io.KeyMap[ImGuiKey_X] = EasyWindow::KEY_X;
-	io.KeyMap[ImGuiKey_Y] = EasyWindow::KEY_Y;
-	io.KeyMap[ImGuiKey_Z] = EasyWindow::KEY_Z;
-
-	io.ImeWindowHandle = m_pWindow->GetHandle();
-
-	RestoreContext(false);
-
-	return true;
-}
-
-ImVec2 ImwPlatformWindowDX11::GetPosition() const
-{
-	int iX, iY;
-	m_pWindow->GetClientPosition(&iX, &iY);
-	return ImVec2((float)iX, (float)iY);
-}
-
-ImVec2 ImwPlatformWindowDX11::GetSize() const
-{
-	int iWidth, iHeight;
-	m_pWindow->GetClientSize(&iWidth, &iHeight);
-	return ImVec2((float)iWidth, (float)iHeight);
-}
-
-bool ImwPlatformWindowDX11::IsWindowMaximized() const
-{
-	return m_pWindow->IsMaximized();
-}
-
-bool ImwPlatformWindowDX11::IsWindowMinimized() const
-{
-	return m_pWindow->IsMinimized();
-}
-
-void ImwPlatformWindowDX11::Show(bool bShow)
-{
-	m_pWindow->Show(bShow);
-}
-
-void ImwPlatformWindowDX11::SetSize(int iWidth, int iHeight)
-{
-	m_pWindow->SetSize(iWidth, iHeight, true);
-}
-
-void ImwPlatformWindowDX11::SetPosition(int iX, int iY)
-{
-	m_pWindow->SetPosition(iX, iY, true);
-}
-
-void ImwPlatformWindowDX11::SetWindowMaximized(bool bMaximized)
-{
-	m_pWindow->SetMaximized(bMaximized);
-}
-
-void ImwPlatformWindowDX11::SetWindowMinimized()
-{
-	m_pWindow->SetMinimized(true);
-}
-
-void ImwPlatformWindowDX11::SetTitle(const ImwChar* pTitle)
-{
-	m_pWindow->SetTitle(pTitle);
-}
-
-void ImwPlatformWindowDX11::PreUpdate()
-{
-	m_pWindow->Update();
-	ImGuiIO& oIO = m_pContext->IO;
-	oIO.KeyCtrl = m_pWindow->IsKeyCtrlDown();
-	oIO.KeyShift = m_pWindow->IsKeyShiftDown();
-	oIO.KeyAlt = m_pWindow->IsKeyAltDown();
-	oIO.KeySuper = false;
-
-	if (oIO.MouseDrawCursor)
-	{
-		m_pWindow->SetCursor(EasyWindow::E_CURSOR_NONE);
-	}
-	else if (oIO.MousePos.x != -1.f && oIO.MousePos.y != -1.f)
-	{
-		switch (m_pContext->MouseCursor)
+		if (FAILED(iResult))
 		{
-		case ImGuiMouseCursor_Arrow:
-			m_pWindow->SetCursor(EasyWindow::E_CURSOR_ARROW);
-			break;
-		case ImGuiMouseCursor_TextInput:         // When hovering over InputText, etc.
-			m_pWindow->SetCursor(EasyWindow::E_CURSOR_TEXT_INPUT);
-			break;
-		case ImGuiMouseCursor_Move:              // Unused
-			m_pWindow->SetCursor(EasyWindow::E_CURSOR_HAND);
-			break;
-		case ImGuiMouseCursor_ResizeNS:          // Unused
-			m_pWindow->SetCursor(EasyWindow::E_CURSOR_RESIZE_NS);
-			break;
-		case ImGuiMouseCursor_ResizeEW:          // When hovering over a column
-			m_pWindow->SetCursor(EasyWindow::E_CURSOR_RESIZE_EW);
-			break;
-		case ImGuiMouseCursor_ResizeNESW:        // Unused
-			m_pWindow->SetCursor(EasyWindow::E_CURSOR_RESIZE_NESW);
-			break;
-		case ImGuiMouseCursor_ResizeNWSE:        // When hovering over the bottom-right corner of a window
-			m_pWindow->SetCursor(EasyWindow::E_CURSOR_RESIZE_NWSE);
-			break;
+			MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error : DXGI MakeWindowAssociation failed!"), MB_ICONERROR | MB_OK);
+			//return false;
 		}
+
+		//Create our BackBuffer
+		ID3D11Texture2D* pBackBuffer;
+		iResult = m_pDXGISwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBuffer);
+		if (FAILED(iResult))
+		{
+			MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error : Can't get Buffer of swapchain"), MB_ICONERROR | MB_OK);
+			return false;
+		}
+
+		//Create our Render Target
+		iResult = m_pDX11Device->CreateRenderTargetView(pBackBuffer, NULL, &m_pDX11RenderTargetView);
+		pBackBuffer->Release();
+		if (FAILED(iResult))
+		{
+			MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error : Can't create RenderTargetView"), MB_ICONERROR | MB_OK);
+			return false;
+		}
+
+		//Set our Render Target
+		m_pDX11DeviceContext->OMSetRenderTargets(1, &m_pDX11RenderTargetView, NULL);
+
+		ImGuiIO& io = GetContext()->IO;
+
+		if (NULL == pMain)
+		{
+			unsigned char* pPixels;
+			int iWidth;
+			int iHeight;
+			io.Fonts->AddFontDefault();
+			io.Fonts->GetTexDataAsRGBA32(&pPixels, &iWidth, &iHeight);
+
+			D3D11_TEXTURE2D_DESC oTextureDesc;
+			ZeroMemory(&oTextureDesc, sizeof(oTextureDesc));
+			oTextureDesc.Width = iWidth;
+			oTextureDesc.Height = iHeight;
+			oTextureDesc.MipLevels = 1;
+			oTextureDesc.ArraySize = 1;
+			oTextureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+			oTextureDesc.SampleDesc.Count = 1;
+			oTextureDesc.Usage = D3D11_USAGE_DEFAULT;
+			oTextureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+			oTextureDesc.CPUAccessFlags = 0;
+
+			D3D11_SUBRESOURCE_DATA oSubResource;
+			oSubResource.pSysMem = pPixels;
+			oSubResource.SysMemPitch = oTextureDesc.Width * 4;
+			oSubResource.SysMemSlicePitch = 0;
+			m_pDX11Device->CreateTexture2D(&oTextureDesc, &oSubResource, &m_pDX11FontTexture);
+
+			// Create texture view
+			D3D11_SHADER_RESOURCE_VIEW_DESC oShaderResViewDesc;
+			ZeroMemory(&oShaderResViewDesc, sizeof(oShaderResViewDesc));
+			oShaderResViewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+			oShaderResViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+			oShaderResViewDesc.Texture2D.MipLevels = oTextureDesc.MipLevels;
+			oShaderResViewDesc.Texture2D.MostDetailedMip = 0;
+			m_pDX11Device->CreateShaderResourceView(m_pDX11FontTexture, &oShaderResViewDesc, &m_pDX11FontTextureView);
+
+
+			// Create texture sampler
+			D3D11_SAMPLER_DESC oSamplerDesc;
+			ZeroMemory(&oSamplerDesc, sizeof(oSamplerDesc));
+			oSamplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+			oSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+			oSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+			oSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+			oSamplerDesc.MipLODBias = 0.f;
+			oSamplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+			oSamplerDesc.MinLOD = 0.f;
+			oSamplerDesc.MaxLOD = 0.f;
+			m_pDX11Device->CreateSamplerState(&oSamplerDesc, &m_pDX11FontSampler);
+			// Store our identifier
+			io.Fonts->TexID = (void *)(intptr_t)m_pDX11FontTextureView;
+		}
+
+		return true;
 	}
+
+	return false;
 }
 
-void ImwPlatformWindowDX11::OnOverlay()
-{
-	if (ImwWindowManager::GetInstance()->IsUsingCustomFrame())
-	{
-		ImDrawList* pDrawList = &(ImGui::GetCurrentContext()->OverlayDrawList);
-		ImU32 iBorderColor = ImGui::GetColorU32(ImGuiCol_Border);
-		pDrawList->AddRect(ImVec2(0.f, 0.f), GetSize(), iBorderColor);
-	}
-}
 
-bool ImwPlatformWindowDX11::OnClose()
-{
-	ImwPlatformWindow::OnClose();
-	return true;
-}
-
-void ImwPlatformWindowDX11::OnFocus(bool bHasFocus)
-{
-	if (!bHasFocus)
-		OnLoseFocus();
-}
-
-void ImwPlatformWindowDX11::OnSize(int iWidth, int iHeight)
+void ImwPlatformWindowDX11::OnClientSize(int iClientWidth, int iClientHeight)
 {
 	if (NULL != m_pDXGISwapChain)
 	{
@@ -605,45 +442,14 @@ void ImwPlatformWindowDX11::OnSize(int iWidth, int iHeight)
 
 		// Set up the viewport.
 		D3D11_VIEWPORT oViewport;
-		oViewport.Width = (float)iWidth;
-		oViewport.Height = (float)iHeight;
+		oViewport.Width = (float)iClientWidth;
+		oViewport.Height = (float)iClientHeight;
 		oViewport.MinDepth = 0.0f;
 		oViewport.MaxDepth = 1.0f;
 		oViewport.TopLeftX = 0;
 		oViewport.TopLeftY = 0;
 		m_pDX11DeviceContext->RSSetViewports(1, &oViewport);
 	}
-}
-
-void ImwPlatformWindowDX11::OnMouseButton(int iButton, bool bDown)
-{
-	m_pContext->IO.MouseDown[iButton] = bDown;
-}
-
-void ImwPlatformWindowDX11::OnMouseMove(int iX, int iY)
-{
-	m_pContext->IO.MousePos = ImVec2((float)iX, (float)iY);
-}
-
-void ImwPlatformWindowDX11::OnMouseWheel( int iStep )
-{
-	m_pContext->IO.MouseWheel += iStep;
-}
-
-void ImwPlatformWindowDX11::OnKey(EasyWindow::EKey eKey, bool bDown)
-{
-	m_pContext->IO.KeysDown[eKey] = bDown;
-}
-
-void ImwPlatformWindowDX11::OnChar(int iChar)
-{
-	m_pContext->IO.AddInputCharacter((ImwChar)iChar);
-}
-
-void ImwPlatformWindowDX11::OnDropFiles(const EasyWindow::DropFiles& oFiles)
-{
-	ImVec2 oPos((float)oFiles.oPosition.x, (float)oFiles.oPosition.y);
-	ImwPlatformWindow::OnDropFiles(oFiles.iCount, oFiles.pFiles, oPos);
 }
 
 void ImwPlatformWindowDX11::RenderDrawLists(ImDrawData* pDrawData)

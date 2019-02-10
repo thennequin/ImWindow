@@ -20,6 +20,11 @@ newoption {
 }
 
 newoption {
+	trigger = "with-sokol",
+	description = "Enable Sokol backend sample",
+}
+
+newoption {
 	trigger = "with-bgfx",
 	description = "Enable BGFX backend sample (need bgfx/bimg/bx repositories next to ImWindow repositorie)",
 }
@@ -225,8 +230,13 @@ if _OPTIONS["with-sff"] then
 			}
 			
 			includedirs {
-							"../Externals/imgui",
-							"../ImWindow/"
+							"..", -- For ImwConfig.h
+							"../ImWindow",
+							"../Externals/imgui"
+			}
+
+			defines {
+							"_CRT_SECURE_NO_WARNINGS"
 			}
 
 			SetupSuffix()
@@ -240,6 +250,7 @@ end
 		files {
 							"../ImWindow/**.cpp",
 							"../ImWindow/**.h",
+							"../ImwConfig.h",
 							"../Externals/imgui/imconfig.h",
 							"../Externals/imgui/imgui.h",
 							"../Externals/imgui/imgui_internal.h",
@@ -255,11 +266,16 @@ end
 		}
 		
 		includedirs {
-							"../Externals/imgui",
-							"../ImWindow/"
+							"..", -- For ImwConfig.h
+							"../ImWindow/",
+							"../Externals/imgui"
 		}
 		
 		flags				"ExtraWarnings"
+
+		defines {
+							"_CRT_SECURE_NO_WARNINGS"
+		}
 
 		configuration		"Debug"
 			flags			"Symbols"
@@ -280,6 +296,8 @@ if _OPTIONS["with-dx11"] then
 		files
 		{
 							"../sample.h",
+							"../ImWindowEasyWindow/**.cpp",
+							"../ImWindowEasyWindow/**.h",
 							"../ImWindowDX11/**.cpp",
 							"../ImWindowDX11/**.h",
 							"../Externals/EasyWindow/EasyWindow*.cpp",
@@ -287,7 +305,9 @@ if _OPTIONS["with-dx11"] then
 		}	
 		
 		includedirs {
+							"..", -- For ImwConfig.h
 							"../ImWindow",
+							"../ImWindowEasyWindow",
 							"../Externals/imgui",
 							"../Externals/EasyWindow",
 							"../Externals/DirectX/include"
@@ -319,6 +339,8 @@ if _OPTIONS["with-opengl"] then
 		files
 		{
 							"../sample.h",
+							"../ImWindowEasyWindow/**.cpp",
+							"../ImWindowEasyWindow/**.h",
 							"../ImWindowOGL/**.cpp",
 							"../ImWindowOGL/**.h",
 							"../Externals/EasyWindow/EasyWindow*.cpp",
@@ -326,7 +348,9 @@ if _OPTIONS["with-opengl"] then
 		}	
 		
 		includedirs {
+							"..", -- For ImwConfig.h
 							"../ImWindow",
+							"../ImWindowEasyWindow",
 							"../Externals/imgui",
 							"../Externals/EasyWindow"
 		}
@@ -361,6 +385,7 @@ if _OPTIONS["with-glfw"] then
 		}	
 		
 		includedirs {
+							"..", -- For ImwConfig.h
 							"../ImWindow",
 							"../Externals/imgui"
 		}
@@ -401,6 +426,110 @@ if _OPTIONS["with-glfw"] then
 
 		SetupSuffix()
 end
+
+if _OPTIONS["with-sokol"] then
+	startproject "ImWindowSokolOGL"
+	project "ImWindowSokolOGL"
+		uuid				"383edfd4-2172-46db-a1b9-d05927d98249"
+		kind				"WindowedApp"
+		targetdir			(PROJECT_RUNTIME_DIR)
+		
+		links				{ "ImWindow" }
+		files
+		{
+							"../sample.h",
+							"../ImWindowEasyWindow/**.cpp",
+							"../ImWindowEasyWindow/**.h",
+							"../ImWindowSokol/**.cpp",
+							"../ImWindowSokol/**.h",
+							"../Externals/EasyWindow/EasyWindow*.cpp",
+							"../Externals/EasyWindow/EasyWindow*.h",
+							"../Externals/sokol/sokol_gfx.h",
+							"../Externals/flextGL/**.c",
+							"../Externals/flextGL/**.h"
+		}	
+		
+		includedirs {
+							"..", -- For ImwConfig.h
+							"../ImWindow",
+							"../ImWindowEasyWindow",
+							"../ImWindowSokol",
+							"../Externals/imgui",
+							"../Externals/EasyWindow",
+							"../Externals/sokol",
+							"../Externals/flextGL"
+		}
+
+		defines {
+							"SOKOL_GLCORE33"
+		}
+		
+		links {
+							"OpenGL32",
+							"glu32"
+		}
+
+		configuration		"x32"
+			libdirs			"../Externals/DirectX/lib/x86"
+			
+		configuration		"x64"
+			libdirs			"../Externals/DirectX/lib/x64"
+
+		configuration		"Debug"
+			flags			"Symbols"
+			
+		configuration		"Release"
+			flags			"Optimize"
+
+		SetupSuffix()
+
+	project "ImWindowSokolDX11"
+		uuid				"f3e9429c-a762-4eac-9902-ace5a4274810"
+		kind				"WindowedApp"
+		targetdir			(PROJECT_RUNTIME_DIR)
+		
+		links				{ "ImWindow" }
+		files
+		{
+							"../sample.h",
+							"../ImWindowEasyWindow/**.cpp",
+							"../ImWindowEasyWindow/**.h",
+							"../ImWindowSokol/**.cpp",
+							"../ImWindowSokol/**.h",
+							"../Externals/EasyWindow/EasyWindow*.cpp",
+							"../Externals/EasyWindow/EasyWindow*.h",
+							"../Externals/sokol/sokol_gfx.h",
+		}	
+		
+		includedirs {
+							"..", -- For ImwConfig.h
+							"../ImWindow",
+							"../ImWindowEasyWindow",
+							"../ImWindowSokol",
+							"../Externals/imgui",
+							"../Externals/EasyWindow",
+							"../Externals/sokol",
+							"../Externals/DirectX/include"
+		}
+
+		defines {
+							"SOKOL_D3D11"
+		}
+
+		configuration		"x32"
+			libdirs			"../Externals/DirectX/lib/x86"
+			
+		configuration		"x64"
+			libdirs			"../Externals/DirectX/lib/x64"
+
+		configuration		"Debug"
+			flags			"Symbols"
+			
+		configuration		"Release"
+			flags			"Optimize"
+
+		SetupSuffix()
+end
 	
 if _OPTIONS["with-bgfx"] then
 		startproject "ImwWindowBGFX"
@@ -417,6 +546,8 @@ if _OPTIONS["with-bgfx"] then
 			}
 			files {
 								"../sample.h",
+								"../ImWindowEasyWindow/**.cpp",
+								"../ImWindowEasyWindow/**.h",
 								"../ImWindowBGFX/**.cpp",
 								"../ImWindowBGFX/**.h",
 								"../Externals/EasyWindow/EasyWindow*.cpp",
@@ -424,7 +555,9 @@ if _OPTIONS["with-bgfx"] then
 			}
 			
 			includedirs {
+								"..", -- For ImwConfig.h
 								"../ImWindow",
+								"../ImWindowEasyWindow",
 								"../Externals/imgui",
 								"../Externals/EasyWindow",
 

@@ -1,1 +1,1 @@
-build --with-opengl --with-dx11 --with-bgfx --with-sff vs2017
+build --with-opengl --with-dx11 --with-sokol --with-bgfx --with-sff vs2017

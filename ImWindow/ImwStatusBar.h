@@ -22,7 +22,7 @@ namespace ImWindow
 		int							m_iHorizontalPriority;
 		bool						m_bAutoDeleted;
 	};
-	typedef ImwList<ImwStatusBar*> ImwStatusBarList;
+	typedef ImVector<ImwStatusBar*> ImwStatusBarVector;
 //SFF_END
 }
 
