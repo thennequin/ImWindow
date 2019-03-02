@@ -611,7 +611,7 @@ namespace ImWindow
 		ImGui::PopStyleVar();
 
 		ImGuiWindow* pCurrentImGuiWindow = ImGui::GetCurrentWindow();
-		ImRect oDraggableArea(pCurrentImGuiWindow->DC.CursorStartPos, ImGui::GetContentRegionMax() - ImVec2(3.f * c_fButtonWidth, 0.f));
+		ImRect oDraggableArea(pCurrentImGuiWindow->DC.CursorStartPos, pCurrentImGuiWindow->DC.CursorMaxPos - ImVec2(3.f * c_fButtonWidth, 0.f));
 
 		bool bHover, bHeld;
 		ImGuiID oDraggableId = ImGui::GetID( "##DraggableArea" );
