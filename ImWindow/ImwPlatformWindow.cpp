@@ -221,18 +221,32 @@ namespace ImWindow
 		ImVec2 oCursorPos = ImwWindowManager::GetInstance()->GetCursorPos();
 		if (bFirst)
 		{
-			if (IsWindowMaximized())
-			{
-				ImVec2 oPos = GetPosition();
-				SetWindowMaximized(false);
-				SetPosition((int)oPos.x, (int)oPos.y);
-			}
+			m_oMovingStartPos = oCursorPos;
+			m_bMoving = false;
 			m_oMovingOffset = oCursorPos - GetPosition();
 		}
 		else
 		{
-			ImVec2 oNewPos = oCursorPos - m_oMovingOffset;
-			SetPosition((int)oNewPos.x, (int)oNewPos.y);
+			ImVec2 oCursorDiff = oCursorPos - m_oMovingStartPos;
+			const int c_iPixelThreshold = 2;
+			if (m_bMoving == false && (oCursorDiff.x * oCursorDiff.x + oCursorDiff.y * oCursorDiff.y) > (c_iPixelThreshold * c_iPixelThreshold))
+				m_bMoving = true;
+
+			if (m_bMoving)
+			{
+				if (IsWindowMaximized())
+				{
+					SetWindowMaximized(false);
+					ImVec2 oSize = GetSize();
+					if (m_oMovingOffset.x > oSize.x / 2.f)
+					{
+						m_oMovingOffset.x = oSize.x / 2.f;
+					}
+				}
+
+				ImVec2 oNewPos = oCursorPos - m_oMovingOffset;
+				SetPosition((int)oNewPos.x, (int)oNewPos.y);
+			}
 		}
 	}
 

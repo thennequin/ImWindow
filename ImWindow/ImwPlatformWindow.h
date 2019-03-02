@@ -85,6 +85,8 @@ namespace ImWindow
 		bool								m_bShowContent;
 		ImRect								m_oContentArea;
 		ImVec2								m_oMovingOffset;
+		ImVec2								m_oMovingStartPos;
+		bool								m_bMoving;
 	};
 
 	typedef ImVector<ImwPlatformWindow*> ImwPlatformWindowVector;
