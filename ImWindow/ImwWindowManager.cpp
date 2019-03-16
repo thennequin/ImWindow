@@ -888,7 +888,7 @@ namespace ImWindow
 				ImVec2 oPos = m_pMainPlatformWindow->GetPosition();
 				ImVec2 oMainSize = m_pMainPlatformWindow->GetSize();
 				oPos += (oMainSize - oSize) / 2.f;
-				InternalFloat(*m_lOrphanWindows.begin(), oPos, oSize);
+				InternalFloat(*it, oPos, oSize);
 			}
 			else
 			{
