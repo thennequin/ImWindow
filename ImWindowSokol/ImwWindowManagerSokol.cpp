@@ -5,7 +5,8 @@
 
 using namespace ImWindow;
 
-ImwWindowManagerSokol::ImwWindowManagerSokol(sg_desc* pSokolDesc)
+ImwWindowManagerSokol::ImwWindowManagerSokol(sg_desc* pSokolDesc, bool bCustomFrame)
+	: ImwWindowManagerEasyWindow(bCustomFrame)
 {
 	IM_ASSERT(pSokolDesc != NULL);
 	m_oSokolDesc = *pSokolDesc;

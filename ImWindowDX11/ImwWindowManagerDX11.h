@@ -22,8 +22,6 @@ namespace ImWindow
 		IDXGIFactory*					GetDXGIFactory() const { return m_pDXGIFactory; }
 		ID3D11Device*					GetDX11Device() const { return m_pDX11Device; }
 		ID3D11DeviceContext*			GetDX11DeviceContext() const { return m_pDX11DeviceContext; }
-
-		virtual bool					IsUsingCustomFrame() const;
 	protected:
 		virtual bool					InternalInit();
 		virtual void					InternalDestroy();
@@ -36,8 +34,6 @@ namespace ImWindow
 		IDXGIFactory*					m_pDXGIFactory;
 		ID3D11Device*					m_pDX11Device;
 		ID3D11DeviceContext*			m_pDX11DeviceContext;
-
-		const bool						m_bCustomFrame;
 	};
 }
 

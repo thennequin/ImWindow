@@ -20,10 +20,10 @@ int ( WINAPIV * __vsnprintf )( char *, size_t, const char*, va_list ) = _vsnprin
 using namespace ImWindow;
 
 ImwWindowManagerDX11::ImwWindowManagerDX11(bool bCustomFrame)
-	: m_pDXGIFactory( NULL )
+	: ImwWindowManagerEasyWindow(bCustomFrame)
+	, m_pDXGIFactory( NULL )
 	, m_pDX11Device( NULL )
 	, m_pDX11DeviceContext( NULL )
-	, m_bCustomFrame(bCustomFrame)
 {
 }
 
@@ -80,11 +80,6 @@ ImwPlatformWindow* ImwWindowManagerDX11::CreatePlatformWindow(EPlatformWindowTyp
 		delete pWindow;
 		return NULL;
 	}
-}
-
-bool ImwWindowManagerDX11::IsUsingCustomFrame() const
-{
-	return m_bCustomFrame;
 }
 
 const float c_fIconSize = 20.f;
