@@ -16,8 +16,9 @@ Actually work on Windows with different backend
   * OpenGL
   * OpenGL with GLFW
   * BGFX
+  * Sokol (with DX11 and OpenGL support)
   
-Linux support is in progress.
+Linux support is in pause.
 
 For Mac it's not decided yet.
 
