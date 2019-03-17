@@ -632,10 +632,6 @@ namespace ImWindow
 		{
 			if (bDoubleClicked == false)
 			{
-				ImGuiContext* pContext = ImGui::GetCurrentContext();
-				bool bItemActiveLastFrame = pContext->ActiveIdPreviousFrame == oDraggableId;
-				bool bItemActive = pContext->ActiveId == oDraggableId;
-
 				pPlatformWindow->Moving(bFirstClicked == false);
 
 				if (bFirstClicked == false)
@@ -1207,7 +1203,6 @@ namespace ImWindow
 		IM_ASSERT(m_pCurrentPlatformWindow != NULL);
 		if (m_pCurrentPlatformWindow != NULL && m_pCurrentPlatformWindow->GetType() == E_PLATFORM_WINDOW_TYPE_MAIN && m_lStatusBars.size() > 0)
 		{
-			ImGuiStyle& oStyle = ImGui::GetStyle();
 			return m_oConfig.m_oStatusBarWindowPadding.y + m_oConfig.m_oStatusBarFramePadding.y * 2.f + ImGui::GetTextLineHeight();
 		}
 		return 0.f;
