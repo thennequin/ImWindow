@@ -5,17 +5,14 @@
 #include "windows.h"
 
 #pragma comment (lib, "d3d11.lib")
-#pragma comment (lib, "d3dx11.lib")
-#pragma comment (lib, "d3dx10.lib")
+//#pragma comment (lib, "d3dx11.lib")
+//#pragma comment (lib, "d3dx10.lib")
 #pragma comment (lib, "d3dcompiler.lib")
 #pragma comment (lib, "dxgi.lib")
-#pragma comment (lib, "dxerr.lib")
 
 #include <d3dcommon.h>
 #include <d3d11.h>
 #include <d3dcompiler.h>
-#include <DxErr.h>
-int ( WINAPIV * __vsnprintf )( char *, size_t, const char*, va_list ) = _vsnprintf;
 
 using namespace ImWindow;
 
@@ -33,17 +30,19 @@ ImwWindowManagerDX11::~ImwWindowManagerDX11()
 
 bool ImwWindowManagerDX11::InternalInit()
 {
-	int iResult = CreateDXGIFactory( __uuidof( IDXGIFactory ), (void**)&m_pDXGIFactory );
+	HRESULT iResult = CreateDXGIFactory( __uuidof( IDXGIFactory ), (void**)&m_pDXGIFactory );
 	if( FAILED( iResult ) )
 	{
-		MessageBox( NULL, DXGetErrorDescription( iResult ), TEXT( "Can't create FXGI factory" ), MB_ICONERROR | MB_OK );
+		char pErrorMessage[1024];
+		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, iResult, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&pErrorMessage, 1024, NULL);
+		MessageBox( NULL, pErrorMessage, TEXT( "Can't create FXGI factory" ), MB_ICONERROR | MB_OK );
 		return false;
 	}
 
 	iResult = D3D11CreateDevice( NULL,
 		D3D_DRIVER_TYPE_HARDWARE,
 		NULL,
-		NULL,
+		D3D11_CREATE_DEVICE_DEBUG,
 		NULL,
 		NULL,
 		D3D11_SDK_VERSION,
@@ -53,7 +52,9 @@ bool ImwWindowManagerDX11::InternalInit()
 
 	if( FAILED( iResult ) )
 	{
-		MessageBox( NULL, DXGetErrorDescription( iResult ), TEXT( "Can't create DX11 device and device context" ), MB_ICONERROR | MB_OK );
+		char pErrorMessage[1024];
+		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, iResult, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&pErrorMessage, 1024, NULL);
+		MessageBox( NULL, pErrorMessage, TEXT( "Can't create DX11 device and device context" ), MB_ICONERROR | MB_OK );
 		return false;
 	}
 

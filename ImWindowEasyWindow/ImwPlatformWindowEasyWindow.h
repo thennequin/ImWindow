@@ -6,8 +6,6 @@
 #include "ImwPlatformWindow.h"
 #include "EasyWindow.h"
 
-class IDXGIFactory;
-
 namespace ImWindow
 {
 	class ImwPlatformWindowEasyWindow : public ImwPlatformWindow

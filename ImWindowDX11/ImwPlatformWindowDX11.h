@@ -5,20 +5,20 @@
 #include "ImwConfig.h"
 #include "ImwPlatformWindowEasyWindow.h"
 
-class IDXGIFactory;
-class IDXGISwapChain;
-class ID3D11Device;
-class ID3D11DeviceContext;
-class ID3D11RenderTargetView;
-class ID3D11Texture2D;
-class ID3D11SamplerState;
-class ID3D11ShaderResourceView;
-class ID3D11VertexShader;
-class ID3D11PixelShader;
-class ID3D11InputLayout;
-class ID3D11Buffer;
-class ID3D11RasterizerState;
-class ID3D11BlendState;
+struct IDXGIFactory;
+struct IDXGISwapChain;
+struct ID3D11Device;
+struct ID3D11DeviceContext;
+struct ID3D11RenderTargetView;
+struct ID3D11Texture2D;
+struct ID3D11SamplerState;
+struct ID3D11ShaderResourceView;
+struct ID3D11VertexShader;
+struct ID3D11PixelShader;
+struct ID3D11InputLayout;
+struct ID3D11Buffer;
+struct ID3D11RasterizerState;
+struct ID3D11BlendState;
 
 namespace ImWindow
 {
@@ -33,7 +33,7 @@ namespace ImWindow
 		virtual void						RenderDrawLists(ImDrawData* pDrawData);
 
 		virtual void						OnClientSize(int iClientWidth, int iClientHeight);
-		
+
 		IDXGISwapChain*						m_pDXGISwapChain;
 		ID3D11RenderTargetView*				m_pDX11RenderTargetView;
 

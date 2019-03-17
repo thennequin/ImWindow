@@ -6,10 +6,10 @@
 
 #include "ImwWindowManagerEasyWindow.h"
 
-class IDXGIFactory;
-class IDXGISwapChain;
-class ID3D11Device;
-class ID3D11DeviceContext;
+struct IDXGIFactory;
+struct IDXGISwapChain;
+struct ID3D11Device;
+struct ID3D11DeviceContext;
 
 namespace ImWindow
 {

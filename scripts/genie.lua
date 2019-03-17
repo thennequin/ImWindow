@@ -309,15 +309,8 @@ if _OPTIONS["with-dx11"] then
 							"../ImWindow",
 							"../ImWindowEasyWindow",
 							"../Externals/imgui",
-							"../Externals/EasyWindow",
-							"../Externals/DirectX/include"
+							"../Externals/EasyWindow"
 		}
-		
-		configuration		"x32"
-			libdirs			"../Externals/DirectX/lib/x86"
-			
-		configuration		"x64"
-			libdirs			"../Externals/DirectX/lib/x64"
 
 		configuration		"Debug"
 			flags			"Symbols"
@@ -469,12 +462,6 @@ if _OPTIONS["with-sokol"] then
 							"glu32"
 		}
 
-		configuration		"x32"
-			libdirs			"../Externals/DirectX/lib/x86"
-			
-		configuration		"x64"
-			libdirs			"../Externals/DirectX/lib/x64"
-
 		configuration		"Debug"
 			flags			"Symbols"
 			
@@ -508,19 +495,12 @@ if _OPTIONS["with-sokol"] then
 							"../ImWindowSokol",
 							"../Externals/imgui",
 							"../Externals/EasyWindow",
-							"../Externals/sokol",
-							"../Externals/DirectX/include"
+							"../Externals/sokol"
 		}
 
 		defines {
 							"SOKOL_D3D11"
 		}
-
-		configuration		"x32"
-			libdirs			"../Externals/DirectX/lib/x86"
-			
-		configuration		"x64"
-			libdirs			"../Externals/DirectX/lib/x64"
 
 		configuration		"Debug"
 			flags			"Symbols"
