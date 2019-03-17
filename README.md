@@ -6,7 +6,7 @@ Window and GUI system based on ImGui from OCornut.
 
 Include docking/floating window, multi window and multi render support.
 
-![Screenshot1](https://raw.githubusercontent.com/wiki/thennequin/ImWindow/images/Screen1.png)
+![Custom titlebar Screenshot](https://raw.githubusercontent.com/wiki/thennequin/ImWindow/images/CustomTitlebar.png)
 
 ![Docking](https://raw.githubusercontent.com/wiki/thennequin/ImWindow/images/Docking.gif)
 
