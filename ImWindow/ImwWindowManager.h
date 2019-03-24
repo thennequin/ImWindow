@@ -98,7 +98,6 @@ namespace ImWindow
 			float					m_fTabShadowSlopRatio;
 			float					m_fTabShadowAlpha;
 
-			ImVec2					m_oStatusBarWindowPadding;
 			ImVec2					m_oStatusBarFramePadding;
 		};
 	public:
@@ -209,7 +208,7 @@ namespace ImWindow
 		bool								GetDragOnTabArea() const;
 		int									GetDragTabPosition() const;
 		const ImwContainer*					GetBestDocking(ImwPlatformWindow* pPlatformWindow, const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, float& fOutRatio, bool& bOutOnTabArea, int& iOutPosition, bool bLargeCheck);
-		
+
 		Config								m_oConfig;
 		char*								m_pMainTitle;
 		ImwPlatformWindow*					m_pMainPlatformWindow;

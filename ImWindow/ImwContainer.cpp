@@ -915,7 +915,7 @@ namespace ImWindow
 		//Drop shadows
 		if (oConfig.m_bShowTabShadows)
 		{
-			const ImVec2 uv = GImGui->FontTexUvWhitePixel;
+			const ImVec2 uv = ImGui::GetFontTexUvWhitePixel();
 			pDrawList->PrimReserve(3, 3);
 			pDrawList->PrimWriteIdx((ImDrawIdx)(pDrawList->_VtxCurrentIdx)); pDrawList->PrimWriteIdx((ImDrawIdx)(pDrawList->_VtxCurrentIdx + 1)); pDrawList->PrimWriteIdx((ImDrawIdx)(pDrawList->_VtxCurrentIdx + 2));
 			pDrawList->PrimWriteVtx(ImVec2(oRectMin.x - oConfig.m_fTabOverlap - oConfig.m_fTabShadowDropSize, oRectMax.y), uv, ImColor(0.f, 0.f, 0.f, 0.f));

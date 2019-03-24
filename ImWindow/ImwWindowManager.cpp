@@ -47,7 +47,6 @@ namespace ImWindow
 		, m_fTabShadowDropSize( 15.f )
 		, m_fTabShadowSlopRatio( 0.6f )
 		, m_fTabShadowAlpha( 0.75f )
-		, m_oStatusBarWindowPadding( 8.f, 4.f )
 		, m_oStatusBarFramePadding( 4.f, 2.f )
 	{
 	}
@@ -946,7 +945,7 @@ namespace ImWindow
 		ImGuiStyle& oStyle = ImGui::GetStyle();
 
 		float fTop = IsUsingCustomFrame() ? GetTitleBarHeight() : 0.f;
-		float fBottom = pWindow->IsMainWindow() ?  GetStatusBarHeight() : 0.f;
+		float fBottom = pWindow->IsMainWindow() ?  (GetStatusBarHeight() + oStyle.ItemSpacing.y) : 0.f;
 
 		const int c_iWindowFlags = ImGuiWindowFlags_NoTitleBar
 			| ImGuiWindowFlags_NoResize
@@ -997,7 +996,9 @@ namespace ImWindow
 				ImGui::SetCursorPosY(ImGui::GetCursorPosY() - oStyle.ItemSpacing.y);
 			}
 
-			if (BeginTransparentChild("##ImWindowMain", ImVec2(0.f, 0.), false, c_iWindowChildFlags | ((pWindow->GetType() == E_PLATFORM_WINDOW_TYPE_MAIN) ? ImGuiWindowFlags_MenuBar : 0)))
+			int iMainWindowFlags = (pWindow->GetType() == E_PLATFORM_WINDOW_TYPE_MAIN) ? (c_iWindowChildFlagsWithPadding | ImGuiWindowFlags_MenuBar) : c_iWindowChildFlagsWithPadding;
+
+			if (BeginTransparentChild("##ImWindowMain", ImVec2(0.f, 0.f), false, iMainWindowFlags))
 			{
 				if (pWindow->GetType() == E_PLATFORM_WINDOW_TYPE_MAIN)
 				{
@@ -1008,10 +1009,8 @@ namespace ImWindow
 					}
 					ImGui::EndMenuBar();
 				}
-				
-				ImGui::SetCursorPosY(ImGui::GetCursorPosY() - oStyle.WindowPadding.y + oStyle.ItemSpacing.y);
 
-				if (BeginTransparentChild("##ImWindowContent", ImVec2(0.f, -fBottom), false, c_iWindowChildFlagsWithPadding))
+				if (BeginTransparentChild("##ImWindowContent", ImVec2(0.f, -fBottom), false, c_iWindowChildFlags))
 				{
 					if (pWindow->GetType() == E_PLATFORM_WINDOW_TYPE_MAIN)
 					{
@@ -1039,12 +1038,9 @@ namespace ImWindow
 
 				if (pWindow->GetType() == E_PLATFORM_WINDOW_TYPE_MAIN && m_lStatusBars.size() > 0)
 				{
-					ImGui::SetCursorPosY(ImGui::GetCursorPosY() - oStyle.WindowPadding.y - oStyle.ItemSpacing.y + 1.f);
-
-					ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, m_oConfig.m_oStatusBarWindowPadding);
 					ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, m_oConfig.m_oStatusBarFramePadding);
 
-					if (BeginTransparentChild("##ImWindowStatusBars", ImVec2(0.f, 0.f), false, c_iWindowChildFlagsWithPadding))
+					if (BeginTransparentChild("##ImWindowStatusBars", ImVec2(0.f, 0.f), false, c_iWindowChildFlags))
 					{
 						ImGui::AlignFirstTextHeightToWidgets();
 
@@ -1059,7 +1055,7 @@ namespace ImWindow
 
 					ImGui::EndChild();
 
-					ImGui::PopStyleVar(2);
+					ImGui::PopStyleVar(1);
 				}
 			}
 			ImGui::EndChild();
@@ -1203,7 +1199,7 @@ namespace ImWindow
 		IM_ASSERT(m_pCurrentPlatformWindow != NULL);
 		if (m_pCurrentPlatformWindow != NULL && m_pCurrentPlatformWindow->GetType() == E_PLATFORM_WINDOW_TYPE_MAIN && m_lStatusBars.size() > 0)
 		{
-			return m_oConfig.m_oStatusBarWindowPadding.y + m_oConfig.m_oStatusBarFramePadding.y * 2.f + ImGui::GetTextLineHeight();
+			return ImGui::GetTextLineHeight() + m_oConfig.m_oStatusBarFramePadding.y * 2.f;
 		}
 		return 0.f;
 	}
