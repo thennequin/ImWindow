@@ -97,7 +97,7 @@ namespace ImWindow
 			{
 				m_pDragPlatformWindow = CreatePlatformWindow(E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW, m_pMainPlatformWindow);
 			}
-		
+
 			return true;
 		}
 		return false;
@@ -141,7 +141,7 @@ namespace ImWindow
 				else
 					m_lMenus.pop_back();
 			}
-		
+
 			while (m_lStatusBars.begin() != m_lStatusBars.end())
 			{
 				ImwStatusBar* pStatusBar = m_lStatusBars.back();
@@ -167,7 +167,7 @@ namespace ImWindow
 				delete *m_lPlatformWindows.begin();
 				m_lPlatformWindows.erase(m_lPlatformWindows.begin());
 			}
-			
+
 			if (m_pDragPlatformWindow != NULL)
 			{
 				m_pDragPlatformWindow->PreDestroy();
@@ -357,7 +357,7 @@ namespace ImWindow
 	{
 		JsonValue oJson;
 		oJson.InitType(JsonValue::E_TYPE_OBJECT);
-		
+
 		if ( m_pMainPlatformWindow->Save(oJson["MainPlatformWindow"]) )
 		{
 			JsonValue& oJsonPlatformWindows = oJson["PlatformWindows"];
@@ -435,7 +435,7 @@ namespace ImWindow
 				pNewPlatformWindow->Show(true);
 				if (!pNewPlatformWindow->Load(oJsonPlatformWindow, false))
 					return false; //Something wrong
-				
+
 				pNewPlatformWindow->RefreshTitle();
 			}
 
@@ -460,12 +460,12 @@ namespace ImWindow
 			{
 				char* pString = new char[iSize / sizeof(char)];
 				fread(pString, 1, iSize, pFile);
-				
+
 				bReturn = LoadLayoutFromString(pString);
 
 				delete[] pString;
 			}
-			
+
 			fclose( pFile );
 
 			return bReturn;
@@ -549,7 +549,7 @@ namespace ImWindow
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
 
 		ImVec2 oMin, oMax, oCenter, oStartRect, oEndRect;
-		
+
 		//Minimize
 		{
 			ImGui::SameLine();
@@ -688,7 +688,7 @@ namespace ImWindow
 			ImwWindowVector::iterator itFind = std::find(m_lOrphanWindows.begin(), m_lOrphanWindows.end(), pWindow);
 			if (itFind != m_lOrphanWindows.end())
 				m_lOrphanWindows.erase(itFind);
-			
+
 			itFind = std::find(m_lWindows.begin(), m_lWindows.end(), pWindow);
 			if (itFind != m_lWindows.end())
 				m_lWindows.erase(itFind);
@@ -720,7 +720,7 @@ namespace ImWindow
 		for (ImwPlatformWindowVector::iterator it = m_lToDestroyPlatformWindows.begin(), itEnd = m_lToDestroyPlatformWindows.end(); it != itEnd; ++it)
 		{
 			ImwPlatformWindow* pPlatformWindow = *it;
-			
+
 			ImwPlatformWindowVector::iterator itFind = std::find(m_lPlatformWindows.begin(), m_lPlatformWindows.end(), pPlatformWindow);
 			if (itFind != m_lPlatformWindows.end())
 				m_lPlatformWindows.erase(itFind);
@@ -768,7 +768,7 @@ namespace ImWindow
 		while (m_lPlatformWindowActions.begin() != m_lPlatformWindowActions.end())
 		{
 			PlatformWindowAction* pAction = *m_lPlatformWindowActions.begin();
-	
+
 			if (pAction->m_eAction == E_PLATFORM_WINDOW_ACTION_DESTROY)
 			{
 				bool bFound = false;
@@ -919,7 +919,7 @@ namespace ImWindow
 		}
 
 		m_pCurrentPlatformWindow = NULL;
-		
+
 		PostRender();
 	}
 
@@ -1086,7 +1086,7 @@ namespace ImWindow
 			{
 				ImVec2 oPosA = oAction.m_oRectPos;
 				ImVec2 oPosB = oAction.m_oRectPos + oAction.m_oRectSize;
-				
+
 				//pDrawList->AddLine(ImGui::CalcItemRectClosestPoint(ImGui::GetIO().MousePos, true, -2.0f), ImGui::GetIO().MousePos, ImColor(ImGui::GetStyle().Colors[ImGuiCol_Button]), 4.0f);
 				pDrawList->AddRectFilled(oPosA, oPosB, oAction.m_oColor);
 			}

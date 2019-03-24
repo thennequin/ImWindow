@@ -10,7 +10,7 @@ namespace ImWindow
 {
 //SFF_BEGIN
 	const float ImwContainer::c_fTabHeight = 25.f;
-	
+
 	ImwContainer::ImwContainer(ImwContainer* pParent)
 	{
 		IM_ASSERT(NULL != pParent);
@@ -87,7 +87,7 @@ namespace ImWindow
 							std::advance(itWindow, iPosition);
 							m_lWindows.insert(itWindow, pWindow);
 						}
-						
+
 					}
 					break;
 				case E_DOCK_ORIENTATION_TOP:
@@ -361,7 +361,7 @@ namespace ImWindow
 				return GetActiveWindow();
 			}
 		}
-			
+
 		return NULL;
 	}
 
@@ -520,7 +520,7 @@ namespace ImWindow
 					{
 						m_bIsDrag = true;
 					}
-				
+
 					m_fSplitRatio += ImGui::GetIO().MouseDelta.x / oSize.x;
 					m_fSplitRatio = ImClamp( m_fSplitRatio, 0.05f, 0.95f );
 				}
@@ -810,7 +810,7 @@ namespace ImWindow
 				}
 
 				ImGui::BeginChild(pActiveWindow->GetId(), ImVec2(0.f, 0.f), false, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysUseWindowPadding);
-				
+
 				if (pActiveWindow->IsFillingSpace())
 				{
 					oStyle.WindowPadding = oWindowPaddingBackup;
@@ -824,7 +824,7 @@ namespace ImWindow
 					(*it)->m_oLastPosition = oWinPos;
 					(*it)->m_oLastSize = oWinSize;
 				}
-				
+
 				{
 #ifdef IMW_BEFORE_WINDOW_PAINT
 					IMW_BEFORE_WINDOW_PAINT(pActiveWindow->GetTitle())
@@ -898,7 +898,7 @@ namespace ImWindow
 				oBorderColor = oConfig.m_oTabColorBorder;
 				break;
 		}
-		
+
 		ImVec2 oRectMin = oPos;
 		ImVec2 oRectMax = ImVec2(oPos.x + oTabSize.x, oPos.y + oTabSize.y);
 
@@ -951,18 +951,18 @@ namespace ImWindow
 
 		if (bFocused)
 		{
-			pDrawList->AddConvexPolyFilled(pDrawList->_Path.Data + 1, pDrawList->_Path.Size - 1, bFocused ? oSelectedTab : oNormalTab, true);
+			pDrawList->AddConvexPolyFilled(pDrawList->_Path.Data + 1, pDrawList->_Path.Size - 1, bFocused ? oSelectedTab : oNormalTab);
 			if (fEndLinePos > oRectMax.x)
 			{
 				pDrawList->PathLineTo(ImVec2(fEndLinePos, oRectMax.y));
 			}
 
 			if (oConfig.m_bShowTabBorder)
-				pDrawList->AddPolyline(pDrawList->_Path.Data, pDrawList->_Path.Size, oBorderColor, false, 1.5f, true);
+				pDrawList->AddPolyline(pDrawList->_Path.Data, pDrawList->_Path.Size, oBorderColor, false, 1.5f);
 		}
 		else
 		{
-			pDrawList->AddConvexPolyFilled(pDrawList->_Path.Data, pDrawList->_Path.Size, bFocused ? oSelectedTab : oNormalTab, true);
+			pDrawList->AddConvexPolyFilled(pDrawList->_Path.Data, pDrawList->_Path.Size, bFocused ? oSelectedTab : oNormalTab);
 		}
 
 		pDrawList->PathClear();
@@ -993,7 +993,7 @@ namespace ImWindow
 		{
 			fWidth = fMaxSize;
 		}
-		
+
 		return fWidth;
 	}
 
@@ -1017,11 +1017,11 @@ namespace ImWindow
 				if (pBestContainer != NULL)
 					return pBestContainer;
 			}
-	
+
 			pBestContainer = m_pSplits[1]->GetBestContainer(oCursorPos);
 			if (pBestContainer != NULL)
 				return pBestContainer;
-			
+
 			return m_pSplits[0]->GetBestContainer(oCursorPos);
 		}
 		else
@@ -1034,7 +1034,7 @@ namespace ImWindow
 
 	const ImwContainer* ImwContainer::GetBestDocking(const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, bool& bOutOnTabArea, int& iOutPosition, bool bLargeCheck) const
 	{
-		if (m_pParent == NULL || 
+		if (m_pParent == NULL ||
 			(oCursorPos.x >= m_oLastPosition.x && oCursorPos.x <= (m_oLastPosition.x + m_oLastSize.x) &&
 			oCursorPos.y >= m_oLastPosition.y && oCursorPos.y <= (m_oLastPosition.y + m_oLastSize.y)))
 		{
@@ -1300,7 +1300,7 @@ namespace ImWindow
 			ImwSafeDelete(m_pSplits[0]);
 			ImwSafeDelete(m_pSplits[1]);
 		}
-		
+
 		if (oJson["Splits"].IsArray())
 		{
 			if (!bJustCheck)
