@@ -92,10 +92,10 @@ const float c_fIconSize = 20.f;
 float ImwWindowManagerDX11::GetTitleBarHeight() const
 {
 	ImGuiContext* pContext = m_pMainPlatformWindow->GetContext();
-	float fContentSize = pContext->Style.FramePadding.y * 2.f + pContext->FontSize;
-	if ((c_fIconSize +1.f)> fContentSize)
+	float fContentSize = pContext->FontSize;
+	if ((c_fIconSize + 1.f)> fContentSize)
 		fContentSize = c_fIconSize + 1.f;
-	return pContext->Style.WindowPadding.y + fContentSize;
+	return pContext->Style.WindowPadding.y + pContext->Style.FramePadding.y * 2.f + fContentSize;
 }
 
 void ImwWindowManagerDX11::PaintTitleBar(ImwPlatformWindow* pPlatformWindow)
