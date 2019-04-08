@@ -114,5 +114,5 @@ void ImwWindowManagerDX11::PaintTitleBar(ImwPlatformWindow* pPlatformWindow)
 	pDrawList->AddLine(oRect.GetBL(), oRect.GetTR(), iColor);
 
 	ImGui::SameLine();
-	ImwWindowManager::PaintTitleBar(pPlatformWindow);
+	ImwWindowManager::PaintTitleBar(pPlatformWindow, true);
 }

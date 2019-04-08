@@ -157,7 +157,7 @@ namespace ImWindow
 		virtual void						PostRender();
 
 		virtual float						GetTitleBarHeight() const;
-		virtual void						PaintTitleBar(ImwPlatformWindow* pPlatformWindow);
+		virtual void						PaintTitleBar(ImwPlatformWindow* pPlatformWindow, bool bDrawTitle);
 
 		void								AddWindow(ImwWindow* pWindow);
 		void								RemoveWindow(ImwWindow* pWindow);

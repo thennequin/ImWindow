@@ -532,19 +532,21 @@ namespace ImWindow
 		return pContext->Style.WindowPadding.y + pContext->Style.FramePadding.y * 2.f + pContext->FontSize;
 	}
 
-	void ImwWindowManager::PaintTitleBar(ImwPlatformWindow* pPlatformWindow)
+	void ImwWindowManager::PaintTitleBar(ImwPlatformWindow* pPlatformWindow, bool bDrawTitle)
 	{
 		const float c_fButtonWidth = 24.f;
 
-		ImGui::TextUnformatted(GetMainTitle());
-
 		ImDrawList* pDrawList = ImGui::GetWindowDrawList();
 
-		ImU32 iColor = ImGui::GetColorU32(ImGuiCol_Text);
+		if (bDrawTitle)
+		{
+			ImGui::TextUnformatted(GetMainTitle());
+			ImGui::SameLine();
+		}
 
-		ImGui::SameLine();
 		ImGui::Dummy(ImVec2(ImGui::GetContentRegionAvailWidth() - 3.f * c_fButtonWidth, 1.f));
 
+		ImU32 iColor = ImGui::GetColorU32(ImGuiCol_Text);
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.f, 0.f));
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
 
@@ -989,7 +991,7 @@ namespace ImWindow
 			{
 				if (BeginTransparentChild("##ImWindowTitle", ImVec2(0.f, fTop), false, c_iWindowChildFlagsWithPadding))
 				{
-					PaintTitleBar(pWindow);
+					PaintTitleBar(pWindow, true);
 				}
 				ImGui::EndChild();
 
