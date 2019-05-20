@@ -396,7 +396,8 @@ if _OPTIONS["with-glfw"] then
 		includedirs {
 							"..", -- For ImwConfig.h
 							"../ImWindow",
-							"../Externals/imgui"
+							"../Externals/imgui",
+							"../Externals/UtilsCollection/JsonStthm"
 		}
 
 		configuration "x32"
