@@ -1075,21 +1075,18 @@ namespace ImWindow
 		{
 			if (IsSplit())
 			{
-				const ImwContainer* pBestContainer = NULL;
-				pBestContainer = m_pSplits[0]->GetBestDocking(oCursorPos, oOutOrientation, oOutAreaPos, oOutAreaSize, pOutOnTabArea, pOutPosition, bLargeCheck);
-				if (NULL != pBestContainer)
+				for (int iSplit = 0; iSplit < 2; ++iSplit)
 				{
-					return pBestContainer;
-				}
-				pBestContainer = m_pSplits[1]->GetBestDocking(oCursorPos, oOutOrientation, oOutAreaPos, oOutAreaSize, pOutOnTabArea, pOutPosition, bLargeCheck);
-				if (NULL != pBestContainer)
-				{
-					return pBestContainer;
+					const ImwContainer* pBestContainer = m_pSplits[iSplit]->GetBestDocking(oCursorPos, oOutOrientation, oOutAreaPos, oOutAreaSize, pOutOnTabArea, pOutPosition, bLargeCheck);
+					if (NULL != pBestContainer)
+					{
+						return pBestContainer;
+					}
 				}
 
 				if (bLargeCheck)
 				{
-					pBestContainer = GetBestContainer(oCursorPos);
+					const ImwContainer* pBestContainer = GetBestContainer(oCursorPos);
 					IM_ASSERT(pBestContainer != NULL);
 					if (pBestContainer != NULL)
 					{
