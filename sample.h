@@ -216,7 +216,7 @@ public:
 			oConfig.m_eTabColorMode = ImwWindowManager::E_TABCOLORMODE_CUSTOM;
 			oConfig.m_oTabColorActive.Value = ImVec4(0.14f, 0.14f, 0.18f, 1.00f);
 			oConfig.m_oTabColorNormal.Value = ImVec4(0.20f, 0.20f, 0.23f, 1.00f);
-			 
+
 			ImGuiStyle& style = ImGui::GetStyle();
 			style.Colors[ImGuiCol_Text] = ImVec4(0.90f, 0.90f, 0.90f, 0.90f);
 			style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
@@ -814,10 +814,10 @@ class MyImwWindow : public ImwWindow, ImwMenu
 {
 public:
 	MyImwWindow(const char* pTitle = "MyImwWindow")
-		: ImwMenu(0, false)
+		: ImwWindow(ImWindow::E_WINDOW_MODE_ALONE)
+		, ImwMenu(0, false)
 	{
 		SetTitle(pTitle);
-		SetAlone(true);
 		m_pText[0] = 0;
 	}
 	virtual void OnGui()
@@ -857,6 +857,21 @@ public:
 	char m_pText[512];
 };
 
+class PlaceholderWindow : public ImWindow::ImwWindow
+{
+public:
+	PlaceholderWindow()
+		: ImwWindow(ImWindow::E_WINDOW_MODE_PLACEHOLDER)
+	{
+	}
+
+	virtual void OnGui()
+	{
+		ImGui::Text("I'm a placeholder");
+		ImGui::Text("Drag & drop window on me");
+	}
+};
+
 void PreInitSample()
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -874,6 +889,8 @@ void InitSample()
 	//oMgr.GetMainPlatformWindow()->SetPos(2000,100);
 	oMgr.SetMainTitle("ImWindow sample");
 
+	ImwWindow* pWindowPlaceholder = new PlaceholderWindow();
+
 	ImwWindow* pWindow1 = new MyImwWindow();
 
 	ImwWindow* pWindow2 = new MyImwWindowFillSpace();
@@ -890,6 +907,7 @@ void InitSample()
 
 	oMgr.Dock(pWindow1);
 	oMgr.Dock(pWindow2, E_DOCK_ORIENTATION_LEFT);
+	oMgr.DockWith(pWindowPlaceholder, pWindow2, E_DOCK_ORIENTATION_BOTTOM);
 	oMgr.DockWith(pWindow3, pWindow2, E_DOCK_ORIENTATION_TOP);
 	oMgr.DockWith(pWindow4, pWindow3, E_DOCK_ORIENTATION_CENTER);
 	oMgr.DockWith(pWindow5, pWindow1, E_DOCK_ORIENTATION_BOTTOM, 0.7f);

@@ -22,15 +22,17 @@ namespace ImWindow
 
 		bool							IsEmpty() const;
 		bool							IsSplit() const;
-		bool							HasWindowTabbed() const;
+		bool							HasWindow() const;
 		ImwWindow*						GetWindowAtPos(const ImVec2& oPos) const;
 		const ImwContainer*				HasWindow(ImwWindow* pWindow) const;
 		bool							FocusWindow(ImwWindow* pWindow);
 		ImwWindow*						GetActiveWindow() const;
 		ImwPlatformWindow*				GetPlatformWindowParent() const;
 		const ImwContainer*				GetBestContainer(const ImVec2& oCursorPos) const;
-		const ImwContainer*				GetBestDocking(const ImVec2 oCursorPosInContainer, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, bool& bOutOnTabArea, int& iOutPosition, bool bLargeCheck) const;
+		const ImwContainer*				GetBestDocking(const ImVec2 oCursorPosInContainer, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, bool* pOutOnTabArea, int* pOutPosition, bool bLargeCheck) const;
 		bool							HasUnclosableWindow() const;
+
+		EWindowMode						GetWindowMode() const;
 	protected:
 										ImwContainer(ImwContainer* pParent);
 										ImwContainer(ImwPlatformWindow* pParent);
@@ -41,8 +43,8 @@ namespace ImWindow
 		void							Paint();
 
 		bool							Tab(const ImwWindow* pWindow, bool bFocused, float fStartLinePos, float fEndLinePos, float fMaxSize = -1.f);
-		void							DrawTab(const char* pText, bool bFocused, ImVec2 oPos, float fStartLinePos, float fEndLinePos, float fMaxSize = -1.f, ImVec2* pSizeOut = NULL);
-		float							GetTabWidth(const char* pText, float fMaxSize, ImVec2* pOutTextSize = NULL) const;
+		void							DrawTab(const char* pText, bool bFocused, ImVec2 oPos, float fStartLinePos, float fEndLinePos, const ImVec2& oSize, const ImVec2* pTextSize = NULL);
+		void							GetTabSize(const char* pText, float fMaxSize, ImVec2* pOutTabSize, ImVec2* pOutTextSize = NULL) const;
 		float							GetTabAreaWidth() const;
 
 		bool							Save(JsonValue& oJson);
@@ -50,6 +52,7 @@ namespace ImWindow
 
 		ImwContainer*					m_pParent;
 		ImwPlatformWindow*				m_pParentWindow;
+		ImwWindow*						m_pSpecialWindow;
 		ImwWindowVector					m_lWindows;
 		ImwContainer*					m_pSplits[2];
 
