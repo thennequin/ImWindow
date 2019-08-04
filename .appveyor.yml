@@ -23,21 +23,21 @@ configuration:
   - Release
 
 install:
-  - git clone --depth 1 https://github.com/bkaradzic/bx ..\bx
+  - git clone https://github.com/bkaradzic/bx ..\bx
   - ps: pushd ..\bx
-  - git fetch --depth 1 origin 2ca39fce297bce94efb62e1c06eb2814f02b69d9
+  - git fetch origin 2ca39fce297bce94efb62e1c06eb2814f02b69d9
   - git reset --hard FETCH_HEAD
   - ps: popd
   
-  - git clone --depth 1 https://github.com/bkaradzic/bimg ..\bimg
+  - git clone https://github.com/bkaradzic/bimg ..\bimg
   - ps: pushd ..\bimg
-  - git fetch --depth 1 origin 6afba8a0eb9333bf5777ab9ad0fea572e3557c74
+  - git fetch origin 6afba8a0eb9333bf5777ab9ad0fea572e3557c74
   - git reset --hard FETCH_HEAD
   - ps: popd
 
-  - git clone --depth 1 https://github.com/bkaradzic/bgfx ..\bgfx
+  - git clone https://github.com/bkaradzic/bgfx ..\bgfx
   - ps: pushd ..\bgfx
-  - git fetch --depth 1 origin 0f3f81aa05525ab350379ce8e34eb37c80b7aefe
+  - git fetch origin 0f3f81aa05525ab350379ce8e34eb37c80b7aefe
   - git reset --hard FETCH_HEAD
   - ps: popd
   
