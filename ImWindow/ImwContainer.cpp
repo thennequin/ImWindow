@@ -9,10 +9,11 @@ namespace ImWindow
 {
 //SFF_BEGIN
 	const float ImwContainer::c_fTabHeight = 25.f;
-	
+
 	ImwContainer::ImwContainer(ImwContainer* pParent)
 	{
 		IM_ASSERT(NULL != pParent);
+		m_pSpecialWindow = NULL;
 		m_pSplits[0] = NULL;
 		m_pSplits[1] = NULL;
 		m_bVerticalSplit = false;
@@ -26,6 +27,7 @@ namespace ImWindow
 	ImwContainer::ImwContainer(ImwPlatformWindow* pParent)
 	{
 		IM_ASSERT(NULL != pParent);
+		m_pSpecialWindow = NULL;
 		m_pSplits[0] = NULL;
 		m_pSplits[1] = NULL;
 		m_bVerticalSplit = false;
@@ -38,9 +40,18 @@ namespace ImWindow
 
 	ImwContainer::~ImwContainer()
 	{
+		ImwWindowManager* pWindowManager = ImwWindowManager::GetInstance();
+
+		if (m_pSpecialWindow != NULL)
+		{
+			pWindowManager->RemoveWindow(m_pSpecialWindow);
+			delete m_pSpecialWindow;
+			m_pSpecialWindow = NULL;
+		}
+
 		while ( m_lWindows.begin() != m_lWindows.end() )
 		{
-			ImwWindowManager::GetInstance()->RemoveWindow(*m_lWindows.begin());
+			pWindowManager->RemoveWindow(*m_lWindows.begin());
 			delete *m_lWindows.begin();
 			m_lWindows.erase(m_lWindows.begin());
 		}
@@ -66,7 +77,7 @@ namespace ImWindow
 
 			if ( !IsSplit() )
 			{
-				if (m_lWindows.begin() ==  m_lWindows.end())
+				if (m_pSpecialWindow == NULL && m_lWindows.begin() == m_lWindows.end())
 				{
 					eOrientation = E_DOCK_ORIENTATION_CENTER;
 				}
@@ -75,72 +86,61 @@ namespace ImWindow
 				{
 				case E_DOCK_ORIENTATION_CENTER:
 					{
-						if (iPosition < 0 || iPosition >= (int)m_lWindows.size())
+						if (pWindow->GetWindowMode() == E_WINDOW_MODE_NORMAL)
 						{
-							m_lWindows.push_back(pWindow);
-							m_iActiveWindow = (int)m_lWindows.size() - 1;
+							if (iPosition < 0 || iPosition >= (int)m_lWindows.size())
+							{
+								m_lWindows.push_back(pWindow);
+								m_iActiveWindow = (int)m_lWindows.size() - 1;
+							}
+							else
+							{
+								ImwWindowVector::iterator itWindow = m_lWindows.begin();
+								std::advance(itWindow, iPosition);
+								m_lWindows.insert(itWindow, pWindow);
+							}
 						}
 						else
 						{
-							ImwWindowVector::iterator itWindow = m_lWindows.begin();
-							std::advance(itWindow, iPosition);
-							m_lWindows.insert(itWindow, pWindow);
+							IM_ASSERT(m_pSpecialWindow == NULL);
+							m_pSpecialWindow = pWindow;
 						}
-						
 					}
 					break;
 				case E_DOCK_ORIENTATION_TOP:
-					{
-						m_bVerticalSplit = true;
-						CreateSplits();
-						m_pSplits[0]->Dock(pWindow);
-						for (ImwWindowVector::iterator it = m_lWindows.begin(), itEnd = m_lWindows.end(); it != itEnd; ++it)
-						{
-							m_pSplits[1]->m_lWindows.push_back(*it);
-						}
-						m_fSplitRatio = fRatio;
-						m_lWindows.clear();
-						m_iActiveWindow = 0;
-					}
-					break;
 				case E_DOCK_ORIENTATION_LEFT:
 					{
-						m_bVerticalSplit = false;
+						m_bVerticalSplit = (eOrientation == E_DOCK_ORIENTATION_TOP);
 						CreateSplits();
+						// Dock new windows to Top/Left split
 						m_pSplits[0]->Dock(pWindow);
+						// Move windows to Bottom/Right Split
+						m_pSplits[1]->m_pSpecialWindow = m_pSpecialWindow;
 						for (ImwWindowVector::iterator it = m_lWindows.begin(), itEnd = m_lWindows.end(); it != itEnd; ++it)
 						{
 							m_pSplits[1]->m_lWindows.push_back(*it);
 						}
 						m_fSplitRatio = fRatio;
-						m_lWindows.clear();
-						m_iActiveWindow = 0;
-					}
-					break;
-				case E_DOCK_ORIENTATION_RIGHT:
-					{
-						m_bVerticalSplit = false;
-						CreateSplits();
-						for (ImwWindowVector::iterator it = m_lWindows.begin(), itEnd = m_lWindows.end(); it != itEnd; ++it)
-						{
-							m_pSplits[0]->m_lWindows.push_back(*it);
-						}
-						m_pSplits[1]->Dock(pWindow);
-						m_fSplitRatio = 1.f - fRatio;
+						m_pSpecialWindow = NULL;
 						m_lWindows.clear();
 						m_iActiveWindow = 0;
 					}
 					break;
 				case E_DOCK_ORIENTATION_BOTTOM:
+				case E_DOCK_ORIENTATION_RIGHT:
 					{
-						m_bVerticalSplit = true;
+						m_bVerticalSplit = (eOrientation == E_DOCK_ORIENTATION_BOTTOM);
 						CreateSplits();
+						// Move windows to Bottom/Right Split
+						m_pSplits[0]->m_pSpecialWindow = m_pSpecialWindow;
 						for (ImwWindowVector::iterator it = m_lWindows.begin(), itEnd = m_lWindows.end(); it != itEnd; ++it)
 						{
 							m_pSplits[0]->m_lWindows.push_back(*it);
 						}
+						// Dock new windows to Top/Left split
 						m_pSplits[1]->Dock(pWindow);
 						m_fSplitRatio = 1.f - fRatio;
+						m_pSpecialWindow = NULL;
 						m_lWindows.clear();
 						m_iActiveWindow = 0;
 					}
@@ -225,6 +225,12 @@ namespace ImWindow
 
 	bool ImwContainer::UnDock(ImwWindow* pWindow)
 	{
+		if (m_pSpecialWindow == pWindow)
+		{
+			m_pSpecialWindow = NULL;
+			return true;
+		}
+
 		ImwWindowVector::const_iterator itFind = std::find(m_lWindows.begin(), m_lWindows.end(), pWindow);
 		if (itFind != m_lWindows.end())
 		{
@@ -235,9 +241,10 @@ namespace ImWindow
 			}
 			return true;
 		}
+
 		if (NULL != m_pSplits[0] && NULL != m_pSplits[1])
 		{
-			if ( m_pSplits[0]->UnDock(pWindow) )
+			if (m_pSplits[0]->UnDock(pWindow))
 			{
 				if (m_pSplits[0]->IsEmpty())
 				{
@@ -257,10 +264,13 @@ namespace ImWindow
 					}
 					else
 					{
+						IM_ASSERT(m_lWindows.empty() && m_pSpecialWindow == NULL);
+						m_pSpecialWindow = m_pSplits[1]->m_pSpecialWindow;
 						for (ImwWindowVector::iterator it = m_pSplits[1]->m_lWindows.begin(), itEnd = m_pSplits[1]->m_lWindows.end(); it != itEnd; ++it)
 						{
 							m_lWindows.push_back(*it);
 						}
+						m_pSplits[1]->m_pSpecialWindow = NULL;
 						m_pSplits[1]->m_lWindows.clear();
 						m_pSplits[1]->m_iActiveWindow = 0;
 						ImwSafeDelete(m_pSplits[0]);
@@ -290,10 +300,13 @@ namespace ImWindow
 					}
 					else
 					{
+						IM_ASSERT(m_lWindows.empty() && m_pSpecialWindow == NULL);
+						m_pSpecialWindow = m_pSplits[0]->m_pSpecialWindow;
 						for (ImwWindowVector::iterator it = m_pSplits[0]->m_lWindows.begin(), itEnd = m_pSplits[0]->m_lWindows.end(); it != itEnd; ++it)
 						{
 							m_lWindows.push_back(*it);
 						}
+						m_pSplits[0]->m_pSpecialWindow = NULL;
 						m_pSplits[0]->m_lWindows.clear();
 						m_pSplits[0]->m_iActiveWindow = 0;
 						ImwSafeDelete(m_pSplits[0]);
@@ -329,7 +342,7 @@ namespace ImWindow
 	bool ImwContainer::IsEmpty() const
 	{
 		//IM_ASSERT(IsSplit() != HasWindowTabbed());
-		return !(IsSplit() || HasWindowTabbed());
+		return !(IsSplit() || HasWindow());
 	}
 
 	bool ImwContainer::IsSplit() const
@@ -338,9 +351,9 @@ namespace ImWindow
 		return (NULL != m_pSplits[0] && NULL != m_pSplits[1]);
 	}
 
-	bool ImwContainer::HasWindowTabbed() const
+	bool ImwContainer::HasWindow() const
 	{
-		return m_lWindows.size() > 0;
+		return m_pSpecialWindow != NULL || m_lWindows.size() > 0;
 	}
 
 	ImwWindow* ImwContainer::GetWindowAtPos(const ImVec2& oPos) const
@@ -360,13 +373,17 @@ namespace ImWindow
 				return GetActiveWindow();
 			}
 		}
-			
+
 		return NULL;
 	}
 
 	const ImwContainer* ImwContainer::HasWindow(ImwWindow* pWindow) const
 	{
-		if (std::find(m_lWindows.begin(), m_lWindows.end(), pWindow) != m_lWindows.end())
+		if (m_pSpecialWindow == pWindow)
+		{
+			return this;
+		}
+		else if (std::find(m_lWindows.begin(), m_lWindows.end(), pWindow) != m_lWindows.end())
 		{
 			return this;
 		}
@@ -516,7 +533,7 @@ namespace ImWindow
 					{
 						m_bIsDrag = true;
 					}
-				
+
 					m_fSplitRatio += ImGui::GetIO().MouseDelta.x / oSize.x;
 					m_fSplitRatio = ImClamp( m_fSplitRatio, 0.05f, 0.95f );
 				}
@@ -534,13 +551,26 @@ namespace ImWindow
 				ImGui::EndChild();
 			}
 		}
-		else if (HasWindowTabbed())
+		else if (HasWindow())
 		{
 			pWindowManager->PopStyle();
 
-			bool bAlone = m_lWindows.front()->IsAlone();
-			ImwWindow* pActiveWindow = NULL;
-			if (!bAlone)
+			EWindowMode eWindowMode = GetWindowMode();
+
+			ImwWindow* pDraggedWindow = pWindowManager->GetDraggedWindow();
+
+			bool bDragThisIsBestContainer = false;
+			bool bDragOverTabArea = false;
+			if (pDraggedWindow != NULL)
+			{
+				bDragThisIsBestContainer = pWindowManager->GetDragBestContainer() == this;
+				bDragOverTabArea = pWindowManager->GetDragOnTabArea();
+			}
+
+			ImwWindow* pActiveWindow = m_pSpecialWindow;
+			if (eWindowMode == E_WINDOW_MODE_NORMAL
+				|| m_lWindows.empty() == false
+				|| (pDraggedWindow != NULL && bDragThisIsBestContainer && bDragOverTabArea && eWindowMode != E_WINDOW_MODE_ALONE))
 			{
 				ImVec2 oItemSpacing = oStyle.ItemSpacing;
 				oStyle.ItemSpacing = ImVec2(oItemSpacing.x, 0.f);
@@ -589,31 +619,39 @@ namespace ImWindow
 				//Tabs
 
 				int iSize = (int)m_lWindows.size();
-				float fMaxTabSize = GetTabAreaWidth() / iSize;
-				ImwWindow* pDraggedWindow = ImwWindowManager::GetInstance()->GetDraggedWindow();
+				const float fTabAreaWidth = GetTabAreaWidth();
+				float fMaxTabSize = fTabAreaWidth / iSize;
 				float fDraggedTabWidth = 0.f;
 				int iDraggedTabPosition = 0;
+				ImVec2 oDragTabSize;
 				if (pDraggedWindow != NULL)
 				{
-					if (ImwWindowManager::GetInstance()->GetDragBestContainer() == this &&
-						ImwWindowManager::GetInstance()->GetDragOnTabArea())
+					if (bDragThisIsBestContainer && bDragOverTabArea && eWindowMode != E_WINDOW_MODE_ALONE)
 					{
-						iDraggedTabPosition = ImwWindowManager::GetInstance()->GetDragTabPosition();
-						fMaxTabSize = GetTabAreaWidth() / (iSize + 1);
-						//Tab(pDraggedWindow, true, oMin.x, oMax.x, fMaxTabSize);
-						ImGuiWindow* window = ImGui::GetCurrentWindow();
+						pActiveWindow = pDraggedWindow;
+
+						iDraggedTabPosition = pWindowManager->GetDragTabPosition();
+						fMaxTabSize = fTabAreaWidth / (iSize + 1);
 						ImVec2 oTabSize;
-						float fMin = window->DC.CursorPos.x;
-						float fMax = fMin + m_oLastSize.x - fMaxTabSize;
 
-						float fTabPosX = oCursorPos.x + ImwWindowManager::GetInstance()->GetDragOffset().x;
+						float fTabPosX = oCursorPos.x + pWindowManager->GetDragOffset().x;
 
-						if (fTabPosX < fMin) fTabPosX = fMin;
-						if (fTabPosX > fMax) fTabPosX = fMax;
+						const char* pDragText = pDraggedWindow->GetTitle();
+						ImVec2 oTabTextSize;
+						GetTabSize(pDragText, fMaxTabSize, &oDragTabSize, &oTabTextSize);
 
-						ImVec2 oDraggedTabPos = ImVec2(fTabPosX, window->DC.CursorPos.y);
-						DrawTab(pDraggedWindow->GetTitle(), true, oDraggedTabPos, oMin.x, oMax.x, fMaxTabSize, &oTabSize);
-						fDraggedTabWidth = oTabSize.x;
+						float fCursorDiff = pWindow->DC.CursorPos.x - pWindow->DC.CursorStartPos.x;
+						float fMin = pWindow->DC.CursorPos.x;
+						float fMax = fMin + m_oLastSize.x - oDragTabSize.x - fCursorDiff;
+
+						if (fTabPosX < fMin)
+							fTabPosX = fMin;
+						if (fTabPosX > fMax)
+							fTabPosX = fMax;
+
+						ImVec2 oDraggedTabPos = ImVec2(fTabPosX, pWindow->DC.CursorPos.y);
+						DrawTab(pDragText, true, oDraggedTabPos, oMin.x, oMax.x, oDragTabSize, &oTabTextSize);
+						fDraggedTabWidth = oDragTabSize.x;
 					}
 					else
 					{
@@ -621,12 +659,18 @@ namespace ImWindow
 					}
 				}
 
-				bool bCanCreateMultipleWindow = ImwWindowManager::GetInstance()->CanCreateMultipleWindow();
+				bool bCanCreateMultipleWindow = pWindowManager->CanCreateMultipleWindow();
 
 				int iIndex = 0;
 				int iNewActive = -1;
 				bool bFirstTab = true;
 				ImVec2 oFirstTabPos;
+
+				if (m_lWindows.empty() && pDraggedWindow != NULL)
+				{
+					ImGui::Dummy(oDragTabSize);
+				}
+
 				for (ImwWindowVector::iterator it = m_lWindows.begin(); it != m_lWindows.end(); ++it)
 				{
 					if (pDraggedWindow != NULL && iDraggedTabPosition == iIndex)
@@ -657,7 +701,6 @@ namespace ImWindow
 					{
 						if (ImGui::IsMouseDragging())
 						{
-							//ImGui::GetIO().MouseClickedPos[0];
 							float fOffsetX = (oCursorPos.x - ImGui::GetItemRectMin().x) + (oFirstTabPos.x - oPos.x);
 							float fOffsetY = (oCursorPos.y - ImGui::GetItemRectMin().y);
 							ImVec2 oOffset = ImVec2(-fOffsetX, -fOffsetY);
@@ -690,7 +733,7 @@ namespace ImWindow
 							const ImwWindowVector& lWindows = pWindowManager->GetWindowList();
 							for (ImwWindowVector::const_iterator itWindow = lWindows.begin(); itWindow != lWindows.end(); ++itWindow)
 							{
-								if ((*it) != (*itWindow))
+								if ((*it) != (*itWindow) && (*itWindow)->GetWindowMode() == E_WINDOW_MODE_NORMAL)
 								{
 									ImGui::PushID(iDockIndex);
 									if (ImGui::BeginMenu((*itWindow)->GetTitle()))
@@ -701,7 +744,7 @@ namespace ImWindow
 										ImVec2 oLastWinPos = (*itWindow)->GetLastPosition();
 										ImVec2 oLastWinSize = (*itWindow)->GetLastSize();
 
-										if (!(*itWindow)->IsAlone())
+										if ((*itWindow)->GetWindowMode() != E_WINDOW_MODE_ALONE)
 										{
 											ImGui::PushID(0);
 											if (ImGui::Selectable("Tab")) pWindowManager->DockWith((*it), (*itWindow), E_DOCK_ORIENTATION_CENTER);
@@ -789,16 +832,12 @@ namespace ImWindow
 
 				oStyle.ItemSpacing = oItemSpacing;
 
-				pActiveWindow = pDraggedWindow;
-			}
+				if (pDraggedWindow == NULL && m_iActiveWindow >= 0 && m_iActiveWindow < m_lWindows.size())
+				{
+					pActiveWindow = m_lWindows[m_iActiveWindow];
+				}
 
-			if (pActiveWindow == NULL)
-			{
-				ImwWindowVector::iterator itActiveWindow = m_lWindows.begin();
-				std::advance(itActiveWindow, m_iActiveWindow);
-
-				IM_ASSERT(itActiveWindow != m_lWindows.end());
-				pActiveWindow = *itActiveWindow;
+				IM_ASSERT(pActiveWindow != NULL);
 			}
 
 			//Draw active
@@ -821,7 +860,7 @@ namespace ImWindow
 					(*it)->m_oLastPosition = oWinPos;
 					(*it)->m_oLastSize = oWinSize;
 				}
-				
+
 				{
 #ifdef IMW_BEFORE_WINDOW_PAINT
 					IMW_BEFORE_WINDOW_PAINT(pActiveWindow->GetTitle())
@@ -847,13 +886,16 @@ namespace ImWindow
 		if (window->SkipItems)
 			return false;
 
+		const char* pTitle = pWindow->GetTitle();
 		ImVec2 oTabSize;
-		DrawTab(pWindow->GetTitle(), bFocused, window->DC.CursorPos, fStartLinePos, fEndLinePos, fMaxSize, &oTabSize);
+		ImVec2 oTabTextSize;
+		GetTabSize(pTitle, fMaxSize, &oTabSize, &oTabTextSize);
+		DrawTab(pTitle, bFocused, window->DC.CursorPos, fStartLinePos, fEndLinePos, oTabSize, &oTabTextSize);
 
 		return ImGui::InvisibleButton(pWindow->GetIdStr(), oTabSize);
 	}
 
-	void ImwContainer::DrawTab(const char* pText, bool bFocused, ImVec2 oPos, float fStartLinePos, float fEndLinePos, float fMaxSize, ImVec2* pSizeOut)
+	void ImwContainer::DrawTab(const char* pText, bool bFocused, ImVec2 oPos, float fStartLinePos, float fEndLinePos, const ImVec2& oTabSize, const ImVec2* pTextSize)
 	{
 		const ImwWindowManager::Config& oConfig = ImwWindowManager::GetInstance()->GetConfig();
 		ImDrawList* pDrawList = ImGui::GetWindowDrawList();
@@ -861,14 +903,6 @@ namespace ImWindow
 
 		//Calculate text size
 		ImVec2 oTextSize;
-		float fTabWidth = GetTabWidth(pText, fMaxSize, &oTextSize);
-
-		//Calculate tab size
-		ImVec2 oTabSize(fTabWidth, c_fTabHeight);
-		if (pSizeOut != NULL)
-		{
-			*pSizeOut = oTabSize;
-		}
 
 		ImColor oNormalTab(0), oSelectedTab(0), oBorderColor(0);
 		switch (oConfig.m_eTabColorMode)
@@ -897,7 +931,7 @@ namespace ImWindow
 				oBorderColor = oConfig.m_oTabColorBorder;
 				break;
 		}
-		
+
 		ImVec2 oRectMin = oPos;
 		ImVec2 oRectMax = ImVec2(oPos.x + oTabSize.x, oPos.y + oTabSize.y);
 
@@ -968,10 +1002,10 @@ namespace ImWindow
 
 		ImVec2 oTextRectMin(oRectMin.x + 5, oRectMin.y);
 		ImVec2 oTextRectMax(oRectMax.x - 5, oRectMax.y);
-		ImGui::RenderTextClipped(oTextRectMin, oTextRectMax, pText, NULL, &oTextSize, ImVec2(0.5f, 0.5f));
+		ImGui::RenderTextClipped(oTextRectMin, oTextRectMax, pText, NULL, pTextSize, ImVec2(0.5f, 0.5f));
 	}
 
-	float ImwContainer::GetTabWidth(const char* pText, float fMaxSize, ImVec2* pOutTextSize) const
+	void ImwContainer::GetTabSize(const char* pText, float fMaxSize, ImVec2* pOutTabSize, ImVec2* pOutTextSize) const
 	{
 		const ImVec2 oTextSize = ImGui::CalcTextSize(pText);
 
@@ -980,20 +1014,20 @@ namespace ImWindow
 			*pOutTextSize = oTextSize;
 		}
 
-		//Clamp fMaxSize to a minimum for avoid glitch
+		//Clamp fMaxSize at a minimum to avoid glitch
 		if (fMaxSize < 30.f)
 		{
 			fMaxSize = 30.f;
 		}
 
 		//Calculate tab size
-		float fWidth = oTextSize.x + 15;
+		float fWidth = oTextSize.x + 15.f;
 		if (fMaxSize != 1.f && fWidth > fMaxSize)
 		{
 			fWidth = fMaxSize;
 		}
-		
-		return fWidth;
+
+		*pOutTabSize = ImVec2(fWidth, c_fTabHeight);
 	}
 
 	float ImwContainer::GetTabAreaWidth() const
@@ -1016,79 +1050,81 @@ namespace ImWindow
 				if (pBestContainer != NULL)
 					return pBestContainer;
 			}
-	
+
 			pBestContainer = m_pSplits[1]->GetBestContainer(oCursorPos);
 			if (pBestContainer != NULL)
 				return pBestContainer;
-			
+
 			return m_pSplits[0]->GetBestContainer(oCursorPos);
 		}
 		else
 		{
-			if (m_lWindows.front()->IsAlone() == false)
+			if (m_pSpecialWindow == NULL)
 				return this;
 		}
 		return NULL;
 	}
 
-	const ImwContainer* ImwContainer::GetBestDocking(const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, bool& bOutOnTabArea, int& iOutPosition, bool bLargeCheck) const
+	const ImwContainer* ImwContainer::GetBestDocking(const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, bool* pOutOnTabArea, int* pOutPosition, bool bLargeCheck) const
 	{
-		if (m_pParent == NULL || 
+		ImwWindowManager* pWindowManager = ImwWindowManager::GetInstance();
+
+		if (m_pParent == NULL ||
 			(oCursorPos.x >= m_oLastPosition.x && oCursorPos.x <= (m_oLastPosition.x + m_oLastSize.x) &&
 			oCursorPos.y >= m_oLastPosition.y && oCursorPos.y <= (m_oLastPosition.y + m_oLastSize.y)))
 		{
 			if (IsSplit())
 			{
-				const ImwContainer* pBestContainer = NULL;
-				pBestContainer = m_pSplits[0]->GetBestDocking(oCursorPos, oOutOrientation, oOutAreaPos, oOutAreaSize, bOutOnTabArea, iOutPosition, bLargeCheck);
-				if (NULL != pBestContainer)
+				for (int iSplit = 0; iSplit < 2; ++iSplit)
 				{
-					return pBestContainer;
-				}
-				pBestContainer = m_pSplits[1]->GetBestDocking(oCursorPos, oOutOrientation, oOutAreaPos, oOutAreaSize, bOutOnTabArea, iOutPosition, bLargeCheck);
-				if (NULL != pBestContainer)
-				{
-					return pBestContainer;
+					const ImwContainer* pBestContainer = m_pSplits[iSplit]->GetBestDocking(oCursorPos, oOutOrientation, oOutAreaPos, oOutAreaSize, pOutOnTabArea, pOutPosition, bLargeCheck);
+					if (NULL != pBestContainer)
+					{
+						return pBestContainer;
+					}
 				}
 
 				if (bLargeCheck)
 				{
-					pBestContainer = GetBestContainer(oCursorPos);
+					const ImwContainer* pBestContainer = GetBestContainer(oCursorPos);
 					IM_ASSERT(pBestContainer != NULL);
 					if (pBestContainer != NULL)
 					{
 						oOutOrientation = E_DOCK_ORIENTATION_CENTER;
 						oOutAreaPos = pBestContainer->m_oLastPosition;
 						oOutAreaSize = pBestContainer->m_oLastSize;
-						bOutOnTabArea = false;
+						*pOutOnTabArea = false;
 						return pBestContainer;
 					}
 				}
 			}
 			else
 			{
-				if (oCursorPos.y < m_oLastPosition.y + c_fTabHeight)
+				EWindowMode eWindowMode = GetWindowMode();
+
+				if (eWindowMode != E_WINDOW_MODE_ALONE && oCursorPos.y < m_oLastPosition.y + c_fTabHeight) // TODO change formula
 				{
 					oOutOrientation = E_DOCK_ORIENTATION_CENTER;
 					oOutAreaPos = m_oLastPosition;
 					oOutAreaSize = ImVec2(0,0);
-					bOutOnTabArea = true;
+					*pOutOnTabArea = true;
 					//Search tab position
 					float fMaxTabSize = GetTabAreaWidth() / (m_lWindows.size() + 1);
 					float fCurrentTabPosX = m_oLastPosition.x;
 					int iCurrentTab = 0;
-					float fCursorX = oCursorPos.x + ImwWindowManager::GetInstance()->GetDragOffset().x;
+					float fCursorX = oCursorPos.x + pWindowManager->GetDragOffset().x;
 					for (ImwWindowVector::const_iterator itWindow = m_lWindows.begin(); itWindow != m_lWindows.end(); ++itWindow)
 					{
-						float fTabWidth = GetTabWidth((*itWindow)->m_pTitle, fMaxTabSize);
-						if (fCursorX < (fCurrentTabPosX + fTabWidth / 2.f))
+						ImVec2 oTabSize;
+						GetTabSize((*itWindow)->GetTitle(), fMaxTabSize, &oTabSize);
+						if (fCursorX < (fCurrentTabPosX + oTabSize.x / 2.f))
 						{
 							break;
 						}
-						fCurrentTabPosX += fTabWidth;
+						fCurrentTabPosX += oTabSize.x;
 						++iCurrentTab;
 					}
-					iOutPosition = iCurrentTab;
+					*pOutPosition = iCurrentTab;
 					return this;
 				}
 				else
@@ -1144,27 +1180,27 @@ namespace ImWindow
 						}
 						else
 						{
-							if (m_lWindows.empty() || !m_lWindows.front()->IsAlone())
+							if (m_pSpecialWindow == NULL || m_pSpecialWindow->GetWindowMode() != E_WINDOW_MODE_ALONE)
 							{
 								//Center
 								ImRect oRectCenter(ImVec2(oCenter.x - c_fBoxHalfSize, oCenter.y - c_fBoxHalfSize), ImVec2(oCenter.x + c_fBoxHalfSize, oCenter.y + c_fBoxHalfSize));
 								bIsInCenter = oRectCenter.Contains(oCursorPos);
-								ImwWindowManager::GetInstance()->DrawWindowArea(m_pParentWindow, oRectCenter.Min, oRectCenter.GetSize(), bIsInCenter ? oBoxHightlightColor : oBoxColor);
+								pWindowManager->DrawWindowArea(m_pParentWindow, oRectCenter.Min, oRectCenter.GetSize(), bIsInCenter ? oBoxHightlightColor : oBoxColor);
 							}
 
-							if (!m_lWindows.empty())
+							if (HasWindow())
 							{
 								if (m_oLastSize.y >= c_fMinSize)
 								{
 									//Top
 									ImRect oRectTop(ImVec2(oCenter.x - c_fBoxHalfSize, oCenter.y - c_fBoxHalfSize * 4.f), ImVec2(oCenter.x + c_fBoxHalfSize, oCenter.y - c_fBoxHalfSize * 2.f));
 									bIsInTop = oRectTop.Contains(oCursorPos);
-									ImwWindowManager::GetInstance()->DrawWindowArea(m_pParentWindow, oRectTop.Min, oRectTop.GetSize(), bIsInTop ? oBoxHightlightColor : oBoxColor);
+									pWindowManager->DrawWindowArea(m_pParentWindow, oRectTop.Min, oRectTop.GetSize(), bIsInTop ? oBoxHightlightColor : oBoxColor);
 
 									//Bottom
 									ImRect oRectBottom(ImVec2(oCenter.x - c_fBoxHalfSize, oCenter.y + c_fBoxHalfSize * 2.f), ImVec2(oCenter.x + c_fBoxHalfSize, oCenter.y + c_fBoxHalfSize * 4.f));
 									bIsInBottom = oRectBottom.Contains(oCursorPos);
-									ImwWindowManager::GetInstance()->DrawWindowArea(m_pParentWindow, oRectBottom.Min, oRectBottom.GetSize(), bIsInBottom ? oBoxHightlightColor : oBoxColor);
+									pWindowManager->DrawWindowArea(m_pParentWindow, oRectBottom.Min, oRectBottom.GetSize(), bIsInBottom ? oBoxHightlightColor : oBoxColor);
 								}
 
 								if (m_oLastSize.x >= c_fMinSize)
@@ -1172,12 +1208,12 @@ namespace ImWindow
 									//Left
 									ImRect oRectLeft(ImVec2(oCenter.x - c_fBoxHalfSize * 4.f, oCenter.y - c_fBoxHalfSize), ImVec2(oCenter.x - c_fBoxHalfSize * 2.f, oCenter.y + c_fBoxHalfSize));
 									bIsInLeft = oRectLeft.Contains(oCursorPos);
-									ImwWindowManager::GetInstance()->DrawWindowArea(m_pParentWindow, oRectLeft.Min, oRectLeft.GetSize(), bIsInLeft ? oBoxHightlightColor : oBoxColor);
+									pWindowManager->DrawWindowArea(m_pParentWindow, oRectLeft.Min, oRectLeft.GetSize(), bIsInLeft ? oBoxHightlightColor : oBoxColor);
 
 									//Right
 									ImRect oRectRight(ImVec2(oCenter.x + c_fBoxHalfSize * 2.f, oCenter.y - c_fBoxHalfSize), ImVec2(oCenter.x + c_fBoxHalfSize * 4.f, oCenter.y + c_fBoxHalfSize));
 									bIsInRight = oRectRight.Contains(oCursorPos);
-									ImwWindowManager::GetInstance()->DrawWindowArea(m_pParentWindow, oRectRight.Min, oRectRight.GetSize(), bIsInRight ? oBoxHightlightColor : oBoxColor);
+									pWindowManager->DrawWindowArea(m_pParentWindow, oRectRight.Min, oRectRight.GetSize(), bIsInRight ? oBoxHightlightColor : oBoxColor);
 								}
 							}
 						}
@@ -1187,7 +1223,7 @@ namespace ImWindow
 							oOutOrientation = E_DOCK_ORIENTATION_CENTER;
 							oOutAreaPos = m_oLastPosition;
 							oOutAreaSize = m_oLastSize;
-							bOutOnTabArea = false;
+							*pOutOnTabArea = false;
 							return this;
 						}
 						else if (bIsInTop)
@@ -1195,7 +1231,7 @@ namespace ImWindow
 							oOutOrientation = E_DOCK_ORIENTATION_TOP;
 							oOutAreaPos = m_oLastPosition;
 							oOutAreaSize = ImVec2(m_oLastSize.x, m_oLastSize.y * c_fSplitRatio);
-							bOutOnTabArea = false;
+							*pOutOnTabArea = false;
 							return this;
 						}
 						else if (bIsInLeft)
@@ -1203,7 +1239,7 @@ namespace ImWindow
 							oOutOrientation = E_DOCK_ORIENTATION_LEFT;
 							oOutAreaPos = m_oLastPosition;
 							oOutAreaSize = ImVec2(m_oLastSize.x * c_fSplitRatio, m_oLastSize.y);
-							bOutOnTabArea = false;
+							*pOutOnTabArea = false;
 							return this;
 						}
 						else if (bIsInRight)
@@ -1211,7 +1247,7 @@ namespace ImWindow
 							oOutOrientation = E_DOCK_ORIENTATION_RIGHT;
 							oOutAreaPos = ImVec2(m_oLastPosition.x + m_oLastSize.x * (1.f - c_fSplitRatio), m_oLastPosition.y);
 							oOutAreaSize = ImVec2(m_oLastSize.x * c_fSplitRatio, m_oLastSize.y);
-							bOutOnTabArea = false;
+							*pOutOnTabArea = false;
 							return this;
 						}
 						else if (bIsInBottom)
@@ -1219,7 +1255,7 @@ namespace ImWindow
 							oOutOrientation = E_DOCK_ORIENTATION_BOTTOM;
 							oOutAreaPos = ImVec2(m_oLastPosition.x, m_oLastPosition.y + m_oLastSize.y * (1.f - c_fSplitRatio));
 							oOutAreaSize = ImVec2(m_oLastSize.x, m_oLastSize.y * c_fSplitRatio);
-							bOutOnTabArea = false;
+							*pOutOnTabArea = false;
 							return this;
 						}
 					}
@@ -1244,6 +1280,19 @@ namespace ImWindow
 			return m_pSplits[0]->HasUnclosableWindow() || m_pSplits[1]->HasUnclosableWindow();
 		}
 		return false;
+	}
+
+	EWindowMode ImwContainer::GetWindowMode() const
+	{
+		IM_ASSERT(m_pSpecialWindow == NULL || m_pSpecialWindow->GetWindowMode() != E_WINDOW_MODE_NORMAL);
+		IM_ASSERT(m_lWindows.empty() || m_lWindows.front()->GetWindowMode() == E_WINDOW_MODE_NORMAL);
+
+		if (m_pSpecialWindow != NULL)
+		{
+			return m_pSpecialWindow->GetWindowMode();
+		}
+
+		return E_WINDOW_MODE_NORMAL;
 	}
 
 	bool ImwContainer::Save(JsonValue& oJson)
@@ -1283,6 +1332,8 @@ namespace ImWindow
 		if (!(oJson["Windows"].IsArray() || (oJson["Splits"].IsArray() && oJson["Splits"].GetMemberCount() == 2)))
 			return false;
 
+		ImwWindowManager* pWindowManager = ImwWindowManager::GetInstance();
+
 		if (!bJustCheck)
 		{
 			m_bVerticalSplit = oJson["Vertical"];
@@ -1291,7 +1342,7 @@ namespace ImWindow
 			//Clear
 			while (m_lWindows.begin() != m_lWindows.end())
 			{
-				ImwWindowManager::GetInstance()->RemoveWindow(*m_lWindows.begin());
+				pWindowManager->RemoveWindow(*m_lWindows.begin());
 				delete *m_lWindows.begin();
 				m_lWindows.erase(m_lWindows.begin());
 			}
@@ -1299,7 +1350,7 @@ namespace ImWindow
 			ImwSafeDelete(m_pSplits[0]);
 			ImwSafeDelete(m_pSplits[1]);
 		}
-		
+
 		if (oJson["Splits"].IsArray())
 		{
 			if (!bJustCheck)
@@ -1316,8 +1367,6 @@ namespace ImWindow
 		}
 		else
 		{
-			ImwWindowManager* pWindowManager = ImwWindowManager::GetInstance();
-
 			const JsonValue& oJsonCurrentWindow = oJson["CurrentWindow"];
 			const JsonValue& oJsonWindows = oJson["Windows"];
 			int iWindowCount = oJsonWindows.GetMemberCount();

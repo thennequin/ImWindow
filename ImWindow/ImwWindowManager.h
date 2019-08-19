@@ -203,8 +203,8 @@ namespace ImWindow
 		ImwContainer*						GetDragBestContainer() const;
 		bool								GetDragOnTabArea() const;
 		int									GetDragTabPosition() const;
-		const ImwContainer*					GetBestDocking(ImwPlatformWindow* pPlatformWindow, const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, float& fOutRatio, bool& bOutOnTabArea, int& iOutPosition, bool bLargeCheck);
-		
+		const ImwContainer*					GetBestDocking(ImwPlatformWindow* pPlatformWindow, const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, float& fOutRatio, bool* pOutOnTabArea, int* pOutPosition, bool bLargeCheck);
+
 		Config								m_oConfig;
 		char*								m_pMainTitle;
 		ImwPlatformWindow*					m_pMainPlatformWindow;

@@ -18,6 +18,14 @@ namespace ImWindow
 		E_DOCK_ORIENTATION_BOTTOM,
 	};
 
+	enum EWindowMode
+	{
+		E_WINDOW_MODE_NORMAL,
+		//Specials
+		E_WINDOW_MODE_ALONE,
+		E_WINDOW_MODE_PLACEHOLDER
+	};
+
 #ifdef IMW_CUSTOM_BEFORE_DECLARE_IMWWINDOW
 	IMW_CUSTOM_BEFORE_DECLARE_IMWWINDOW
 #endif //IMW_CUSTOM_BEFORE_DECLARE_IMWWINDOW
@@ -31,13 +39,13 @@ namespace ImWindow
 		friend class ImwWindowManager;
 		friend class ImwContainer;
 	protected:
-		ImwWindow();
+		ImwWindow(EWindowMode eMode = E_WINDOW_MODE_NORMAL);
 		virtual					~ImwWindow();
 	public:
 		virtual void			OnGui() = 0;
 		virtual void			OnContextMenu();
 		virtual void			OnDropFiles(int iCount, char** pFiles, const ImVec2& oPos);
-		
+
 		bool					IsFillingSpace() const;
 		void					SetFillingSpace(bool bFilling);
 
@@ -55,8 +63,7 @@ namespace ImWindow
 		void					SetClosable( bool bClosable );
 		bool					IsClosable() const;
 
-		void					SetAlone( bool bAlone );
-		bool					IsAlone() const;
+		EWindowMode				GetWindowMode() const;
 
 		const ImVec2&			GetLastPosition() const;
 		const ImVec2&			GetLastSize() const;
@@ -64,12 +71,12 @@ namespace ImWindow
 #ifdef IMW_CUSTOM_DECLARE_IMWWINDOW
 		IMW_CUSTOM_DECLARE_IMWWINDOW
 #endif //IMW_CUSTOM_DECLARE_IMWWINDOW
-	protected:
+	private:
 		char*					m_pTitle;
 		ImU32					m_iId;
 		char					m_pId[11];
 		bool					m_bClosable;
-		bool					m_bAlone;
+		EWindowMode				m_eMode;
 		bool					m_bFillingSpace;
 		ImVec2					m_oLastPosition;
 		ImVec2					m_oLastSize;

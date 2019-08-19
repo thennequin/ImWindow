@@ -248,12 +248,12 @@ namespace ImWindow
 					SetWindowMaximized(iMode > 0);
 				}
 			}
-			
+
 			if (oJson["Maximized"].IsBoolean())
 			{
 				SetWindowMaximized(oJson["Maximized"]);
 			}
-			
+
 			if( oJson[ "Minimized" ].IsBoolean() )
 			{
 				SetWindowMinimized(oJson["Minimized"]);
@@ -342,10 +342,10 @@ namespace ImWindow
 	void ImwPlatformWindow::RefreshTitle()
 	{
 		const char* pMainTitle = ImwWindowManager::GetInstance()->GetMainTitle();
-		
+
 		ImwWindow* pActiveWindow = m_pContainer->GetActiveWindow();
 		const char* pActiveWindowTitle = NULL;
-		
+
 		if (pActiveWindow != NULL)
 		{
 			pActiveWindowTitle = pActiveWindow->GetTitle();

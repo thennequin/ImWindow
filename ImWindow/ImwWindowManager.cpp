@@ -97,7 +97,7 @@ namespace ImWindow
 			{
 				m_pDragPlatformWindow = CreatePlatformWindow(E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW, m_pMainPlatformWindow);
 			}
-		
+
 			return true;
 		}
 		return false;
@@ -141,7 +141,7 @@ namespace ImWindow
 				else
 					m_lMenus.pop_back();
 			}
-		
+
 			while (m_lStatusBars.begin() != m_lStatusBars.end())
 			{
 				ImwStatusBar* pStatusBar = m_lStatusBars.back();
@@ -167,7 +167,7 @@ namespace ImWindow
 				delete *m_lPlatformWindows.begin();
 				m_lPlatformWindows.erase(m_lPlatformWindows.begin());
 			}
-			
+
 			if (m_pDragPlatformWindow != NULL)
 			{
 				m_pDragPlatformWindow->PreDestroy();
@@ -357,7 +357,7 @@ namespace ImWindow
 	{
 		JsonValue oJson;
 		oJson.InitType(JsonValue::E_TYPE_OBJECT);
-		
+
 		if ( m_pMainPlatformWindow->Save(oJson["MainPlatformWindow"]) )
 		{
 			JsonValue& oJsonPlatformWindows = oJson["PlatformWindows"];
@@ -435,7 +435,7 @@ namespace ImWindow
 				pNewPlatformWindow->Show(true);
 				if (!pNewPlatformWindow->Load(oJsonPlatformWindow, false))
 					return false; //Something wrong
-				
+
 				pNewPlatformWindow->RefreshTitle();
 			}
 
@@ -460,12 +460,12 @@ namespace ImWindow
 			{
 				char* pString = new char[iSize / sizeof(char)];
 				fread(pString, 1, iSize, pFile);
-				
+
 				bReturn = LoadLayoutFromString(pString);
 
 				delete[] pString;
 			}
-			
+
 			fclose( pFile );
 
 			return bReturn;
@@ -554,7 +554,7 @@ namespace ImWindow
 			ImwWindowVector::iterator itFind = std::find(m_lOrphanWindows.begin(), m_lOrphanWindows.end(), pWindow);
 			if (itFind != m_lOrphanWindows.end())
 				m_lOrphanWindows.erase(itFind);
-			
+
 			itFind = std::find(m_lWindows.begin(), m_lWindows.end(), pWindow);
 			if (itFind != m_lWindows.end())
 				m_lWindows.erase(itFind);
@@ -586,7 +586,7 @@ namespace ImWindow
 		for (ImwPlatformWindowVector::iterator it = m_lToDestroyPlatformWindows.begin(), itEnd = m_lToDestroyPlatformWindows.end(); it != itEnd; ++it)
 		{
 			ImwPlatformWindow* pPlatformWindow = *it;
-			
+
 			ImwPlatformWindowVector::iterator itFind = std::find(m_lPlatformWindows.begin(), m_lPlatformWindows.end(), pPlatformWindow);
 			if (itFind != m_lPlatformWindows.end())
 				m_lPlatformWindows.erase(itFind);
@@ -634,7 +634,7 @@ namespace ImWindow
 		while (m_lPlatformWindowActions.begin() != m_lPlatformWindowActions.end())
 		{
 			PlatformWindowAction* pAction = *m_lPlatformWindowActions.begin();
-	
+
 			if (pAction->m_eAction == E_PLATFORM_WINDOW_ACTION_DESTROY)
 			{
 				bool bFound = false;
@@ -786,7 +786,7 @@ namespace ImWindow
 		}
 
 		m_pCurrentPlatformWindow = NULL;
-		
+
 		PostRender();
 	}
 
@@ -928,7 +928,7 @@ namespace ImWindow
 				ImVec2 oPosB = oAction.m_oRectSize;
 				oPosB.x += oPosA.x;
 				oPosB.y += oPosA.y;
-				
+
 				//pDrawList->AddLine(ImGui::CalcItemRectClosestPoint(ImGui::GetIO().MousePos, true, -2.0f), ImGui::GetIO().MousePos, ImColor(ImGui::GetStyle().Colors[ImGuiCol_Button]), 4.0f);
 				pDrawList->AddRectFilled(oPosA, oPosB, oAction.m_oColor);
 			}
@@ -941,7 +941,7 @@ namespace ImWindow
 	void ImwWindowManager::PushStyle(bool bRounding, bool bPadding)
 	{
 		ImGuiStyle& oStyle = ImGui::GetStyle();
-		
+
 		m_fStyleBackupWindowRounding = oStyle.WindowRounding;
 		m_oStyleBackupWindowPadding = oStyle.WindowPadding;
 		m_oStyleBackupItemInnerSpacing = oStyle.ItemInnerSpacing;
@@ -1019,12 +1019,12 @@ namespace ImWindow
 			ImVec2 oHightlightSize;
 			float fSizeRatio;
 
-			m_pDragBestContainer = (ImwContainer*)GetBestDocking(m_pMainPlatformWindow, oCursorPos, eBestDockOrientation, oHightlightPos, oHightlightSize, fSizeRatio, m_bDragOnTab, m_iDragBestContainerPosition, !CanCreateMultipleWindow());
+			m_pDragBestContainer = (ImwContainer*)GetBestDocking(m_pMainPlatformWindow, oCursorPos, eBestDockOrientation, oHightlightPos, oHightlightSize, fSizeRatio, &m_bDragOnTab, &m_iDragBestContainerPosition, !CanCreateMultipleWindow());
 			if (NULL == m_pDragBestContainer)
 			{
 				for (ImVector<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end() && NULL == m_pDragBestContainer; ++it)
 				{
-					m_pDragBestContainer = (ImwContainer*)GetBestDocking(*it, oCursorPos, eBestDockOrientation, oHightlightPos, oHightlightSize, fSizeRatio, m_bDragOnTab, m_iDragBestContainerPosition, false);
+					m_pDragBestContainer = (ImwContainer*)GetBestDocking(*it, oCursorPos, eBestDockOrientation, oHightlightPos, oHightlightSize, fSizeRatio, &m_bDragOnTab, &m_iDragBestContainerPosition, false);
 				}
 			}
 			if (m_pDragBestContainer)
@@ -1093,7 +1093,7 @@ namespace ImWindow
 	}
 
 
-	const ImwContainer* ImwWindowManager::GetBestDocking(ImwPlatformWindow* pPlatformWindow, const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, float& fOutRatio, bool& bOutOnTabArea, int& iOutPosition, bool bLargeCheck)
+	const ImwContainer* ImwWindowManager::GetBestDocking(ImwPlatformWindow* pPlatformWindow, const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, float& fOutRatio, bool* pOutOnTabArea, int* pOutPosition, bool bLargeCheck)
 	{
 		ImVec2 oPos = pPlatformWindow->GetPosition();
 		ImVec2 oSize = pPlatformWindow->GetSize();
@@ -1104,7 +1104,7 @@ namespace ImWindow
 
 			// Set context because GetBestDocking call CalTextSize who need the Font
 			pPlatformWindow->SetContext(false);
-			const ImwContainer* pBestContainer = pPlatformWindow->GetContainer()->GetBestDocking(oRectPos, oOutOrientation, oOutAreaPos, oOutAreaSize, bOutOnTabArea, iOutPosition, bLargeCheck);
+			const ImwContainer* pBestContainer = pPlatformWindow->GetContainer()->GetBestDocking(oRectPos, oOutOrientation, oOutAreaPos, oOutAreaSize, pOutOnTabArea, pOutPosition, bLargeCheck);
 			pPlatformWindow->RestoreContext(false);
 			if (NULL != pBestContainer)
 			{
@@ -1118,7 +1118,7 @@ namespace ImWindow
 				oOutOrientation = E_DOCK_ORIENTATION_LEFT;
 				oOutAreaPos = ImVec2(0, 0);
 				oOutAreaSize = ImVec2(oSize.x * m_oConfig.m_fDragMarginSizeRatio, oSize.y);
-				bOutOnTabArea = false;
+				*pOutOnTabArea = false;
 			}
 			//Right
 			else if (oRectPos.x >=  oSize.x * (1.f - m_oConfig.m_fDragMarginRatio))
@@ -1126,7 +1126,7 @@ namespace ImWindow
 				oOutOrientation = E_DOCK_ORIENTATION_RIGHT;
 				oOutAreaPos = ImVec2(oSize.x * (1.f - m_oConfig.m_fDragMarginSizeRatio), 0.f);
 				oOutAreaSize = ImVec2(oSize.x * m_oConfig.m_fDragMarginSizeRatio, oSize.y);
-				bOutOnTabArea = false;
+				*pOutOnTabArea = false;
 			}
 			//Top
 			else if (oRectPos.y <= oSize.y * m_oConfig.m_fDragMarginRatio)
@@ -1134,7 +1134,7 @@ namespace ImWindow
 				oOutOrientation = E_DOCK_ORIENTATION_TOP;
 				oOutAreaPos = ImVec2(0, 0);
 				oOutAreaSize = ImVec2(oSize.x, oSize.y * m_oConfig.m_fDragMarginSizeRatio);
-				bOutOnTabArea = false;
+				*pOutOnTabArea = false;
 			}
 			//Bottom
 			else if (oRectPos.y >=  oSize.y * (1.f - m_oConfig.m_fDragMarginRatio))
@@ -1142,14 +1142,14 @@ namespace ImWindow
 				oOutOrientation = E_DOCK_ORIENTATION_BOTTOM;
 				oOutAreaPos = ImVec2(0.f, oSize.y * (1.f - m_oConfig.m_fDragMarginSizeRatio));
 				oOutAreaSize = ImVec2(oSize.x, oSize.y * m_oConfig.m_fDragMarginSizeRatio);
-				bOutOnTabArea = false;
+				*pOutOnTabArea = false;
 			}
 			else
 			{
 				oOutOrientation = E_DOCK_ORIENTATION_CENTER;
 				oOutAreaPos = ImVec2(0, 0);
 				oOutAreaSize = ImVec2(oSize.x, oSize.y);
-				bOutOnTabArea = false;
+				*pOutOnTabArea = false;
 				//IM_ASSERT(false); //Best dock orientation not found
 				return NULL;
 			}
@@ -1159,7 +1159,7 @@ namespace ImWindow
 		oOutOrientation = E_DOCK_ORIENTATION_CENTER;
 		oOutAreaPos = ImVec2(0, 0);
 		oOutAreaSize = ImVec2(oSize.x, oSize.y);
-		bOutOnTabArea = false;
+		*pOutOnTabArea = false;
 		return NULL;
 	}
 
