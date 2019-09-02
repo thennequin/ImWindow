@@ -29,7 +29,7 @@ namespace ImWindow
 		virtual ImwPlatformWindow*		CreatePlatformWindow(EPlatformWindowType eType, ImwPlatformWindow* pParent);
 
 		virtual float					GetTitleBarHeight() const;
-		virtual void					PaintTitleBar(ImwPlatformWindow* pPlatformWindow);
+		virtual void					PaintTitleBar(ImwPlatformWindow* pPlatformWindow, bool bDrawTitle);
 	protected:
 		IDXGIFactory*					m_pDXGIFactory;
 		ID3D11Device*					m_pDX11Device;

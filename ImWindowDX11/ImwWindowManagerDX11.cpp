@@ -98,7 +98,7 @@ float ImwWindowManagerDX11::GetTitleBarHeight() const
 	return pContext->Style.WindowPadding.y + pContext->Style.FramePadding.y * 2.f + fContentSize;
 }
 
-void ImwWindowManagerDX11::PaintTitleBar(ImwPlatformWindow* pPlatformWindow)
+void ImwWindowManagerDX11::PaintTitleBar(ImwPlatformWindow* pPlatformWindow, bool bDrawTitle)
 {
 	//Draw simple icon in title bar
 	ImGui::Dummy(ImVec2(c_fIconSize, c_fIconSize));
