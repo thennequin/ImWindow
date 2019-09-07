@@ -963,6 +963,7 @@ namespace ImWindow
 		const int c_iWindowChildFlagsWithPadding = c_iWindowChildFlags | ImGuiWindowFlags_AlwaysUseWindowPadding;
 
 		bool bDisplayMenus = pWindow->IsShowContent() || oIO.MousePos.y <= 50.f || pContext->OpenPopupStack.size() > 0;
+		bool bDisplayWindow = bDisplayMenus || IsUsingCustomFrame();
 
 		ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiSetCond_Always);
 		if (pWindow->IsShowContent())
@@ -979,7 +980,9 @@ namespace ImWindow
 			}
 			if (bDisplayMenus)
 			{
-				oSize.y += ImGui::GetCurrentWindowRead()->TitleBarHeight();
+				oSize.y += pContext->FontSize + pContext->Style.FramePadding.y * 2.0f;
+				oSize.y += ImGui::GetCurrentWindowRead()->MenuBarHeight();
+
 			}
 			ImGui::SetNextWindowSize(oSize, ImGuiSetCond_Always);
 		}
@@ -990,105 +993,111 @@ namespace ImWindow
 			iFlags += ImGuiWindowFlags_NoInputs;
 		}
 
-		float fWindowRoundingBackup = oStyle.WindowRounding;
-		ImVec2 oWindowPaddingBackup = oStyle.WindowPadding;
-		oStyle.WindowRounding = 0.f;
-		oStyle.WindowPadding = ImVec2(0.f, 0.f);
-		bool bWindowDraw = ImGui::Begin("ImWindow", NULL, ImVec2(0.f, 0.f), 1.f, iFlags);
-		oStyle.WindowRounding = fWindowRoundingBackup;
-		oStyle.WindowPadding = oWindowPaddingBackup;
-		if (bWindowDraw)
+		if (bDisplayWindow)
 		{
-			if (NULL != m_pDraggedWindow)
+			float fWindowRoundingBackup = oStyle.WindowRounding;
+			ImVec2 oWindowPaddingBackup = oStyle.WindowPadding;
+			ImVec2 oWindowMinSizeBackup = oStyle.WindowMinSize;
+			oStyle.WindowRounding = 0.f;
+			oStyle.WindowPadding = ImVec2(0.f, 0.f);
+			oStyle.WindowMinSize = ImVec2(0.f, 0.f);
+			bool bWindowDraw = ImGui::Begin("ImWindow", NULL, ImVec2(0.f, 0.f), 1.f, iFlags);
+			oStyle.WindowRounding = fWindowRoundingBackup;
+			oStyle.WindowPadding = oWindowPaddingBackup;
+			oStyle.WindowMinSize = oWindowMinSizeBackup;
+			if (bWindowDraw)
 			{
-				ImGuiID oId = ImGui::GetID("##DraggedWindow");
-				ImGui::PushID(oId);
-				ImGui::PopID();
-				ImGui::SetActiveID(oId, ImGui::GetCurrentWindow());
-			}
-
-			if (pWindow->GetType() != E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW && fTop > 0.f)
-			{
-				if (BeginTransparentChild("##ImWindowTitle", ImVec2(0.f, fTop), false, c_iWindowChildFlagsWithPadding))
+				if (NULL != m_pDraggedWindow)
 				{
-					PaintTitleBar(pWindow, true);
-				}
-				ImGui::EndChild();
-
-				ImGui::SetCursorPosY(ImGui::GetCursorPosY() - oStyle.ItemSpacing.y);
-			}
-
-			int iMainWindowFlags = (pWindow->GetType() == E_PLATFORM_WINDOW_TYPE_MAIN) ? (c_iWindowChildFlagsWithPadding | ImGuiWindowFlags_MenuBar) : c_iWindowChildFlagsWithPadding;
-
-			if (BeginTransparentChild("##ImWindowMain", ImVec2(0.f, 0.f), false, iMainWindowFlags))
-			{
-				if (pWindow->GetType() == E_PLATFORM_WINDOW_TYPE_MAIN)
-				{
-					if (bDisplayMenus) // Autohide menu bar
-					{
-						ImGui::BeginMenuBar();
-						for( ImwMenuVector::iterator it = m_lMenus.begin(), itEnd = m_lMenus.end(); it != itEnd; ++it )
-						{
-							( *it )->OnMenu();
-						}
-						ImGui::EndMenuBar();
-					}
+					ImGuiID oId = ImGui::GetID("##DraggedWindow");
+					ImGui::PushID(oId);
+					ImGui::PopID();
+					ImGui::SetActiveID(oId, ImGui::GetCurrentWindow());
 				}
 
-				if (pWindow->IsShowContent())
+				if (pWindow->GetType() != E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW && fTop > 0.f)
 				{
-					if (BeginTransparentChild("##ImWindowContent", ImVec2(0.f, -fBottom), false, c_iWindowChildFlags))
+					if (BeginTransparentChild("##ImWindowTitle", ImVec2(0.f, fTop), false, c_iWindowChildFlagsWithPadding))
 					{
-						if (pWindow->GetType() == E_PLATFORM_WINDOW_TYPE_MAIN)
-						{
-							if (!m_lToolBars.empty())
-							{
-								for (ImwToolBarVector::iterator it = m_lToolBars.begin(), itEnd = m_lToolBars.end(); it != itEnd; ++it)
-								{
-									(*it)->OnToolBar();
-								}
-								ImGui::Separator();
-							}
-						}
-
-						if (BeginTransparentChild("##ImWindowContentSub", ImVec2(0.f, 0.f), false, c_iWindowChildFlags))
-						{
-							ImGuiWindow* pCurrentWindow = ImGui::GetCurrentWindowRead();
-							pWindow->m_oContentArea.Min = pCurrentWindow->Pos;
-							pWindow->m_oContentArea.Max = pCurrentWindow->Pos + pCurrentWindow->Size;
-
-							pWindow->PaintContainer();
-						}
-						ImGui::EndChild();
+						PaintTitleBar(pWindow, true);
 					}
 					ImGui::EndChild();
 
-					if (pWindow->GetType() == E_PLATFORM_WINDOW_TYPE_MAIN && m_lStatusBars.size() > 0)
+					ImGui::SetCursorPosY(ImGui::GetCursorPosY() - oStyle.ItemSpacing.y);
+				}
+
+				int iMainWindowFlags = (pWindow->GetType() == E_PLATFORM_WINDOW_TYPE_MAIN && bDisplayMenus) ? (c_iWindowChildFlagsWithPadding | ImGuiWindowFlags_MenuBar) : c_iWindowChildFlagsWithPadding;
+
+				if (BeginTransparentChild("##ImWindowMain", ImVec2(0.f, 0.f), false, iMainWindowFlags))
+				{
+					if (pWindow->GetType() == E_PLATFORM_WINDOW_TYPE_MAIN)
 					{
-						ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, m_oConfig.m_oStatusBarFramePadding);
-
-						if (BeginTransparentChild("##ImWindowStatusBars", ImVec2(0.f, 0.f), false, c_iWindowChildFlags))
+						if (bDisplayMenus) // Autohide menu bar
 						{
-							ImGui::AlignFirstTextHeightToWidgets();
-
-							ImGui::Columns((int)m_lStatusBars.size());
-							for (ImwStatusBarVector::iterator it = m_lStatusBars.begin(); it != m_lStatusBars.end(); ++it)
+							ImGui::BeginMenuBar();
+							for (ImwMenuVector::iterator it = m_lMenus.begin(), itEnd = m_lMenus.end(); it != itEnd; ++it)
 							{
-								(*it)->OnStatusBar();
-								ImGui::NextColumn();
+								(*it)->OnMenu();
 							}
-							ImGui::Columns(1);
+							ImGui::EndMenuBar();
 						}
+					}
 
+					if (pWindow->IsShowContent())
+					{
+						if (BeginTransparentChild("##ImWindowContent", ImVec2(0.f, -fBottom), false, c_iWindowChildFlags))
+						{
+							if (pWindow->GetType() == E_PLATFORM_WINDOW_TYPE_MAIN)
+							{
+								if (!m_lToolBars.empty())
+								{
+									for (ImwToolBarVector::iterator it = m_lToolBars.begin(), itEnd = m_lToolBars.end(); it != itEnd; ++it)
+									{
+										(*it)->OnToolBar();
+									}
+									ImGui::Separator();
+								}
+							}
+
+							if (BeginTransparentChild("##ImWindowContentSub", ImVec2(0.f, 0.f), false, c_iWindowChildFlags))
+							{
+								ImGuiWindow* pCurrentWindow = ImGui::GetCurrentWindowRead();
+								pWindow->m_oContentArea.Min = pCurrentWindow->Pos;
+								pWindow->m_oContentArea.Max = pCurrentWindow->Pos + pCurrentWindow->Size;
+
+								pWindow->PaintContainer();
+							}
+							ImGui::EndChild();
+						}
 						ImGui::EndChild();
 
-						ImGui::PopStyleVar(1);
+						if (pWindow->GetType() == E_PLATFORM_WINDOW_TYPE_MAIN && m_lStatusBars.size() > 0)
+						{
+							ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, m_oConfig.m_oStatusBarFramePadding);
+
+							if (BeginTransparentChild("##ImWindowStatusBars", ImVec2(0.f, 0.f), false, c_iWindowChildFlags))
+							{
+								ImGui::AlignFirstTextHeightToWidgets();
+
+								ImGui::Columns((int)m_lStatusBars.size());
+								for (ImwStatusBarVector::iterator it = m_lStatusBars.begin(); it != m_lStatusBars.end(); ++it)
+								{
+									(*it)->OnStatusBar();
+									ImGui::NextColumn();
+								}
+								ImGui::Columns(1);
+							}
+
+							ImGui::EndChild();
+
+							ImGui::PopStyleVar(1);
+						}
 					}
 				}
+				ImGui::EndChild();
 			}
-			ImGui::EndChild();
+			ImGui::End();
 		}
-		ImGui::End();
 
 		m_bHasWantCaptureKeyboard |= ImGui::GetIO().WantCaptureKeyboard;
 		m_bHasWantCaptureMouse |= ImGui::GetIO().WantCaptureMouse;
