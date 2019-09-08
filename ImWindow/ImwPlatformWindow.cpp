@@ -210,7 +210,7 @@ namespace ImWindow
 			pWindow->OnDropFiles(iCount, pFiles, oPos);
 		}
 	}
-
+#ifdef IMW_USE_LAYOUT_SERIALIZATION
 	bool ImwPlatformWindow::Save(JsonStthm::JsonValue& oJson)
 	{
 		ImVec2 oSize = GetNormalSize();
@@ -262,6 +262,7 @@ namespace ImWindow
 
 		return m_pContainer->Load(oJson["Container"], bJustCheck);
 	}
+#endif //IMW_USE_LAYOUT_SERIALIZATION
 
 	static bool s_bContextPushed = false;
 

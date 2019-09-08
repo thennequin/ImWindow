@@ -3,7 +3,6 @@
 #define __IM_WINDOW_H__
 
 #include "ImwConfig.h"
-#include "JsonStthm.h"
 
 namespace ImWindow
 {
@@ -37,12 +36,14 @@ namespace ImWindow
 		virtual void			OnGui() = 0;
 		virtual void			OnContextMenu();
 		virtual void			OnDropFiles(int iCount, char** pFiles, const ImVec2& oPos);
-		
+
 		bool					IsFillingSpace() const;
 		void					SetFillingSpace(bool bFilling);
 
+#ifdef IMW_USE_LAYOUT_SERIALIZATION
 		virtual void			GetParameters(JsonStthm::JsonValue& oOutParameters);
 		virtual void			SetParameters(const JsonStthm::JsonValue& oParameters);
+#endif //IMW_USE_LAYOUT_SERIALIZATION
 
 		ImU32					GetId() const;
 		const char*				GetIdStr() const;

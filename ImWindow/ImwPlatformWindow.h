@@ -5,7 +5,6 @@
 #include "ImwConfig.h"
 
 #include "ImwContainer.h"
-#include "JsonStthm.h"
 
 namespace ImWindow
 {
@@ -70,9 +69,10 @@ namespace ImWindow
 		void								RefreshTitle();
 		void								OnClose();
 		void								OnDropFiles(int iCount, char** pFiles, const ImVec2& oPos);
-
+#ifdef IMW_USE_LAYOUT_SERIALIZATION
 		bool								Save(JsonStthm::JsonValue& oJson);
 		bool								Load(const JsonStthm::JsonValue& oJson, bool bJustCheck);
+#endif //IMW_USE_LAYOUT_SERIALIZATION
 
 		EPlatformWindowType					m_eType;
 		ImwContainer*						m_pContainer;

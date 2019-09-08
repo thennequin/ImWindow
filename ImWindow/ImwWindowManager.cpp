@@ -353,11 +353,12 @@ namespace ImWindow
 			m_lPlatformWindowActions.push_back(new PlatformWindowAction(m_pCurrentPlatformWindow, E_PLATFORM_WINDOW_ACTION_RESTORE));
 	}
 
+#ifdef IMW_USE_LAYOUT_SERIALIZATION
 	bool ImwWindowManager::SaveLayoutToString(ImwString& sLayout, bool bCompact)
 	{
 		JsonStthm::JsonValue oJson;
 		oJson.InitType(JsonStthm::JsonValue::E_TYPE_OBJECT);
-		
+
 		if ( m_pMainPlatformWindow->Save(oJson["MainPlatformWindow"]) )
 		{
 			JsonStthm::JsonValue& oJsonPlatformWindows = oJson["PlatformWindows"];
@@ -472,6 +473,7 @@ namespace ImWindow
 		}
 		return false;
 	}
+#endif //IMW_USE_LAYOUT_SERIALIZATION
 
 	const char* ImwWindowManager::GetWindowClassName(ImwWindow* /*pWindow*/)
 	{

@@ -1246,6 +1246,7 @@ namespace ImWindow
 		return false;
 	}
 
+#ifdef IMW_USE_LAYOUT_SERIALIZATION
 	bool ImwContainer::Save(JsonStthm::JsonValue& oJson)
 	{
 		oJson["Vertical"] = m_bVerticalSplit;
@@ -1359,6 +1360,7 @@ namespace ImWindow
 
 		return true;
 	}
+#endif //IMW_USE_LAYOUT_SERIALIZATION
 
 //SFF_END
 }
