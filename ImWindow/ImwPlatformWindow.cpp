@@ -216,10 +216,10 @@ namespace ImWindow
 		ImVec2 oSize = GetNormalSize();
 		ImVec2 oPos = GetNormalPosition();
 
-		oJson["Width"] = (long)oSize.x;
-		oJson["Height"] = (long)oSize.y;
-		oJson["Left"] = (long)oPos.x;
-		oJson["Top"] = (long)oPos.y;
+		oJson["Width"] = (int64_t)oSize.x;
+		oJson["Height"] = (int64_t)oSize.y;
+		oJson["Left"] = (int64_t)oPos.x;
+		oJson["Top"] = (int64_t)oPos.y;
 		oJson["Maximized"] = IsWindowMaximized();
 		oJson["Minimized"] = IsWindowMinimized();
 
@@ -233,12 +233,12 @@ namespace ImWindow
 
 		if (!bJustCheck)
 		{
-			SetSize((long)oJson["Width"], (long)oJson["Height"]);
-			SetPosition((long)oJson["Left"], (long)oJson["Top"]);
+			SetSize((int)oJson["Width"].ToInteger(), (int)oJson["Height"].ToInteger());
+			SetPosition((int)oJson["Left"].ToInteger(), (int)oJson["Top"].ToInteger());
 
 			if (oJson["Mode"].IsNumeric())
 			{
-				long iMode = (long)oJson["Mode"];
+				int iMode = (int)oJson["Mode"].ToInteger();
 				if (iMode < 0)
 				{
 					SetWindowMinimized(true);
@@ -248,15 +248,15 @@ namespace ImWindow
 					SetWindowMaximized(iMode > 0);
 				}
 			}
-			
+
 			if (oJson["Maximized"].IsBoolean())
 			{
-				SetWindowMaximized(oJson["Maximized"]);
+				SetWindowMaximized(oJson["Maximized"].ToBoolean());
 			}
-			
+
 			if( oJson[ "Minimized" ].IsBoolean() )
 			{
-				SetWindowMinimized(oJson["Minimized"]);
+				SetWindowMinimized(oJson["Minimized"].ToBoolean());
 			}
 		}
 
@@ -342,10 +342,10 @@ namespace ImWindow
 	void ImwPlatformWindow::RefreshTitle()
 	{
 		const char* pMainTitle = ImwWindowManager::GetInstance()->GetMainTitle();
-		
+
 		ImwWindow* pActiveWindow = m_pContainer->GetActiveWindow();
 		const char* pActiveWindowTitle = NULL;
-		
+
 		if (pActiveWindow != NULL)
 		{
 			pActiveWindowTitle = pActiveWindow->GetTitle();
