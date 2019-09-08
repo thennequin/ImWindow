@@ -58,6 +58,7 @@ namespace ImWindow
 		m_bFillingSpace = bFilling;
 	}
 
+#ifdef IMW_USE_LAYOUT_SERIALIZATION
 	void ImwWindow::GetParameters(JsonStthm::JsonValue& /*oOutParameters*/)
 	{
 	}
@@ -65,6 +66,7 @@ namespace ImWindow
 	void ImwWindow::SetParameters(const JsonStthm::JsonValue& /*oParameters*/)
 	{
 	}
+#endif //IMW_USE_LAYOUT_SERIALIZATION
 
 	ImU32 ImwWindow::GetId() const
 	{
