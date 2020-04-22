@@ -1,6 +1,6 @@
 # ImWindow
 
-[![Build status](https://ci.appveyor.com/api/projects/status/k72i9fqi4px68oxl?svg=true)](https://ci.appveyor.com/project/thennequin/imwindow)
+[![Build status](https://ci.appveyor.com/api/projects/status/k72i9fqi4px68oxl/branch/master?svg=true)](https://ci.appveyor.com/project/thennequin/imwindow/branch/master)
 
 Window and GUI system based on ImGui from OCornut.
 
@@ -16,8 +16,9 @@ Actually work on Windows with different backend
   * OpenGL
   * OpenGL with GLFW
   * BGFX
+  * Sokol (with DX11 and OpenGL support)
   
-Linux support is in progress.
+Linux support is in pause.
 
 For Mac it's not decided yet.
 

@@ -11,16 +11,16 @@ namespace ImWindow
 	IMW_CUSTOM_IMPLEMENT_IMWWINDOW
 #endif //IMW_CUSTOM_IMPLEMENT_IMWWINDOW
 
-	ImwWindow::ImwWindow()
+	ImwWindow::ImwWindow(EWindowMode eMode)
 		: m_pTitle(NULL)
 		, m_bClosable(true)
-		, m_bAlone(false)
+		, m_eMode(eMode)
 		, m_bFillingSpace(false)
 		, m_oLastPosition(0.f, 0.f)
 		, m_oLastSize(0.f, 0.f)
 	{
 		m_iId = s_iNextId++;
-	
+
 		//Write Id to string
 		int iIndex = 0;
 		int iNumber = m_iId;
@@ -107,14 +107,9 @@ namespace ImWindow
 		return m_bClosable;
 	}
 
-	void ImwWindow::SetAlone(bool bAlone)
+	EWindowMode ImwWindow::GetWindowMode() const
 	{
-		m_bAlone = bAlone;
-	}
-
-	bool ImwWindow::IsAlone() const
-	{
-		return m_bAlone;
+		return m_eMode;
 	}
 
 	const ImVec2& ImwWindow::GetLastPosition() const

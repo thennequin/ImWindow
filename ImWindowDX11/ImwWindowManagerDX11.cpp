@@ -87,7 +87,6 @@ ImwPlatformWindow* ImwWindowManagerDX11::CreatePlatformWindow(EPlatformWindowTyp
 		return NULL;
 	}
 }
-
 const float c_fIconSize = 20.f;
 float ImwWindowManagerDX11::GetTitleBarHeight() const
 {
