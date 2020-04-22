@@ -353,14 +353,15 @@ namespace ImWindow
 			m_lPlatformWindowActions.push_back(new PlatformWindowAction(m_pCurrentPlatformWindow, E_PLATFORM_WINDOW_ACTION_RESTORE));
 	}
 
+#ifdef IMW_USE_LAYOUT_SERIALIZATION
 	bool ImwWindowManager::SaveLayoutToString(ImwString& sLayout, bool bCompact)
 	{
-		JsonValue oJson;
-		oJson.InitType(JsonValue::E_TYPE_OBJECT);
+		JsonStthm::JsonValue oJson;
+		oJson.InitType(JsonStthm::JsonValue::E_TYPE_OBJECT);
 
 		if ( m_pMainPlatformWindow->Save(oJson["MainPlatformWindow"]) )
 		{
-			JsonValue& oJsonPlatformWindows = oJson["PlatformWindows"];
+			JsonStthm::JsonValue& oJsonPlatformWindows = oJson["PlatformWindows"];
 			int iCurrent = 0;
 			for (ImVector<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
 			{
@@ -394,11 +395,11 @@ namespace ImWindow
 
 	bool ImwWindowManager::LoadLayoutFromString(const char* pLayout)
 	{
-		JsonValue oJson;
+		JsonStthm::JsonValue oJson;
 		if (oJson.ReadString(pLayout) == 0 && oJson.IsObject())
 		{
-			JsonValue& oJsonMainPlatformWindow = oJson["MainPlatformWindow"];
-			JsonValue& oJsonPlatformWindows = oJson["PlatformWindows"];
+			JsonStthm::JsonValue& oJsonMainPlatformWindow = oJson["MainPlatformWindow"];
+			JsonStthm::JsonValue& oJsonPlatformWindows = oJson["PlatformWindows"];
 
 			//Check layout integrity
 			if (!oJsonMainPlatformWindow.IsObject() || !m_pMainPlatformWindow->Load(oJsonMainPlatformWindow, true))
@@ -410,7 +411,7 @@ namespace ImWindow
 			int iPlatformWindowCount = oJsonPlatformWindows.GetMemberCount();
 			for (int iCurrent = 0; iCurrent < iPlatformWindowCount; ++iCurrent)
 			{
-				JsonValue& oJsonPlatformWindow = oJsonPlatformWindows[iCurrent];
+				JsonStthm::JsonValue& oJsonPlatformWindow = oJsonPlatformWindows[iCurrent];
 				if (!oJsonPlatformWindow.IsObject() || !m_pMainPlatformWindow->Load(oJsonPlatformWindow, true))
 					return false;
 			}
@@ -429,7 +430,7 @@ namespace ImWindow
 
 			for (int iCurrent = 0; iCurrent < iPlatformWindowCount; ++iCurrent)
 			{
-				JsonValue& oJsonPlatformWindow = oJsonPlatformWindows[iCurrent];
+				JsonStthm::JsonValue& oJsonPlatformWindow = oJsonPlatformWindows[iCurrent];
 				ImwPlatformWindow* pNewPlatformWindow = CreatePlatformWindow(E_PLATFORM_WINDOW_TYPE_SECONDARY, m_pMainPlatformWindow);
 				m_lPlatformWindows.push_back(pNewPlatformWindow);
 				pNewPlatformWindow->Show(true);
@@ -472,6 +473,7 @@ namespace ImWindow
 		}
 		return false;
 	}
+#endif //IMW_USE_LAYOUT_SERIALIZATION
 
 	const char* ImwWindowManager::GetWindowClassName(ImwWindow* /*pWindow*/)
 	{

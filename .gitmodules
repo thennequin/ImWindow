@@ -7,3 +7,6 @@
 [submodule "Externals/sokol"]
 	path = Externals/sokol
 	url = https://github.com/floooh/sokol.git
+[submodule "Externals/UtilsCollection"]
+	path = Externals/UtilsCollection
+	url = https://github.com/thennequin/UtilsCollection.git

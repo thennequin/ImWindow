@@ -8,7 +8,6 @@
 #include "ImwPlatformWindow.h"
 #include "ImwStatusBar.h"
 #include "ImwToolBar.h"
-#include "JsonValue.h"
 
 namespace ImWindow
 {

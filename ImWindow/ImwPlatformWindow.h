@@ -5,7 +5,6 @@
 #include "ImwConfig.h"
 
 #include "ImwContainer.h"
-#include "JsonValue.h"
 
 namespace ImWindow
 {
@@ -74,8 +73,10 @@ namespace ImWindow
 
 		void								Moving(bool bFirst);
 
-		bool								Save(JsonValue& oJson);
-		bool								Load(const JsonValue& oJson, bool bJustCheck);
+#ifdef IMW_USE_LAYOUT_SERIALIZATION
+		bool								Save(JsonStthm::JsonValue& oJson);
+		bool								Load(const JsonStthm::JsonValue& oJson, bool bJustCheck);
+#endif //IMW_USE_LAYOUT_SERIALIZATION
 
 		EPlatformWindowType					m_eType;
 		ImwContainer*						m_pContainer;

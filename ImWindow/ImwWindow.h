@@ -3,7 +3,6 @@
 #define __IM_WINDOW_H__
 
 #include "ImwConfig.h"
-#include "JsonValue.h"
 
 namespace ImWindow
 {
@@ -49,8 +48,10 @@ namespace ImWindow
 		bool					IsFillingSpace() const;
 		void					SetFillingSpace(bool bFilling);
 
-		virtual void			GetParameters(JsonValue& oOutParameters);
-		virtual void			SetParameters(const JsonValue& oParameters);
+#ifdef IMW_USE_LAYOUT_SERIALIZATION
+		virtual void			GetParameters(JsonStthm::JsonValue& oOutParameters);
+		virtual void			SetParameters(const JsonStthm::JsonValue& oParameters);
+#endif //IMW_USE_LAYOUT_SERIALIZATION
 
 		ImU32					GetId() const;
 		const char*				GetIdStr() const;
