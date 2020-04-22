@@ -6,8 +6,6 @@
 #include <d3dcommon.h>
 #include <d3d11.h>
 #include <d3dcompiler.h>
-#include <DxErr.h>
-extern int (WINAPIV * __vsnprintf)(char *, size_t, const char*, va_list);
 
 struct VERTEX_CONSTANT_BUFFER
 {
@@ -120,8 +118,8 @@ static const char* c_pPixelShader = SHADER_SOURCE(
 
 	float4 main(PS_INPUT input) : SV_Target
 	{
-		float4 out_col = input.col * texture0.Sample(sampler0, input.uv); 
-		return out_col; 
+		float4 out_col = input.col * texture0.Sample(sampler0, input.uv);
+		return out_col;
 	}
 );
 
@@ -170,7 +168,7 @@ ImwPlatformWindowDX11::~ImwPlatformWindowDX11()
 
 	ImwSafeRelease(m_pDXGISwapChain);
 	ImwSafeRelease(m_pDX11RenderTargetView);
-	
+
 	ImwSafeRelease(m_pDX11VertexBuffer);
 	ImwSafeRelease(m_pDX11IndexBuffer);
 }
@@ -197,14 +195,18 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 
 				if (pVertexShaderBlob == NULL) // NB: Pass ID3D10Blob* pErrorBlob to D3DCompile() to get error showing in (const char*)pErrorBlob->GetBufferPointer(). Make sure to Release() the blob!
 				{
-					MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error : Can't compile vertex shader"), MB_ICONERROR | MB_OK);
+					char pErrorMessage[1024];
+					FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, iResult, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&pErrorMessage, 1024, NULL);
+					MessageBox(NULL, pErrorMessage, TEXT("Error : Can't compile vertex shader"), MB_ICONERROR | MB_OK);
 					return false;
 				}
 
 				iResult = m_pDX11Device->CreateVertexShader((DWORD*)pVertexShaderBlob->GetBufferPointer(), pVertexShaderBlob->GetBufferSize(), NULL, &m_pDX11VertexShader);
 				if (FAILED(iResult))
 				{
-					MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error : Can't create vertex shader"), MB_ICONERROR | MB_OK);
+					char pErrorMessage[1024];
+					FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, iResult, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&pErrorMessage, 1024, NULL);
+					MessageBox(NULL, pErrorMessage, TEXT("Error : Can't create vertex shader"), MB_ICONERROR | MB_OK);
 					return false;
 				}
 
@@ -218,7 +220,9 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 				iResult = m_pDX11Device->CreateInputLayout(local_layout, 3, pVertexShaderBlob->GetBufferPointer(), pVertexShaderBlob->GetBufferSize(), &m_pDX11InputLayout);
 				if (FAILED(iResult))
 				{
-					MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error : Can't create input layout for vertex shader"), MB_ICONERROR | MB_OK);
+					char pErrorMessage[1024];
+					FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, iResult, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&pErrorMessage, 1024, NULL);
+					MessageBox(NULL, pErrorMessage, TEXT("Error : Can't create input layout for vertex shader"), MB_ICONERROR | MB_OK);
 					return false;
 				}
 
@@ -233,7 +237,9 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 					iResult = m_pDX11Device->CreateBuffer(&desc, NULL, &m_pDX11VertexConstantBuffer);
 					if (FAILED(iResult))
 					{
-						MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error : Can't create constant buffer"), MB_ICONERROR | MB_OK);
+						char pErrorMessage[1024];
+						FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, iResult, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&pErrorMessage, 1024, NULL);
+						MessageBox(NULL, pErrorMessage, TEXT("Error : Can't create constant buffer"), MB_ICONERROR | MB_OK);
 						return false;
 					}
 				}
@@ -247,14 +253,18 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 				iResult = D3DCompile(c_pPixelShader, strlen(c_pPixelShader), NULL, NULL, NULL, "main", "ps_4_0", 0, 0, &pPixelShaderBlob, NULL);
 				if (pPixelShaderBlob == NULL)  // NB: Pass ID3D10Blob* pErrorBlob to D3DCompile() to get error showing in (const char*)pErrorBlob->GetBufferPointer(). Make sure to Release() the blob!
 				{
-					MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error : Can't compile pixel shader"), MB_ICONERROR | MB_OK);
+					char pErrorMessage[1024];
+					FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, iResult, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&pErrorMessage, 1024, NULL);
+					MessageBox(NULL, pErrorMessage, TEXT("Error : Can't compile pixel shader"), MB_ICONERROR | MB_OK);
 					return false;
 				}
 
 				iResult = m_pDX11Device->CreatePixelShader((DWORD*)pPixelShaderBlob->GetBufferPointer(), pPixelShaderBlob->GetBufferSize(), NULL, &m_pDX11PixelShader);
 				if (FAILED(iResult))
 				{
-					MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error : Can't create pixel shader"), MB_ICONERROR | MB_OK);
+					char pErrorMessage[1024];
+					FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, iResult, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&pErrorMessage, 1024, NULL);
+					MessageBox(NULL, pErrorMessage, TEXT("Error : Can't create pixel shader"), MB_ICONERROR | MB_OK);
 					return false;
 				}
 			}
@@ -317,7 +327,9 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 
 		if (FAILED(iResult))
 		{
-			MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error: Can't create swap chain"), MB_ICONERROR | MB_OK);
+			char pErrorMessage[1024];
+			FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, iResult, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&pErrorMessage, 1024, NULL);
+			MessageBox(NULL, pErrorMessage, TEXT("Error: Can't create swap chain"), MB_ICONERROR | MB_OK);
 			return false;
 		}
 
@@ -325,7 +337,9 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 
 		if (FAILED(iResult))
 		{
-			MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error : DXGI MakeWindowAssociation failed!"), MB_ICONERROR | MB_OK);
+			char pErrorMessage[1024];
+			FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, iResult, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&pErrorMessage, 1024, NULL);
+			MessageBox(NULL, pErrorMessage, TEXT("Error : DXGI MakeWindowAssociation failed!"), MB_ICONERROR | MB_OK);
 			//return false;
 		}
 
@@ -334,7 +348,9 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 		iResult = m_pDXGISwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBuffer);
 		if (FAILED(iResult))
 		{
-			MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error : Can't get Buffer of swapchain"), MB_ICONERROR | MB_OK);
+			char pErrorMessage[1024];
+			FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, iResult, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&pErrorMessage, 1024, NULL);
+			MessageBox(NULL, pErrorMessage, TEXT("Error : Can't get Buffer of swapchain"), MB_ICONERROR | MB_OK);
 			return false;
 		}
 
@@ -343,7 +359,9 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 		pBackBuffer->Release();
 		if (FAILED(iResult))
 		{
-			MessageBox(NULL, DXGetErrorDescription(iResult), TEXT("Error : Can't create RenderTargetView"), MB_ICONERROR | MB_OK);
+			char pErrorMessage[1024];
+			FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, iResult, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&pErrorMessage, 1024, NULL);
+			MessageBox(NULL, pErrorMessage, TEXT("Error : Can't create RenderTargetView"), MB_ICONERROR | MB_OK);
 			return false;
 		}
 
@@ -436,6 +454,9 @@ void ImwPlatformWindowDX11::OnClientSize(int iClientWidth, int iClientHeight)
 		pBuffer->Release();
 
 		m_pDX11DeviceContext->OMSetRenderTargets(1, &m_pDX11RenderTargetView, NULL);
+
+		int iWidth, iHeight;
+		m_pWindow->GetSize( &iWidth, &iHeight );
 
 		// Set up the viewport.
 		D3D11_VIEWPORT oViewport;

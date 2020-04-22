@@ -77,6 +77,7 @@ if _OPTIONS["with-sff"] then
 	fileSFFHeader:write("#define __IM_WINDOW_HEADER__"..EOL)
 
 	fileSFFHeader:write("#include \"ImwConfig.h\""..EOL..EOL)
+	fileSFFHeader:write("#include \"JsonStthm.h\""..EOL..EOL)
 
 	fileSFFHeader:write("namespace ImWindow {"..EOL)
 	--Forward declare classes
@@ -84,7 +85,6 @@ if _OPTIONS["with-sff"] then
 	fileSFFHeader:write("	class ImwPlatformWindow;"..EOL)
 	fileSFFHeader:write("	class ImwWindowManager;"..EOL)
 	fileSFFHeader:write(EOL)
-	IncludeSFF( "../ImWindow/JsonValue.h", fileSFFHeader )
 	IncludeSFF( "../ImWindow/ImwWindow.h", fileSFFHeader )
 	IncludeSFF( "../ImWindow/ImwMenu.h", fileSFFHeader )
 	IncludeSFF( "../ImWindow/ImwStatusBar.h", fileSFFHeader )
@@ -99,11 +99,12 @@ if _OPTIONS["with-sff"] then
 	-- Write source
 	local fileSFFSource = io.open("../ImWindow.cpp","w+")
 
+	fileSFFSource:write("#define IMGUI_DEFINE_MATH_OPERATORS"..EOL);
 	fileSFFSource:write("#include \"ImWindow.h\""..EOL..EOL)
+	fileSFFSource:write("#include \"JsonStthm.h\""..EOL..EOL)
 	fileSFFSource:write("#include <algorithm>"..EOL..EOL)
 
 	fileSFFSource:write("namespace ImWindow {"..EOL)
-	IncludeSFF( "../ImWindow/JsonValue.cpp", fileSFFSource )
 	IncludeSFF( "../ImWindow/ImwWindow.cpp", fileSFFSource )
 	IncludeSFF( "../ImWindow/ImwMenu.cpp", fileSFFSource )
 	IncludeSFF( "../ImWindow/ImwStatusBar.cpp", fileSFFSource )
@@ -211,6 +212,8 @@ if _OPTIONS["with-sff"] then
 							"../ImWindow.cpp",
 							"../ImWindow.h",
 							"../ImWindow/ImwConfig.h",
+							"../Externals/UtilsCollection/JsonStthm/*.cpp",
+							"../Externals/UtilsCollection/JsonStthm/*.h",
 							"../Externals/imgui/imconfig.h",
 							"../Externals/imgui/imgui.h",
 							"../Externals/imgui/imgui_internal.h",
@@ -225,12 +228,14 @@ if _OPTIONS["with-sff"] then
 			flags			{ "ExtraWarnings" }
 
 			vpaths {
-							["ImGui"] = "../Externals/imgui/**"
+							["ImGui"] = "../Externals/imgui/**",
+							["JsonStthm"] = "../Externals/UtilsCollection/JsonStthm/**",
 			}
 			
 			includedirs {
 							"..", -- For ImwConfig.h
 							"../ImWindow",
+							"../Externals/UtilsCollection/JsonStthm",
 							"../Externals/imgui"
 			}
 
@@ -250,6 +255,8 @@ end
 							"../ImWindow/**.cpp",
 							"../ImWindow/**.h",
 							"../ImwConfig.h",
+							"../Externals/UtilsCollection/JsonStthm/*.cpp",
+							"../Externals/UtilsCollection/JsonStthm/*.h",
 							"../Externals/imgui/imconfig.h",
 							"../Externals/imgui/imgui.h",
 							"../Externals/imgui/imgui_internal.h",
@@ -261,13 +268,15 @@ end
 		}
 		
 		vpaths {
-							["ImGui"] = "../Externals/imgui/**"
+							["ImGui"] = "../Externals/imgui/**",
+							["JsonStthm"] = "../Externals/UtilsCollection/JsonStthm/**",
 		}
 		
 		includedirs {
 							"..", -- For ImwConfig.h
 							"../ImWindow/",
-							"../Externals/imgui"
+							"../Externals/imgui",
+							"../Externals/UtilsCollection/JsonStthm"
 		}
 		
 		flags				"ExtraWarnings"
@@ -308,15 +317,9 @@ if _OPTIONS["with-dx11"] then
 							"../ImWindow",
 							"../ImWindowEasyWindow",
 							"../Externals/imgui",
-							"../Externals/EasyWindow",
-							"../Externals/DirectX/include"
+							"../Externals/UtilsCollection/JsonStthm",
+							"../Externals/EasyWindow"
 		}
-		
-		configuration		"x32"
-			libdirs			"../Externals/DirectX/lib/x86"
-			
-		configuration		"x64"
-			libdirs			"../Externals/DirectX/lib/x64"
 
 		configuration		"Debug"
 			flags			"Symbols"
@@ -351,6 +354,7 @@ if _OPTIONS["with-opengl"] then
 							"../ImWindow",
 							"../ImWindowEasyWindow",
 							"../Externals/imgui",
+							"../Externals/UtilsCollection/JsonStthm",
 							"../Externals/EasyWindow"
 		}
 
@@ -386,7 +390,8 @@ if _OPTIONS["with-glfw"] then
 		includedirs {
 							"..", -- For ImwConfig.h
 							"../ImWindow",
-							"../Externals/imgui"
+							"../Externals/imgui",
+							"../Externals/UtilsCollection/JsonStthm"
 		}
 
 		configuration "x32"
@@ -454,6 +459,7 @@ if _OPTIONS["with-sokol"] then
 							"../ImWindowEasyWindow",
 							"../ImWindowSokol",
 							"../Externals/imgui",
+							"../Externals/UtilsCollection/JsonStthm",
 							"../Externals/EasyWindow",
 							"../Externals/sokol",
 							"../Externals/flextGL"
@@ -467,12 +473,6 @@ if _OPTIONS["with-sokol"] then
 							"OpenGL32",
 							"glu32"
 		}
-
-		configuration		"x32"
-			libdirs			"../Externals/DirectX/lib/x86"
-			
-		configuration		"x64"
-			libdirs			"../Externals/DirectX/lib/x64"
 
 		configuration		"Debug"
 			flags			"Symbols"
@@ -506,20 +506,14 @@ if _OPTIONS["with-sokol"] then
 							"../ImWindowEasyWindow",
 							"../ImWindowSokol",
 							"../Externals/imgui",
+							"../Externals/UtilsCollection/JsonStthm",
 							"../Externals/EasyWindow",
-							"../Externals/sokol",
-							"../Externals/DirectX/include"
+							"../Externals/sokol"
 		}
 
 		defines {
 							"SOKOL_D3D11"
 		}
-
-		configuration		"x32"
-			libdirs			"../Externals/DirectX/lib/x86"
-			
-		configuration		"x64"
-			libdirs			"../Externals/DirectX/lib/x64"
 
 		configuration		"Debug"
 			flags			"Symbols"
@@ -558,6 +552,7 @@ if _OPTIONS["with-bgfx"] then
 								"../ImWindow",
 								"../ImWindowEasyWindow",
 								"../Externals/imgui",
+								"../Externals/UtilsCollection/JsonStthm",
 								"../Externals/EasyWindow",
 
 								path.join(BX_DIR, "include"),

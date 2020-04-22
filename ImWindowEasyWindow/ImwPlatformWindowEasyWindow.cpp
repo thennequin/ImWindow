@@ -1,5 +1,6 @@
 
 #include "ImwPlatformWindowEasyWindow.h"
+#include "ImwWindowManager.h"
 
 using namespace ImWindow;
 
@@ -20,10 +21,15 @@ bool ImwPlatformWindowEasyWindow::Init(ImwPlatformWindow* pMain)
 	ImwPlatformWindowEasyWindow* pMainWindow = ((ImwPlatformWindowEasyWindow*)pMain);
 
 	EasyWindow::EWindowStyle eStyle = EasyWindow::E_STYLE_NORMAL;
+
+	ImwWindowManager* pWindowManager = ImwWindowManager::GetInstance();
+	if (pWindowManager->IsUsingCustomFrame())
+		eStyle = EasyWindow::E_STYLE_BORDERLESS_RESIZABLE;
+
 	if (m_eType == E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW)
 		eStyle = EasyWindow::E_STYLE_POPUP;
 
-	m_pWindow = EasyWindow::Create("ImwPlatformWindowEasyWindow", 800, 600, false, pMain != NULL ? pMainWindow->m_pWindow : NULL, eStyle, EasyWindow::E_FLAG_CATCH_ALT_KEY | EasyWindow::E_FLAG_ACCEPT_FILES_DROP);
+	m_pWindow = EasyWindow::Create("ImwPlatformWindowEasyWindow", 800, 600, false, pMain != NULL ? pMainWindow->m_pWindow : NULL, eStyle, EasyWindow::E_FLAG_CATCH_ALT_KEY | EasyWindow::E_FLAG_ACCEPT_FILES_DROP | EasyWindow::E_FLAG_ALWAYS_CAPTURE_MOUSE_ON_CLICK);
 	m_pWindow->OnSize.Set(this, &ImwPlatformWindowEasyWindow::OnSize);
 	m_pWindow->OnClose.Set(this, &ImwPlatformWindowEasyWindow::OnClose);
 	m_pWindow->OnFocus.Set(this, &ImwPlatformWindowEasyWindow::OnFocus);
@@ -159,6 +165,16 @@ void ImwPlatformWindowEasyWindow::PreUpdate()
 			m_pWindow->SetCursor(EasyWindow::E_CURSOR_RESIZE_NWSE);
 			break;
 		}
+	}
+}
+
+void ImwPlatformWindowEasyWindow::OnOverlay()
+{
+	if (ImwWindowManager::GetInstance()->IsUsingCustomFrame())
+	{
+		ImDrawList* pDrawList = &(ImGui::GetCurrentContext()->OverlayDrawList);
+		ImU32 iBorderColor = ImGui::GetColorU32(ImGuiCol_Border);
+		pDrawList->AddRect(ImVec2(0.f, 0.f), GetSize(), iBorderColor);
 	}
 }
 

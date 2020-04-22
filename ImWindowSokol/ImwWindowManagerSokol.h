@@ -14,7 +14,7 @@ namespace ImWindow
 	{
 		friend class ImwPlatformWindowSokol;
 	public:
-		ImwWindowManagerSokol(sg_desc* pSokolDesc);
+		ImwWindowManagerSokol(sg_desc* pSokolDesc, bool bCustomFrame);
 		virtual							~ImwWindowManagerSokol();
 
 		virtual bool					InternalInit();

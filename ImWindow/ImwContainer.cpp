@@ -1,4 +1,5 @@
 
+#define IMGUI_DEFINE_MATH_OPERATORS
 #include "ImwContainer.h"
 
 #include "ImwWindowManager.h"
@@ -455,22 +456,23 @@ namespace ImWindow
 		m_oLastPosition = oPos;
 		m_oLastSize = oSize;
 
-		const int iSeparatorHalfSize = 2;
-		const int iSeparatorSize = iSeparatorHalfSize * 2;
+		const int iSeparatorSize = 5;
 
 		if (IsSplit())
 		{
 			if (m_bVerticalSplit)
 			{
-				float iFirstHeight = oSize.y * m_fSplitRatio - iSeparatorHalfSize - pWindow->WindowPadding.x;
+				float iFirstHeight = oSize.y * m_fSplitRatio - iSeparatorSize - pWindow->WindowPadding.x;
 
 				ImVec4 oBackupColor = oStyle.Colors[ImGuiCol_ChildWindowBg];
 
 				oStyle.Colors[ImGuiCol_ChildWindowBg].w = 0.f;
-				ImGui::BeginChild("Top", ImVec2(0, iFirstHeight), false, ImGuiWindowFlags_NoScrollbar);
+				ImGui::BeginChild("Top", ImVec2(0, iFirstHeight), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 				oStyle.Colors[ImGuiCol_ChildWindowBg] = oBackupColor;
 				m_pSplits[0]->Paint(/*iX, iY, iWidth, iFirstHeight*/);
 				ImGui::EndChild();
+
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() - oStyle.ItemSpacing.y);
 
 				ImRect oSeparatorRect( 0, iFirstHeight, oSize.x, iFirstHeight + iSeparatorSize);
 				if (pWindowManager->GetConfig().m_bVisibleDragger)
@@ -497,25 +499,27 @@ namespace ImWindow
 					m_bIsDrag = false;
 				}
 
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() - oStyle.ItemSpacing.y);
+
 				oStyle.Colors[ImGuiCol_ChildWindowBg].w = 0.f;
-				ImGui::BeginChild("Bottom", ImVec2(0, 0), false, ImGuiWindowFlags_NoScrollbar);
+				ImGui::BeginChild("Bottom", ImVec2(0, 0), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 				oStyle.Colors[ImGuiCol_ChildWindowBg] = oBackupColor;
 				m_pSplits[1]->Paint(/*iX, iY + iFirstHeight, iWidth, iSecondHeight*/);
 				ImGui::EndChild();
 			}
 			else
 			{
-				float iFirstWidth = oSize.x * m_fSplitRatio - iSeparatorHalfSize - pWindow->WindowPadding.y;
+				float iFirstWidth = oSize.x * m_fSplitRatio - iSeparatorSize - pWindow->WindowPadding.y;
 
 				ImVec4 oBackupColor = oStyle.Colors[ImGuiCol_ChildWindowBg];
 
 				oStyle.Colors[ImGuiCol_ChildWindowBg].w = 0.f;
-				ImGui::BeginChild("Left", ImVec2(iFirstWidth, 0), false, ImGuiWindowFlags_NoScrollbar);
+				ImGui::BeginChild("Left", ImVec2(iFirstWidth, 0), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 				oStyle.Colors[ImGuiCol_ChildWindowBg] = oBackupColor;
 				m_pSplits[0]->Paint();
 				ImGui::EndChild();
 
-				ImGui::SameLine();
+				ImGui::SameLine(0.f, 0.f);
 
 				ImRect oSeparatorRect( iFirstWidth, 0, iFirstWidth + iSeparatorSize, oSize.y);
 				if (pWindowManager->GetConfig().m_bVisibleDragger)
@@ -542,10 +546,10 @@ namespace ImWindow
 					m_bIsDrag = false;
 				}
 
-				ImGui::SameLine();
+				ImGui::SameLine(0.f, 0.f);
 
 				oStyle.Colors[ImGuiCol_ChildWindowBg].w = 0.f;
-				ImGui::BeginChild("Right", ImVec2(0, 0), false, ImGuiWindowFlags_NoScrollbar);
+				ImGui::BeginChild("Right", ImVec2(0, 0), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 				oStyle.Colors[ImGuiCol_ChildWindowBg] = oBackupColor;
 				m_pSplits[1]->Paint();
 				ImGui::EndChild();
@@ -553,7 +557,6 @@ namespace ImWindow
 		}
 		else if (HasWindow())
 		{
-			pWindowManager->PopStyle();
 
 			EWindowMode eWindowMode = GetWindowMode();
 
@@ -575,7 +578,7 @@ namespace ImWindow
 				ImVec2 oItemSpacing = oStyle.ItemSpacing;
 				oStyle.ItemSpacing = ImVec2(oItemSpacing.x, 0.f);
 
-				ImGui::InvisibleButton("TabListButton", ImVec2(16, 16));
+				ImGui::InvisibleButton("##TabListButton", ImVec2(14.f, c_fTabHeight));
 				ImGui::SameLine();
 
 				if (ImGui::BeginPopupContextItem("TabListMenu", 0))
@@ -583,7 +586,7 @@ namespace ImWindow
 					int iIndex = 0;
 					for (ImwWindowVector::const_iterator itWindow = m_lWindows.begin(); itWindow != m_lWindows.end(); ++itWindow, ++iIndex)
 					{
-						if (ImGui::Selectable((*itWindow)->GetTitle()))
+						if (ImGui::Selectable((*itWindow)->GetTitle(), m_iActiveWindow == iIndex))
 						{
 							m_iActiveWindow = iIndex;
 						}
@@ -591,28 +594,23 @@ namespace ImWindow
 					ImGui::EndPopup();
 				}
 
-				ImColor oLinesColor = ImColor(160, 160, 160, 255);
-				if (ImGui::IsItemHovered())
-				{
-					oLinesColor = ImColor(255, 255, 255, 255);
-				}
+				ImU32 iTabListButtonColor = ImGui::GetColorU32(ImGui::IsItemHovered() ? ImGuiCol_Text : ImGuiCol_TextDisabled);
 				ImVec2 oButtonMin = ImGui::GetItemRectMin();
 				ImVec2 oButtonMax = ImGui::GetItemRectMax();
-				ImVec2 oButtonSize = ImVec2(oButtonMax.x - oButtonMin.x, oButtonMax.y - oButtonMin.y);
-				pDrawList->AddLine(
-					ImVec2(oButtonMin.x + 1, oButtonMin.y + oButtonSize.y / 2),
-					ImVec2(oButtonMax.x - 1, oButtonMin.y + oButtonSize.y / 2),
-					oLinesColor);
+				ImVec2 oButtonCenter = (oButtonMin + oButtonMax) / 2.f;
 
-				pDrawList->AddLine(
-					ImVec2(oButtonMin.x + 1, oButtonMin.y + oButtonSize.y / 2 - 4),
-					ImVec2(oButtonMax.x - 1, oButtonMin.y + oButtonSize.y / 2 - 4),
-					oLinesColor);
+				pDrawList->AddRectFilled(
+					ImVec2(oButtonCenter.x - 5.f, oButtonCenter.y - 7.f),
+					ImVec2(oButtonCenter.x + 5.f, oButtonCenter.y - 4.f),
+					iTabListButtonColor
+				);
 
-				pDrawList->AddLine(
-					ImVec2(oButtonMin.x + 1, oButtonMin.y + oButtonSize.y / 2 + 4),
-					ImVec2(oButtonMax.x - 1, oButtonMin.y + oButtonSize.y / 2 + 4),
-					oLinesColor);
+				pDrawList->AddTriangleFilled(
+					ImVec2(oButtonCenter.x - 5.f, oButtonCenter.y - 2.f),
+					ImVec2(oButtonCenter.x + 5.f, oButtonCenter.y - 2.f),
+					ImVec2(oButtonCenter.x, oButtonCenter.y + 4.f),
+					iTabListButtonColor
+				);
 
 				pDrawList->ChannelsSplit(2);
 
@@ -843,14 +841,19 @@ namespace ImWindow
 			//Draw active
 			if (pActiveWindow != NULL)
 			{
-				ImVec4 oBorderColor = oStyle.Colors[ImGuiCol_Border];
-				ImVec4 oBorderShadowColor = oStyle.Colors[ImGuiCol_BorderShadow];
-				oStyle.Colors[ImGuiCol_Border] = ImVec4(0.f, 0.f, 0.f, 0.f);
-				oStyle.Colors[ImGuiCol_BorderShadow] = ImVec4(0.f, 0.f, 0.f, 0.f);
-				ImGui::BeginChild(pActiveWindow->GetId(), ImVec2(0.f, 0.f), !pActiveWindow->IsFillingSpace(), ImGuiWindowFlags_HorizontalScrollbar);
+				ImVec2 oWindowPaddingBackup;
+				if (pActiveWindow->IsFillingSpace())
+				{
+					oWindowPaddingBackup = oStyle.WindowPadding;
+					oStyle.WindowPadding = ImVec2(0.f, 0.f);
+				}
 
-				oStyle.Colors[ImGuiCol_Border] = oBorderColor;
-				oStyle.Colors[ImGuiCol_BorderShadow] = oBorderShadowColor;
+				ImGui::BeginChild(pActiveWindow->GetId(), ImVec2(0.f, 0.f), false, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysUseWindowPadding);
+
+				if (pActiveWindow->IsFillingSpace())
+				{
+					oStyle.WindowPadding = oWindowPaddingBackup;
+				}
 
 				ImVec2 oWinPos = ImGui::GetWindowPos();
 				ImVec2 oWinSize = ImGui::GetWindowSize();
@@ -870,8 +873,6 @@ namespace ImWindow
 
 				ImGui::EndChild();
 			}
-
-			pWindowManager->PushStyle();
 		}
 		else
 		{
@@ -948,7 +949,7 @@ namespace ImWindow
 		//Drop shadows
 		if (oConfig.m_bShowTabShadows)
 		{
-			const ImVec2 uv = GImGui->FontTexUvWhitePixel;
+			const ImVec2 uv = ImGui::GetFontTexUvWhitePixel();
 			pDrawList->PrimReserve(3, 3);
 			pDrawList->PrimWriteIdx((ImDrawIdx)(pDrawList->_VtxCurrentIdx)); pDrawList->PrimWriteIdx((ImDrawIdx)(pDrawList->_VtxCurrentIdx + 1)); pDrawList->PrimWriteIdx((ImDrawIdx)(pDrawList->_VtxCurrentIdx + 2));
 			pDrawList->PrimWriteVtx(ImVec2(oRectMin.x - oConfig.m_fTabOverlap - oConfig.m_fTabShadowDropSize, oRectMax.y), uv, ImColor(0.f, 0.f, 0.f, 0.f));
@@ -984,18 +985,18 @@ namespace ImWindow
 
 		if (bFocused)
 		{
-			pDrawList->AddConvexPolyFilled(pDrawList->_Path.Data + 1, pDrawList->_Path.Size - 1, bFocused ? oSelectedTab : oNormalTab, true);
+			pDrawList->AddConvexPolyFilled(pDrawList->_Path.Data + 1, pDrawList->_Path.Size - 1, bFocused ? oSelectedTab : oNormalTab);
 			if (fEndLinePos > oRectMax.x)
 			{
 				pDrawList->PathLineTo(ImVec2(fEndLinePos, oRectMax.y));
 			}
 
 			if (oConfig.m_bShowTabBorder)
-				pDrawList->AddPolyline(pDrawList->_Path.Data, pDrawList->_Path.Size, oBorderColor, false, 1.5f, true);
+				pDrawList->AddPolyline(pDrawList->_Path.Data, pDrawList->_Path.Size, oBorderColor, false, 1.5f);
 		}
 		else
 		{
-			pDrawList->AddConvexPolyFilled(pDrawList->_Path.Data, pDrawList->_Path.Size, bFocused ? oSelectedTab : oNormalTab, true);
+			pDrawList->AddConvexPolyFilled(pDrawList->_Path.Data, pDrawList->_Path.Size, bFocused ? oSelectedTab : oNormalTab);
 		}
 
 		pDrawList->PathClear();
@@ -1295,7 +1296,8 @@ namespace ImWindow
 		return E_WINDOW_MODE_NORMAL;
 	}
 
-	bool ImwContainer::Save(JsonValue& oJson)
+#ifdef IMW_USE_LAYOUT_SERIALIZATION
+	bool ImwContainer::Save(JsonStthm::JsonValue& oJson)
 	{
 		oJson["Vertical"] = m_bVerticalSplit;
 		oJson["SplitRatio"] = m_fSplitRatio;
@@ -1303,12 +1305,12 @@ namespace ImWindow
 		if (m_lWindows.size() > 0)
 		{
 			ImwWindowManager* pWindowManager = ImwWindowManager::GetInstance();
-			oJson["CurrentWindow"] = (long)m_iActiveWindow;
-			JsonValue& oJsonWindows = oJson["Windows"];
+			oJson["CurrentWindow"] = (int64_t)m_iActiveWindow;
+			JsonStthm::JsonValue& oJsonWindows = oJson["Windows"];
 			int iCurrentWindow = 0;
 			for (ImwWindowVector::const_iterator itWindow = m_lWindows.begin(); itWindow != m_lWindows.end(); ++itWindow)
 			{
-				JsonValue& oJsonWindow = oJsonWindows[iCurrentWindow++];
+				JsonStthm::JsonValue& oJsonWindow = oJsonWindows[iCurrentWindow++];
 				const char* pClassName = pWindowManager->GetWindowClassName(*itWindow);
 				if (pClassName == NULL)
 					return false;
@@ -1319,12 +1321,12 @@ namespace ImWindow
 		}
 		else
 		{
-			JsonValue& oJsonSplits = oJson["Splits"];
+			JsonStthm::JsonValue& oJsonSplits = oJson["Splits"];
 			return m_pSplits[0]->Save(oJsonSplits[0]) && m_pSplits[1]->Save(oJsonSplits[1]);
 		}
 	}
 
-	bool ImwContainer::Load(const JsonValue& oJson, bool bJustCheck)
+	bool ImwContainer::Load(const JsonStthm::JsonValue& oJson, bool bJustCheck)
 	{
 		if (!oJson["Vertical"].IsBoolean() || !oJson["SplitRatio"].IsFloat())
 			return false;
@@ -1336,8 +1338,8 @@ namespace ImWindow
 
 		if (!bJustCheck)
 		{
-			m_bVerticalSplit = oJson["Vertical"];
-			m_fSplitRatio = (float)(double)oJson["SplitRatio"];
+			m_bVerticalSplit = oJson["Vertical"].ToBoolean();
+			m_fSplitRatio = (float)oJson["SplitRatio"].ToFloat();
 
 			//Clear
 			while (m_lWindows.begin() != m_lWindows.end())
@@ -1367,8 +1369,8 @@ namespace ImWindow
 		}
 		else
 		{
-			const JsonValue& oJsonCurrentWindow = oJson["CurrentWindow"];
-			const JsonValue& oJsonWindows = oJson["Windows"];
+			const JsonStthm::JsonValue& oJsonCurrentWindow = oJson["CurrentWindow"];
+			const JsonStthm::JsonValue& oJsonWindows = oJson["Windows"];
 			int iWindowCount = oJsonWindows.GetMemberCount();
 			//Check
 			if (!(oJsonCurrentWindow.IsNull() || oJsonCurrentWindow.IsInteger()))
@@ -1376,10 +1378,10 @@ namespace ImWindow
 
 			for (int iCurrent = 0; iCurrent < iWindowCount; ++iCurrent)
 			{
-				const JsonValue& oJsonWindow = oJsonWindows[iCurrent];
+				const JsonStthm::JsonValue& oJsonWindow = oJsonWindows[iCurrent];
 				if (!oJsonWindow.IsObject() || !oJsonWindow["Class"].IsString())
 					return false;
-				if (!pWindowManager->CanCreateWindowByClassName(oJsonWindow["Class"]))
+				if (!pWindowManager->CanCreateWindowByClassName(oJsonWindow["Class"].ToString()))
 					return false;
 			}
 
@@ -1387,15 +1389,15 @@ namespace ImWindow
 			{
 				for (int iCurrent = 0; iCurrent < iWindowCount; ++iCurrent)
 				{
-					const JsonValue& oJsonWindow = oJsonWindows[iCurrent];
-					ImwWindow* pWindow = pWindowManager->CreateWindowByClassName(oJsonWindow["Class"]);
+					const JsonStthm::JsonValue& oJsonWindow = oJsonWindows[iCurrent];
+					ImwWindow* pWindow = pWindowManager->CreateWindowByClassName(oJsonWindow["Class"].ToString());
 					pWindow->SetParameters(oJsonWindow["Parameters"]);
 					m_lWindows.push_back(pWindow);
 				}
 
 				if (oJsonCurrentWindow.IsInteger())
 				{
-					m_iActiveWindow = (int)(long)oJsonCurrentWindow;
+					m_iActiveWindow = (int)oJsonCurrentWindow.ToInteger();
 					if (m_iActiveWindow < 0 || m_iActiveWindow >= iWindowCount)
 						m_iActiveWindow = 0;
 				}
@@ -1408,6 +1410,7 @@ namespace ImWindow
 
 		return true;
 	}
+#endif //IMW_USE_LAYOUT_SERIALIZATION
 
 //SFF_END
 }

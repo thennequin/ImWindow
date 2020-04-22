@@ -6,17 +6,17 @@
 
 #include "ImwWindowManagerEasyWindow.h"
 
-class IDXGIFactory;
-class IDXGISwapChain;
-class ID3D11Device;
-class ID3D11DeviceContext;
+struct IDXGIFactory;
+struct IDXGISwapChain;
+struct ID3D11Device;
+struct ID3D11DeviceContext;
 
 namespace ImWindow
 {
 	class ImwWindowManagerDX11 : public ImwWindowManagerEasyWindow
 	{
 	public:
-		ImwWindowManagerDX11();
+		ImwWindowManagerDX11(bool bCustomFrame);
 		virtual							~ImwWindowManagerDX11();
 
 		IDXGIFactory*					GetDXGIFactory() const { return m_pDXGIFactory; }
@@ -27,6 +27,9 @@ namespace ImWindow
 		virtual void					InternalDestroy();
 		virtual bool					CanCreateMultipleWindow() { return true; }
 		virtual ImwPlatformWindow*		CreatePlatformWindow(EPlatformWindowType eType, ImwPlatformWindow* pParent);
+
+		virtual float					GetTitleBarHeight() const;
+		virtual void					PaintTitleBar(ImwPlatformWindow* pPlatformWindow, bool bDrawTitle);
 	protected:
 		IDXGIFactory*					m_pDXGIFactory;
 		ID3D11Device*					m_pDX11Device;

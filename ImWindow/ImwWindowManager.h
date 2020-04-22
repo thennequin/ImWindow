@@ -8,7 +8,6 @@
 #include "ImwPlatformWindow.h"
 #include "ImwStatusBar.h"
 #include "ImwToolBar.h"
-#include "JsonValue.h"
 
 namespace ImWindow
 {
@@ -98,7 +97,6 @@ namespace ImWindow
 			float					m_fTabShadowSlopRatio;
 			float					m_fTabShadowAlpha;
 
-			ImVec2					m_oStatusBarWindowPadding;
 			ImVec2					m_oStatusBarFramePadding;
 		};
 	public:
@@ -144,6 +142,8 @@ namespace ImWindow
 		virtual const char*					GetWindowClassName(ImwWindow* pWindow);
 		virtual bool						CanCreateWindowByClassName(const char* pName);
 		virtual ImwWindow*					CreateWindowByClassName(const char* pName);
+
+		virtual bool						IsUsingCustomFrame() const;
 	protected:
 		//To override for use multi window mode
 		virtual bool						CanCreateMultipleWindow();
@@ -154,6 +154,9 @@ namespace ImWindow
 		virtual bool						IsLeftClickDown();
 		virtual void						PreRender();
 		virtual void						PostRender();
+
+		virtual float						GetTitleBarHeight() const;
+		virtual void						PaintTitleBar(ImwPlatformWindow* pPlatformWindow, bool bDrawTitle);
 
 		void								AddWindow(ImwWindow* pWindow);
 		void								RemoveWindow(ImwWindow* pWindow);
@@ -182,6 +185,8 @@ namespace ImWindow
 
 		void								DrawWindowArea( ImwPlatformWindow* pWindow, const ImVec2& oPos, const ImVec2& oSize, const ImColor& oColor );
 
+		bool								BeginTransparentChild(const char* pName, const ImVec2& oSize, bool bBorder, ImGuiWindowFlags iFlags);
+
 		void								PreUpdate();
 		void								Update();
 		void								UpdatePlatformwWindowActions();
@@ -192,12 +197,10 @@ namespace ImWindow
 		void								Paint(ImwPlatformWindow* pWindow);
 		void								PostPaint(ImwPlatformWindow* pWindow);
 
-		void								PushStyle(bool bRounding = true, bool bPadding = true);
-		void								PopStyle();
-
 		void								StartDragWindow(ImwWindow* pWindow, ImVec2 oOffset);
 		void								StopDragWindow();
 		void								UpdateDragWindow();
+		float								GetStatusBarHeight() const;
 		ImwWindow*							GetDraggedWindow() const;
 		ImVec2								GetDragOffset() const;
 		ImwContainer*						GetDragBestContainer() const;

@@ -28,12 +28,16 @@
 //#define IMW_INHERITED_BY_IMWWINDOW MyInheritedClass
 
 // Define IMW_CUSTOM_DECLARE_IMWWINDOW and/or IMW_CUSTOM_IMPLEMENT_IMWWINDOW for custom declaration and implementation for ImwWindow
-//#define IMW_CUSTOM_BEFORE_DECLARE_IMWWINDOW 
+//#define IMW_CUSTOM_BEFORE_DECLARE_IMWWINDOW
 //#define IMW_CUSTOM_DECLARE_IMWWINDOW
 //#define IMW_CUSTOM_IMPLEMENT_IMWWINDOW
 
 // Define IMW_BEFORE_WINDOW_PAINT for calling function of instancing object before painting window
 //#define IMW_BEFORE_WINDOW_PAINT(pName) printf("Painting %s\n", pName);
+
+// Allow serialization of layout, need JsonStthm
+#define IMW_USE_LAYOUT_SERIALIZATION
+#include "JsonStthm.h"
 
 //////////////////////////////////////////////////////////////////////////
 // Include here imgui.h

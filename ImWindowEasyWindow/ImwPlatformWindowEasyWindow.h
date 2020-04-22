@@ -6,8 +6,6 @@
 #include "ImwPlatformWindow.h"
 #include "EasyWindow.h"
 
-class IDXGIFactory;
-
 namespace ImWindow
 {
 	class ImwPlatformWindowEasyWindow : public ImwPlatformWindow
@@ -32,6 +30,7 @@ namespace ImWindow
 
 	protected:
 		virtual void						PreUpdate();
+		virtual void						OnOverlay();
 		virtual void						RenderDrawLists(ImDrawData* pDrawData) = 0;
 		virtual void						OnClientSize(int iClientWidth, int iClientHeight) = 0;
 

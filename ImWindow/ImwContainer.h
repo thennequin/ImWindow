@@ -4,7 +4,6 @@
 
 #include "ImwConfig.h"
 #include "ImwWindow.h"
-#include "JsonValue.h"
 
 namespace ImWindow
 {
@@ -46,9 +45,10 @@ namespace ImWindow
 		void							DrawTab(const char* pText, bool bFocused, ImVec2 oPos, float fStartLinePos, float fEndLinePos, const ImVec2& oSize, const ImVec2* pTextSize = NULL);
 		void							GetTabSize(const char* pText, float fMaxSize, ImVec2* pOutTabSize, ImVec2* pOutTextSize = NULL) const;
 		float							GetTabAreaWidth() const;
-
-		bool							Save(JsonValue& oJson);
-		bool							Load(const JsonValue& oJson, bool bJustCheck);
+#ifdef IMW_USE_LAYOUT_SERIALIZATION
+		bool							Save(JsonStthm::JsonValue& oJson);
+		bool							Load(const JsonStthm::JsonValue& oJson, bool bJustCheck);
+#endif //IMW_USE_LAYOUT_SERIALIZATION
 
 		ImwContainer*					m_pParent;
 		ImwPlatformWindow*				m_pParentWindow;

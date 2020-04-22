@@ -3,7 +3,8 @@
 #include <Windows.h>
 using namespace ImWindow;
 
-ImwWindowManagerEasyWindow::ImwWindowManagerEasyWindow()
+ImwWindowManagerEasyWindow::ImwWindowManagerEasyWindow(bool bCustomFrame)
+	: m_bCustomFrame(bCustomFrame)
 {
 }
 
@@ -23,4 +24,9 @@ bool ImwWindowManagerEasyWindow::IsLeftClickDown()
 {
 	//TODO: make it multiplatform
 	return GetAsyncKeyState(VK_LBUTTON) != 0;
+}
+
+bool ImwWindowManagerEasyWindow::IsUsingCustomFrame() const
+{
+	return m_bCustomFrame;
 }

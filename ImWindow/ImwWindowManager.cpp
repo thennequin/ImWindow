@@ -1,3 +1,4 @@
+#define IMGUI_DEFINE_MATH_OPERATORS
 #include "ImwWindowManager.h"
 
 #include <algorithm>
@@ -46,7 +47,6 @@ namespace ImWindow
 		, m_fTabShadowDropSize( 15.f )
 		, m_fTabShadowSlopRatio( 0.6f )
 		, m_fTabShadowAlpha( 0.75f )
-		, m_oStatusBarWindowPadding( 4.f, 4.f )
 		, m_oStatusBarFramePadding( 4.f, 2.f )
 	{
 	}
@@ -353,14 +353,15 @@ namespace ImWindow
 			m_lPlatformWindowActions.push_back(new PlatformWindowAction(m_pCurrentPlatformWindow, E_PLATFORM_WINDOW_ACTION_RESTORE));
 	}
 
+#ifdef IMW_USE_LAYOUT_SERIALIZATION
 	bool ImwWindowManager::SaveLayoutToString(ImwString& sLayout, bool bCompact)
 	{
-		JsonValue oJson;
-		oJson.InitType(JsonValue::E_TYPE_OBJECT);
+		JsonStthm::JsonValue oJson;
+		oJson.InitType(JsonStthm::JsonValue::E_TYPE_OBJECT);
 
 		if ( m_pMainPlatformWindow->Save(oJson["MainPlatformWindow"]) )
 		{
-			JsonValue& oJsonPlatformWindows = oJson["PlatformWindows"];
+			JsonStthm::JsonValue& oJsonPlatformWindows = oJson["PlatformWindows"];
 			int iCurrent = 0;
 			for (ImVector<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
 			{
@@ -394,11 +395,11 @@ namespace ImWindow
 
 	bool ImwWindowManager::LoadLayoutFromString(const char* pLayout)
 	{
-		JsonValue oJson;
+		JsonStthm::JsonValue oJson;
 		if (oJson.ReadString(pLayout) == 0 && oJson.IsObject())
 		{
-			JsonValue& oJsonMainPlatformWindow = oJson["MainPlatformWindow"];
-			JsonValue& oJsonPlatformWindows = oJson["PlatformWindows"];
+			JsonStthm::JsonValue& oJsonMainPlatformWindow = oJson["MainPlatformWindow"];
+			JsonStthm::JsonValue& oJsonPlatformWindows = oJson["PlatformWindows"];
 
 			//Check layout integrity
 			if (!oJsonMainPlatformWindow.IsObject() || !m_pMainPlatformWindow->Load(oJsonMainPlatformWindow, true))
@@ -410,7 +411,7 @@ namespace ImWindow
 			int iPlatformWindowCount = oJsonPlatformWindows.GetMemberCount();
 			for (int iCurrent = 0; iCurrent < iPlatformWindowCount; ++iCurrent)
 			{
-				JsonValue& oJsonPlatformWindow = oJsonPlatformWindows[iCurrent];
+				JsonStthm::JsonValue& oJsonPlatformWindow = oJsonPlatformWindows[iCurrent];
 				if (!oJsonPlatformWindow.IsObject() || !m_pMainPlatformWindow->Load(oJsonPlatformWindow, true))
 					return false;
 			}
@@ -429,7 +430,7 @@ namespace ImWindow
 
 			for (int iCurrent = 0; iCurrent < iPlatformWindowCount; ++iCurrent)
 			{
-				JsonValue& oJsonPlatformWindow = oJsonPlatformWindows[iCurrent];
+				JsonStthm::JsonValue& oJsonPlatformWindow = oJsonPlatformWindows[iCurrent];
 				ImwPlatformWindow* pNewPlatformWindow = CreatePlatformWindow(E_PLATFORM_WINDOW_TYPE_SECONDARY, m_pMainPlatformWindow);
 				m_lPlatformWindows.push_back(pNewPlatformWindow);
 				pNewPlatformWindow->Show(true);
@@ -472,6 +473,7 @@ namespace ImWindow
 		}
 		return false;
 	}
+#endif //IMW_USE_LAYOUT_SERIALIZATION
 
 	const char* ImwWindowManager::GetWindowClassName(ImwWindow* /*pWindow*/)
 	{
@@ -486,6 +488,11 @@ namespace ImWindow
 	ImwWindow* ImwWindowManager::CreateWindowByClassName(const char* /*pName*/)
 	{
 		return NULL;
+	}
+
+	bool ImwWindowManager::IsUsingCustomFrame() const
+	{
+		return false;
 	}
 
 	bool ImwWindowManager::CanCreateMultipleWindow()
@@ -519,6 +526,137 @@ namespace ImWindow
 	bool ImwWindowManager::IsLeftClickDown()
 	{
 		return ImGui::GetIO().MouseDown[0];
+	}
+
+	float ImwWindowManager::GetTitleBarHeight() const
+	{
+		ImGuiContext* pContext = m_pMainPlatformWindow->GetContext();
+		return pContext->Style.WindowPadding.y + pContext->Style.FramePadding.y * 2.f + pContext->FontSize;
+	}
+
+	void ImwWindowManager::PaintTitleBar(ImwPlatformWindow* pPlatformWindow, bool bDrawTitle)
+	{
+		const float c_fButtonWidth = 24.f;
+
+		ImDrawList* pDrawList = ImGui::GetWindowDrawList();
+
+		if (bDrawTitle)
+		{
+			ImGui::TextUnformatted(GetMainTitle());
+			ImGui::SameLine();
+		}
+
+		ImGui::Dummy(ImVec2(ImGui::GetContentRegionAvailWidth() - 3.f * c_fButtonWidth, 1.f));
+
+		ImU32 iColor = ImGui::GetColorU32(ImGuiCol_Text);
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.f, 0.f));
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
+
+		ImVec2 oMin, oMax, oCenter, oStartRect, oEndRect;
+
+		//Minimize
+		{
+			ImGui::SameLine();
+			if (ImGui::Button("##Minimize", ImVec2(c_fButtonWidth, 0.f)))
+			{
+				pPlatformWindow->SetWindowMinimized(true);
+			}
+
+			oMin = ImGui::GetItemRectMin();
+			oMax = ImGui::GetItemRectMax();
+			oCenter = (oMin + oMax) / 2.f;
+			oStartRect = ImVec2(oCenter.x - 4.f, oCenter.y + 3.f);
+			oEndRect = ImVec2(oCenter.x + 4.f, oCenter.y + 5.f);
+			pDrawList->AddRectFilled(oStartRect, oEndRect, iColor);
+		}
+
+		//Maximize
+		{
+			ImGui::SameLine();
+			if (ImGui::Button("##Maximize", ImVec2(c_fButtonWidth, 0.f)))
+			{
+				pPlatformWindow->SetWindowMaximized(!pPlatformWindow->IsWindowMaximized());
+			}
+
+			oMin = ImGui::GetItemRectMin();
+			oMax = ImGui::GetItemRectMax();
+			oCenter = (oMin + oMax) / 2.f;
+			oStartRect = ImVec2(oCenter.x - 4.f, oCenter.y - 4.f);
+			oEndRect = ImVec2(oCenter.x + 5.f, oCenter.y + 5.f);
+			pDrawList->AddRect(oStartRect, oEndRect, iColor, 0.f, -1, 2.f);
+			oEndRect = ImVec2(oCenter.x + 5.f, oCenter.y - 1.f);
+			pDrawList->AddRectFilled(oStartRect, oEndRect, iColor);
+		}
+
+		//Close
+		{
+			ImGui::SameLine();
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(232.f / 255.f, 17.f / 255.f, 35.f / 255.f, 255.f / 255.f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(139.f / 255.f, 50.f / 255.f, 91.f / 255.f, 255.f / 255.f));
+			if (ImGui::Button("##Close", ImVec2(c_fButtonWidth, 0.f)))
+			{
+				OnClosePlatformWindow(pPlatformWindow);
+			}
+			ImGui::PopStyleColor(2);
+
+			oMin = ImGui::GetItemRectMin();
+			oMax = ImGui::GetItemRectMax();
+			oCenter = (oMin + oMax) / 2.f;
+			oStartRect = ImVec2(oCenter.x - 5.f, oCenter.y - 5.f);
+			oEndRect = ImVec2(oCenter.x + 5.f, oCenter.y + 5.f);
+			pDrawList->AddLine(oStartRect, oEndRect, iColor, 2.f);
+			oStartRect = ImVec2(oCenter.x - 5.f, oCenter.y + 5.f);
+			oEndRect = ImVec2(oCenter.x + 5.f, oCenter.y - 5.f);
+			pDrawList->AddLine(oStartRect, oEndRect, iColor, 2.f);
+		}
+
+		ImGui::PopStyleColor();
+		ImGui::PopStyleVar();
+
+		ImGuiWindow* pCurrentImGuiWindow = ImGui::GetCurrentWindow();
+		ImRect oDraggableArea(pCurrentImGuiWindow->DC.CursorStartPos, pCurrentImGuiWindow->DC.CursorMaxPos - ImVec2(3.f * c_fButtonWidth, 0.f));
+
+		bool bHover, bHeld;
+		ImGuiID oDraggableId = ImGui::GetID( "##DraggableArea" );
+		ImGui::ButtonBehavior(oDraggableArea, oDraggableId, &bHover, &bHeld, 0);
+
+		ImGuiID iDoubleClickedID = ImGui::GetID("IsDoubleClicked");
+		ImGuiID iFirstClickedID = ImGui::GetID("FirstClicked");
+		bool bDoubleClicked = ImGui::GetStateStorage()->GetBool(iDoubleClickedID, false);
+		bool bFirstClicked = ImGui::GetStateStorage()->GetBool(iFirstClickedID, false);
+
+		if (ImGui::IsMouseHoveringRect( oDraggableArea.Min, oDraggableArea.Max ) && ImGui::GetIO().MouseDoubleClicked[ 0 ] && ImGui::IsMouseDragging(0) == false)
+		{
+			pPlatformWindow->SetWindowMaximized(!pPlatformWindow->IsWindowMaximized());
+			ImGui::GetStateStorage()->SetBool(iDoubleClickedID, true);
+			bDoubleClicked = true;
+		}
+		else if (bHeld)
+		{
+			if (bDoubleClicked == false)
+			{
+				pPlatformWindow->Moving(bFirstClicked == false);
+
+				if (bFirstClicked == false)
+				{
+					ImGui::GetStateStorage()->SetBool(iFirstClickedID, true);
+					bFirstClicked = true;
+				}
+			}
+		}
+		else
+		{
+			if (bFirstClicked)
+			{
+				ImGui::GetStateStorage()->SetBool(iFirstClickedID, false);
+				bFirstClicked = false;
+			}
+			if (bDoubleClicked)
+			{
+				ImGui::GetStateStorage()->SetBool(iDoubleClickedID, false);
+				bDoubleClicked = false;
+			}
+		}
 	}
 
 	void ImwWindowManager::PreRender()
@@ -745,7 +883,7 @@ namespace ImWindow
 			}
 			else if (CanCreateMultipleWindow())
 			{
-				ImVec2 oSize = ImVec2(300, 300);
+				ImVec2 oSize = ImVec2(300.f, 300.f);
 				ImVec2 oPos = m_pMainPlatformWindow->GetPosition();
 				ImVec2 oMainSize = m_pMainPlatformWindow->GetSize();
 				oPos.x += (oMainSize.x - oSize.x) / 2;
@@ -804,102 +942,164 @@ namespace ImWindow
 		m_pCurrentPlatformWindow = pWindow;
 		pWindow->SetContext(true);
 
-		ImGui::GetIO().DisplaySize = pWindow->GetSize();
 		ImGuiContext* pContext = ImGui::GetCurrentContext();
+		ImGuiIO& oIO = pContext->IO;
+		oIO.DisplaySize = pWindow->GetSize();
 		if (pContext->FrameCountEnded >= pContext->FrameCount || !pContext->Initialized)
 			ImGui::NewFrame();
 
-		float fTop = 0.f;
-		float fBottom = 0.f;
-		if (pWindow->GetType() == E_PLATFORM_WINDOW_TYPE_MAIN)
-		{
-			ImGuiIO& oIO = ImGui::GetIO();
-			if (pWindow->IsShowContent() || oIO.MousePos.y <= 50.f  || oIO.MetricsActiveWindows > 2) // Autohide menu bar
-			{
-				ImGui::BeginMainMenuBar();
-				for (ImwMenuVector::iterator it = m_lMenus.begin(), itEnd = m_lMenus.end(); it != itEnd; ++it)
-				{
-					(*it)->OnMenu();
-				}
-				fTop = ImGui::GetWindowHeight();
-				ImGui::EndMainMenuBar();
-				if (m_lStatusBars.size() > 0)
-				{
-					fBottom = m_oConfig.m_oStatusBarFramePadding.y * 2.f + m_oConfig.m_oStatusBarWindowPadding.y * 2.f + ImGui::GetTextLineHeight();
-				}
-			}
-		}
+		ImGuiStyle& oStyle = ImGui::GetStyle();
 
+		float fTop = IsUsingCustomFrame() ? GetTitleBarHeight() : 0.f;
+		float fBottom = pWindow->IsMainWindow() ?  (GetStatusBarHeight() + oStyle.ItemSpacing.y) : 0.f;
+
+		const int c_iWindowFlags = ImGuiWindowFlags_NoTitleBar
+			| ImGuiWindowFlags_NoResize
+			| ImGuiWindowFlags_NoMove
+			| ImGuiWindowFlags_NoCollapse
+			| ImGuiWindowFlags_NoSavedSettings
+			| ImGuiWindowFlags_NoScrollbar
+			| ImGuiWindowFlags_NoScrollWithMouse
+			| ImGuiWindowFlags_NoBringToFrontOnFocus;
+
+		const int c_iWindowChildFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
+		const int c_iWindowChildFlagsWithPadding = c_iWindowChildFlags | ImGuiWindowFlags_AlwaysUseWindowPadding;
+
+		bool bDisplayMenus = pWindow->IsShowContent() || oIO.MousePos.y <= 50.f || pContext->OpenPopupStack.size() > 0;
+		bool bDisplayWindow = bDisplayMenus || IsUsingCustomFrame();
+
+		ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiSetCond_Always);
 		if (pWindow->IsShowContent())
 		{
-			ImGui::SetNextWindowPos(ImVec2(0, fTop), ImGuiSetCond_Always);
-			ImGui::SetNextWindowSize(ImVec2(pWindow->GetSize().x, pWindow->GetSize().y - fTop - fBottom), ImGuiSetCond_Always);
-			int iFlags = ImGuiWindowFlags_NoTitleBar
-				| ImGuiWindowFlags_NoResize
-				| ImGuiWindowFlags_NoMove
-				| ImGuiWindowFlags_NoCollapse
-				| ImGuiWindowFlags_NoSavedSettings
-				| ImGuiWindowFlags_NoScrollbar
-				| ImGuiWindowFlags_NoScrollWithMouse
-				| ImGuiWindowFlags_NoBringToFrontOnFocus;
-
-			if (NULL != m_pDraggedWindow)
+			ImGui::SetNextWindowSize(pWindow->GetSize(), ImGuiSetCond_Always);
+		}
+		else
+		{
+			ImVec2 oSize = pWindow->GetSize();
+			oSize.y = 0;
+			if (IsUsingCustomFrame())
 			{
-				iFlags += ImGuiWindowFlags_NoInputs;
+				oSize.y += GetTitleBarHeight();
 			}
-
-			PushStyle();
-
-			ImGui::Begin( "Main", NULL, ImVec2( 0.f, 0.f ), 1.f, iFlags);
-
-			if (NULL != m_pDraggedWindow)
+			if (bDisplayMenus)
 			{
-				ImGuiID oId = ImGui::GetID("##DraggedWindow");
-				ImGui::PushID(oId);
-				ImGui::PopID();
-				ImGui::SetActiveID(oId, ImGui::GetCurrentWindow());
+				oSize.y += pContext->FontSize + pContext->Style.FramePadding.y * 2.0f;
+				oSize.y += ImGui::GetCurrentWindowRead()->MenuBarHeight();
+
 			}
+			ImGui::SetNextWindowSize(oSize, ImGuiSetCond_Always);
+		}
+		int iFlags = c_iWindowFlags;
 
-			if (pWindow->GetType() == E_PLATFORM_WINDOW_TYPE_MAIN)
+		if (NULL != m_pDraggedWindow)
+		{
+			iFlags += ImGuiWindowFlags_NoInputs;
+		}
+
+		if (bDisplayWindow)
+		{
+			float fWindowRoundingBackup = oStyle.WindowRounding;
+			ImVec2 oWindowPaddingBackup = oStyle.WindowPadding;
+			ImVec2 oWindowMinSizeBackup = oStyle.WindowMinSize;
+			oStyle.WindowRounding = 0.f;
+			oStyle.WindowPadding = ImVec2(0.f, 0.f);
+			oStyle.WindowMinSize = ImVec2(0.f, 0.f);
+			bool bWindowDraw = ImGui::Begin("ImWindow", NULL, ImVec2(0.f, 0.f), 1.f, iFlags);
+			oStyle.WindowRounding = fWindowRoundingBackup;
+			oStyle.WindowPadding = oWindowPaddingBackup;
+			oStyle.WindowMinSize = oWindowMinSizeBackup;
+			if (bWindowDraw)
 			{
-				if (!m_lToolBars.empty())
+				if (NULL != m_pDraggedWindow)
 				{
-					PopStyle();
-					for (ImwToolBarVector::iterator it = m_lToolBars.begin(), itEnd = m_lToolBars.end(); it != itEnd; ++it)
+					ImGuiID oId = ImGui::GetID("##DraggedWindow");
+					ImGui::PushID(oId);
+					ImGui::PopID();
+					ImGui::SetActiveID(oId, ImGui::GetCurrentWindow());
+				}
+
+				if (pWindow->GetType() != E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW && fTop > 0.f)
+				{
+					if (BeginTransparentChild("##ImWindowTitle", ImVec2(0.f, fTop), false, c_iWindowChildFlagsWithPadding))
 					{
-						(*it)->OnToolBar();
+						PaintTitleBar(pWindow, true);
 					}
-					ImGui::Separator();
-					PushStyle();
+					ImGui::EndChild();
+
+					ImGui::SetCursorPosY(ImGui::GetCursorPosY() - oStyle.ItemSpacing.y);
 				}
-			}
 
-			pWindow->PaintContainer();
-			ImGui::End();
+				int iMainWindowFlags = (pWindow->GetType() == E_PLATFORM_WINDOW_TYPE_MAIN && bDisplayMenus) ? (c_iWindowChildFlagsWithPadding | ImGuiWindowFlags_MenuBar) : c_iWindowChildFlagsWithPadding;
 
-			PopStyle();
-
-			if (pWindow->GetType() == E_PLATFORM_WINDOW_TYPE_MAIN && m_lStatusBars.size() > 0)
-			{
-				ImGui::SetNextWindowPos(ImVec2(0, pWindow->GetSize().y - fBottom), ImGuiSetCond_Always);
-				ImGui::SetNextWindowSize(ImVec2(pWindow->GetSize().x, fBottom), ImGuiSetCond_Always);
-
-				ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
-				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, m_oConfig.m_oStatusBarWindowPadding);
-				ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, m_oConfig.m_oStatusBarFramePadding);
-				ImGui::Begin("##StatusBar", NULL, ImVec2(0,0), 1.f, iFlags);
-
-				ImGui::Columns((int)m_lStatusBars.size());
-				for (ImwStatusBarVector::iterator it = m_lStatusBars.begin(); it != m_lStatusBars.end(); ++it )
+				if (BeginTransparentChild("##ImWindowMain", ImVec2(0.f, 0.f), false, iMainWindowFlags))
 				{
-					(*it)->OnStatusBar();
-					ImGui::NextColumn();
-				}
-				ImGui::Columns(1);
+					if (pWindow->GetType() == E_PLATFORM_WINDOW_TYPE_MAIN)
+					{
+						if (bDisplayMenus) // Autohide menu bar
+						{
+							ImGui::BeginMenuBar();
+							for (ImwMenuVector::iterator it = m_lMenus.begin(), itEnd = m_lMenus.end(); it != itEnd; ++it)
+							{
+								(*it)->OnMenu();
+							}
+							ImGui::EndMenuBar();
+						}
+					}
 
-				ImGui::End();
-				ImGui::PopStyleVar(3);
+					if (pWindow->IsShowContent())
+					{
+						if (BeginTransparentChild("##ImWindowContent", ImVec2(0.f, -fBottom), false, c_iWindowChildFlags))
+						{
+							if (pWindow->GetType() == E_PLATFORM_WINDOW_TYPE_MAIN)
+							{
+								if (!m_lToolBars.empty())
+								{
+									for (ImwToolBarVector::iterator it = m_lToolBars.begin(), itEnd = m_lToolBars.end(); it != itEnd; ++it)
+									{
+										(*it)->OnToolBar();
+									}
+									ImGui::Separator();
+								}
+							}
+
+							if (BeginTransparentChild("##ImWindowContentSub", ImVec2(0.f, 0.f), false, c_iWindowChildFlags))
+							{
+								ImGuiWindow* pCurrentWindow = ImGui::GetCurrentWindowRead();
+								pWindow->m_oContentArea.Min = pCurrentWindow->Pos;
+								pWindow->m_oContentArea.Max = pCurrentWindow->Pos + pCurrentWindow->Size;
+
+								pWindow->PaintContainer();
+							}
+							ImGui::EndChild();
+						}
+						ImGui::EndChild();
+
+						if (pWindow->GetType() == E_PLATFORM_WINDOW_TYPE_MAIN && m_lStatusBars.size() > 0)
+						{
+							ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, m_oConfig.m_oStatusBarFramePadding);
+
+							if (BeginTransparentChild("##ImWindowStatusBars", ImVec2(0.f, 0.f), false, c_iWindowChildFlags))
+							{
+								ImGui::AlignFirstTextHeightToWidgets();
+
+								ImGui::Columns((int)m_lStatusBars.size());
+								for (ImwStatusBarVector::iterator it = m_lStatusBars.begin(); it != m_lStatusBars.end(); ++it)
+								{
+									(*it)->OnStatusBar();
+									ImGui::NextColumn();
+								}
+								ImGui::Columns(1);
+							}
+
+							ImGui::EndChild();
+
+							ImGui::PopStyleVar(1);
+						}
+					}
+				}
+				ImGui::EndChild();
 			}
+			ImGui::End();
 		}
 
 		m_bHasWantCaptureKeyboard |= ImGui::GetIO().WantCaptureKeyboard;
@@ -925,9 +1125,7 @@ namespace ImWindow
 			if (pWindow == oAction.m_pWindow)
 			{
 				ImVec2 oPosA = oAction.m_oRectPos;
-				ImVec2 oPosB = oAction.m_oRectSize;
-				oPosB.x += oPosA.x;
-				oPosB.y += oPosA.y;
+				ImVec2 oPosB = oAction.m_oRectPos + oAction.m_oRectSize;
 
 				//pDrawList->AddLine(ImGui::CalcItemRectClosestPoint(ImGui::GetIO().MousePos, true, -2.0f), ImGui::GetIO().MousePos, ImColor(ImGui::GetStyle().Colors[ImGuiCol_Button]), 4.0f);
 				pDrawList->AddRectFilled(oPosA, oPosB, oAction.m_oColor);
@@ -936,37 +1134,6 @@ namespace ImWindow
 		pWindow->OnOverlay();
 
 		pWindow->RestoreContext(false);
-	}
-
-	void ImwWindowManager::PushStyle(bool bRounding, bool bPadding)
-	{
-		ImGuiStyle& oStyle = ImGui::GetStyle();
-
-		m_fStyleBackupWindowRounding = oStyle.WindowRounding;
-		m_oStyleBackupWindowPadding = oStyle.WindowPadding;
-		m_oStyleBackupItemInnerSpacing = oStyle.ItemInnerSpacing;
-		m_oStyleBackupItemSpacing = oStyle.ItemSpacing;
-
-		if (bRounding)
-		{
-			oStyle.WindowRounding = 0.f;
-		}
-
-		if (bPadding)
-		{
-			oStyle.WindowPadding = ImVec2(0.f, 0.f);
-			oStyle.ItemInnerSpacing = ImVec2(0.f, 0.f);
-			oStyle.ItemSpacing = ImVec2(0.f, 0.f);
-		}
-	}
-
-	void ImwWindowManager::PopStyle()
-	{
-		ImGuiStyle& oStyle = ImGui::GetStyle();
-		oStyle.WindowRounding = m_fStyleBackupWindowRounding;
-		oStyle.WindowPadding = m_oStyleBackupWindowPadding;
-		oStyle.ItemInnerSpacing = m_oStyleBackupItemInnerSpacing;
-		oStyle.ItemSpacing = m_oStyleBackupItemSpacing;
 	}
 
 	void ImwWindowManager::StartDragWindow(ImwWindow* pWindow, ImVec2 oOffset)
@@ -1067,6 +1234,16 @@ namespace ImWindow
 		}
 	}
 
+	float ImwWindowManager::GetStatusBarHeight() const
+	{
+		IM_ASSERT(m_pCurrentPlatformWindow != NULL);
+		if (m_pCurrentPlatformWindow != NULL && m_pCurrentPlatformWindow->GetType() == E_PLATFORM_WINDOW_TYPE_MAIN && m_lStatusBars.size() > 0)
+		{
+			return ImGui::GetTextLineHeight() + m_oConfig.m_oStatusBarFramePadding.y * 2.f;
+		}
+		return 0.f;
+	}
+
 	ImwWindow* ImwWindowManager::GetDraggedWindow() const
 	{
 		return m_pDraggedWindow;
@@ -1095,16 +1272,18 @@ namespace ImWindow
 
 	const ImwContainer* ImwWindowManager::GetBestDocking(ImwPlatformWindow* pPlatformWindow, const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, float& fOutRatio, bool* pOutOnTabArea, int* pOutPosition, bool bLargeCheck)
 	{
-		ImVec2 oPos = pPlatformWindow->GetPosition();
-		ImVec2 oSize = pPlatformWindow->GetSize();
-		if (bLargeCheck || (oCursorPos.x >= oPos.x && oCursorPos.x <= (oPos.x + oSize.x) &&
-			oCursorPos.y >= oPos.y && oCursorPos.y <= (oPos.y + oSize.y)))
-		{
-			ImVec2 oRectPos(oCursorPos.x - oPos.x, oCursorPos.y - oPos.y);
+		ImVec2 oPlatformWindowPos = pPlatformWindow->GetPosition();
 
+		const ImRect& oContentRect = pPlatformWindow->m_oContentArea;
+		const ImVec2 oContentSize = oContentRect.GetSize();
+
+		ImVec2 oCursorPosInWindow(oCursorPos.x - oPlatformWindowPos.x, oCursorPos.y - oPlatformWindowPos.y);
+
+		if (bLargeCheck || oContentRect.Contains(oCursorPosInWindow))
+		{
 			// Set context because GetBestDocking call CalTextSize who need the Font
 			pPlatformWindow->SetContext(false);
-			const ImwContainer* pBestContainer = pPlatformWindow->GetContainer()->GetBestDocking(oRectPos, oOutOrientation, oOutAreaPos, oOutAreaSize, pOutOnTabArea, pOutPosition, bLargeCheck);
+			const ImwContainer* pBestContainer = pPlatformWindow->GetContainer()->GetBestDocking(oCursorPosInWindow, oOutOrientation, oOutAreaPos, oOutAreaSize, pOutOnTabArea, pOutPosition, bLargeCheck);
 			pPlatformWindow->RestoreContext(false);
 			if (NULL != pBestContainer)
 			{
@@ -1112,43 +1291,48 @@ namespace ImWindow
 				return pBestContainer;
 			}
 
+			ImRect oLeftArea(oContentRect.Min.x, oContentRect.Min.y, oContentSize.x * m_oConfig.m_fDragMarginSizeRatio, oContentRect.Max.y);
+			ImRect oRightArea(oContentRect.Max.x - oContentSize.x * m_oConfig.m_fDragMarginSizeRatio, oContentRect.Min.y, oContentRect.Max.x, oContentRect.Max.y);
+			ImRect oTopArea(oContentRect.Min.x, oContentRect.Min.y, oContentRect.Max.x, oContentRect.Min.y + oContentSize.y * m_oConfig.m_fDragMarginSizeRatio);
+			ImRect oBottomArea(oContentRect.Min.x, oContentRect.Max.y - oContentSize.y * m_oConfig.m_fDragMarginSizeRatio, oContentRect.Max.x, oContentRect.Max.y);
+
 			//Left
- 			if (oRectPos.x <= oSize.x * m_oConfig.m_fDragMarginRatio)
+ 			if (oLeftArea.Contains(oCursorPosInWindow) || (bLargeCheck && oCursorPosInWindow.x <= oLeftArea.Min.x))
 			{
 				oOutOrientation = E_DOCK_ORIENTATION_LEFT;
-				oOutAreaPos = ImVec2(0, 0);
-				oOutAreaSize = ImVec2(oSize.x * m_oConfig.m_fDragMarginSizeRatio, oSize.y);
+				oOutAreaPos = oLeftArea.Min;
+				oOutAreaSize = oLeftArea.GetSize();
 				*pOutOnTabArea = false;
 			}
 			//Right
-			else if (oRectPos.x >=  oSize.x * (1.f - m_oConfig.m_fDragMarginRatio))
+			else if (oRightArea.Contains(oCursorPosInWindow) || (bLargeCheck && oCursorPosInWindow.x >= oRightArea.Max.x))
 			{
 				oOutOrientation = E_DOCK_ORIENTATION_RIGHT;
-				oOutAreaPos = ImVec2(oSize.x * (1.f - m_oConfig.m_fDragMarginSizeRatio), 0.f);
-				oOutAreaSize = ImVec2(oSize.x * m_oConfig.m_fDragMarginSizeRatio, oSize.y);
+				oOutAreaPos = oRightArea.Min;
+				oOutAreaSize = oRightArea.GetSize();
 				*pOutOnTabArea = false;
 			}
 			//Top
-			else if (oRectPos.y <= oSize.y * m_oConfig.m_fDragMarginRatio)
+			else if (oTopArea.Contains(oCursorPosInWindow) || (bLargeCheck && oCursorPosInWindow.y <= oTopArea.Min.y))
 			{
 				oOutOrientation = E_DOCK_ORIENTATION_TOP;
-				oOutAreaPos = ImVec2(0, 0);
-				oOutAreaSize = ImVec2(oSize.x, oSize.y * m_oConfig.m_fDragMarginSizeRatio);
+				oOutAreaPos = oTopArea.Min;
+				oOutAreaSize = oTopArea.GetSize();
 				*pOutOnTabArea = false;
 			}
 			//Bottom
-			else if (oRectPos.y >=  oSize.y * (1.f - m_oConfig.m_fDragMarginRatio))
+			else if (oBottomArea.Contains(oCursorPosInWindow) || (bLargeCheck && oCursorPosInWindow.y >= oBottomArea.Max.y))
 			{
 				oOutOrientation = E_DOCK_ORIENTATION_BOTTOM;
-				oOutAreaPos = ImVec2(0.f, oSize.y * (1.f - m_oConfig.m_fDragMarginSizeRatio));
-				oOutAreaSize = ImVec2(oSize.x, oSize.y * m_oConfig.m_fDragMarginSizeRatio);
+				oOutAreaPos = oBottomArea.Min;
+				oOutAreaSize = oBottomArea.GetSize();
 				*pOutOnTabArea = false;
 			}
 			else
 			{
 				oOutOrientation = E_DOCK_ORIENTATION_CENTER;
-				oOutAreaPos = ImVec2(0, 0);
-				oOutAreaSize = ImVec2(oSize.x, oSize.y);
+				oOutAreaPos = pPlatformWindow->m_oContentArea.Min;
+				oOutAreaSize = oContentSize;
 				*pOutOnTabArea = false;
 				//IM_ASSERT(false); //Best dock orientation not found
 				return NULL;
@@ -1157,8 +1341,8 @@ namespace ImWindow
 			return pPlatformWindow->GetContainer();
 		}
 		oOutOrientation = E_DOCK_ORIENTATION_CENTER;
-		oOutAreaPos = ImVec2(0, 0);
-		oOutAreaSize = ImVec2(oSize.x, oSize.y);
+		oOutAreaPos = pPlatformWindow->m_oContentArea.Min;
+		oOutAreaSize = oContentSize;
 		*pOutOnTabArea = false;
 		return NULL;
 	}
@@ -1379,6 +1563,16 @@ void ImwWindowManager::AddStatusBar(ImwStatusBar* pStatusBar)
 	void ImwWindowManager::DrawWindowArea( ImwPlatformWindow* pWindow, const ImVec2& oPos, const ImVec2& oSize, const ImColor& oColor )
 	{
 		m_lDrawWindowAreas.push_back(DrawWindowAreaAction(pWindow, oPos, oSize, oColor));
+	}
+
+	bool ImwWindowManager::BeginTransparentChild(const char* pName, const ImVec2& oSize, bool bBorder, ImGuiWindowFlags iFlags)
+	{
+		ImGuiStyle& oStyle = ImGui::GetStyle();
+		ImVec4 oBackupChildWindowBg = oStyle.Colors[ImGuiCol_ChildWindowBg];
+		oStyle.Colors[ImGuiCol_ChildWindowBg].w = 0.f;
+		bool bRet = ImGui::BeginChild(pName, oSize, bBorder, iFlags);
+		oStyle.Colors[ImGuiCol_ChildWindowBg] = oBackupChildWindowBg;
+		return bRet;
 	}
 
 	// Static

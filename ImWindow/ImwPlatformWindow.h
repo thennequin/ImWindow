@@ -5,7 +5,6 @@
 #include "ImwConfig.h"
 
 #include "ImwContainer.h"
-#include "JsonValue.h"
 
 namespace ImWindow
 {
@@ -28,6 +27,7 @@ namespace ImWindow
 		virtual bool						Init(ImwPlatformWindow* pParent);
 
 		EPlatformWindowType					GetType() const;
+		bool								IsMainWindow() const;
 		virtual ImVec2						GetPosition() const;
 		virtual ImVec2						GetSize() const;
 		virtual ImVec2						GetNormalPosition() const;
@@ -53,7 +53,7 @@ namespace ImWindow
 		bool								FocusWindow(ImwWindow* pWindow);
 
 		bool								HasContext() const;
-		ImGuiContext*						GetContext() { return (m_pContext != NULL) ? m_pContext : ImGui::GetCurrentContext(); }
+		ImGuiContext*						GetContext();
 		void								SetContext(bool bCopyStyle);
 		void								RestoreContext(bool bCopyStyle);
 		static bool							IsContextSet();
@@ -71,8 +71,12 @@ namespace ImWindow
 		void								OnClose();
 		void								OnDropFiles(int iCount, char** pFiles, const ImVec2& oPos);
 
-		bool								Save(JsonValue& oJson);
-		bool								Load(const JsonValue& oJson, bool bJustCheck);
+		void								Moving(bool bFirst);
+
+#ifdef IMW_USE_LAYOUT_SERIALIZATION
+		bool								Save(JsonStthm::JsonValue& oJson);
+		bool								Load(const JsonStthm::JsonValue& oJson, bool bJustCheck);
+#endif //IMW_USE_LAYOUT_SERIALIZATION
 
 		EPlatformWindowType					m_eType;
 		ImwContainer*						m_pContainer;
@@ -80,6 +84,10 @@ namespace ImWindow
 		ImGuiContext*						m_pPreviousContext;
 		bool								m_bNeedRender;
 		bool								m_bShowContent;
+		ImRect								m_oContentArea;
+		ImVec2								m_oMovingOffset;
+		ImVec2								m_oMovingStartPos;
+		bool								m_bMoving;
 	};
 
 	typedef ImVector<ImwPlatformWindow*> ImwPlatformWindowVector;
