@@ -77,7 +77,6 @@ if _OPTIONS["with-sff"] then
 	fileSFFHeader:write("#define __IM_WINDOW_HEADER__"..EOL)
 
 	fileSFFHeader:write("#include \"ImwConfig.h\""..EOL..EOL)
-	fileSFFHeader:write("#include \"JsonStthm.h\""..EOL..EOL)
 
 	fileSFFHeader:write("namespace ImWindow {"..EOL)
 	--Forward declare classes
@@ -101,7 +100,6 @@ if _OPTIONS["with-sff"] then
 
 	fileSFFSource:write("#define IMGUI_DEFINE_MATH_OPERATORS"..EOL);
 	fileSFFSource:write("#include \"ImWindow.h\""..EOL..EOL)
-	fileSFFSource:write("#include \"JsonStthm.h\""..EOL..EOL)
 	fileSFFSource:write("#include <algorithm>"..EOL..EOL)
 
 	fileSFFSource:write("namespace ImWindow {"..EOL)
