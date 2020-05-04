@@ -209,7 +209,6 @@ namespace ImWindow
 	void ImwPlatformWindow::OnDropFiles(int iCount, char** pFiles, const ImVec2& oPos)
 	{
 		ImwWindow* pWindow = GetWindowAtPos(oPos);
-		IM_ASSERT(pWindow != NULL);
 		if (pWindow != NULL)
 		{
 			pWindow->OnDropFiles(iCount, pFiles, oPos);
