@@ -432,7 +432,7 @@ namespace ImWindow
 			std::advance(itActiveWindow, m_iActiveWindow);
 			return *itActiveWindow;
 		}
-		return NULL;
+		return m_pSpecialWindow;
 	}
 
 	ImwPlatformWindow* ImwContainer::GetPlatformWindowParent() const
