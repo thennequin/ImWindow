@@ -1356,6 +1356,8 @@ namespace ImWindow
 
 	void ImwWindowManager::RemoveWindow(ImwWindow* pWindow)
 	{
+		IM_ASSERT(m_pCurrentPlatformWindow == NULL); // Don't call delete on ImwWindow instance, prefer calling Destroy
+
 		ImwWindowVector::iterator itFind = std::find(m_lWindows.begin(), m_lWindows.end(), pWindow);
 		if (itFind != m_lWindows.end())
 			m_lWindows.erase(itFind);
