@@ -34,15 +34,15 @@ namespace ImWindow
 		virtual void						RenderDrawLists(ImDrawData* pDrawData) = 0;
 		virtual void						OnClientSize(int iClientWidth, int iClientHeight) = 0;
 
-		bool								OnClose();
-		void								OnSize(int iWidth, int iHeight);
-		void								OnFocus(bool bHasFocus);
-		void								OnMouseButton(int iButton, bool bDown);
-		void								OnMouseMove(int iX, int iY);
-		void								OnMouseWheel( int iStep );
-		void								OnKey(EasyWindow::EKey eKey, bool bDown);
-		void								OnChar(int iChar);
-		void								OnDropFiles(const EasyWindow::DropFiles& oFiles);
+		bool								OnClose(const EasyWindow* pWindow);
+		void								OnSize(const EasyWindow* pWindow, int iWidth, int iHeight);
+		void								OnFocus(const EasyWindow* pWindow, bool bHasFocus);
+		void								OnMouseButton(const EasyWindow* pWindow, int iButton, bool bDown);
+		void								OnMouseMove(const EasyWindow* pWindow, int iX, int iY);
+		void								OnMouseWheel(const EasyWindow* pWindow, int iStep);
+		void								OnKey(const EasyWindow* pWindow, EasyWindow::EKey eKey, bool bDown);
+		void								OnChar(const EasyWindow* pWindow, int iChar);
+		void								OnDropFiles(const EasyWindow* pWindow, const EasyWindow::DropFiles& oFiles);
 
 		EasyWindow*							m_pWindow;
 	};

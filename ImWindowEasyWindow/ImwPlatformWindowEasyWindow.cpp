@@ -178,50 +178,50 @@ void ImwPlatformWindowEasyWindow::OnOverlay()
 	}
 }
 
-bool ImwPlatformWindowEasyWindow::OnClose()
+bool ImwPlatformWindowEasyWindow::OnClose(const EasyWindow* /*pWindow*/)
 {
 	ImwPlatformWindow::OnClose();
 	return true;
 }
 
-void ImwPlatformWindowEasyWindow::OnSize(int /*iWidth*/, int /*iHeight*/)
+void ImwPlatformWindowEasyWindow::OnSize(const EasyWindow* /*pWindow*/, int /*iWidth*/, int /*iHeight*/)
 {
 	int iClientWidth, iClientHeight;
 	m_pWindow->GetClientSize(&iClientWidth, &iClientHeight);
 	OnClientSize(iClientWidth, iClientHeight);
 }
 
-void ImwPlatformWindowEasyWindow::OnFocus(bool bHasFocus)
+void ImwPlatformWindowEasyWindow::OnFocus(const EasyWindow* /*pWindow*/, bool bHasFocus)
 {
 	ImwPlatformWindow::OnFocus(bHasFocus);
 }
 
-void ImwPlatformWindowEasyWindow::OnMouseButton(int iButton, bool bDown)
+void ImwPlatformWindowEasyWindow::OnMouseButton(const EasyWindow* /*pWindow*/, int iButton, bool bDown)
 {
 	GetContext()->IO.MouseDown[iButton] = bDown;
 }
 
-void ImwPlatformWindowEasyWindow::OnMouseMove(int iX, int iY)
+void ImwPlatformWindowEasyWindow::OnMouseMove(const EasyWindow* /*pWindow*/, int iX, int iY)
 {
 	GetContext()->IO.MousePos = ImVec2((float)iX, (float)iY);
 }
 
-void ImwPlatformWindowEasyWindow::OnMouseWheel( int iStep )
+void ImwPlatformWindowEasyWindow::OnMouseWheel(const EasyWindow* /*pWindow*/, int iStep)
 {
 	GetContext()->IO.MouseWheel += iStep;
 }
 
-void ImwPlatformWindowEasyWindow::OnKey(EasyWindow::EKey eKey, bool bDown)
+void ImwPlatformWindowEasyWindow::OnKey(const EasyWindow* /*pWindow*/, EasyWindow::EKey eKey, bool bDown)
 {
 	GetContext()->IO.KeysDown[eKey] = bDown;
 }
 
-void ImwPlatformWindowEasyWindow::OnChar(int iChar)
+void ImwPlatformWindowEasyWindow::OnChar(const EasyWindow* /*pWindow*/, int iChar)
 {
 	GetContext()->IO.AddInputCharacter((char)iChar);
 }
 
-void ImwPlatformWindowEasyWindow::OnDropFiles(const EasyWindow::DropFiles& oFiles)
+void ImwPlatformWindowEasyWindow::OnDropFiles(const EasyWindow* /*pWindow*/, const EasyWindow::DropFiles& oFiles)
 {
 	ImVec2 oPos((float)oFiles.oPosition.x, (float)oFiles.oPosition.y);
 	ImwPlatformWindow::OnDropFiles(oFiles.iCount, oFiles.pFiles, oPos);
