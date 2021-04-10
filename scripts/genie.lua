@@ -217,9 +217,11 @@ if _OPTIONS["with-sff"] then
 							"../Externals/imgui/imgui_internal.h",
 							"../Externals/imgui/imgui.cpp",
 							"../Externals/imgui/imgui_draw.cpp",
-							"../Externals/imgui/stb_rect_pack.h",
-							"../Externals/imgui/stb_textedit.h",
-							"../Externals/imgui/stb_truetype.h",
+							"../Externals/imgui/imgui_tables.cpp",
+							"../Externals/imgui/imgui_widgets.cpp",
+							"../Externals/imgui/imstb_rect_pack.h",
+							"../Externals/imgui/imstb_textedit.h",
+							"../Externals/imgui/imstb_truetype.h",
 			}
 			
 			
@@ -260,9 +262,11 @@ end
 							"../Externals/imgui/imgui_internal.h",
 							"../Externals/imgui/imgui.cpp",
 							"../Externals/imgui/imgui_draw.cpp",
-							"../Externals/imgui/stb_rect_pack.h",
-							"../Externals/imgui/stb_textedit.h",
-							"../Externals/imgui/stb_truetype.h",
+							"../Externals/imgui/imgui_tables.cpp",
+							"../Externals/imgui/imgui_widgets.cpp",
+							"../Externals/imgui/imstb_rect_pack.h",
+							"../Externals/imgui/imstb_textedit.h",
+							"../Externals/imgui/imstb_truetype.h",
 		}
 		
 		vpaths {

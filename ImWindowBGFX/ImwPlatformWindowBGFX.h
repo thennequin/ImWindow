@@ -18,6 +18,7 @@ namespace ImWindow
 		virtual								~ImwPlatformWindowBGFX();
 
 		virtual bool						Init(ImwPlatformWindow* pMain);
+		virtual void						RegenFontTexture(ImwPlatformWindow* pMain);
 
 	protected:
 

@@ -86,34 +86,11 @@ bool ImwPlatformWindowGLFW::Init(ImwPlatformWindow* pMain)
 	glfwMakeContextCurrent(m_pWindow);
 
 	SetContext(false);
+
+	RegenFontTexture(pMain);
+
 	ImGuiIO& io = ImGui::GetIO();
-	
-	if (pMainGLFW != NULL)
-	{
-		//Copy texture reference
-		m_iTextureID = pMainGLFW->m_iTextureID;
-	}
-	else
-	{
-		uint8_t* pPixels;
-		int32_t iWidth;
-		int32_t iHeight;
-		io.Fonts->AddFontDefault();
-		io.Fonts->GetTexDataAsAlpha8(&pPixels, &iWidth, &iHeight);
-
-		// Upload texture to graphics system
-		glEnable(GL_TEXTURE_2D);
-		m_iTextureID = 0;
-		glGenTextures(1, &m_iTextureID);
-		glBindTexture(GL_TEXTURE_2D, m_iTextureID);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, iWidth, iHeight, 0, GL_ALPHA, GL_UNSIGNED_BYTE, pPixels);
-
-		// Store our identifier
-		io.Fonts->TexID = (void *)(intptr_t)m_iTextureID;
-	}
-	
+		
 	io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;
 	io.KeyMap[ImGuiKey_LeftArrow] = GLFW_KEY_LEFT;
 	io.KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;
@@ -146,6 +123,39 @@ bool ImwPlatformWindowGLFW::Init(ImwPlatformWindow* pMain)
 	m_pCursorVResize = glfwCreateStandardCursor	(GLFW_VRESIZE_CURSOR);
 
 	return true;
+}
+
+void ImwPlatformWindowGLFW::RegenFontTexture(ImwPlatformWindow* pMain)
+{
+	ImGuiIO& io = ImGui::GetIO();
+	if (pMain != NULL)
+	{
+		//Copy texture reference
+		m_iTextureID = ((ImwPlatformWindowGLFW*)pMain)->m_iTextureID;
+	}
+	else
+	{
+		if (m_iTextureID != 0)
+		{
+			glDeleteTextures(1, &m_iTextureID);
+		}
+		uint8_t* pPixels = NULL;
+		int32_t iWidth = 0;
+		int32_t iHeight = 0;
+		io.Fonts->AddFontDefault();
+		io.Fonts->GetTexDataAsAlpha8(&pPixels, &iWidth, &iHeight);
+
+		// Upload texture to graphics system
+		glEnable(GL_TEXTURE_2D);
+		m_iTextureID = 0;
+		glGenTextures(1, &m_iTextureID);
+		glBindTexture(GL_TEXTURE_2D, m_iTextureID);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, iWidth, iHeight, 0, GL_ALPHA, GL_UNSIGNED_BYTE, pPixels);
+	}
+	// Store our identifier
+	io.Fonts->TexID = ( void * )( intptr_t )m_iTextureID;
 }
 
 ImVec2 ImwPlatformWindowGLFW::GetPosition() const
@@ -234,7 +244,7 @@ void ImwPlatformWindowGLFW::PreUpdate()
 		case ImGuiMouseCursor_TextInput:         // When hovering over InputText, etc.
 			glfwSetCursor(m_pWindow, m_pCursorIBeam);
 			break;
-		case ImGuiMouseCursor_Move:              // Unused
+		case ImGuiMouseCursor_Hand:              // Unused
 			glfwSetCursor(m_pWindow, m_pCursorHand);
 			break;
 		case ImGuiMouseCursor_ResizeNS:          // Unused

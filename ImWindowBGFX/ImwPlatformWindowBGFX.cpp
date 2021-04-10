@@ -28,6 +28,9 @@ ImwPlatformWindowBGFX::ImwPlatformWindowBGFX(EPlatformWindowType eType, bool bCr
 {
 	m_eRenderer = eRenderer;
 	m_iViewId = ++s_iCurrentViewId;
+
+	m_hTexture = BGFX_INVALID_HANDLE;
+	m_hUniformTexture = BGFX_INVALID_HANDLE;
 }
 
 ImwPlatformWindowBGFX::~ImwPlatformWindowBGFX()
@@ -79,36 +82,15 @@ bool ImwPlatformWindowBGFX::Init(ImwPlatformWindow* pMain)
 		m_hFrameBufferHandle = bgfx::createFrameBuffer(m_pWindow->GetHandle(), uint16_t(iWidth), uint16_t(iHeight));
 		bgfx::setViewFrameBuffer(m_iViewId, m_hFrameBufferHandle);
 
-		ImGuiIO& io = GetContext()->IO;
-
+		RegenFontTexture(pMain);
 		if (pMain != NULL)
 		{
 			ImwPlatformWindowBGFX* pMainBGFX = ((ImwPlatformWindowBGFX*)pMain);
-			m_hTexture = pMainBGFX->m_hTexture;
-			m_hUniformTexture = pMainBGFX->m_hUniformTexture;
 			m_hProgram = pMainBGFX->m_hProgram;
 			m_oVertexDecl = pMainBGFX->m_oVertexDecl;
 		}
 		else
 		{
-			uint8_t* data;
-			int32_t width;
-			int32_t height;
-			io.Fonts->AddFontDefault();
-			io.Fonts->GetTexDataAsRGBA32(&data, &width, &height);
-
-			m_hTexture = bgfx::createTexture2D(
-				(uint16_t)width
-				, (uint16_t)height
-				, false
-				, 1
-				, bgfx::TextureFormat::BGRA8
-				, 0
-				, bgfx::copy(data, width*height * 4)
-			);
-
-			m_hUniformTexture = bgfx::createUniform("s_tex", bgfx::UniformType::Int1);
-
 			m_hProgram = bgfx::createProgram(
 				bgfx::createEmbeddedShader(s_embeddedShaders, m_eRenderer, "vs_ocornut_imgui")
 				, bgfx::createEmbeddedShader(s_embeddedShaders, m_eRenderer, "fs_ocornut_imgui")
@@ -132,6 +114,40 @@ bool ImwPlatformWindowBGFX::Init(ImwPlatformWindow* pMain)
 	}
 
 	return false;
+}
+
+void ImwPlatformWindowBGFX::RegenFontTexture(ImwPlatformWindow* pMain)
+{
+	ImGuiIO& io = ImGui::GetIO();
+	if (pMain != NULL)
+	{
+		//Copy texture reference
+		m_hTexture = ((ImwPlatformWindowBGFX*)pMain)->m_hTexture;
+		m_hUniformTexture = ((ImwPlatformWindowBGFX*)pMain)->m_hUniformTexture;
+	}
+	else
+	{
+		if (bgfx::isValid(m_hTexture))
+			bgfx::destroy(m_hTexture);
+		if (bgfx::isValid(m_hUniformTexture))
+			bgfx::destroy(m_hUniformTexture);
+		uint8_t* data = NULL;
+		int32_t width = 0;
+		int32_t height = 0;
+		io.Fonts->AddFontDefault();
+		io.Fonts->GetTexDataAsRGBA32(&data, &width, &height);
+
+		m_hTexture = bgfx::createTexture2D(
+			(uint16_t)width
+			, (uint16_t)height
+			, false
+			, 1
+			, bgfx::TextureFormat::BGRA8
+			, 0
+			, bgfx::copy(data, width*height * 4)
+		);
+		m_hUniformTexture = bgfx::createUniform("s_tex", bgfx::UniformType::Int1);
+	}
 }
 
 void ImwPlatformWindowBGFX::OnClientSize(int iClientWidth, int iClientHeight)

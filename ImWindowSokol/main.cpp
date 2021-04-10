@@ -16,7 +16,5 @@ int main()
 
 	while (oMgr.Run(false) && oMgr.Run(true)) Sleep(16);
 
-	ImGui::Shutdown();
-
 	return 0;
 }

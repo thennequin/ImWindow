@@ -17,6 +17,7 @@ namespace ImWindow
 		virtual								~ImwPlatformWindowGLFW();
 
 		virtual bool						Init(ImwPlatformWindow* pMain);
+		virtual void						RegenFontTexture(ImwPlatformWindow* pMain);
 
 		virtual ImVec2						GetPosition() const;
 		virtual ImVec2						GetSize() const;

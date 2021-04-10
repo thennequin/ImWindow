@@ -116,37 +116,44 @@ bool ImwPlatformWindowOGL::Init(ImwPlatformWindow* pMain)
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		ImGuiIO& io = GetContext()->IO;;
-
-		if (pMain != NULL)
-		{
-			//Copy texture reference
-			m_iTextureID = ((ImwPlatformWindowOGL*)pMain)->m_iTextureID;
-		}
-		else
-		{
-			unsigned char* pPixels;
-			int iWidth;
-			int iHeight;
-			io.Fonts->AddFontDefault();
-			io.Fonts->GetTexDataAsAlpha8(&pPixels, &iWidth, &iHeight);
-
-			// Upload texture to graphics system
-			glEnable(GL_TEXTURE_2D);
-			m_iTextureID = 0;
-			glGenTextures(1, &m_iTextureID);
-			glBindTexture(GL_TEXTURE_2D, m_iTextureID);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, (GLint)iWidth, (GLint)iHeight, 0, GL_ALPHA, GL_UNSIGNED_BYTE, (GLvoid*)pPixels);
-
-			// Store our identifier
-			io.Fonts->TexID = (void *)(intptr_t)m_iTextureID;
-		}
+		RegenFontTexture(pMain);
 
 		return true;
 	}
 	return false;
+}
+
+void ImwPlatformWindowOGL::RegenFontTexture(ImwPlatformWindow* pMain)
+{
+	ImGuiIO& io = ImGui::GetIO();
+	if (pMain != NULL)
+	{
+		//Copy texture reference
+		m_iTextureID = ((ImwPlatformWindowOGL*)pMain)->m_iTextureID;
+	}
+	else
+	{
+		if (m_iTextureID != 0)
+		{
+			glDeleteTextures(1, &m_iTextureID);
+		}
+		uint8_t* pPixels = NULL;
+		int32_t iWidth = 0;
+		int32_t iHeight = 0;
+		io.Fonts->AddFontDefault();
+		io.Fonts->GetTexDataAsAlpha8(&pPixels, &iWidth, &iHeight);
+
+		// Upload texture to graphics system
+		glEnable(GL_TEXTURE_2D);
+		m_iTextureID = 0;
+		glGenTextures(1, &m_iTextureID);
+		glBindTexture(GL_TEXTURE_2D, m_iTextureID);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, iWidth, iHeight, 0, GL_ALPHA, GL_UNSIGNED_BYTE, pPixels);
+	}
+	// Store our identifier
+	io.Fonts->TexID = ( void * )( intptr_t )m_iTextureID;
 }
 
 void ImwPlatformWindowOGL::OnClientSize(int iClientWidth, int iClientHeight)

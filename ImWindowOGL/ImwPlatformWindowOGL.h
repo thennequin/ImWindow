@@ -20,6 +20,7 @@ namespace ImWindow
 		virtual								~ImwPlatformWindowOGL();
 
 		virtual bool						Init(ImwPlatformWindow* pMain);
+		virtual void						RegenFontTexture(ImwPlatformWindow* pMain);
 
 	protected:
 		virtual void						RenderDrawLists(ImDrawData* pDrawData);

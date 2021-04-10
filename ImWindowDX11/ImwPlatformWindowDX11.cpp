@@ -368,59 +368,7 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 		//Set our Render Target
 		m_pDX11DeviceContext->OMSetRenderTargets(1, &m_pDX11RenderTargetView, NULL);
 
-		ImGuiIO& io = GetContext()->IO;
-
-		if (NULL == pMain)
-		{
-			unsigned char* pPixels;
-			int iWidth;
-			int iHeight;
-			io.Fonts->AddFontDefault();
-			io.Fonts->GetTexDataAsRGBA32(&pPixels, &iWidth, &iHeight);
-
-			D3D11_TEXTURE2D_DESC oTextureDesc;
-			ZeroMemory(&oTextureDesc, sizeof(oTextureDesc));
-			oTextureDesc.Width = iWidth;
-			oTextureDesc.Height = iHeight;
-			oTextureDesc.MipLevels = 1;
-			oTextureDesc.ArraySize = 1;
-			oTextureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-			oTextureDesc.SampleDesc.Count = 1;
-			oTextureDesc.Usage = D3D11_USAGE_DEFAULT;
-			oTextureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-			oTextureDesc.CPUAccessFlags = 0;
-
-			D3D11_SUBRESOURCE_DATA oSubResource;
-			oSubResource.pSysMem = pPixels;
-			oSubResource.SysMemPitch = oTextureDesc.Width * 4;
-			oSubResource.SysMemSlicePitch = 0;
-			m_pDX11Device->CreateTexture2D(&oTextureDesc, &oSubResource, &m_pDX11FontTexture);
-
-			// Create texture view
-			D3D11_SHADER_RESOURCE_VIEW_DESC oShaderResViewDesc;
-			ZeroMemory(&oShaderResViewDesc, sizeof(oShaderResViewDesc));
-			oShaderResViewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-			oShaderResViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-			oShaderResViewDesc.Texture2D.MipLevels = oTextureDesc.MipLevels;
-			oShaderResViewDesc.Texture2D.MostDetailedMip = 0;
-			m_pDX11Device->CreateShaderResourceView(m_pDX11FontTexture, &oShaderResViewDesc, &m_pDX11FontTextureView);
-
-
-			// Create texture sampler
-			D3D11_SAMPLER_DESC oSamplerDesc;
-			ZeroMemory(&oSamplerDesc, sizeof(oSamplerDesc));
-			oSamplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-			oSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-			oSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-			oSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-			oSamplerDesc.MipLODBias = 0.f;
-			oSamplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-			oSamplerDesc.MinLOD = 0.f;
-			oSamplerDesc.MaxLOD = 0.f;
-			m_pDX11Device->CreateSamplerState(&oSamplerDesc, &m_pDX11FontSampler);
-			// Store our identifier
-			io.Fonts->TexID = (void *)(intptr_t)m_pDX11FontTextureView;
-		}
+		RegenFontTexture(pMain);
 
 		return true;
 	}
@@ -428,6 +376,67 @@ bool ImwPlatformWindowDX11::Init(ImwPlatformWindow* pMain)
 	return false;
 }
 
+void ImwPlatformWindowDX11::RegenFontTexture(ImwPlatformWindow* pMain)
+{
+	ImGuiIO& io = ImGui::GetIO();
+	if (pMain != NULL)
+	{
+		//Copy texture reference
+		m_pDX11FontTextureView = ((ImwPlatformWindowDX11*)pMain)->m_pDX11FontTextureView;
+	}
+	else
+	{
+		ImwSafeRelease(m_pDX11FontTextureView);
+		unsigned char* pPixels = NULL;
+		int iWidth = 0;
+		int iHeight = 0;
+		io.Fonts->AddFontDefault();
+		io.Fonts->GetTexDataAsRGBA32(&pPixels, &iWidth, &iHeight);
+
+		D3D11_TEXTURE2D_DESC oTextureDesc;
+		ZeroMemory(&oTextureDesc, sizeof(oTextureDesc));
+		oTextureDesc.Width = iWidth;
+		oTextureDesc.Height = iHeight;
+		oTextureDesc.MipLevels = 1;
+		oTextureDesc.ArraySize = 1;
+		oTextureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		oTextureDesc.SampleDesc.Count = 1;
+		oTextureDesc.Usage = D3D11_USAGE_DEFAULT;
+		oTextureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		oTextureDesc.CPUAccessFlags = 0;
+
+		D3D11_SUBRESOURCE_DATA oSubResource;
+		oSubResource.pSysMem = pPixels;
+		oSubResource.SysMemPitch = oTextureDesc.Width * 4;
+		oSubResource.SysMemSlicePitch = 0;
+		m_pDX11Device->CreateTexture2D(&oTextureDesc, &oSubResource, &m_pDX11FontTexture);
+
+		// Create texture view
+		D3D11_SHADER_RESOURCE_VIEW_DESC oShaderResViewDesc;
+		ZeroMemory(&oShaderResViewDesc, sizeof(oShaderResViewDesc));
+		oShaderResViewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		oShaderResViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		oShaderResViewDesc.Texture2D.MipLevels = oTextureDesc.MipLevels;
+		oShaderResViewDesc.Texture2D.MostDetailedMip = 0;
+		m_pDX11Device->CreateShaderResourceView(m_pDX11FontTexture, &oShaderResViewDesc, &m_pDX11FontTextureView);
+
+
+		// Create texture sampler
+		D3D11_SAMPLER_DESC oSamplerDesc;
+		ZeroMemory(&oSamplerDesc, sizeof(oSamplerDesc));
+		oSamplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		oSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		oSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		oSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		oSamplerDesc.MipLODBias = 0.f;
+		oSamplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+		oSamplerDesc.MinLOD = 0.f;
+		oSamplerDesc.MaxLOD = 0.f;
+		m_pDX11Device->CreateSamplerState(&oSamplerDesc, &m_pDX11FontSampler);
+	}
+	// Store our identifier
+	io.Fonts->TexID = (void *)(intptr_t)m_pDX11FontTextureView;
+}
 
 void ImwPlatformWindowDX11::OnClientSize(int iClientWidth, int iClientHeight)
 {

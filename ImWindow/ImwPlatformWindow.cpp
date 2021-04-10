@@ -20,13 +20,11 @@ namespace ImWindow
 			ImGuiContext* pGlobalContext = ImGui::GetCurrentContext();
 			IM_ASSERT(pGlobalContext != NULL);
 
-			m_pContext = ImGui::CreateContext( pGlobalContext->IO.MemAllocFn, pGlobalContext->IO.MemFreeFn );
-
+			m_pContext = ImGui::CreateContext( pGlobalContext->IO.Fonts );
 			ImGuiIO& oGlobalIO = pGlobalContext->IO;
 			ImGuiIO& oNewIO = m_pContext->IO;
 
 			memcpy(&(oNewIO.KeyMap), &(oGlobalIO.KeyMap ), sizeof( pGlobalContext->IO.KeyMap ));
-			oNewIO.RenderDrawListsFn = NULL;
 			oNewIO.ClipboardUserData = oGlobalIO.ClipboardUserData;
 			oNewIO.GetClipboardTextFn = oGlobalIO.GetClipboardTextFn;
 			oNewIO.SetClipboardTextFn = oGlobalIO.SetClipboardTextFn;
@@ -43,6 +41,11 @@ namespace ImWindow
 	bool ImwPlatformWindow::Init(ImwPlatformWindow* /*pParent*/)
 	{
 		return true;
+	}
+
+	void ImwPlatformWindow::RegenFontTexture( ImwPlatformWindow* /*pMain*/ )
+	{
+
 	}
 
 	EPlatformWindowType ImwPlatformWindow::GetType() const
@@ -142,9 +145,8 @@ namespace ImWindow
 
 		if (m_pContext != NULL)
 		{
-			m_pContext->IO.Fonts = NULL;
 			SetContext(false);
-			ImGui::Shutdown();
+			ImGui::Shutdown( m_pContext );
 			RestoreContext(false);
 			ImGui::DestroyContext(m_pContext);
 			m_pContext = NULL;
@@ -167,7 +169,8 @@ namespace ImWindow
 
 			if (NULL != m_pContext)
 			{
-				m_pContext->SetNextWindowPosCond = m_pContext->SetNextWindowSizeCond = m_pContext->SetNextWindowContentSizeCond = m_pContext->SetNextWindowCollapsedCond = m_pContext->SetNextWindowFocus = 0;
+				m_pContext->NextWindowData.PosCond = m_pContext->NextWindowData.SizeCond = m_pContext->NextWindowData.CollapsedCond = 0;
+				m_pContext->NextWindowData.Flags = m_pContext->NextWindowData.Flags & ~( ImGuiNextWindowDataFlags_HasFocus | ImGuiNextWindowDataFlags_HasContentSize );
 				m_pContext->ActiveId = 0;
 
 				for (int i = 0; i < 512; ++i)

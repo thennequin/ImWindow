@@ -464,11 +464,11 @@ namespace ImWindow
 			{
 				float iFirstHeight = oSize.y * m_fSplitRatio - iSeparatorSize - pWindow->WindowPadding.x;
 
-				ImVec4 oBackupColor = oStyle.Colors[ImGuiCol_ChildWindowBg];
+				ImVec4 oBackupColor = oStyle.Colors[ImGuiCol_ChildBg];
 
-				oStyle.Colors[ImGuiCol_ChildWindowBg].w = 0.f;
+				oStyle.Colors[ImGuiCol_ChildBg].w = 0.f;
 				ImGui::BeginChild("Top", ImVec2(0, iFirstHeight), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-				oStyle.Colors[ImGuiCol_ChildWindowBg] = oBackupColor;
+				oStyle.Colors[ImGuiCol_ChildBg] = oBackupColor;
 				m_pSplits[0]->Paint(/*iX, iY, iWidth, iFirstHeight*/);
 				ImGui::EndChild();
 
@@ -501,9 +501,9 @@ namespace ImWindow
 
 				ImGui::SetCursorPosY(ImGui::GetCursorPosY() - oStyle.ItemSpacing.y);
 
-				oStyle.Colors[ImGuiCol_ChildWindowBg].w = 0.f;
+				oStyle.Colors[ImGuiCol_ChildBg].w = 0.f;
 				ImGui::BeginChild("Bottom", ImVec2(0, 0), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-				oStyle.Colors[ImGuiCol_ChildWindowBg] = oBackupColor;
+				oStyle.Colors[ImGuiCol_ChildBg] = oBackupColor;
 				m_pSplits[1]->Paint(/*iX, iY + iFirstHeight, iWidth, iSecondHeight*/);
 				ImGui::EndChild();
 			}
@@ -511,11 +511,11 @@ namespace ImWindow
 			{
 				float iFirstWidth = oSize.x * m_fSplitRatio - iSeparatorSize - pWindow->WindowPadding.y;
 
-				ImVec4 oBackupColor = oStyle.Colors[ImGuiCol_ChildWindowBg];
+				ImVec4 oBackupColor = oStyle.Colors[ImGuiCol_ChildBg];
 
-				oStyle.Colors[ImGuiCol_ChildWindowBg].w = 0.f;
+				oStyle.Colors[ImGuiCol_ChildBg].w = 0.f;
 				ImGui::BeginChild("Left", ImVec2(iFirstWidth, 0), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-				oStyle.Colors[ImGuiCol_ChildWindowBg] = oBackupColor;
+				oStyle.Colors[ImGuiCol_ChildBg] = oBackupColor;
 				m_pSplits[0]->Paint();
 				ImGui::EndChild();
 
@@ -548,9 +548,9 @@ namespace ImWindow
 
 				ImGui::SameLine(0.f, 0.f);
 
-				oStyle.Colors[ImGuiCol_ChildWindowBg].w = 0.f;
+				oStyle.Colors[ImGuiCol_ChildBg].w = 0.f;
 				ImGui::BeginChild("Right", ImVec2(0, 0), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-				oStyle.Colors[ImGuiCol_ChildWindowBg] = oBackupColor;
+				oStyle.Colors[ImGuiCol_ChildBg] = oBackupColor;
 				m_pSplits[1]->Paint();
 				ImGui::EndChild();
 			}
@@ -697,7 +697,7 @@ namespace ImWindow
 
 					if (ImGui::IsItemActive())
 					{
-						if (ImGui::IsMouseDragging())
+						if (ImGui::IsMouseDragging( ImGuiMouseButton_Left ))
 						{
 							float fOffsetX = (oCursorPos.x - ImGui::GetItemRectMin().x) + (oFirstTabPos.x - oPos.x);
 							float fOffsetY = (oCursorPos.y - ImGui::GetItemRectMin().y);
@@ -918,12 +918,12 @@ namespace ImWindow
 				break;
 			case ImwWindowManager::E_TABCOLORMODE_BACKGROUND:
 				oNormalTab = ImColor(
-					oStyle.Colors[ImGuiCol_WindowBg].x + (oStyle.Colors[ImGuiCol_ChildWindowBg].x - oStyle.Colors[ImGuiCol_WindowBg].x) * 0.5f,
-					oStyle.Colors[ImGuiCol_WindowBg].y + (oStyle.Colors[ImGuiCol_ChildWindowBg].y - oStyle.Colors[ImGuiCol_WindowBg].y) * 0.5f,
-					oStyle.Colors[ImGuiCol_WindowBg].z + (oStyle.Colors[ImGuiCol_ChildWindowBg].z - oStyle.Colors[ImGuiCol_WindowBg].z) * 0.5f,
-					oStyle.Colors[ImGuiCol_WindowBg].w + (oStyle.Colors[ImGuiCol_ChildWindowBg].w - oStyle.Colors[ImGuiCol_WindowBg].w) * 0.5f
+					oStyle.Colors[ImGuiCol_WindowBg].x + (oStyle.Colors[ImGuiCol_ChildBg].x - oStyle.Colors[ImGuiCol_WindowBg].x) * 0.5f,
+					oStyle.Colors[ImGuiCol_WindowBg].y + (oStyle.Colors[ImGuiCol_ChildBg].y - oStyle.Colors[ImGuiCol_WindowBg].y) * 0.5f,
+					oStyle.Colors[ImGuiCol_WindowBg].z + (oStyle.Colors[ImGuiCol_ChildBg].z - oStyle.Colors[ImGuiCol_WindowBg].z) * 0.5f,
+					oStyle.Colors[ImGuiCol_WindowBg].w + (oStyle.Colors[ImGuiCol_ChildBg].w - oStyle.Colors[ImGuiCol_WindowBg].w) * 0.5f
 				);
-				oSelectedTab = oStyle.Colors[ImGuiCol_ChildWindowBg];
+				oSelectedTab = oStyle.Colors[ImGuiCol_ChildBg];
 				oBorderColor = oStyle.Colors[ImGuiCol_Border];
 				break;
 			case ImwWindowManager::E_TABCOLORMODE_CUSTOM:
