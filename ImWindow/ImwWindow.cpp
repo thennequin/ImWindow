@@ -5,7 +5,7 @@
 namespace ImWindow
 {
 //SFF_BEGIN
-	int ImwWindow::s_iNextId = 0;
+	int ImwWindow::s_iNextId = 1;
 
 #ifdef IMW_CUSTOM_IMPLEMENT_IMWWINDOW
 	IMW_CUSTOM_IMPLEMENT_IMWWINDOW

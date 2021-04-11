@@ -25,6 +25,7 @@ namespace ImWindow
 		virtual								~ImwPlatformWindow();
 
 		virtual bool						Init(ImwPlatformWindow* pParent);
+		virtual void						RegenFontTexture(ImwPlatformWindow* pMain);
 
 		EPlatformWindowType					GetType() const;
 		bool								IsMainWindow() const;

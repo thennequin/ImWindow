@@ -82,34 +82,7 @@ bool ImwPlatformWindowSokol::Init(ImwPlatformWindow* pMain)
 			return false;
 		}
 
-		ImGuiIO& io = GetContext()->IO;
-
-		if (pMain != NULL)
-		{
-			//Copy texture id
-			m_hFontTexture = ((ImwPlatformWindowSokol*)pMain)->m_hFontTexture;
-		}
-		else
-		{
-			unsigned char* pPixels;
-			int iFontWidth;
-			int iFontHeight;
-			io.Fonts->AddFontDefault();
-			io.Fonts->GetTexDataAsRGBA32(&pPixels, &iFontWidth, &iFontHeight);
-
-			sg_image_desc img_desc = {};
-			img_desc.width = iFontWidth;
-			img_desc.height = iFontHeight;
-			img_desc.pixel_format = SG_PIXELFORMAT_RGBA8;
-			img_desc.wrap_u = SG_WRAP_CLAMP_TO_EDGE;
-			img_desc.wrap_v = SG_WRAP_CLAMP_TO_EDGE;
-			img_desc.content.subimage[0][0].ptr = pPixels;
-			img_desc.content.subimage[0][0].size = iFontWidth * iFontHeight * 4;
-			m_hFontTexture = sg_make_image(&img_desc);
-
-			// Store our identifier
-			io.Fonts->TexID = (void *)m_hFontTexture.id;
-		}
+		RegenFontTexture(pMain);
 
 		ResizeVertexBuffer(c_iDefaultVertexCount);
 		ResizeIndexBuffer(c_iDefaultIndexCount);
@@ -224,6 +197,35 @@ void ImwPlatformWindowSokol::CallbackSetUniformBlockData(const ImDrawList* pPare
 		int iBlockIndex = pCurrentPlatformWindow->m_iUniformBlockCurrentIndex;
 		pCurrentPlatformWindow->m_oUniformBlock[iShaderStage][iBlockIndex].m_pData = pCmd->UserCallbackData;
 	}
+}
+
+void ImwPlatformWindowSokol::RegenFontTexture(ImwPlatformWindow* pMain)
+{
+	ImGuiIO& io = GetContext()->IO;
+	if (pMain != NULL)
+	{
+		m_hFontTexture = ((ImwPlatformWindowSokol*)pMain)->m_hFontTexture;
+	}
+	else
+	{
+		sg_destroy_image(m_hFontTexture);
+		unsigned char* pPixels = NULL;
+		int iFontWidth = 0;
+		int iFontHeight = 0;
+		io.Fonts->GetTexDataAsRGBA32(&pPixels, &iFontWidth, &iFontHeight);
+
+		sg_image_desc img_desc = {};
+		img_desc.width			= iFontWidth;
+		img_desc.height			= iFontHeight;
+		img_desc.pixel_format	= SG_PIXELFORMAT_RGBA8;
+		img_desc.wrap_u			= SG_WRAP_CLAMP_TO_EDGE;
+		img_desc.wrap_v			= SG_WRAP_CLAMP_TO_EDGE;
+		img_desc.content.subimage[0][0].ptr = pPixels;
+		img_desc.content.subimage[0][0].size = iFontWidth * iFontHeight * 4;
+		m_hFontTexture			= sg_make_image(&img_desc);
+	}
+
+	io.Fonts->TexID = (void*)m_hFontTexture.id;
 }
 
 void ImwPlatformWindowSokol::OnClientSize(int iClientWidth, int iClientHeight)

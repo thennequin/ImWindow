@@ -144,6 +144,7 @@ namespace ImWindow
 		virtual ImwWindow*					CreateWindowByClassName(const char* pName);
 
 		virtual bool						IsUsingCustomFrame() const;
+		void								RegenFontTexture();
 	protected:
 		//To override for use multi window mode
 		virtual bool						CanCreateMultipleWindow();

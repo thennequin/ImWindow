@@ -17,6 +17,7 @@ namespace ImWindow
 		virtual								~ImwPlatformWindowSokol();
 
 		virtual bool						Init(ImwPlatformWindow* pMain);
+		virtual void						RegenFontTexture(ImwPlatformWindow* pMain);
 
 		char*								GetApiData();
 
