@@ -862,6 +862,10 @@ namespace ImWindow
 				{
 					InternalDock(pAction->m_pWindow, pAction->m_eOrientation, pAction->m_fRatio, pAction->m_pToPlatformWindow);
 				}
+				else
+				{
+					GetMainPlatformWindow()->GetContainer()->DockToBest(pAction->m_pWindow);
+				}
 			}
 
 			ImwWindowVector::iterator itFind = std::find(m_lOrphanWindows.begin(), m_lOrphanWindows.end(), pAction->m_pWindow);

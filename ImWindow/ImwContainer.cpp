@@ -103,8 +103,24 @@ namespace ImWindow
 						}
 						else
 						{
-							IM_ASSERT(m_pSpecialWindow == NULL);
-							m_pSpecialWindow = pWindow;
+							if (m_pSpecialWindow != NULL || m_lWindows.empty() == false)
+							{
+								CreateSplits();
+								m_pSplits[0]->m_pSpecialWindow = m_pSpecialWindow;
+								for (ImwWindowVector::iterator it = m_lWindows.begin(), itEnd = m_lWindows.end(); it != itEnd; ++it)
+								{
+									m_pSplits[0]->m_lWindows.push_back(*it);
+								}
+								m_pSplits[0]->m_iActiveWindow = m_iActiveWindow;
+								m_pSplits[1]->m_pSpecialWindow = pWindow;
+								m_pSpecialWindow = NULL;
+								m_lWindows.clear();
+								m_iActiveWindow = 0;
+							}
+							else
+							{
+								m_pSpecialWindow = pWindow;
+							}
 						}
 					}
 					break;
@@ -321,23 +337,35 @@ namespace ImWindow
 		return false;
 	}
 
-	void ImwContainer::DockToBest(ImwWindow* pWindow)
+	bool ImwContainer::DockToBest(ImwWindow* pWindow)
 	{
 		if (IsSplit())
 		{
-			if (m_fSplitRatio < 0.5f)
+			if (m_fSplitRatio > 0.5f)
 			{
-				m_pSplits[0]->DockToBest(pWindow);
+				if (m_pSplits[0]->DockToBest(pWindow))
+					return true;
 			}
-			else
-			{
-				m_pSplits[1]->DockToBest(pWindow);
-			}
+
+			if (m_pSplits[1]->DockToBest(pWindow))
+				return true;
+
+			// Force try to dock on the first split if the second fails
+			if (m_pSplits[0]->DockToBest(pWindow))
+				return true;
 		}
-		else
+		else if (m_pSpecialWindow == NULL || m_pSpecialWindow->m_eMode != E_WINDOW_MODE_ALONE)
 		{
 			Dock(pWindow);
+			return true;
 		}
+		else if (m_pParent == NULL)
+		{
+			// Split to force dock
+			Dock(pWindow, m_bVerticalSplit ? E_DOCK_ORIENTATION_BOTTOM : E_DOCK_ORIENTATION_RIGHT);
+			return true;
+		}
+		return false;
 	}
 
 	bool ImwContainer::IsEmpty() const
