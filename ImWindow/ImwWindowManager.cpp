@@ -1041,12 +1041,14 @@ namespace ImWindow
 					{
 						if (bDisplayMenus) // Autohide menu bar
 						{
-							ImGui::BeginMenuBar();
-							for (ImwMenuVector::iterator it = m_lMenus.begin(), itEnd = m_lMenus.end(); it != itEnd; ++it)
+							if (ImGui::BeginMenuBar())
 							{
-								(*it)->OnMenu();
+								for (ImwMenuVector::iterator it = m_lMenus.begin(), itEnd = m_lMenus.end(); it != itEnd; ++it)
+								{
+									(*it)->OnMenu();
+								}
+								ImGui::EndMenuBar();
 							}
-							ImGui::EndMenuBar();
 						}
 					}
 
