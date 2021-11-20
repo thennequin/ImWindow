@@ -53,6 +53,15 @@ namespace ImWindow
 
 	//////////////////////////////////////////////////////////////////////////
 
+	ImwWindowManager::ClassNameFunctions::ClassNameFunctions()
+		: m_pGetClassName(NULL)
+		, m_pCanCreateWindowByClassName(NULL)
+		, m_pCreateWindowByClassName(NULL)
+	{
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+
 	ImwWindowManager::ImwWindowManager()
 	{
 		s_pInstance = this;
@@ -475,18 +484,37 @@ namespace ImWindow
 	}
 #endif //IMW_USE_LAYOUT_SERIALIZATION
 
-	const char* ImwWindowManager::GetWindowClassName(ImwWindow* /*pWindow*/)
+	void ImwWindowManager::SetClassNameFunctions(const ClassNameFunctions* pFunctions)
 	{
+		m_oClassNameFunctions.m_pGetClassName = (pFunctions != NULL) ? pFunctions->m_pGetClassName: NULL;
+		m_oClassNameFunctions.m_pCanCreateWindowByClassName = ( pFunctions != NULL ) ? pFunctions->m_pCanCreateWindowByClassName : NULL;
+		m_oClassNameFunctions.m_pCreateWindowByClassName = ( pFunctions != NULL ) ? pFunctions->m_pCreateWindowByClassName : NULL;
+	}
+
+	const char* ImwWindowManager::GetWindowClassName(ImwWindow* pWindow)
+	{
+		if (m_oClassNameFunctions.m_pGetClassName != NULL)
+		{
+			return m_oClassNameFunctions.m_pGetClassName(pWindow);
+		}
 		return NULL;
 	}
 
-	bool ImwWindowManager::CanCreateWindowByClassName(const char* /*pName*/)
+	bool ImwWindowManager::CanCreateWindowByClassName(const char* pName)
 	{
+		if (m_oClassNameFunctions.m_pCanCreateWindowByClassName != NULL)
+		{
+			return m_oClassNameFunctions.m_pCanCreateWindowByClassName(pName);
+		}
 		return false;
 	}
 
-	ImwWindow* ImwWindowManager::CreateWindowByClassName(const char* /*pName*/)
+	ImwWindow* ImwWindowManager::CreateWindowByClassName(const char* pName)
 	{
+		if (m_oClassNameFunctions.m_pCreateWindowByClassName != NULL)
+		{
+			return m_oClassNameFunctions.m_pCreateWindowByClassName(pName);
+		}
 		return NULL;
 	}
 
