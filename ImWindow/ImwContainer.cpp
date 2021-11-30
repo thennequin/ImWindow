@@ -99,6 +99,7 @@ namespace ImWindow
 								ImwWindowVector::iterator itWindow = m_lWindows.begin();
 								std::advance(itWindow, iPosition);
 								m_lWindows.insert(itWindow, pWindow);
+								m_iActiveWindow = iPosition;
 							}
 						}
 						else
@@ -133,6 +134,7 @@ namespace ImWindow
 						m_pSplits[0]->Dock(pWindow);
 						// Move windows to Bottom/Right Split
 						m_pSplits[1]->m_pSpecialWindow = m_pSpecialWindow;
+						m_pSplits[1]->m_iActiveWindow = m_iActiveWindow;
 						for (ImwWindowVector::iterator it = m_lWindows.begin(), itEnd = m_lWindows.end(); it != itEnd; ++it)
 						{
 							m_pSplits[1]->m_lWindows.push_back(*it);
@@ -150,6 +152,7 @@ namespace ImWindow
 						CreateSplits();
 						// Move windows to Bottom/Right Split
 						m_pSplits[0]->m_pSpecialWindow = m_pSpecialWindow;
+						m_pSplits[0]->m_iActiveWindow = m_iActiveWindow;
 						for (ImwWindowVector::iterator it = m_lWindows.begin(), itEnd = m_lWindows.end(); it != itEnd; ++it)
 						{
 							m_pSplits[0]->m_lWindows.push_back(*it);
@@ -283,6 +286,7 @@ namespace ImWindow
 					{
 						IM_ASSERT(m_lWindows.empty() && m_pSpecialWindow == NULL);
 						m_pSpecialWindow = m_pSplits[1]->m_pSpecialWindow;
+						m_iActiveWindow = m_pSplits[1]->m_iActiveWindow;
 						for (ImwWindowVector::iterator it = m_pSplits[1]->m_lWindows.begin(), itEnd = m_pSplits[1]->m_lWindows.end(); it != itEnd; ++it)
 						{
 							m_lWindows.push_back(*it);
@@ -323,6 +327,7 @@ namespace ImWindow
 						{
 							m_lWindows.push_back(*it);
 						}
+						m_iActiveWindow = m_pSplits[0]->m_iActiveWindow;
 						m_pSplits[0]->m_pSpecialWindow = NULL;
 						m_pSplits[0]->m_lWindows.clear();
 						m_pSplits[0]->m_iActiveWindow = 0;
