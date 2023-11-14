@@ -623,7 +623,7 @@ namespace ImWindow
 			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(139.f / 255.f, 50.f / 255.f, 91.f / 255.f, 255.f / 255.f));
 			if (ImGui::Button("##Close", ImVec2(c_fButtonWidth, 0.f)))
 			{
-				OnClosePlatformWindow(pPlatformWindow);
+				pPlatformWindow->OnClose();
 			}
 			ImGui::PopStyleColor(2);
 
