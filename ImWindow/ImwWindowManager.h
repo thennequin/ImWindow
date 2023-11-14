@@ -115,6 +115,7 @@ namespace ImWindow
 		bool								Init();
 		bool								Run(bool bRender);
 		void								Destroy();
+		bool								IsExiting() const;
 
 		ImwPlatformWindow*					GetMainPlatformWindow() const;
 		const ImwPlatformWindowVector&		GetSecondariesPlatformWindows() const;

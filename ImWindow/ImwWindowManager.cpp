@@ -193,6 +193,18 @@ namespace ImWindow
 		InternalDestroy();
 	}
 
+	bool ImwWindowManager::IsExiting() const
+	{
+		for (ImVector<PlatformWindowAction*>::const_iterator it = m_lPlatformWindowActions.begin(), itEnd = m_lPlatformWindowActions.end(); it != itEnd; ++it)
+		{
+			if ((*it)->m_eAction == E_PLATFORM_WINDOW_ACTION_DESTROY && (*it)->m_pPlatformWindow == m_pMainPlatformWindow)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 	ImwPlatformWindow* ImwWindowManager::GetMainPlatformWindow() const
 	{
 		return m_pMainPlatformWindow;
