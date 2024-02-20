@@ -6,6 +6,7 @@ using namespace ImWindow;
 ImwWindowManagerEasyWindow::ImwWindowManagerEasyWindow(bool bCustomFrame)
 	: m_bCustomFrame(bCustomFrame)
 {
+	m_bSelfManagedTitleBar = false;
 }
 
 ImwWindowManagerEasyWindow::~ImwWindowManagerEasyWindow()

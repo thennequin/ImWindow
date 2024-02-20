@@ -44,6 +44,8 @@ namespace ImWindow
 		void								OnChar(const EasyWindow* pWindow, int iChar);
 		void								OnDropFiles(const EasyWindow* pWindow, const EasyWindow::DropFiles& oFiles);
 
+		EasyWindow::EHoveredArea			GetHoveredArea(const EasyWindow* pWindow, int iX, int iY);
+
 		EasyWindow*							m_pWindow;
 	};
 }

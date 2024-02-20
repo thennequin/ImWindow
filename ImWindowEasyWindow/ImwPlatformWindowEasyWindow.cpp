@@ -39,6 +39,7 @@ bool ImwPlatformWindowEasyWindow::Init(ImwPlatformWindow* pMain)
 	m_pWindow->OnKey.Set(this, &ImwPlatformWindowEasyWindow::OnKey);
 	m_pWindow->OnChar.Set(this, &ImwPlatformWindowEasyWindow::OnChar);
 	m_pWindow->OnDropFiles.Set(this, &ImwPlatformWindowEasyWindow::OnDropFiles);
+	m_pWindow->BorderlessHoveredArea.Set(this, &ImwPlatformWindowEasyWindow::GetHoveredArea);
 
 	if (m_eType == E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW)
 		m_pWindow->SetAlpha(128);
@@ -68,7 +69,7 @@ bool ImwPlatformWindowEasyWindow::Init(ImwPlatformWindow* pMain)
 	io.ImeWindowHandle = m_pWindow->GetHandle();
 
 	io.Fonts->AddFontDefault();
-	
+
 	return true;
 }
 
@@ -225,4 +226,24 @@ void ImwPlatformWindowEasyWindow::OnDropFiles(const EasyWindow* /*pWindow*/, con
 {
 	ImVec2 oPos((float)oFiles.oPosition.x, (float)oFiles.oPosition.y);
 	ImwPlatformWindow::OnDropFiles(oFiles.iCount, oFiles.pFiles, oPos);
+}
+
+EasyWindow::EHoveredArea ImwPlatformWindowEasyWindow::GetHoveredArea(const EasyWindow* /*pWindow*/, int /*iX*/, int /*iY*/)
+{
+	switch (m_eHoveredArea)
+	{
+	break; case E_PLATFORMWINDOWHOVEREDAREA_NONE:
+	default:
+		return EasyWindow::E_HOVEREDAREA_NONE;
+	break; case E_PLATFORMWINDOWHOVEREDAREA_MENU:
+		return EasyWindow::E_HOVEREDAREA_MENU;
+	break; case E_PLATFORMWINDOWHOVEREDAREA_CAPTION:
+		return EasyWindow::E_HOVEREDAREA_CAPTION;
+	break; case E_PLATFORMWINDOWHOVEREDAREA_MINIMIZE:
+		return EasyWindow::E_HOVEREDAREA_MINIMIZE;
+	break; case E_PLATFORMWINDOWHOVEREDAREA_MAXIMIZE:
+		return EasyWindow::E_HOVEREDAREA_MAXIMIZE;
+	break; case E_PLATFORMWINDOWHOVEREDAREA_CLOSE:
+		return EasyWindow::E_HOVEREDAREA_CLOSE;
+	}
 }
