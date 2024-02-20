@@ -17,6 +17,16 @@ namespace ImWindow
 		E_PLATFORM_WINDOW_TYPE_DIALOG_BOX
 	};
 
+	enum EPlatformWindowHoveredArea
+	{
+		E_PLATFORMWINDOWHOVEREDAREA_NONE,
+		E_PLATFORMWINDOWHOVEREDAREA_MENU,
+		E_PLATFORMWINDOWHOVEREDAREA_CAPTION,
+		E_PLATFORMWINDOWHOVEREDAREA_MINIMIZE,
+		E_PLATFORMWINDOWHOVEREDAREA_MAXIMIZE,
+		E_PLATFORMWINDOWHOVEREDAREA_CLOSE
+	};
+
 	class IMGUI_API ImwPlatformWindow
 	{
 		friend class ImwWindowManager;
@@ -88,6 +98,7 @@ namespace ImWindow
 		ImVec2								m_oMovingOffset;
 		ImVec2								m_oMovingStartPos;
 		bool								m_bMoving;
+		EPlatformWindowHoveredArea			m_eHoveredArea;
 	};
 
 	typedef ImVector<ImwPlatformWindow*> ImwPlatformWindowVector;

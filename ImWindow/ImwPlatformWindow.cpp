@@ -14,8 +14,9 @@ namespace ImWindow
 		m_pPreviousContext = NULL;
 		m_bNeedRender = false;
 		m_bShowContent = true;
+		m_eHoveredArea = E_PLATFORMWINDOWHOVEREDAREA_NONE;
 
-		if ( bCreateContext )
+		if (bCreateContext)
 		{
 			ImGuiContext* pGlobalContext = ImGui::GetCurrentContext();
 			IM_ASSERT(pGlobalContext != NULL);

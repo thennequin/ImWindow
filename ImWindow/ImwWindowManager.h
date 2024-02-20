@@ -220,6 +220,7 @@ namespace ImWindow
 		const ImwContainer*					GetBestDocking(ImwPlatformWindow* pPlatformWindow, const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, float& fOutRatio, bool* pOutOnTabArea, int* pOutPosition, bool bLargeCheck);
 
 		Config								m_oConfig;
+		bool								m_bSelfManagedTitleBar;
 		ClassNameFunctions					m_oClassNameFunctions;
 		char*								m_pMainTitle;
 		ImwPlatformWindow*					m_pMainPlatformWindow;

@@ -65,6 +65,7 @@ namespace ImWindow
 	ImwWindowManager::ImwWindowManager()
 	{
 		s_pInstance = this;
+		m_bSelfManagedTitleBar = true;
 		m_pMainTitle = NULL;
 		m_pMainPlatformWindow = NULL;
 		m_pDragPlatformWindow = NULL;
@@ -580,6 +581,8 @@ namespace ImWindow
 
 		ImDrawList* pDrawList = ImGui::GetWindowDrawList();
 
+		ImVec2 oMinTitleBarPos = ImGui::GetCursorPos();
+
 		if (bDrawTitle)
 		{
 			ImGui::TextUnformatted(GetMainTitle());
@@ -597,9 +600,13 @@ namespace ImWindow
 		//Minimize
 		{
 			ImGui::SameLine();
-			if (ImGui::Button("##Minimize", ImVec2(c_fButtonWidth, 0.f)))
+			if (ImGui::Button("##Minimize", ImVec2(c_fButtonWidth, 0.f)) && m_bSelfManagedTitleBar)
 			{
 				pPlatformWindow->SetWindowMinimized(true);
+			}
+			if (ImGui::IsItemHovered())
+			{
+				pPlatformWindow->m_eHoveredArea = E_PLATFORMWINDOWHOVEREDAREA_MINIMIZE;
 			}
 
 			oMin = ImGui::GetItemRectMin();
@@ -613,9 +620,13 @@ namespace ImWindow
 		//Maximize
 		{
 			ImGui::SameLine();
-			if (ImGui::Button("##Maximize", ImVec2(c_fButtonWidth, 0.f)))
+			if (ImGui::Button("##Maximize", ImVec2(c_fButtonWidth, 0.f)) && m_bSelfManagedTitleBar)
 			{
 				pPlatformWindow->SetWindowMaximized(!pPlatformWindow->IsWindowMaximized());
+			}
+			if (ImGui::IsItemHovered())
+			{
+				pPlatformWindow->m_eHoveredArea = E_PLATFORMWINDOWHOVEREDAREA_MAXIMIZE;
 			}
 
 			oMin = ImGui::GetItemRectMin();
@@ -633,9 +644,13 @@ namespace ImWindow
 			ImGui::SameLine();
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(232.f / 255.f, 17.f / 255.f, 35.f / 255.f, 255.f / 255.f));
 			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(139.f / 255.f, 50.f / 255.f, 91.f / 255.f, 255.f / 255.f));
-			if (ImGui::Button("##Close", ImVec2(c_fButtonWidth, 0.f)))
+			if (ImGui::Button("##Close", ImVec2(c_fButtonWidth, 0.f)) && m_bSelfManagedTitleBar)
 			{
 				pPlatformWindow->OnClose();
+			}
+			if (ImGui::IsItemHovered())
+			{
+				pPlatformWindow->m_eHoveredArea = E_PLATFORMWINDOWHOVEREDAREA_CLOSE;
 			}
 			ImGui::PopStyleColor(2);
 
@@ -656,45 +671,53 @@ namespace ImWindow
 		ImGuiWindow* pCurrentImGuiWindow = ImGui::GetCurrentWindow();
 		ImRect oDraggableArea(pCurrentImGuiWindow->DC.CursorStartPos, pCurrentImGuiWindow->DC.CursorMaxPos - ImVec2(3.f * c_fButtonWidth, 0.f));
 
-		bool bHover, bHeld;
-		ImGuiID oDraggableId = ImGui::GetID( "##DraggableArea" );
-		ImGui::ButtonBehavior(oDraggableArea, oDraggableId, &bHover, &bHeld, 0);
-
-		ImGuiID iDoubleClickedID = ImGui::GetID("IsDoubleClicked");
-		ImGuiID iFirstClickedID = ImGui::GetID("FirstClicked");
-		bool bDoubleClicked = ImGui::GetStateStorage()->GetBool(iDoubleClickedID, false);
-		bool bFirstClicked = ImGui::GetStateStorage()->GetBool(iFirstClickedID, false);
-
-		if (ImGui::IsMouseHoveringRect( oDraggableArea.Min, oDraggableArea.Max ) && ImGui::GetIO().MouseDoubleClicked[ 0 ] && ImGui::IsMouseDragging(0) == false)
+		if (ImGui::IsMouseHoveringRect(oDraggableArea.Min, oDraggableArea.Max) && pPlatformWindow->m_eHoveredArea == E_PLATFORMWINDOWHOVEREDAREA_NONE)
 		{
-			pPlatformWindow->SetWindowMaximized(!pPlatformWindow->IsWindowMaximized());
-			ImGui::GetStateStorage()->SetBool(iDoubleClickedID, true);
-			bDoubleClicked = true;
+			pPlatformWindow->m_eHoveredArea = E_PLATFORMWINDOWHOVEREDAREA_CAPTION;
 		}
-		else if (bHeld)
-		{
-			if (bDoubleClicked == false)
-			{
-				pPlatformWindow->Moving(bFirstClicked == false);
 
-				if (bFirstClicked == false)
+		if (m_bSelfManagedTitleBar)
+		{
+			bool bHover, bHeld;
+			ImGuiID oDraggableId = ImGui::GetID("##DraggableArea");
+			ImGui::ButtonBehavior(oDraggableArea, oDraggableId, &bHover, &bHeld, 0);
+
+			ImGuiID iDoubleClickedID = ImGui::GetID("IsDoubleClicked");
+			ImGuiID iFirstClickedID = ImGui::GetID("FirstClicked");
+			bool bDoubleClicked = ImGui::GetStateStorage()->GetBool(iDoubleClickedID, false);
+			bool bFirstClicked = ImGui::GetStateStorage()->GetBool(iFirstClickedID, false);
+
+			if (ImGui::IsMouseHoveringRect(oDraggableArea.Min, oDraggableArea.Max) && ImGui::GetIO().MouseDoubleClicked[0] && ImGui::IsMouseDragging(0) == false)
+			{
+				pPlatformWindow->SetWindowMaximized(!pPlatformWindow->IsWindowMaximized());
+				ImGui::GetStateStorage()->SetBool(iDoubleClickedID, true);
+				bDoubleClicked = true;
+			}
+			else if (bHeld)
+			{
+				if (bDoubleClicked == false)
 				{
-					ImGui::GetStateStorage()->SetBool(iFirstClickedID, true);
-					bFirstClicked = true;
+					pPlatformWindow->Moving(bFirstClicked == false);
+
+					if (bFirstClicked == false)
+					{
+						ImGui::GetStateStorage()->SetBool(iFirstClickedID, true);
+						bFirstClicked = true;
+					}
 				}
 			}
-		}
-		else
-		{
-			if (bFirstClicked)
+			else
 			{
-				ImGui::GetStateStorage()->SetBool(iFirstClickedID, false);
-				bFirstClicked = false;
-			}
-			if (bDoubleClicked)
-			{
-				ImGui::GetStateStorage()->SetBool(iDoubleClickedID, false);
-				bDoubleClicked = false;
+				if (bFirstClicked)
+				{
+					ImGui::GetStateStorage()->SetBool(iFirstClickedID, false);
+					bFirstClicked = false;
+				}
+				if (bDoubleClicked)
+				{
+					ImGui::GetStateStorage()->SetBool(iDoubleClickedID, false);
+					bDoubleClicked = false;
+				}
 			}
 		}
 	}
@@ -1062,6 +1085,7 @@ namespace ImWindow
 					ImGui::SetActiveID(oId, ImGui::GetCurrentWindow());
 				}
 
+				pWindow->m_eHoveredArea = E_PLATFORMWINDOWHOVEREDAREA_NONE;
 				if (pWindow->GetType() != E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW && fTop > 0.f)
 				{
 					if (BeginTransparentChild("##ImWindowTitle", ImVec2(0.f, fTop), false, c_iWindowChildFlagsWithPadding))
