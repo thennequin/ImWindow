@@ -481,8 +481,9 @@ namespace ImWindow
 			bool bReturn = false;
 			if (iSize > 0)
 			{
-				char* pString = new char[iSize / sizeof(char)];
+				char* pString = new char[1 + iSize / sizeof(char)];
 				fread(pString, 1, iSize, pFile);
+				pString[iSize] = 0;
 
 				bReturn = LoadLayoutFromString(pString);
 
