@@ -207,9 +207,9 @@ void ImwPlatformWindowEasyWindow::OnMouseMove(const EasyWindow* /*pWindow*/, int
 	GetContext()->IO.MousePos = ImVec2((float)iX, (float)iY);
 }
 
-void ImwPlatformWindowEasyWindow::OnMouseWheel(const EasyWindow* /*pWindow*/, int iStep)
+void ImwPlatformWindowEasyWindow::OnMouseWheel(const EasyWindow* /*pWindow*/, float fStep)
 {
-	GetContext()->IO.MouseWheel += iStep;
+	GetContext()->IO.MouseWheel += fStep;
 }
 
 void ImwPlatformWindowEasyWindow::OnKey(const EasyWindow* /*pWindow*/, EasyWindow::EKey eKey, bool bDown)
@@ -217,9 +217,9 @@ void ImwPlatformWindowEasyWindow::OnKey(const EasyWindow* /*pWindow*/, EasyWindo
 	GetContext()->IO.KeysDown[eKey] = bDown;
 }
 
-void ImwPlatformWindowEasyWindow::OnChar(const EasyWindow* /*pWindow*/, int iChar)
+void ImwPlatformWindowEasyWindow::OnChar(const EasyWindow* /*pWindow*/, unsigned long iChar)
 {
-	GetContext()->IO.AddInputCharacter((char)iChar);
+	GetContext()->IO.AddInputCharacter((ImWchar)iChar);
 }
 
 void ImwPlatformWindowEasyWindow::OnDropFiles(const EasyWindow* /*pWindow*/, const EasyWindow::DropFiles& oFiles)
