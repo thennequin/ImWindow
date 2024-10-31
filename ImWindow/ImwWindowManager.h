@@ -107,6 +107,7 @@ namespace ImWindow
 		bool								Run(bool bRender);
 		void								Destroy();
 
+		ImGuiContext*						GetContext() const;
 		ImwPlatformWindow*					GetMainPlatformWindow() const;
 		const ImwPlatformWindowVector&		GetSecondariesPlatformWindows() const;
 		ImwPlatformWindow*					GetFocusedPlatformWindow() const;
@@ -148,6 +149,7 @@ namespace ImWindow
 	protected:
 		//To override for use multi window mode
 		virtual bool						CanCreateMultipleWindow();
+		// Init internal structures and fonts in InternalInit
 		virtual bool						InternalInit();
 		virtual void						InternalDestroy();
 		virtual ImwPlatformWindow*			CreatePlatformWindow(EPlatformWindowType eType, ImwPlatformWindow* pParent);
@@ -211,6 +213,7 @@ namespace ImWindow
 
 		Config								m_oConfig;
 		char*								m_pMainTitle;
+		ImGuiContext*						m_pImGuiContext;
 		ImwPlatformWindow*					m_pMainPlatformWindow;
 		ImwPlatformWindowVector				m_lPlatformWindows;
 		ImwPlatformWindow*					m_pDragPlatformWindow;

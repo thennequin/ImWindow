@@ -390,7 +390,6 @@ void ImwPlatformWindowDX11::RegenFontTexture(ImwPlatformWindow* pMain)
 		unsigned char* pPixels = NULL;
 		int iWidth = 0;
 		int iHeight = 0;
-		io.Fonts->AddFontDefault();
 		io.Fonts->GetTexDataAsRGBA32(&pPixels, &iWidth, &iHeight);
 
 		D3D11_TEXTURE2D_DESC oTextureDesc;

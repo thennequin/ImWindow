@@ -57,6 +57,7 @@ namespace ImWindow
 	{
 		s_pInstance = this;
 		m_pMainTitle = NULL;
+		m_pImGuiContext = NULL;
 		m_pMainPlatformWindow = NULL;
 		m_pDragPlatformWindow = NULL;
 		m_pCurrentPlatformWindow = NULL;
@@ -79,8 +80,11 @@ namespace ImWindow
 
 	bool ImwWindowManager::Init()
 	{
-		ImGuiContext* pContext = ImGui::CreateContext();
-		ImGui::SetCurrentContext(pContext);
+		m_pImGuiContext = ImGui::CreateContext();
+		if (m_pImGuiContext == NULL)
+			return false;
+
+		ImGui::SetCurrentContext(m_pImGuiContext);
 
 		InternalInit();
 
@@ -88,8 +92,12 @@ namespace ImWindow
 
 		io.IniFilename = NULL;
 
-		//io.Fonts->AddFontFromFileTTF( "res/DroidSans.ttf", 16 ) || io.Fonts->AddFontDefault();
-		//io.Fonts->AddFontFromFileTTF( "res/DroidSans-Bold.ttf", 16 ) || io.Fonts->AddFontDefault();
+		// Add default font
+		if (io.Fonts->Fonts.size() == 0)
+		{
+			io.Fonts->AddFontDefault();
+			io.Fonts->Build();
+		}
 
 		m_pMainPlatformWindow = CreatePlatformWindow(E_PLATFORM_WINDOW_TYPE_MAIN, NULL);
 		if (NULL != m_pMainPlatformWindow)
@@ -185,11 +193,16 @@ namespace ImWindow
 		}
 
 		InternalDestroy();
-		ImGuiContext* pContext = ImGui::GetCurrentContext();
-		if(pContext)
+		if(m_pImGuiContext != NULL)
 		{
-			ImGui::DestroyContext(pContext);
+			ImGui::DestroyContext(m_pImGuiContext);
+			m_pImGuiContext = NULL;
 		}
+	}
+
+	ImGuiContext* ImwWindowManager::GetContext() const
+	{
+		return m_pImGuiContext;
 	}
 
 	ImwPlatformWindow* ImwWindowManager::GetMainPlatformWindow() const

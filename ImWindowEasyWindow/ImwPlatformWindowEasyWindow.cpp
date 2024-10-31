@@ -65,8 +65,6 @@ bool ImwPlatformWindowEasyWindow::Init(ImwPlatformWindow* pMain)
 	io.KeyMap[ImGuiKey_Y] = EasyWindow::KEY_Y;
 	io.KeyMap[ImGuiKey_Z] = EasyWindow::KEY_Z;
 
-	io.Fonts->AddFontDefault();
-	
 	return true;
 }
 
