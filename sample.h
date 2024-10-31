@@ -564,7 +564,7 @@ public:
 			Node* node_out = &nodes[link->OutputIdx];
 			ImVec2 p1 = offset + node_inp->GetOutputSlotPos(link->InputSlot);
 			ImVec2 p2 = offset + node_out->GetInputSlotPos(link->OutputSlot);
-			draw_list->AddBezierCurve(p1, p1 + ImVec2(+50, 0), p2 + ImVec2(-50, 0), p2, ImColor(200, 200, 100), 3.0f);
+			draw_list->AddBezierCubic(p1, p1 + ImVec2(+50, 0), p2 + ImVec2(-50, 0), p2, ImColor(200, 200, 100), 3.0f);
 		}
 
 		// Display nodes

@@ -971,13 +971,13 @@ namespace ImWindow
 			pDrawList->PathLineTo(ImVec2(fStartLinePos, oRectMax.y));
 		}
 		pDrawList->PathLineTo(ImVec2(oRectMin.x - oConfig.m_fTabOverlap, oRectMax.y));
-		pDrawList->PathBezierCurveTo(
+		pDrawList->PathBezierCubicCurveTo(
 			ImVec2(oRectMin.x + oConfig.m_fTabSlopWidth * oConfig.m_fTabSlopP1Ratio - oConfig.m_fTabOverlap, oRectMin.y + (oRectMax.y - oRectMin.y) * oConfig.m_fTabSlopHRatio),
 			ImVec2(oRectMin.x + oConfig.m_fTabSlopWidth * oConfig.m_fTabSlopP2Ratio - oConfig.m_fTabOverlap, oRectMin.y),
 			ImVec2(oRectMin.x + oConfig.m_fTabSlopWidth - oConfig.m_fTabOverlap, oRectMin.y)
 			);
 		pDrawList->PathLineTo(ImVec2(oRectMax.x - oConfig.m_fTabSlopWidth + oConfig.m_fTabOverlap, oRectMin.y));
-		pDrawList->PathBezierCurveTo(
+		pDrawList->PathBezierCubicCurveTo(
 			ImVec2(oRectMax.x - oConfig.m_fTabSlopWidth * oConfig.m_fTabSlopP2Ratio + oConfig.m_fTabOverlap, oRectMin.y),
 			ImVec2(oRectMax.x - oConfig.m_fTabSlopWidth * oConfig.m_fTabSlopP1Ratio + oConfig.m_fTabOverlap, oRectMin.y + (oRectMax.y - oRectMin.y) * oConfig.m_fTabSlopHRatio),
 			ImVec2(oRectMax.x + oConfig.m_fTabOverlap, oRectMax.y)
