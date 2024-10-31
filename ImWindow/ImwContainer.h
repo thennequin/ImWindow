@@ -17,7 +17,7 @@ namespace ImWindow
 
 		void							Dock(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, float fRatio = 0.5f, int iPosition = -1);
 		bool							UnDock(ImwWindow* pWindow);
-		void							DockToBest(ImwWindow* pWindow);
+		bool							DockToBest(ImwWindow* pWindow);
 
 		bool							IsEmpty() const;
 		bool							IsSplit() const;

@@ -99,12 +99,29 @@ namespace ImWindow
 								ImwWindowVector::iterator itWindow = m_lWindows.begin();
 								std::advance(itWindow, iPosition);
 								m_lWindows.insert(itWindow, pWindow);
+								m_iActiveWindow = iPosition;
 							}
 						}
 						else
 						{
-							IM_ASSERT(m_pSpecialWindow == NULL);
-							m_pSpecialWindow = pWindow;
+							if (m_pSpecialWindow != NULL || m_lWindows.empty() == false)
+							{
+								CreateSplits();
+								m_pSplits[0]->m_pSpecialWindow = m_pSpecialWindow;
+								for (ImwWindowVector::iterator it = m_lWindows.begin(), itEnd = m_lWindows.end(); it != itEnd; ++it)
+								{
+									m_pSplits[0]->m_lWindows.push_back(*it);
+								}
+								m_pSplits[0]->m_iActiveWindow = m_iActiveWindow;
+								m_pSplits[1]->m_pSpecialWindow = pWindow;
+								m_pSpecialWindow = NULL;
+								m_lWindows.clear();
+								m_iActiveWindow = 0;
+							}
+							else
+							{
+								m_pSpecialWindow = pWindow;
+							}
 						}
 					}
 					break;
@@ -117,6 +134,7 @@ namespace ImWindow
 						m_pSplits[0]->Dock(pWindow);
 						// Move windows to Bottom/Right Split
 						m_pSplits[1]->m_pSpecialWindow = m_pSpecialWindow;
+						m_pSplits[1]->m_iActiveWindow = m_iActiveWindow;
 						for (ImwWindowVector::iterator it = m_lWindows.begin(), itEnd = m_lWindows.end(); it != itEnd; ++it)
 						{
 							m_pSplits[1]->m_lWindows.push_back(*it);
@@ -134,6 +152,7 @@ namespace ImWindow
 						CreateSplits();
 						// Move windows to Bottom/Right Split
 						m_pSplits[0]->m_pSpecialWindow = m_pSpecialWindow;
+						m_pSplits[0]->m_iActiveWindow = m_iActiveWindow;
 						for (ImwWindowVector::iterator it = m_lWindows.begin(), itEnd = m_lWindows.end(); it != itEnd; ++it)
 						{
 							m_pSplits[0]->m_lWindows.push_back(*it);
@@ -267,6 +286,7 @@ namespace ImWindow
 					{
 						IM_ASSERT(m_lWindows.empty() && m_pSpecialWindow == NULL);
 						m_pSpecialWindow = m_pSplits[1]->m_pSpecialWindow;
+						m_iActiveWindow = m_pSplits[1]->m_iActiveWindow;
 						for (ImwWindowVector::iterator it = m_pSplits[1]->m_lWindows.begin(), itEnd = m_pSplits[1]->m_lWindows.end(); it != itEnd; ++it)
 						{
 							m_lWindows.push_back(*it);
@@ -307,6 +327,7 @@ namespace ImWindow
 						{
 							m_lWindows.push_back(*it);
 						}
+						m_iActiveWindow = m_pSplits[0]->m_iActiveWindow;
 						m_pSplits[0]->m_pSpecialWindow = NULL;
 						m_pSplits[0]->m_lWindows.clear();
 						m_pSplits[0]->m_iActiveWindow = 0;
@@ -321,23 +342,35 @@ namespace ImWindow
 		return false;
 	}
 
-	void ImwContainer::DockToBest(ImwWindow* pWindow)
+	bool ImwContainer::DockToBest(ImwWindow* pWindow)
 	{
 		if (IsSplit())
 		{
-			if (m_fSplitRatio < 0.5f)
+			if (m_fSplitRatio > 0.5f)
 			{
-				m_pSplits[0]->DockToBest(pWindow);
+				if (m_pSplits[0]->DockToBest(pWindow))
+					return true;
 			}
-			else
-			{
-				m_pSplits[1]->DockToBest(pWindow);
-			}
+
+			if (m_pSplits[1]->DockToBest(pWindow))
+				return true;
+
+			// Force try to dock on the first split if the second fails
+			if (m_pSplits[0]->DockToBest(pWindow))
+				return true;
 		}
-		else
+		else if (m_pSpecialWindow == NULL || m_pSpecialWindow->m_eMode != E_WINDOW_MODE_ALONE)
 		{
 			Dock(pWindow);
+			return true;
 		}
+		else if (m_pParent == NULL)
+		{
+			// Split to force dock
+			Dock(pWindow, m_bVerticalSplit ? E_DOCK_ORIENTATION_BOTTOM : E_DOCK_ORIENTATION_RIGHT);
+			return true;
+		}
+		return false;
 	}
 
 	bool ImwContainer::IsEmpty() const
@@ -1302,20 +1335,41 @@ namespace ImWindow
 		oJson["Vertical"] = m_bVerticalSplit;
 		oJson["SplitRatio"] = m_fSplitRatio;
 
-		if (m_lWindows.size() > 0)
+		if (m_lWindows.size() != 0 || m_pSpecialWindow != NULL)
 		{
 			ImwWindowManager* pWindowManager = ImwWindowManager::GetInstance();
-			oJson["CurrentWindow"] = (int64_t)m_iActiveWindow;
-			JsonStthm::JsonValue& oJsonWindows = oJson["Windows"];
-			int iCurrentWindow = 0;
-			for (ImwWindowVector::const_iterator itWindow = m_lWindows.begin(); itWindow != m_lWindows.end(); ++itWindow)
+
+			if (m_pSpecialWindow != NULL)
 			{
-				JsonStthm::JsonValue& oJsonWindow = oJsonWindows[iCurrentWindow++];
-				const char* pClassName = pWindowManager->GetWindowClassName(*itWindow);
+				const char* pClassName = pWindowManager->GetWindowClassName(m_pSpecialWindow);
 				if (pClassName == NULL)
 					return false;
-				oJsonWindow["Class"] = pClassName;
-				(*itWindow)->GetParameters(oJsonWindow["Parameters"]);
+
+				JsonStthm::JsonValue& oJsonSpecial = oJson["SpecialWindow"];
+				oJsonSpecial["Class"] = pClassName;
+				JsonStthm::JsonValue oParameters;
+				m_pSpecialWindow->GetParameters( oParameters );
+				if (oParameters.IsNull() == false)
+					oJsonSpecial["Parameters"] = oParameters;
+			}
+
+			if (m_lWindows.size() != 0)
+			{
+				oJson["CurrentWindow"] = (int64_t)m_iActiveWindow;
+				JsonStthm::JsonValue& oJsonWindows = oJson["Windows"];
+				int iCurrentWindow = 0;
+				for (ImwWindowVector::const_iterator itWindow = m_lWindows.begin(); itWindow != m_lWindows.end(); ++itWindow)
+				{
+					JsonStthm::JsonValue& oJsonWindow = oJsonWindows[iCurrentWindow++];
+					const char* pClassName = pWindowManager->GetWindowClassName(*itWindow);
+					if (pClassName == NULL)
+						return false;
+					oJsonWindow["Class"] = pClassName;
+					JsonStthm::JsonValue oParameters;
+					( *itWindow )->GetParameters( oParameters );
+					if( oParameters.IsNull() == false )
+						oJsonWindow["Parameters"] = oParameters;
+				}
 			}
 			return true;
 		}
@@ -1331,7 +1385,7 @@ namespace ImWindow
 		if (!oJson["Vertical"].IsBoolean() || !oJson["SplitRatio"].IsFloat())
 			return false;
 
-		if (!(oJson["Windows"].IsArray() || (oJson["Splits"].IsArray() && oJson["Splits"].GetMemberCount() == 2)))
+		if (!(oJson["Windows"].IsArray() || oJson["SpecialWindow"].IsObject() || (oJson["Splits"].IsArray() && oJson["Splits"].GetMemberCount() == 2)))
 			return false;
 
 		ImwWindowManager* pWindowManager = ImwWindowManager::GetInstance();
@@ -1342,6 +1396,8 @@ namespace ImWindow
 			m_fSplitRatio = (float)oJson["SplitRatio"].ToFloat();
 
 			//Clear
+			ImwSafeDelete(m_pSpecialWindow);
+
 			while (m_lWindows.begin() != m_lWindows.end())
 			{
 				pWindowManager->RemoveWindow(*m_lWindows.begin());
@@ -1369,30 +1425,54 @@ namespace ImWindow
 		}
 		else
 		{
+			const JsonStthm::JsonValue& oJsonSpecialWindow = oJson["SpecialWindow"];
 			const JsonStthm::JsonValue& oJsonCurrentWindow = oJson["CurrentWindow"];
 			const JsonStthm::JsonValue& oJsonWindows = oJson["Windows"];
-			int iWindowCount = oJsonWindows.GetMemberCount();
 			//Check
-			if (!(oJsonCurrentWindow.IsNull() || oJsonCurrentWindow.IsInteger()))
+			if (!(oJsonSpecialWindow.IsNull() || (oJsonCurrentWindow.IsNull() || oJsonCurrentWindow.IsInteger())))
 				return false;
 
-			for (int iCurrent = 0; iCurrent < iWindowCount; ++iCurrent)
+			if (oJsonSpecialWindow.IsObject())
 			{
-				const JsonStthm::JsonValue& oJsonWindow = oJsonWindows[iCurrent];
-				if (!oJsonWindow.IsObject() || !oJsonWindow["Class"].IsString())
+				if (oJsonSpecialWindow["Class"].IsString() == false)
 					return false;
-				if (!pWindowManager->CanCreateWindowByClassName(oJsonWindow["Class"].ToString()))
+				if (pWindowManager->CanCreateWindowByClassName(oJsonSpecialWindow["Class"].ToString()) == false)
 					return false;
+			}
+
+			int iWindowCount = 0;
+
+			if (oJsonWindows.IsArray())
+			{
+				iWindowCount = oJsonWindows.GetMemberCount();
+				for (int iCurrent = 0; iCurrent < iWindowCount; ++iCurrent)
+				{
+					const JsonStthm::JsonValue& oJsonWindow = oJsonWindows[iCurrent];
+					if (oJsonWindow.IsObject() == false || oJsonWindow["Class"].IsString() == false)
+						return false;
+					if (pWindowManager->CanCreateWindowByClassName(oJsonWindow["Class"].ToString()) == false)
+						return false;
+				}
 			}
 
 			if (!bJustCheck)
 			{
-				for (int iCurrent = 0; iCurrent < iWindowCount; ++iCurrent)
+				if (oJsonSpecialWindow.IsObject())
 				{
-					const JsonStthm::JsonValue& oJsonWindow = oJsonWindows[iCurrent];
-					ImwWindow* pWindow = pWindowManager->CreateWindowByClassName(oJsonWindow["Class"].ToString());
-					pWindow->SetParameters(oJsonWindow["Parameters"]);
-					m_lWindows.push_back(pWindow);
+					ImwWindow* pWindow = pWindowManager->CreateWindowByClassName(oJsonSpecialWindow["Class"].ToString());
+					pWindow->SetParameters( oJsonSpecialWindow["Parameters"]);
+					m_pSpecialWindow = pWindow;
+				}
+
+				if (oJsonWindows.IsArray())
+				{
+					for (int iCurrent = 0; iCurrent < iWindowCount; ++iCurrent)
+					{
+						const JsonStthm::JsonValue& oJsonWindow = oJsonWindows[iCurrent];
+						ImwWindow* pWindow = pWindowManager->CreateWindowByClassName(oJsonWindow["Class"].ToString());
+						pWindow->SetParameters(oJsonWindow["Parameters"]);
+						m_lWindows.push_back(pWindow);
+					}
 				}
 
 				if (oJsonCurrentWindow.IsInteger())

@@ -99,6 +99,15 @@ namespace ImWindow
 
 			ImVec2					m_oStatusBarFramePadding;
 		};
+
+		struct ClassNameFunctions
+		{
+			ClassNameFunctions();
+
+			const char*				(*m_pGetClassName)(ImwWindow* pWindow);
+			bool					(*m_pCanCreateWindowByClassName)(const char* pName);
+			ImwWindow*				(*m_pCreateWindowByClassName)(const char* pName);
+		};
 	public:
 		ImwWindowManager();
 		virtual								~ImwWindowManager();
@@ -106,6 +115,7 @@ namespace ImWindow
 		bool								Init();
 		bool								Run(bool bRender);
 		void								Destroy();
+		bool								IsExiting() const;
 
 		ImGuiContext*						GetContext() const;
 		ImwPlatformWindow*					GetMainPlatformWindow() const;
@@ -140,6 +150,7 @@ namespace ImWindow
 		bool								LoadLayoutFromString(const char* pLayout);
 		bool								LoadLayoutFromFile(const char* pFilePath);
 
+		void								SetClassNameFunctions( const ClassNameFunctions* pFunctions );
 		virtual const char*					GetWindowClassName(ImwWindow* pWindow);
 		virtual bool						CanCreateWindowByClassName(const char* pName);
 		virtual ImwWindow*					CreateWindowByClassName(const char* pName);
@@ -212,6 +223,8 @@ namespace ImWindow
 		const ImwContainer*					GetBestDocking(ImwPlatformWindow* pPlatformWindow, const ImVec2 oCursorPos, EDockOrientation& oOutOrientation, ImVec2& oOutAreaPos, ImVec2& oOutAreaSize, float& fOutRatio, bool* pOutOnTabArea, int* pOutPosition, bool bLargeCheck);
 
 		Config								m_oConfig;
+		bool								m_bSelfManagedTitleBar;
+		ClassNameFunctions					m_oClassNameFunctions;
 		char*								m_pMainTitle;
 		ImGuiContext*						m_pImGuiContext;
 		ImwPlatformWindow*					m_pMainPlatformWindow;

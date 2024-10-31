@@ -106,6 +106,11 @@ void ImwWindowManagerDX11::PaintTitleBar(ImwPlatformWindow* pPlatformWindow, boo
 	const ImVec2 oSize = oRect.GetSize();
 	const ImVec2 c_oSpace = ImVec2(1.f, 1.f);
 
+	if (ImGui::IsMouseHoveringRect(oRect.Min, oRect.Max))
+	{
+		((ImwPlatformWindowDX11*)pPlatformWindow)->m_eHoveredArea = E_PLATFORMWINDOWHOVEREDAREA_MENU;
+	}
+
 	ImU32 iColor = ImGui::GetColorU32(ImGuiCol_Text);
 	ImDrawList* pDrawList = ImGui::GetWindowDrawList();
 	pDrawList->AddRectFilled(oRect.Min, oCenter - c_oSpace, iColor);
