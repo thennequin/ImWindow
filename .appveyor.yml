@@ -31,7 +31,13 @@ install:
   - git fetch origin 2ca39fce297bce94efb62e1c06eb2814f02b69d9
   - git reset --hard FETCH_HEAD
   - ps: popd
-  
+
+  - git clone https://github.com/bkaradzic/bx ..\bx2
+  - ps: pushd ..\bx2
+  - git fetch origin 2cebc558eb314e324f01ef05735551f234f5ea13
+  - git reset --hard FETCH_HEAD
+  - ps: popd
+
   - git clone https://github.com/bkaradzic/bimg ..\bimg
   - ps: pushd ..\bimg
   - git fetch origin 6afba8a0eb9333bf5777ab9ad0fea572e3557c74
@@ -43,7 +49,7 @@ install:
   - git fetch origin 0f3f81aa05525ab350379ce8e34eb37c80b7aefe
   - git reset --hard FETCH_HEAD
   - ps: popd
-  
+
   - git submodule update --init --recursive
 
   - ps: pushd scripts
@@ -52,13 +58,13 @@ install:
   - ps: Expand-Archive 'glfw-3.2.1.bin.WIN32.zip' -DestinationPath '..\Externals\'
   - ps: Expand-Archive 'glfw-3.2.1.bin.WIN64.zip' -DestinationPath '..\Externals\'
   - ps: popd
-  
+
   - cd scripts
-  - ..\..\bx\tools\bin\windows\genie %BACKEND% %TOOLSET%
+  - ..\..\bx2\tools\bin\windows\genie %BACKEND% %TOOLSET%
 
 build:
   project: .projects/$(TOOLSET)/ImWindow.sln
-  
+
 after_build:
   - 7z a "%APPVEYOR_BUILD_FOLDER%\ImWindow.zip" "%APPVEYOR_BUILD_FOLDER%\ImWindow.h" "%APPVEYOR_BUILD_FOLDER%\ImWindow.cpp" "%APPVEYOR_BUILD_FOLDER%\ImwConfig.h" "%APPVEYOR_BUILD_FOLDER%\Externals\UtilsCollection\JsonStthm\JsonStthmConfig.h" "%APPVEYOR_BUILD_FOLDER%\Externals\UtilsCollection\JsonStthm\JsonStthm.h" "%APPVEYOR_BUILD_FOLDER%\Externals\UtilsCollection\JsonStthm\JsonStthm.cpp"
 
