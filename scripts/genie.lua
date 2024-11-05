@@ -295,6 +295,8 @@ end
 
 		SetupSuffix()
 
+	group("Backend")
+
 if _OPTIONS["with-dx11"] then
 	startproject "ImWindowDX11"
 	project "ImWindowDX11"
