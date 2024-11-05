@@ -407,14 +407,14 @@ if _OPTIONS["with-glfw"] then
 			libdirs			"../Externals/glfw-3.2.1.bin.WIN32/lib-vc2012"
 		configuration { "vs2013", "x32" }
 			libdirs			"../Externals/glfw-3.2.1.bin.WIN32/lib-vc2013"
-		configuration { "vs2015 or vs2017", "x32" }
+		configuration { "vs2015 or vs2017 or vs2022", "x32" }
 			libdirs			"../Externals/glfw-3.2.1.bin.WIN32/lib-vc2015"
 		
 		configuration { "vs2012", "x64" }
 			libdirs			"../Externals/glfw-3.2.1.bin.WIN64/lib-vc2012"
 		configuration { "vs2013", "x64" }
 			libdirs			"../Externals/glfw-3.2.1.bin.WIN64/lib-vc2013"
-		configuration { "vs2015 or vs2017", "x64" }
+		configuration { "vs2015 or vs2017 or vs2022", "x64" }
 			libdirs			"../Externals/glfw-3.2.1.bin.WIN64/lib-vc2015"
 
 		configuration {}
