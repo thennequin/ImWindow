@@ -79,6 +79,7 @@ namespace ImWindow
 		m_oDragPreviewOffset = ImVec2(-20, -10);
 		m_bHasWantCaptureKeyboard = false;
 		m_bHasWantCaptureMouse = false;
+		m_bHasWantTextInput = false;
 	}
 
 	ImwWindowManager::~ImwWindowManager()
@@ -823,6 +824,7 @@ namespace ImWindow
 		{
 			m_bHasWantCaptureKeyboard = false;
 			m_bHasWantCaptureMouse = false;
+			m_bHasWantTextInput = false;
 			UpdateDragWindow();
 
 			Paint(m_pMainPlatformWindow);
@@ -1197,6 +1199,7 @@ namespace ImWindow
 
 		m_bHasWantCaptureKeyboard |= ImGui::GetIO().WantCaptureKeyboard;
 		m_bHasWantCaptureMouse |= ImGui::GetIO().WantCaptureMouse;
+		m_bHasWantTextInput |= ImGui::GetIO().WantTextInput;
 
 		pWindow->RestoreContext(true);
 	}
