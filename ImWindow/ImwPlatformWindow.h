@@ -62,6 +62,7 @@ namespace ImWindow
 		ImwWindow*							GetWindowAtPos(const ImVec2& oPos) const;
 		const ImwContainer*					HasWindow(ImwWindow* pWindow);
 		bool								FocusWindow(ImwWindow* pWindow);
+		bool								IsFocusedWindow(ImwWindow* pWindow) const;
 
 		bool								HasContext() const;
 		ImGuiContext*						GetContext();

@@ -457,6 +457,20 @@ namespace ImWindow
 		}
 	}
 
+	bool ImwContainer::IsFocusedWindow(ImwWindow* pWindow) const
+	{
+		if (m_lWindows.empty() == false)
+		{
+			ImwWindowVector::const_iterator itActive = m_lWindows.begin();
+			std::advance(itActive, m_iActiveWindow);
+			return itActive == std::find(m_lWindows.begin(), m_lWindows.end(), pWindow);
+		}
+		else
+		{
+			return (NULL != m_pSplits[0] && m_pSplits[0]->IsFocusedWindow(pWindow)) || (NULL != m_pSplits[1] && m_pSplits[1]->IsFocusedWindow(pWindow));
+		}
+	}
+
 	ImwWindow* ImwContainer::GetActiveWindow() const
 	{
 		if (!IsSplit() && !m_lWindows.empty())

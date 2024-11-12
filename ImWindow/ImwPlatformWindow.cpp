@@ -390,6 +390,11 @@ namespace ImWindow
 		return m_pContainer->FocusWindow(pWindow);
 	}
 
+	bool ImwPlatformWindow::IsFocusedWindow(ImwWindow* pWindow) const
+	{
+		return m_pContainer->IsFocusedWindow(pWindow);
+	}
+
 	void ImwPlatformWindow::RefreshTitle()
 	{
 		const char* pMainTitle = ImwWindowManager::GetInstance()->GetMainTitle();

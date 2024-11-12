@@ -25,6 +25,7 @@ namespace ImWindow
 		ImwWindow*						GetWindowAtPos(const ImVec2& oPos) const;
 		const ImwContainer*				HasWindow(ImwWindow* pWindow) const;
 		bool							FocusWindow(ImwWindow* pWindow);
+		bool							IsFocusedWindow(ImwWindow* pWindow) const;
 		ImwWindow*						GetActiveWindow() const;
 		ImwPlatformWindow*				GetPlatformWindowParent() const;
 		const ImwContainer*				GetBestContainer(const ImVec2& oCursorPos) const;
