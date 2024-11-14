@@ -604,8 +604,6 @@ namespace ImWindow
 
 		ImDrawList* pDrawList = ImGui::GetWindowDrawList();
 
-		ImVec2 oMinTitleBarPos = ImGui::GetCursorPos();
-
 		if (bDrawTitle)
 		{
 			ImGui::TextUnformatted(GetMainTitle());

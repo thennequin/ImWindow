@@ -604,7 +604,6 @@ namespace ImWindow
 		}
 		else if (HasWindow())
 		{
-
 			EWindowMode eWindowMode = GetWindowMode();
 
 			ImwWindow* pDraggedWindow = pWindowManager->GetDraggedWindow();
@@ -677,7 +676,6 @@ namespace ImWindow
 
 						iDraggedTabPosition = pWindowManager->GetDragTabPosition();
 						fMaxTabSize = fTabAreaWidth / (iSize + 1);
-						ImVec2 oTabSize;
 
 						float fTabPosX = oCursorPos.x + pWindowManager->GetDragOffset().x;
 
@@ -948,9 +946,6 @@ namespace ImWindow
 		const ImwWindowManager::Config& oConfig = ImwWindowManager::GetInstance()->GetConfig();
 		ImDrawList* pDrawList = ImGui::GetWindowDrawList();
 		const ImGuiStyle& oStyle = ImGui::GetStyle();
-
-		//Calculate text size
-		ImVec2 oTextSize;
 
 		ImColor oNormalTab(0), oSelectedTab(0), oBorderColor(0);
 		switch (oConfig.m_eTabColorMode)
