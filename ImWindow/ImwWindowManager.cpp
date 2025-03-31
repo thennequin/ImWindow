@@ -1033,7 +1033,7 @@ namespace ImWindow
 		const int c_iWindowChildFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 		const int c_iWindowChildFlagsWithPadding = c_iWindowChildFlags | ImGuiWindowFlags_AlwaysUseWindowPadding;
 
-		bool bDisplayMenus = pWindow->IsShowContent() || oIO.MousePos.y <= 50.f || pContext->OpenPopupStack.size() > 0;
+		bool bDisplayMenus = m_lMenus.empty() == false && (pWindow->IsShowContent() || oIO.MousePos.y <= 50.f || pContext->OpenPopupStack.size() > 0);
 		bool bDisplayWindow = bDisplayMenus || IsUsingCustomFrame();
 
 		ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiSetCond_Always);
