@@ -4,10 +4,117 @@
 
 using namespace ImWindow;
 
+ImGuiKey s_iTranslateEasyWindowKeyToImGuiKey[256];
+
 ImwPlatformWindowEasyWindow::ImwPlatformWindowEasyWindow(EPlatformWindowType eType, bool bCreateState)
 	: ImwPlatformWindow(eType, bCreateState)
 	, m_pWindow( NULL )
 {
+	if (eType == E_PLATFORM_WINDOW_TYPE_MAIN)
+	{
+		memset(s_iTranslateEasyWindowKeyToImGuiKey, 0, sizeof(s_iTranslateEasyWindowKeyToImGuiKey));
+
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_ESC] = ImGuiKey_Escape;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_RETURN] = ImGuiKey_Enter;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_TAB] = ImGuiKey_Tab;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_BACKSPACE] = ImGuiKey_Backspace;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_SPACE] = ImGuiKey_Space;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_UP] = ImGuiKey_UpArrow;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_DOWN] = ImGuiKey_DownArrow;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_LEFT] = ImGuiKey_LeftArrow;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_RIGHT] = ImGuiKey_RightArrow;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_INSERT] = ImGuiKey_Insert;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_DELETE] = ImGuiKey_Delete;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_HOME] = ImGuiKey_Home;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_END] = ImGuiKey_End;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_PAGEUP] = ImGuiKey_PageUp;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_PAGEDOWN] = ImGuiKey_PageDown;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_PRINT] = ImGuiKey_PrintScreen;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_PLUS] = ImGuiKey_Equal;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_MINUS] = ImGuiKey_Minus;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_LEFTBRACKET] = ImGuiKey_LeftBracket;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_RIGHTBRACKET] = ImGuiKey_RightBracket;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_SEMICOLON] = ImGuiKey_Semicolon;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_QUOTE] = ImGuiKey_Apostrophe;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_COMMA] = ImGuiKey_Comma;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_PERIOD] = ImGuiKey_Period;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_PERIOD] = ImGuiKey_KeypadDecimal;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_SLASH] = ImGuiKey_Slash;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_BACKSLASH] = ImGuiKey_Backslash;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_TILDE] = ImGuiKey_GraveAccent;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_F1] = ImGuiKey_F1;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_F2] = ImGuiKey_F2;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_F3] = ImGuiKey_F3;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_F4] = ImGuiKey_F4;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_F5] = ImGuiKey_F5;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_F6] = ImGuiKey_F6;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_F7] = ImGuiKey_F7;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_F8] = ImGuiKey_F8;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_F9] = ImGuiKey_F9;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_F10] = ImGuiKey_F10;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_F11] = ImGuiKey_F11;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_F12] = ImGuiKey_F12;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_NUMPAD0] = ImGuiKey_Keypad0;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_NUMPAD1] = ImGuiKey_Keypad1;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_NUMPAD2] = ImGuiKey_Keypad2;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_NUMPAD3] = ImGuiKey_Keypad3;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_NUMPAD4] = ImGuiKey_Keypad4;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_NUMPAD5] = ImGuiKey_Keypad5;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_NUMPAD6] = ImGuiKey_Keypad6;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_NUMPAD7] = ImGuiKey_Keypad7;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_NUMPAD8] = ImGuiKey_Keypad8;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_NUMPAD9] = ImGuiKey_Keypad9;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_0] = ImGuiKey_0;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_1] = ImGuiKey_1;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_2] = ImGuiKey_2;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_3] = ImGuiKey_3;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_4] = ImGuiKey_4;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_5] = ImGuiKey_5;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_6] = ImGuiKey_6;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_7] = ImGuiKey_7;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_8] = ImGuiKey_8;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_9] = ImGuiKey_9;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_A] = ImGuiKey_A;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_B] = ImGuiKey_B;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_C] = ImGuiKey_C;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_D] = ImGuiKey_D;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_E] = ImGuiKey_E;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_F] = ImGuiKey_F;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_G] = ImGuiKey_G;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_H] = ImGuiKey_H;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_I] = ImGuiKey_I;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_J] = ImGuiKey_J;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_K] = ImGuiKey_K;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_L] = ImGuiKey_L;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_M] = ImGuiKey_M;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_N] = ImGuiKey_N;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_O] = ImGuiKey_O;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_P] = ImGuiKey_P;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_Q] = ImGuiKey_Q;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_R] = ImGuiKey_R;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_S] = ImGuiKey_S;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_T] = ImGuiKey_T;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_U] = ImGuiKey_U;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_V] = ImGuiKey_V;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_W] = ImGuiKey_W;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_X] = ImGuiKey_X;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_Y] = ImGuiKey_Y;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_Z] = ImGuiKey_Z;
+
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_LEFTALT] = ImGuiKey_LeftAlt;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_RIGHTALT] = ImGuiKey_RightAlt;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_LEFTCTRL] = ImGuiKey_LeftCtrl;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_RIGHTCTRL] = ImGuiKey_RightCtrl;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_LEFTSHIFT] = ImGuiKey_LeftShift;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_RIGHTSHIFT] = ImGuiKey_RightShift;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_LEFTMETA] = ImGuiKey_LeftSuper;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_RIGHTMETA] = ImGuiKey_RightSuper;
+
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_ALT] = ImGuiMod_Alt;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_CTRL] = ImGuiMod_Ctrl;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_SHIFT] = ImGuiMod_Shift;
+		s_iTranslateEasyWindowKeyToImGuiKey[EasyWindow::EKey::KEY_META] = ImGuiMod_Super;
+	}
 }
 
 ImwPlatformWindowEasyWindow::~ImwPlatformWindowEasyWindow()
@@ -43,28 +150,6 @@ bool ImwPlatformWindowEasyWindow::Init(ImwPlatformWindow* pMain)
 
 	if (m_eType == E_PLATFORM_WINDOW_TYPE_DRAG_PREVIEW)
 		m_pWindow->SetAlpha(128);
-
-	//Setup IO
-	ImGuiIO& io = GetContext()->IO;
-	io.KeyMap[ImGuiKey_Tab] = EasyWindow::KEY_TAB;                       // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array that we will update during the application lifetime.
-	io.KeyMap[ImGuiKey_LeftArrow] = EasyWindow::KEY_LEFT;
-	io.KeyMap[ImGuiKey_RightArrow] = EasyWindow::KEY_RIGHT;
-	io.KeyMap[ImGuiKey_UpArrow] = EasyWindow::KEY_UP;
-	io.KeyMap[ImGuiKey_DownArrow] = EasyWindow::KEY_DOWN;
-	io.KeyMap[ImGuiKey_PageUp] = EasyWindow::KEY_PAGEUP;
-	io.KeyMap[ImGuiKey_PageDown] = EasyWindow::KEY_PAGEDOWN;
-	io.KeyMap[ImGuiKey_Home] = EasyWindow::KEY_HOME;
-	io.KeyMap[ImGuiKey_End] = EasyWindow::KEY_END;
-	io.KeyMap[ImGuiKey_Delete] = EasyWindow::KEY_DELETE;
-	io.KeyMap[ImGuiKey_Backspace] = EasyWindow::KEY_BACKSPACE;
-	io.KeyMap[ImGuiKey_Enter] = EasyWindow::KEY_RETURN;
-	io.KeyMap[ImGuiKey_Escape] = EasyWindow::KEY_ESC;
-	io.KeyMap[ImGuiKey_A] = EasyWindow::KEY_A;
-	io.KeyMap[ImGuiKey_C] = EasyWindow::KEY_C;
-	io.KeyMap[ImGuiKey_V] = EasyWindow::KEY_V;
-	io.KeyMap[ImGuiKey_X] = EasyWindow::KEY_X;
-	io.KeyMap[ImGuiKey_Y] = EasyWindow::KEY_Y;
-	io.KeyMap[ImGuiKey_Z] = EasyWindow::KEY_Z;
 
 	return true;
 }
@@ -195,22 +280,29 @@ void ImwPlatformWindowEasyWindow::OnFocus(const EasyWindow* /*pWindow*/, bool bH
 
 void ImwPlatformWindowEasyWindow::OnMouseButton(const EasyWindow* /*pWindow*/, int iButton, bool bDown)
 {
-	GetContext()->IO.MouseDown[iButton] = bDown;
+	GetContext()->IO.AddMouseButtonEvent(iButton, bDown);
 }
 
 void ImwPlatformWindowEasyWindow::OnMouseMove(const EasyWindow* /*pWindow*/, int iX, int iY)
 {
-	GetContext()->IO.MousePos = ImVec2((float)iX, (float)iY);
+	GetContext()->IO.AddMousePosEvent((float)iX, (float)iY);
 }
 
 void ImwPlatformWindowEasyWindow::OnMouseWheel(const EasyWindow* /*pWindow*/, float fStep)
 {
-	GetContext()->IO.MouseWheel += fStep;
+	GetContext()->IO.AddMouseWheelEvent(0.f, fStep);
 }
 
 void ImwPlatformWindowEasyWindow::OnKey(const EasyWindow* /*pWindow*/, EasyWindow::EKey eKey, bool bDown)
 {
-	GetContext()->IO.KeysDown[eKey] = bDown;
+	if (eKey >= 0 && eKey < 256)
+	{
+		ImGuiKey eImGuiKey = s_iTranslateEasyWindowKeyToImGuiKey[eKey];
+		if (eImGuiKey != ImGuiKey_None)
+		{
+			GetContext()->IO.AddKeyEvent(eImGuiKey, bDown);
+		}
+	}
 }
 
 void ImwPlatformWindowEasyWindow::OnChar(const EasyWindow* /*pWindow*/, unsigned long iChar)

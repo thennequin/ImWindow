@@ -25,7 +25,6 @@ namespace ImWindow
 			ImGuiIO& oGlobalIO = pGlobalContext->IO;
 			ImGuiIO& oNewIO = m_pContext->IO;
 
-			memcpy(&(oNewIO.KeyMap), &(oGlobalIO.KeyMap ), sizeof(pGlobalContext->IO.KeyMap));
 			oNewIO.ClipboardUserData = oGlobalIO.ClipboardUserData;
 			oNewIO.GetClipboardTextFn = oGlobalIO.GetClipboardTextFn;
 			oNewIO.SetClipboardTextFn = oGlobalIO.SetClipboardTextFn;
@@ -173,16 +172,13 @@ namespace ImWindow
 				m_pContext->NextWindowData.Flags = m_pContext->NextWindowData.Flags & ~( ImGuiNextWindowDataFlags_HasFocus | ImGuiNextWindowDataFlags_HasContentSize );
 				m_pContext->ActiveId = 0;
 
-				for (int i = 0; i < 512; ++i)
-					m_pContext->IO.KeysDown[i] = false;
-
-				for (int i = 0; i < 5; ++i)
-					m_pContext->IO.MouseDown[i] = false;
-
-				m_pContext->IO.KeyAlt = false;
-				m_pContext->IO.KeyCtrl = false;
-				m_pContext->IO.KeyShift = false;
+				m_pContext->IO.ClearInputKeys();
 			}
+		}
+
+		if (NULL != m_pContext)
+		{
+			m_pContext->IO.AddFocusEvent(bFocused);
 		}
 	}
 
