@@ -605,11 +605,11 @@ void ImwPlatformWindowDX11::RenderDrawLists(ImDrawData* pDrawData)
 					const D3D11_RECT oRect = { (LONG)pCommand->ClipRect.x, (LONG)pCommand->ClipRect.y, (LONG)pCommand->ClipRect.z, (LONG)pCommand->ClipRect.w };
 					m_pDX11DeviceContext->PSSetShaderResources(0, 1, (ID3D11ShaderResourceView**)&pCommand->TextureId);
 					m_pDX11DeviceContext->RSSetScissorRects(1, &oRect);
-					m_pDX11DeviceContext->DrawIndexed(pCommand->ElemCount, iIndexOffset, iVertexOffset);
+					m_pDX11DeviceContext->DrawIndexed(pCommand->ElemCount, pCommand->IdxOffset + iIndexOffset, pCommand->VtxOffset + iVertexOffset);
 				}
-				iIndexOffset += pCommand->ElemCount;
 			}
 			iVertexOffset += pCmdList->VtxBuffer.size();
+			iIndexOffset += pCmdList->IdxBuffer.size();
 		}
 
 		oDeviceContextBackupState.Restore(m_pDX11DeviceContext);
