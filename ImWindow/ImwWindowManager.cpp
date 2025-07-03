@@ -201,13 +201,13 @@ namespace ImWindow
 				m_pMainPlatformWindow->PreDestroy();
 				ImwSafeDelete(m_pMainPlatformWindow);
 			}
-		}
 
-		InternalDestroy();
-		if(m_pImGuiContext != NULL)
-		{
-			ImGui::DestroyContext(m_pImGuiContext);
-			m_pImGuiContext = NULL;
+			InternalDestroy();
+			if (m_pImGuiContext != NULL)
+			{
+				ImGui::DestroyContext(m_pImGuiContext);
+				m_pImGuiContext = NULL;
+			}
 		}
 	}
 
