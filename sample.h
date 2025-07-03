@@ -711,6 +711,7 @@ public:
 
 	virtual void OnMenu()
 	{
+		bool bOpenExitPopup = false;
 		if (ImGui::BeginMenu("My menu"))
 		{
 			if (ImGui::MenuItem("Show content", NULL, ImWindow::ImwWindowManager::GetInstance()->GetMainPlatformWindow()->IsShowContent()))
@@ -722,10 +723,33 @@ public:
 
 			if (ImGui::MenuItem("Exit"))
 			{
-				ImWindow::ImwWindowManager::GetInstance()->Destroy();
+				bOpenExitPopup = true;
 			}
 
 			ImGui::EndMenu();
+		}
+
+		if (bOpenExitPopup)
+		{
+			ImGui::OpenPopup("Exit");;
+		}
+
+		if (ImGui::BeginPopupModal("Exit"))
+		{
+			ImGui::Text("Are you sure ?");
+
+			if (ImGui::Button("Yes"))
+			{
+				ImWindow::ImwWindowManager::GetInstance()->Destroy();
+				ImGui::CloseCurrentPopup();
+			}
+
+			if (ImGui::Button("No"))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndPopup();
 		}
 	}
 };
