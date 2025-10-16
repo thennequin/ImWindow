@@ -43,8 +43,8 @@ namespace ImWindow
 		void							Paint();
 
 		bool							Tab(const ImwWindow* pWindow, bool bFocused, float fStartLinePos, float fEndLinePos, float fMaxSize = -1.f);
-		void							DrawTab(const char* pText, bool bFocused, ImVec2 oPos, float fStartLinePos, float fEndLinePos, const ImVec2& oSize, const ImVec2* pTextSize = NULL);
-		void							GetTabSize(const char* pText, float fMaxSize, ImVec2* pOutTabSize, ImVec2* pOutTextSize = NULL) const;
+		void							DrawTab(const char* pText, ImTextureID oIcon, bool bFocused, ImVec2 oPos, float fStartLinePos, float fEndLinePos, const ImVec2& oSize, const ImVec2* pTextSize = NULL);
+		void							GetTabSize(const char* pText, bool bHasIcon, float fMaxSize, ImVec2* pOutTabSize, ImVec2* pOutTextSize = NULL) const;
 		float							GetTabAreaWidth() const;
 #ifdef IMW_USE_LAYOUT_SERIALIZATION
 		bool							Save(JsonStthm::JsonValue& oJson);

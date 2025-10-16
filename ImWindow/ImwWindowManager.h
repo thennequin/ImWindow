@@ -85,6 +85,8 @@ namespace ImWindow
 			bool					m_bShowTabBorder;
 			bool					m_bShowTabShadows;
 
+			int						m_iTabIconSize;
+			int						m_iTabIconSpace;
 			ImColor					m_oTabColorNormal;
 			ImColor					m_oTabColorActive;
 			ImColor					m_oTabColorBorder;

@@ -45,6 +45,9 @@ namespace ImWindow
 		virtual void			OnContextMenu();
 		virtual void			OnDropFiles(int iCount, char** pFiles, const ImVec2& oPos);
 
+		ImTextureID				GetIcon() const;
+		void					SetIcon(ImTextureID oIcon);
+
 		bool					IsFillingSpace() const;
 		void					SetFillingSpace(bool bFilling);
 
@@ -74,6 +77,7 @@ namespace ImWindow
 #endif //IMW_CUSTOM_DECLARE_IMWWINDOW
 	private:
 		char*					m_pTitle;
+		ImTextureID				m_oIcon;
 		ImU32					m_iId;
 		char					m_pId[11];
 		bool					m_bClosable;

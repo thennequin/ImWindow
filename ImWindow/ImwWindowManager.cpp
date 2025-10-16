@@ -36,6 +36,8 @@ namespace ImWindow
 		, m_bVisibleDragger( false )
 		, m_bShowTabBorder( false )
 		, m_bShowTabShadows( false )
+		, m_iTabIconSize(18)
+		, m_iTabIconSpace(3)
 		, m_oTabColorNormal( 50, 50, 50, 255 )
 		, m_oTabColorActive( 37, 37, 37, 255 )
 		, m_oTabColorBorder( 72, 72, 72, 255 )

@@ -13,6 +13,7 @@ namespace ImWindow
 
 	ImwWindow::ImwWindow(EWindowMode eMode)
 		: m_pTitle(NULL)
+		, m_oIcon(0)
 		, m_bClosable(true)
 		, m_eMode(eMode)
 		, m_bFillingSpace(false)
@@ -46,6 +47,16 @@ namespace ImWindow
 
 	void ImwWindow::OnDropFiles(int /*iCount*/, char** /*pFiles*/, const ImVec2& /*oPos*/)
 	{
+	}
+
+	ImTextureID ImwWindow::GetIcon() const
+	{
+		return m_oIcon;
+	}
+
+	void ImwWindow::SetIcon(ImTextureID oIcon)
+	{
+		m_oIcon = oIcon;
 	}
 
 	bool ImwWindow::IsFillingSpace() const

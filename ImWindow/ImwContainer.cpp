@@ -679,8 +679,9 @@ namespace ImWindow
 						float fTabPosX = oCursorPos.x + pWindowManager->GetDragOffset().x;
 
 						const char* pDragText = pDraggedWindow->GetTitle();
+
 						ImVec2 oTabTextSize;
-						GetTabSize(pDragText, fMaxTabSize, &oDragTabSize, &oTabTextSize);
+						GetTabSize(pDragText, pDraggedWindow->GetIcon() != 0, fMaxTabSize, &oDragTabSize, &oTabTextSize);
 
 						float fCursorDiff = pWindow->DC.CursorPos.x - pWindow->DC.CursorStartPos.x;
 						float fMin = pWindow->DC.CursorPos.x;
@@ -692,7 +693,7 @@ namespace ImWindow
 							fTabPosX = fMax;
 
 						ImVec2 oDraggedTabPos = ImVec2(fTabPosX, pWindow->DC.CursorPos.y);
-						DrawTab(pDragText, true, oDraggedTabPos, oMin.x, oMax.x, oDragTabSize, &oTabTextSize);
+						DrawTab(pDragText, pDraggedWindow->GetIcon(), true, oDraggedTabPos, oMin.x, oMax.x, oDragTabSize, &oTabTextSize);
 						fDraggedTabWidth = oDragTabSize.x;
 					}
 					else
@@ -934,13 +935,14 @@ namespace ImWindow
 		const char* pTitle = pWindow->GetTitle();
 		ImVec2 oTabSize;
 		ImVec2 oTabTextSize;
-		GetTabSize(pTitle, fMaxSize, &oTabSize, &oTabTextSize);
-		DrawTab(pTitle, bFocused, window->DC.CursorPos, fStartLinePos, fEndLinePos, oTabSize, &oTabTextSize);
+
+		GetTabSize(pTitle, pWindow->GetIcon() != 0, fMaxSize, &oTabSize, &oTabTextSize);
+		DrawTab(pTitle, pWindow->GetIcon(), bFocused, window->DC.CursorPos, fStartLinePos, fEndLinePos, oTabSize, &oTabTextSize);
 
 		return ImGui::InvisibleButton(pWindow->GetIdStr(), oTabSize);
 	}
 
-	void ImwContainer::DrawTab(const char* pText, bool bFocused, ImVec2 oPos, float fStartLinePos, float fEndLinePos, const ImVec2& oTabSize, const ImVec2* pTextSize)
+	void ImwContainer::DrawTab(const char* pText, ImTextureID oIcon, bool bFocused, ImVec2 oPos, float fStartLinePos, float fEndLinePos, const ImVec2& oTabSize, const ImVec2* pTextSize)
 	{
 		const ImwWindowManager::Config& oConfig = ImwWindowManager::GetInstance()->GetConfig();
 		ImDrawList* pDrawList = ImGui::GetWindowDrawList();
@@ -1044,10 +1046,24 @@ namespace ImWindow
 
 		ImVec2 oTextRectMin(oRectMin.x + 5, oRectMin.y);
 		ImVec2 oTextRectMax(oRectMax.x - 5, oRectMax.y);
+
+		if (oIcon != 0 && oConfig.m_iTabIconSize > 0)
+		{
+			float fHeight = oRectMax.y - oRectMin.y;
+			float fIconSize = fHeight > oConfig.m_iTabIconSize ? oConfig.m_iTabIconSize : fHeight;
+			float fDiff = (fHeight - fIconSize) / 2.f;
+			if (fDiff < 0.f)
+				fDiff = 0.f;
+
+			ImVec2 oIconPos = oRectMin + ImVec2(fDiff, fDiff);
+			ImGui::GetWindowDrawList()->AddImage(oIcon, oIconPos, oIconPos + ImVec2(fIconSize, fIconSize));
+
+			oTextRectMin.x += fIconSize + oConfig.m_iTabIconSpace; // Hardcoded space
+		}
 		ImGui::RenderTextClipped(oTextRectMin, oTextRectMax, pText, NULL, pTextSize, ImVec2(0.5f, 0.5f));
 	}
 
-	void ImwContainer::GetTabSize(const char* pText, float fMaxSize, ImVec2* pOutTabSize, ImVec2* pOutTextSize) const
+	void ImwContainer::GetTabSize(const char* pText, bool bHasIcon, float fMaxSize, ImVec2* pOutTabSize, ImVec2* pOutTextSize) const
 	{
 		const ImVec2 oTextSize = ImGui::CalcTextSize(pText);
 
@@ -1056,14 +1072,17 @@ namespace ImWindow
 			*pOutTextSize = oTextSize;
 		}
 
+		const ImwWindowManager::Config& oConfig = ImwWindowManager::GetInstance()->GetConfig();
+		float fIconSize = (bHasIcon ? (float)(oConfig.m_iTabIconSize + oConfig.m_iTabIconSpace) : 0.f); // Hardcoded space
+
 		//Clamp fMaxSize at a minimum to avoid glitch
-		if (fMaxSize < 30.f)
+		if (fMaxSize < (fIconSize + 30.f))
 		{
-			fMaxSize = 30.f;
+			fMaxSize = fIconSize + 30.f;
 		}
 
 		//Calculate tab size
-		float fWidth = oTextSize.x + 15.f;
+		float fWidth = oTextSize.x + 15.f + fIconSize;
 		if (fMaxSize != 1.f && fWidth > fMaxSize)
 		{
 			fWidth = fMaxSize;
@@ -1158,7 +1177,7 @@ namespace ImWindow
 					for (ImwWindowVector::const_iterator itWindow = m_lWindows.begin(); itWindow != m_lWindows.end(); ++itWindow)
 					{
 						ImVec2 oTabSize;
-						GetTabSize((*itWindow)->GetTitle(), fMaxTabSize, &oTabSize);
+						GetTabSize((*itWindow)->GetTitle(), (*itWindow)->GetIcon() != 0, fMaxTabSize, &oTabSize);
 						if (fCursorX < (fCurrentTabPosX + oTabSize.x / 2.f))
 						{
 							break;
