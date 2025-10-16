@@ -493,6 +493,7 @@ namespace ImWindow
 		ImGuiWindow* pWindow = ImGui::GetCurrentWindow();
 		ImGuiStyle& oStyle = ImGui::GetStyle();
 		ImDrawList* pDrawList = ImGui::GetWindowDrawList();
+		const ImwWindowManager::Config& oConfig = pWindowManager->GetConfig();
 
 		const ImVec2 oPos = ImGui::GetWindowPos();
 		const ImVec2 oSize = ImGui::GetWindowSize();
@@ -503,13 +504,11 @@ namespace ImWindow
 		m_oLastPosition = oPos;
 		m_oLastSize = oSize;
 
-		const int iSeparatorSize = 5;
-
 		if (IsSplit())
 		{
 			if (m_bVerticalSplit)
 			{
-				float iFirstHeight = oSize.y * m_fSplitRatio - iSeparatorSize - pWindow->WindowPadding.x;
+				float iFirstHeight = oSize.y * m_fSplitRatio - oConfig.m_iSeparatorSize - pWindow->WindowPadding.x;
 
 				ImVec4 oBackupColor = oStyle.Colors[ImGuiCol_ChildBg];
 
@@ -521,7 +520,7 @@ namespace ImWindow
 
 				ImGui::SetCursorPosY(ImGui::GetCursorPosY() - oStyle.ItemSpacing.y);
 
-				ImRect oSeparatorRect( 0, iFirstHeight, oSize.x, iFirstHeight + iSeparatorSize);
+				ImRect oSeparatorRect( 0, iFirstHeight, oSize.x, iFirstHeight + oConfig.m_iSeparatorSize);
 				if (pWindowManager->GetConfig().m_bVisibleDragger)
 					ImGui::Button("##Dragger", oSeparatorRect.GetSize());
 				else
@@ -538,7 +537,7 @@ namespace ImWindow
 						m_bIsDrag = true;
 					}
 					m_fSplitRatio += ImGui::GetIO().MouseDelta.y / oSize.y;
-					m_fSplitRatio = ImClamp( m_fSplitRatio, 0.05f, 0.95f );
+					m_fSplitRatio = ImClamp(m_fSplitRatio, 0.05f, 0.95f);
 
 				}
 				else
@@ -556,7 +555,7 @@ namespace ImWindow
 			}
 			else
 			{
-				float iFirstWidth = oSize.x * m_fSplitRatio - iSeparatorSize - pWindow->WindowPadding.y;
+				float iFirstWidth = oSize.x * m_fSplitRatio - oConfig.m_iSeparatorSize - pWindow->WindowPadding.y;
 
 				ImVec4 oBackupColor = oStyle.Colors[ImGuiCol_ChildBg];
 
@@ -568,7 +567,7 @@ namespace ImWindow
 
 				ImGui::SameLine(0.f, 0.f);
 
-				ImRect oSeparatorRect( iFirstWidth, 0, iFirstWidth + iSeparatorSize, oSize.y);
+				ImRect oSeparatorRect( iFirstWidth, 0, iFirstWidth + oConfig.m_iSeparatorSize, oSize.y);
 				if (pWindowManager->GetConfig().m_bVisibleDragger)
 					ImGui::Button("##Dragger", oSeparatorRect.GetSize());
 				else

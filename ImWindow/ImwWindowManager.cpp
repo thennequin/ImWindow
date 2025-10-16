@@ -47,6 +47,7 @@ namespace ImWindow
 		, m_fTabShadowDropSize( 15.f )
 		, m_fTabShadowSlopRatio( 0.6f )
 		, m_fTabShadowAlpha( 0.75f )
+		, m_iSeparatorSize(5)
 		, m_oStatusBarFramePadding( 4.f, 2.f )
 	{
 	}
