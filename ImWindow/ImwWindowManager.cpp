@@ -141,6 +141,13 @@ namespace ImWindow
 		else
 		{
 			PreUpdate();
+
+			ImwIsSafe(m_pMainPlatformWindow)->PreUpdate();
+			for (ImVector<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
+			{
+				(*it)->PreUpdate();
+			}
+
 			if (m_pMainPlatformWindow != NULL)
 			{
 				Update();
@@ -758,12 +765,7 @@ namespace ImWindow
 
 	void ImwWindowManager::PreUpdate()
 	{
-		ImwIsSafe(m_pMainPlatformWindow)->PreUpdate();
 
-		for (ImVector<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
-		{
-			(*it)->PreUpdate();
-		}
 	}
 
 	void ImwWindowManager::Update()

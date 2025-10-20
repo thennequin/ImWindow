@@ -170,6 +170,7 @@ namespace ImWindow
 		virtual ImwPlatformWindow*			CreatePlatformWindow(EPlatformWindowType eType, ImwPlatformWindow* pParent);
 		virtual ImVec2						GetCursorPos();
 		virtual bool						IsLeftClickDown();
+		virtual void						PreUpdate();
 		virtual void						PreRender();
 		virtual void						PostRender();
 
@@ -205,7 +206,6 @@ namespace ImWindow
 
 		bool								BeginTransparentChild(const char* pName, const ImVec2& oSize, bool bBorder, ImGuiWindowFlags iFlags);
 
-		void								PreUpdate();
 		void								Update();
 		void								UpdatePlatformwWindowActions();
 		void								UpdateDockActions();
