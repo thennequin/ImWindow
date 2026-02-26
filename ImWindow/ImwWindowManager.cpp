@@ -262,7 +262,7 @@ namespace ImWindow
 		m_lDockActions.push_back(pAction);
 	}
 
-	void ImwWindowManager::Dock(ImwWindow* pWindow, EDockOrientation eOrientation, float fRatio, ImwPlatformWindow* pToPlatformWindow)
+	void ImwWindowManager::Dock(ImwWindow* pWindow, EDockOrientation eOrientation, float fRatio, ImwPlatformWindow* pToPlatformWindow, bool bFocus)
 	{
 		DockAction* pAction = new DockAction();
 		pAction->m_bFloat = false;
@@ -274,9 +274,14 @@ namespace ImWindow
 		pAction->m_iPosition = -1;
 		pAction->m_fRatio = fRatio;
 		m_lDockActions.push_back(pAction);
+
+		if (bFocus)
+		{
+			FocusWindow(pWindow);
+		}
 	}
 
-	void ImwWindowManager::DockTo(ImwWindow* pWindow, EDockOrientation eOrientation, float fRatio, ImwContainer* pContainer, int iPosition)
+	void ImwWindowManager::DockTo(ImwWindow* pWindow, EDockOrientation eOrientation, float fRatio, ImwContainer* pContainer, int iPosition, bool bFocus)
 	{
 		IM_ASSERT(NULL != pContainer);
 		if (NULL != pContainer)
@@ -291,10 +296,15 @@ namespace ImWindow
 			pAction->m_iPosition = iPosition;
 			pAction->m_fRatio = fRatio;
 			m_lDockActions.push_back(pAction);
+
+			if (bFocus)
+			{
+				FocusWindow(pWindow);
+			}
 		}
 	}
 
-	void ImwWindowManager::DockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation, float fRatio)
+	void ImwWindowManager::DockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation, float fRatio, bool bFocus)
 	{
 		DockAction* pAction = new DockAction();
 		pAction->m_bFloat = false;
@@ -303,6 +313,11 @@ namespace ImWindow
 		pAction->m_eOrientation = eOrientation;
 		pAction->m_fRatio = fRatio;
 		m_lDockActions.push_back(pAction);
+
+		if (bFocus)
+		{
+			FocusWindow(pWindow);
+		}
 	}
 
 	void ImwWindowManager::Float(ImwWindow* pWindow, const ImVec2& oPosition, const ImVec2& oSize)
@@ -317,14 +332,7 @@ namespace ImWindow
 
 	void ImwWindowManager::FocusWindow(ImwWindow* pWindow)
 	{
-		if (!m_pMainPlatformWindow->FocusWindow(pWindow))
-		{
-			for (ImVector<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
-			{
-				if ((*it)->FocusWindow(pWindow))
-					break;
-			}
-		}
+		m_lFocusActions.push_back(pWindow);
 	}
 
 	const ImwWindowVector& ImwWindowManager::GetWindowList() const
@@ -748,6 +756,20 @@ namespace ImWindow
 		UpdatePlatformwWindowActions();
 		UpdateDockActions();
 		UpdateOrphans();
+
+		// Update Focus actions
+		for (ImVector<ImwWindow*>::iterator itFocus = m_lFocusActions.begin(), itFocusEnd = m_lFocusActions.end(); itFocus != itFocusEnd; ++itFocus)
+		{
+			if (!m_pMainPlatformWindow->FocusWindow(*itFocus))
+			{
+				for (ImVector<ImwPlatformWindow*>::iterator it = m_lPlatformWindows.begin(); it != m_lPlatformWindows.end(); ++it)
+				{
+					if ((*it)->FocusWindow(*itFocus))
+						break;
+				}
+			}
+		}
+		m_lFocusActions.clear();
 
 		for (ImwWindowVector::iterator it = m_lToDestroyWindows.begin(), itEnd = m_lToDestroyWindows.end(); it != itEnd; ++it)
 		{

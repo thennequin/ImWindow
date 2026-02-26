@@ -125,9 +125,9 @@ namespace ImWindow
 		void								SetMainTitle(const char* pTitle);
 		const char*							GetMainTitle() const;
 
-		void								Dock(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, float fRatio = 0.5f, ImwPlatformWindow* pToPlatformWindow = NULL);
-		void								DockTo(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, float fRatio = 0.5f, ImwContainer* pContainer = NULL, int iPosition = -1);
-		void								DockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, float fRatio = 0.5f);
+		void								Dock(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, float fRatio = 0.5f, ImwPlatformWindow* pToPlatformWindow = NULL, bool bFocus = true);
+		void								DockTo(ImwWindow* pWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, float fRatio = 0.5f, ImwContainer* pContainer = NULL, int iPosition = -1, bool bFocus = true);
+		void								DockWith(ImwWindow* pWindow, ImwWindow* pWithWindow, EDockOrientation eOrientation = E_DOCK_ORIENTATION_CENTER, float fRatio = 0.5f, bool bFocus = true);
 		void								Float(ImwWindow* pWindow, const ImVec2& oPosition = ImVec2(-1, -1), const ImVec2& oSize = ImVec2(-1, -1));
 
 		void								FocusWindow(ImwWindow* pWindow);
@@ -238,6 +238,7 @@ namespace ImWindow
 		ImwPlatformWindowVector				m_lToDestroyPlatformWindows;
 		ImVector<PlatformWindowAction*>		m_lPlatformWindowActions;
 		ImVector<DockAction*>				m_lDockActions;
+		ImVector<ImwWindow*>				m_lFocusActions;
 		ImVector<DrawWindowAreaAction>		m_lDrawWindowAreas;
 
 		ImwPlatformWindow*					m_pCurrentPlatformWindow;
